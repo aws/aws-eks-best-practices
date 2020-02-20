@@ -109,12 +109,12 @@ rules:
   verbs:
   - get
   ```
-Default role bindings authorize unauthenticated and authenticated users to read API information that is deemed safe to be publicly accessible.
+These role bindings authorize unauthenticated and authenticated users to read API information that is deemed safe to be publicly accessible.
 
 When an application running within a pod has to call the Kubernetes APIs, the pod needs to be assigned a service account that grants it permission to do so.  Similar to guidelines for user access, the Role or ClusterRole bound to the service account should restricted to the APIs that the application needs to function. To use a non-default service account, simply set the `spec.serviceAccountName` field of a pod to the name of the service account you wish to use. For additional information about creating service accounts, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions. 
 
 ### IAM Roles for Service Accounts (IRSA)
-IRSA is a new feature that allows you to assign an IAM role to a Kubernetes Service Account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). Pods with service accounts that reference an IAM Role call a public OIDC discovery endpoint for AWS IAM upon startup. The endpoint cyrptographically signs the OIDC token issued by Kubernetes which ultimately allows the pod to call the AWS APIs associated IAM role. Be aware that IRSA relies on an recent update to the AWS SDKs. The update calls `sts:AssumeRoleWithWebIdentity` and automatically exchanges the Kubernetes issued token for a AWS role credential when an AWS API is invoked. 
+IRSA is a new feature that allows you to assign an IAM role to a Kubernetes Service Account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). Pods with service accounts that reference an IAM Role call a public OIDC discovery endpoint for AWS IAM upon startup. The endpoint cyrptographically signs the OIDC token issued by Kubernetes which ultimately allows the pod to call the AWS APIs associated IAM role. When an AWS API is invoked, the AWS SDKs calls `sts:AssumeRoleWithWebIdentity` and automatically exchanges the Kubernetes issued token for a AWS role credential. 
 
 When you decode the jwt token for IRSA, the body should resemble this: 
 ```
@@ -160,8 +160,12 @@ It is exchanged for a temporary IAM credential that resembles this:
 ```  
 
 A mutating webhook that runs as part of the EKS control plane injects the AWS Role Arn and the path to a web identity token file into the pod as environment variables. 
+```
+AWS_ROLE_ARN=arn:aws:iam::AWS_ACCOUNT_ID:role/IAM_ROLE_NAME
+AWS_WEB_IDENTITY_TOKEN_FILE=/var/run/secrets/eks.amazonaws.com/serviceaccount/token
+```
 
-The kubelet will automatically rotate the token periodically. The AWS SDKs are responsible for reloading the token when it rotates. For additional information about IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html.
+The kubelet will automatically rotate the token periodically. The AWS SDKs are responsible for reloading the token when it rotates. For further information about IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html.
 
 ### Recommendations
 + **Disable automounting of service account tokens**. If your application doesn't need to call the Kubernetes API set the `automountServiceAccountToken` attribute to `false` in the PodSec for your applications or patch the defeault service account in each namespace so that its not automatically mounted into pods. 
