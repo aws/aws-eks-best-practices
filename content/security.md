@@ -64,11 +64,11 @@ While IAM is the preferred way to authenticate users who need access to an EKS c
 
 You can also use [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html) to federate AWS with an external identity provider, e.g. Azure AD. If you decide to use this, the AWS CLI v2.0 includes an option to create a named profile that makes it easy to associate an SSO session with your current CLI session and assume an IAM role. Know that you must assume a role prior to running `kubectl` as the IAM role is used to determine the user's Kubernetes RBAC group.
 
-### Pods and IAM
+### Pods Identities
 Certain applications that run within a Kubernetes cluster need permission to call the Kubernetes API to function properly. For example, the ALB Ingress Controller needs to be able to list a service's endpoints. The controller also needs to be able to invoke AWS APIs to provision and configure an ALB.  In this section we will explore the best practices for assigning rights and privileges to pods. 
 
 #### Kubernetes Service Accounts
-A service account is a special type of object that allows you to assign a Kubernetes RBAC Role to a pod.  A default service account is created for each namespace within the cluster. When you deploy a pod into a namespace without referencing a specific service account, the default service account for that namespace will automatically get assigned to the pod and the secret (service account token) for that service account will get mounted to the pod as a volume at `/var/run/secrets/kubernetes.io/serviceaccount`. If you decode the service account token in that directory you can retrieve a variety of metadata, for example: 
+A service account is a special type of object that allows you to assign a Kubernetes RBAC role to a pod.  A default service account is created for each namespace within a cluster. When you deploy a pod into a namespace without referencing a specific service account, the default service account for that namespace will automatically get assigned to the pod and the secret, i.e. the service account (JWT) token for that service account, will get mounted to the pod as a volume at `/var/run/secrets/kubernetes.io/serviceaccount`. Decoding the service account token in that directory will reveal the following metadata: 
 ```
 {
   "iss": "kubernetes/serviceaccount",
@@ -78,10 +78,9 @@ A service account is a special type of object that allows you to assign a Kubern
   "kubernetes.io/serviceaccount/service-account.uid": "3b36ddb5-438c-11ea-9438-063a49b60fba",
   "sub": "system:serviceaccount:default:default"
 }
-```  
-The cluster certificate (ca.crt) can also be found in this directory. 
+``` 
 
-Be aware that the default service account has the following permissions to the Kubernetes API.
+The default service account has the following permissions to the Kubernetes API.
 ```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -109,14 +108,14 @@ rules:
   verbs:
   - get
   ```
-These role bindings authorize unauthenticated and authenticated users to read API information that is deemed safe to be publicly accessible.
+This role authorizes unauthenticated and authenticated users to read API information and is deemed safe to be publicly accessible.
 
-When an application running within a pod has to call the Kubernetes APIs, the pod needs to be assigned a service account that grants it permission to do so.  Similar to guidelines for user access, the Role or ClusterRole bound to the service account should restricted to the APIs that the application needs to function. To use a non-default service account, simply set the `spec.serviceAccountName` field of a pod to the name of the service account you wish to use. For additional information about creating service accounts, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions. 
+When an application running within a pod calls the Kubernetes APIs, the pod needs to be assigned a service account that grants it permission to do so.  Similar to guidelines for user access, the Role or ClusterRole bound to a service account should be restricted to the API resources and methods that the application needs to function and nothing else. To use a non-default service account simply set the `spec.serviceAccountName` field of a pod to the name of the service account you wish to use. For additional information about creating service accounts, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions. 
 
 #### IAM Roles for Service Accounts (IRSA)
-IRSA is a new feature that allows you to assign an IAM role to a Kubernetes Service Account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). Pods with service accounts that reference an IAM Role call a public OIDC discovery endpoint for AWS IAM upon startup. The endpoint cyrptographically signs the OIDC token issued by Kubernetes which ultimately allows the pod to call the AWS APIs associated IAM role. When an AWS API is invoked, the AWS SDKs calls `sts:AssumeRoleWithWebIdentity` and automatically exchanges the Kubernetes issued token for a AWS role credential. 
+IRSA is a new feature that allows you to assign an IAM role to a Kubernetes service account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). Pods with service accounts that reference an IAM Role call a public OIDC discovery endpoint for AWS IAM upon startup. The endpoint cyrptographically signs the OIDC token issued by Kubernetes which ultimately allows the pod to call the AWS APIs associated IAM role. When an AWS API is invoked, the AWS SDKs calls `sts:AssumeRoleWithWebIdentity` and automatically exchanges the Kubernetes issued token for a AWS role credential. 
 
-When you decode the jwt token for IRSA, the body should resemble this: 
+Decoding the (JWT) token for IRSA will produce output similar to the example you see below: 
 ```
 {
   "aud": [
@@ -140,7 +139,7 @@ When you decode the jwt token for IRSA, the body should resemble this:
   "sub": "system:serviceaccount:default:s3-read-only"
 }
 ```
-It is exchanged for a temporary IAM credential that resembles this: 
+This particular token grants the pod view-only privileges to S3. When the application attempt to read from S3, the token is exchanged for a temporary set of IAM credentials that resembles this: 
 ```
 {
     "AssumedRoleUser": {
@@ -159,30 +158,28 @@ It is exchanged for a temporary IAM credential that resembles this:
 }
 ```  
 
-A mutating webhook that runs as part of the EKS control plane injects the AWS Role Arn and the path to a web identity token file into the pod as environment variables. 
+A mutating webhook that runs as part of the EKS control plane injects the AWS Role Arn and the path to a web identity token file into the pod as environment variables. These values can also be supplied manually. 
 ```
 AWS_ROLE_ARN=arn:aws:iam::AWS_ACCOUNT_ID:role/IAM_ROLE_NAME
 AWS_WEB_IDENTITY_TOKEN_FILE=/var/run/secrets/eks.amazonaws.com/serviceaccount/token
 ```
 
-The kubelet will automatically rotate the token periodically. The AWS SDKs are responsible for reloading the token when it rotates. For further information about IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html.
+The kubelet will automatically rotate the projected token when it is older than 80% of its total TTL, or after 24 hours. The AWS SDKs are responsible for reloading the token when it rotates. For further information about IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html.
 
 #### Recommendations
-+ **Disable automounting of service account tokens**. If your application doesn't need to call the Kubernetes API set the `automountServiceAccountToken` attribute to `false` in the PodSec for your applications or patch the defeault service account in each namespace so that its not automatically mounted into pods. 
++ **Disable auto-mounting of service account tokens**. If your application doesn't need to call the Kubernetes API set the `automountServiceAccountToken` attribute to `false` in the PodSec for your application or patch the default service account in each namespace so that it's no longer mounted to pods automatically. For example: 
     ```
     kubectl patch serviceaccount default -p $'automountServiceAccountToken: false'
     ```
 + **Use dedicated service accounts for each application**. Each application should have its own dedicated service account.  This applies to service accounts for the Kubernetes API as well as IRSA. 
 
-    If you employ a blue/green method for upgrading your cluster, where you create a new cluster running the latest version of Kubernetese alongside the old cluster, you will need to update the trust policy of the IRSA IAM roles with the OIDC endpoint of the new cluster.  
+    If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster. 
 
-+ **Restrict access to the instance profile assigned to the worker node**. When you use IRSA, the pod no longer inherits the rights of the instance profile assigned to the worker node. Nonetheless, as an added precaution you may want to block a process's ability to access EC2 metadata. This will effectively prevent pods that do not use IRSA from inheriting the role assigned to the worker node. Be aware that when you block access to EC2 metadata on a worker node, it may prevent certain pods from functioning properly. For information about how to block access to instance metadata, see https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html.
++ **Restrict access to the instance profile assigned to the worker node**. When you use IRSA, the pod no longer inherits the rights of the instance profile assigned to the worker node. Nonetheless, as an added precaution, you may want to block a process's ability to access EC2 metadata. This will effectively prevent pods that do not use IRSA from inheriting the role assigned to the worker node. Be aware that when you block access to EC2 metadata on a worker node, it may prevent certain pods from functioning properly. For additional information about how to block access to instance metadata, see https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html.
 
-+ **Run the application as a non-root user**. Containers run as root be default. While this allows them to to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.fsGroup` attribute to the PodSpec.  The value of `fsGroup` is abritrary.   
++ **Run the application as a non-root user**. Containers run as root by default. While this allows them to to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.fsGroup` attribute to the PodSpec.  The value of `fsGroup` is abritrary.   
 
-+ **Scope the IAM Role trust policy for IRSA to the service account name**. The trust policy can be scoped to a namespace or a specific service account within a namespace. When using IRSA its best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other pods within the same namespace from assuming the role. 
-
-+ **Consider blocking access to EC2 metadata**. Even though a pod that uses IRSA will no longer inherit the IAM permissions assigned to worker node, you may want to block access to the EC2 Instance Profile Credentials. 
++ **Scope the IAM Role trust policy for IRSA to the service account name**. The trust policy can be scoped to a namespace or a specific service account within a namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other pods within the same namespace from assuming the role. The CLI `eksctl` does this automatically. 
 
 #### Alternative approaches
-While IRSA is the preferred way to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html. If you have an application that you can't immediately update with a compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including kube2iam, kiam, and iam4kube.  While AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA. 
+While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html. If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including kube2iam, kiam, and iam4kube.  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA. 
