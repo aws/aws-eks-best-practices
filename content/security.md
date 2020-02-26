@@ -355,7 +355,7 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 
 + **Do not run processes in containers as root**. All containers run as root by default.  This could be problematic if an attacker is able to exploit a vulnerability in the application and get shell access to the running container.  You can mitigate this risk a variety of ways.  First, by removing the shell from the container image.  Second, adding the USER directive to your Dockerfile or running the containers in the pod as a non-root user.  The Kubernetes podSpec includes a set of fields under spec.securityContext, that allow to let you specify the user and/or group to run your application as.  These fields are runAsUser and runAsGroup respectively.  You can mandate the use of these fields by creating a pod security policy.  See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#users-and-groups for further information on this topic. 
 
-+ **Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only**. hostPath is a volume that mounts a directory from the host directly to the container.  Rarely will pods need this type of access, but if they do, you need to be aware of the risks.  By default pods that run as root will have write access to the file system exposed by hostPath.  This could allow an attacker to modify the kubelet settings, create symbolic links to directories or files not directly exposed by the hostPath, e.g. /etc/shadow, install an ssh keys, and read secrets mounted to the host. To mitigate the risks from hostPath, configure the spec.containers.volumeMounts as readOnly, for example: 
++ **Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only**. hostPath is a volume that mounts a directory from the host directly to the container.  Rarely will pods need this type of access, but if they do, you need to be aware of the risks.  By default pods that run as root will have write access to the file system exposed by hostPath.  This could allow an attacker to modify the kubelet settings, create symbolic links to directories or files not directly exposed by the hostPath, e.g. /etc/shadow, install an ssh keys, read secrets mounted to the host, and other malicious things. To mitigate the risks from hostPath, configure the spec.containers.volumeMounts as readOnly, for example: 
 
     ```
     volumeMounts:
@@ -363,7 +363,7 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
       readOnly: true
       mountPath: /host-path
     ```
-    You should also use a pod security policy to restrict the directories that can be used by hostPath volumes.  For example the following PSP excerpt only allows paths that begin with /foo: 
+    You should also use a pod security policy to restrict the directories that can be used by hostPath volumes.  For example the following PSP excerpt only allows paths that begin with /foo.  It will prevent containers from traversing the host file system from outsude the prefix: 
     ```
     allowedHostPaths:
     # This allows "/foo", "/foo/", "/foo/bar" etc., but
