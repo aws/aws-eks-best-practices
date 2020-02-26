@@ -183,3 +183,191 @@ The kubelet will automatically rotate the projected token when it is older than 
 
 #### Alternative approaches
 While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html. If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including kube2iam, kiam, and iam4kube.  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA. 
+
+## Pod Security
+
+Pods have variety of different settings that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that’s running in a container from escaping the isolation boundaries of Docker and gaining access to the underlying host.  The reason for this is twofold.  First, the processes that run within a container run under the context of the \[Linux\] root by default.  Although the actions of root within a container are constrained by the set of Linux capabilities that Docker assigns to the containers, these default privileges could allow an attacker to escalate their privileges and/or gain access to sensitive information bound to the host, including Secrets and ConfigMaps.  Below is a list of default capabilities assigned to Docker containers.  For additional information about each capability, see http://man7.org/linux/man-pages/man7/capabilities.7.html.
+
+`CAP_CHOWN, CAP_DAC_OVERERIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_SETGID, CAP_SETUID, CAP_SETPCAP, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SYS_CHROOT, CAP_MKNOD, CAP_AUDIT_WRITE, CAP_SETFCAP`
+
+Pods that are run as privileged, inherit _all_ of the Linux capabilities associated with root on the host and should be avoided if possible.
+
+Second, all Kubernetes worker nodes use an authorization mode called the node authorizer.  The node authorizer authorizes all API requests that originate from the kubelet and allows nodes to perform the following actions: 
+
+Read operations:
+
++ services
++ endpoints
++ nodes
++ pods
++ secrets, configmaps, persistent volume claims and persistent volumes related to pods bound to the kubelet’s node
+
+Write operations:
+
++ nodes and node status (enable the `NodeRestriction` admission plugin to limit a kubelet to modify its own node)
++ pods and pod status (enable the `NodeRestriction` admission plugin to limit a kubelet to modify pods bound to itself)
++ events
+
+Auth-related operations:
+
++ read/write access to the certificationsigningrequests API for TLS bootstrapping
++ the ability to create tokenreviews and subjectaccessreviews for delegated authentication/authorization checks
+
+EKS uses the [node restriction admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction) which only allows the node to modify a limited set of node attributes and pod objects that are bound to the node.   Nevertheless, an attacker who manages to get access to the host will be able to glean sensitive information about the environment from the Kubernetes API that could allow them to move laterally within the cluster.
+
+### Recommendations
+
++ **Restrict the containers that can run as privileged**.  As mentioned, containers that run as privileged inherit all of the Linux capabilities assigned to root on the host.  Seldom do containers need these types of privileges to function properly.  You can reject pods with containers configured to run as privileged by creating a [pod security policy](https://kubernetes.io/docs/concepts/policy/pod-security-policy/).  You can think of a pod security policy as a set requirements that pods have to meet before they can be created.  If you elect to use pod security policies, you will need to create a role binding that allows service accounts [or user] to read your pod security policies. 
+
+    When you provision an EKS cluster, a pod security policy called eks.privileged is automatically created.  The manifest for the policy appears below: 
+
+    ```
+    kind: PodSecurityPolicy
+    apiVersion: policy/v1beta1
+    metadata:
+      name: eks.privileged
+      selfLink: /apis/policy/v1beta1/podsecuritypolicies/eks.privileged
+      uid: 36e940ae-438c-11ea-9438-063a49b60fba
+      resourceVersion: '188'
+      creationTimestamp: '2020-01-30T18:13:28Z'
+      labels:
+        eks.amazonaws.com/component: pod-security-policy
+        kubernetes.io/cluster-service: 'true'
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: >
+          {"apiVersion":"policy/v1beta1","kind":"PodSecurityPolicy","metadata":{"annotations":{"kubernetes.io/description":"privileged
+          allows full unrestricted access to pod features, as if the
+          PodSecurityPolicy controller was not
+          enabled.","seccomp.security.alpha.kubernetes.io/allowedProfileNames":"*"},"labels":{"eks.amazonaws.com/component":"pod-security-policy","kubernetes.io/cluster-service":"true"},"name":"eks.privileged"},"spec":{"allowPrivilegeEscalation":true,"allowedCapabilities":["*"],"fsGroup":{"rule":"RunAsAny"},"hostIPC":true,"hostNetwork":true,"hostPID":true,"hostPorts":[{"max":65535,"min":0}],"privileged":true,"readOnlyRootFilesystem":false,"runAsUser":{"rule":"RunAsAny"},"seLinux":{"rule":"RunAsAny"},"supplementalGroups":{"rule":"RunAsAny"},"volumes":["*"]}}
+        kubernetes.io/description: >-
+          privileged allows full unrestricted access to pod features, as if the
+          PodSecurityPolicy controller was not enabled.
+        seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+    spec:
+      privileged: true
+      allowedCapabilities:
+        - '*'
+      volumes:
+        - '*'
+      hostNetwork: true
+      hostPorts:
+        - min: 0
+          max: 65535
+      hostPID: true
+      hostIPC: true
+      seLinux:
+        rule: RunAsAny
+      runAsUser:
+        rule: RunAsAny
+      supplementalGroups:
+        rule: RunAsAny
+      fsGroup:
+        rule: RunAsAny
+      allowPrivilegeEscalation: true
+    ```
+    This policy has the following role binding: 
+
+    ```
+    kind: ClusterRoleBinding
+    apiVersion: rbac.authorization.k8s.io/v1
+    metadata:
+      name: 'eks:podsecuritypolicy:authenticated'
+      selfLink: >-
+        /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/eks%3Apodsecuritypolicy%3Aauthenticated
+      uid: 36eb5bd0-438c-11ea-9438-063a49b60fba
+      resourceVersion: '190'
+      creationTimestamp: '2020-01-30T18:13:28Z'
+      labels:
+        eks.amazonaws.com/component: pod-security-policy
+        kubernetes.io/cluster-service: 'true'
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: >
+          {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{"kubernetes.io/description":"Allow
+          all authenticated users to create privileged
+          pods."},"labels":{"eks.amazonaws.com/component":"pod-security-policy","kubernetes.io/cluster-service":"true"},"name":"eks:podsecuritypolicy:authenticated"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"eks:podsecuritypolicy:privileged"},"subjects":[{"apiGroup":"rbac.authorization.k8s.io","kind":"Group","name":"system:authenticated"}]}
+        kubernetes.io/description: Allow all authenticated users to create privileged pods.
+    subjects:
+      - kind: Group
+        apiGroup: rbac.authorization.k8s.io
+        name: 'system:authenticated'
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: 'eks:podsecuritypolicy:privileged'
+    ```
+
+    This effectively allows an authenticated user to run privileged containers across all namespaces within the cluster.  While this may seem overly permissive, there are certain applications/plug-ins such as the AWS VPC CNI and kube-proxy that have to run as privileged because they are responsible for configuring the host’s network settings. Furthermore, this policy provides backward compatibility with earlier versions of Kubernetes that lacked support for pod security policies. 
+
+    As a best practice, however, we recommend that you scope the binding for privileged pods to service accounts within a particular namespace, e.g. kube-system, and limiting access to that namespace.  For all other serviceaccounts/namespaces, we recommend implementing a restrictive policy such as this: 
+
+    ```
+    apiVersion: policy/v1beta1
+    kind: PodSecurityPolicy
+    metadata:
+      name: restricted
+      annotations:
+        seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
+        apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+        seccomp.security.alpha.kubernetes.io/defaultProfileName:  'runtime/default'
+        apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+    spec:
+      privileged: false
+      # Required to prevent escalations to root.
+      allowPrivilegeEscalation: false
+      # This is redundant with non-root + disallow privilege escalation,
+      # but we can provide it for defense in depth.
+      requiredDropCapabilities:
+        - ALL
+      # Allow core volume types.
+      volumes:
+        - 'configMap'
+        - 'emptyDir'
+        - 'projected'
+        - 'secret'
+        - 'downwardAPI'
+        # Assume that persistentVolumes set up by the cluster admin are safe to use.
+        - 'persistentVolumeClaim'
+      hostNetwork: false
+      hostIPC: false
+      hostPID: false
+      runAsUser:
+        # Require the container to run without root privileges.
+        rule: 'MustRunAsNonRoot'
+      seLinux:
+        # This policy assumes the nodes are using AppArmor rather than SELinux.
+        rule: 'RunAsAny'
+      supplementalGroups:
+        rule: 'MustRunAs'
+        ranges:
+          # Forbid adding the root group.
+          - min: 1
+            max: 65535
+      fsGroup:
+        rule: 'MustRunAs'
+        ranges:
+          # Forbid adding the root group.
+          - min: 1
+            max: 65535
+      readOnlyRootFilesystem: false
+    ```
+
+    This policy prevents pods from running as privileged or escalating privileges.  It also restricts the types of volumes that can be mounted and root supplemental groups that can be added. 
+
++ **Do not run processes in containers as root**. All containers run as root by default.  This could be problematic if an attacker is able to exploit a vulnerability in the application and get shell access to the running container.  You can mitigate this risk a variety of ways.  First, by removing the shell from the container image.  Second, adding the USER directive to your Dockerfile or running the containers in the pod as a non-root user.  The Kubernetes podSpec includes a set of fields under spec.securityContext, that allow to let you specify the user and/or group to run your application as.  These fields are runAsUser and runAsGroup respectively.  You can mandate the use of these fields by creating a pod security policy.  See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#users-and-groups for further information on this topic. 
+
++ **Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only**. hostPath is a volume that mounts a directory from the host directly to the container.  Rarely will pods need this type of access, but if they do, you need to be aware of the risks.  By default pods that run as root will have write access to the file system exposed by hostPath.  This could allow an attacker to modify the kubelet settings, create symbolic links to directories or files not directly exposed by the hostPath, e.g. /etc/shadow, install an ssh keys, and read secrets mounted to the host. To mitigate the risks from hostPath, configure the spec.containers.volumeMounts as readOnly, for example: 
+
+    ```
+    volumeMounts:
+    - name: hostPath-volume
+      readOnly: true
+      mountPath: /host-path
+    ```
+
+
+
+
+## Image security
+
+**Remove extraneous binaries from the container image**.
+
