@@ -363,9 +363,15 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
       readOnly: true
       mountPath: /host-path
     ```
-
-
-
+    You should also use a pod security policy to restrict the directories that can be used by hostPath volumes.  For example the following PSP excerpt only allows paths that begin with /foo: 
+    ```
+    allowedHostPaths:
+    # This allows "/foo", "/foo/", "/foo/bar" etc., but
+    # disallows "/fool", "/etc/foo" etc.
+    # "/foo/../" is never valid.
+    - pathPrefix: "/foo"
+      readOnly: true # only allow read-only mounts
+    ```
 
 ## Image security
 
