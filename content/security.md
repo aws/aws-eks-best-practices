@@ -372,9 +372,25 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
     - pathPrefix: "/foo"
       readOnly: true # only allow read-only mounts
     ```
-+ **Set requests and limits for each container to avoid resource contention and DoS attacks**. 
++ **Set requests and limits for each container to avoid resource contention and DoS attacks**. A pod without requests or limits can theoretically consume all of the resources available on a host.  As additional pods are scheduled onto a node, the node may experience CPU or memory pressure which can cause the Kubelet to terminate or evict pods from the node.  While you can’t prevent this from happening, setting requests and limits will help minimize resource contention and mitigate the risk from poorly written applications that consume an excessive amount of resources. 
 
-+ **Do not allow privileged esclation**. 
+    The podSpec allows you to specify requests and limits for CPU and memory.  CPU is considered a compressible resource because it can be oversubscribed.  Memory is incompressible, i.e. it cannot be shared among multiple containers.  
+
+    When you specify requests for CPU or memory, you’re essentially designating the amount of memory that containers are guaranteed to get.  Kubernetes aggregates the requests of all the containers in a pod to determine which node to schedule the pod onto.  If a container exceeds the requested amount of memory it may be subject to termination if there’s memory pressure on the node. 
+
+    Limits are the maximum amount of CPU and memory resources that a container is allowed to consume and directly corresponds to the memory.limit_in_bytes value of the cgroup created for the container.  A container that exceeds the memory limit will be OOM killed. If a container exceeds its CPU limit, it will be throttled. 
+
+    Kubernetes uses 3 Quality of Service (QoS) classes to prioritize the workloads running on a node.  These include: guaranteed, burstable, and best effort.  If limits and requests are not set, the pod is configured as burstable (lowest priority).  Burstable pods are the first to get killed when there is insufficient memory.  
+ 
+    If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values, the pod is configured as guaranteed (higheest priority).  Guaranteed pods will not be killed until they exceed their configured memory limits.
+
+    If the limits and requests are configured with different values, or 1 container within the pod sets limits and the don’t, or have limits set for different resources, the pods are configured as burstable (medium priority).  These pods have some resource guarantees, but can be killed once they exceed their requested memory.  Be aware that requests doesn’t actually affect the memory_limit_in_bytes value of the cgroup; the limit is actually set to the amount of memory available on the host. Nevertheless, setting the requests value too low could cause the pod to be targeted for termination if the node experiences memory pressure. 
+
+    For additional information about resource QoS, see https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md
+
+    You can force the use of requests and limits by setting a [resource quota] (https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range] (https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it’s applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. Limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.  
+
++ **Do not allow privileged escalation**. Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this or frankly any binary with the SETUID or SETGID flag.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from privileged by implementing a pod security policy that sets `allowPriviledgedEscalation` to false or by setting `securityContext.allowPrivilegedEscalation` in the podSpec.  
 
 ## Image security
 
