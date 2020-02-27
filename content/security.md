@@ -372,6 +372,7 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
     - pathPrefix: "/foo"
       readOnly: true # only allow read-only mounts
     ```
++ **Set requests and limits for each container to avoid resource contention and DoS attacks**. 
 
 ## Image security
 
