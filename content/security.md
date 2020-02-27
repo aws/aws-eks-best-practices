@@ -177,7 +177,7 @@ The kubelet will automatically rotate the projected token when it is older than 
 
 + **Restrict access to the instance profile assigned to the worker node**. When you use IRSA, the pod no longer inherits the rights of the instance profile assigned to the worker node. Nonetheless, as an added precaution, you may want to block a process's ability to access EC2 metadata. This will effectively prevent pods that do not use IRSA from inheriting the role assigned to the worker node. Be aware that when you block access to EC2 metadata on a worker node, it may prevent certain pods from functioning properly. For additional information about how to block access to instance metadata, see https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html.
 
-+ **Run the application as a non-root user**. Containers run as root by default. While this allows them to to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.fsGroup` attribute to the PodSpec.  The value of `fsGroup` is abritrary.   
++ **Run the application as a non-root user**. Containers run as root by default. While this allows them to to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.runAsUser` attribute to the PodSpec.  The value of `runAsUser` is abritrary value.   
 
 + **Scope the IAM Role trust policy for IRSA to the service account name**. The trust policy can be scoped to a namespace or a specific service account within a namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other pods within the same namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See https://eksctl.io/usage/iamserviceaccounts/ for futher information. 
 
@@ -373,6 +373,8 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
       readOnly: true # only allow read-only mounts
     ```
 + **Set requests and limits for each container to avoid resource contention and DoS attacks**. 
+
++ **Do not allow privileged esclation**. 
 
 ## Image security
 
