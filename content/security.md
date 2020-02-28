@@ -388,19 +388,22 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 
 + **Do not allow privileged escalation**. Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this as are binaries with the SETUID or SETGID flag.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from privileged by implementing a pod security policy that sets `allowPriviledgedEscalation` to false or by setting `securityContext.allowPrivilegedEscalation` in the podSpec.  
 
+### Resources
++ [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor) is a tool that makes it easier to create K8s Pod Security Policies (PSPs) from either a live K8s environment or from a single .yaml file containing a pod specification (Deployment, DaemonSet, Pod, etc).
+
 ## Image security
 
-**Remove extraneous binaries from the container image**.
-**Sign your images**
-**Use multi-stage builds**
-**Scan images for vulnerabilities regularly**
-**Create IAM policies for ECR repositories**
-**Implement endpoint policy for ECR**
-**Consider using ECR private endpoints**
-**Create a set of curated images**
-**Make use of the USER directive to run as a non-root user**
-**Lint your Dockerfiles**
-**Build images from Scratch**
++ **Remove extraneous binaries from the container image**.
++ **Sign your images**
++ **Use multi-stage builds**
++ **Scan images for vulnerabilities regularly**
++ **Create IAM policies for ECR repositories**
++ **Implement endpoint policy for ECR**
++ **Consider using ECR private endpoints**
++ **Create a set of curated images**
++ **Make use of the USER directive to run as a non-root user**
++ **Lint your Dockerfiles**
++ **Build images from Scratch**
 
 ## Tenant Isolation
 ### Soft multi-tenancy
@@ -418,7 +421,14 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 
 ## Runtime security 
 
-## Secrets Management
+## Secrets management
+Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as a base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the podSpec can can be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. It is worth mentioning that secrets in a particular namespace can be referenced by all pods in the secret's namespace.
+
+### Recommendations
++ **Use separate namespaces as a way to isolate secrets from different applications**. If you have secrets that cannot be shared between applications in a namespace, create a separate namespace.  
++ **Use volume mounts instead of environment variables**. The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
++ **Use an external secrets provider**. There are several viable alternatives to using Kubernetes secrets, include Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and Hashicorp's [Vault](
+https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). You could also use the sidecar approach that Vault uses to fetch a secret from AWS Secrets Manager, as in this example https://github.com/jicowan/secret-sidecar.  
 
 ## Protecting the infrastructure (hosts)
 
