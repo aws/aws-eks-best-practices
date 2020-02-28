@@ -429,6 +429,9 @@ Kubernetes secrets are used to store sensitive information, such as user certifi
 + **Use volume mounts instead of environment variables**. The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
 + **Use an external secrets provider**. There are several viable alternatives to using Kubernetes secrets, include Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and Hashicorp's [Vault](
 https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). You could also use the sidecar approach that Vault uses to fetch a secret from AWS Secrets Manager, as in this example https://github.com/jicowan/secret-sidecar.  
++ **Audit the use of secrets**. On EKS, turn on audit logging and create a CloudWatch alarm to alert you when a secret is used.  Alternatively, you can use a solution like [ekscloudwatch](https://github.com/sysdiglabs/ekscloudwatch) to stream the logs to [Falco](https://falco.org/docs/event-sources/kubernetes-audit/) and create events when secrets are read.    
++ **Rotate your secrets periodically**. Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets, consider using an external secret store, e.g. Vault. 
++ **Use AWS KMS for envelop encryption of Kubernetes secrets** ([coming soon](https://github.com/aws/containers-roadmap/issues/530)). This is where Kubernetes uses a data encryption key to encrypt the secret and that key is encypted using a key encryption key from AWS KMS.  A new data encryption key is created for each secret and the key encryption key is rotated on a recurring schedule. With the KMS plugin, Kubernetes secrets are stored in ciphertext and can only be decrypted by the Kubernetes API server. 
 
 ## Protecting the infrastructure (hosts)
 
