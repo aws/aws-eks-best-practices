@@ -386,9 +386,45 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 
     You can force the use of requests and limits by setting a [resource quota] (https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range] (https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it’s applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. Limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.  
 
-+ **Do not allow privileged escalation**. Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this or frankly any binary with the SETUID or SETGID flag.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from privileged by implementing a pod security policy that sets `allowPriviledgedEscalation` to false or by setting `securityContext.allowPrivilegedEscalation` in the podSpec.  
++ **Do not allow privileged escalation**. Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this as are binaries with the SETUID or SETGID flag.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from privileged by implementing a pod security policy that sets `allowPriviledgedEscalation` to false or by setting `securityContext.allowPrivilegedEscalation` in the podSpec.  
 
 ## Image security
 
 **Remove extraneous binaries from the container image**.
+**Sign your images**
+**Use multi-stage builds**
+**Scan images for vulnerabilities regularly**
+**Create IAM policies for ECR repositories**
+**Implement endpoint policy for ECR**
+**Consider using ECR private endpoints**
+**Create a set of curated images**
+**Make use of the USER directive to run as a non-root user**
+**Lint your Dockerfiles**
+**Build images from Scratch**
+
+## Tenant Isolation
+### Soft multi-tenancy
+### Hard multi-tenancy
+
+## Auditing and logging
+
+
+## Network security
+### Network policy
+### Security groups
+### Encryption in transit
+
+## Data encryption 
+
+## Runtime security 
+
+## Secrets Management
+
+## Protecting the infrastructure (hosts)
+
+## Compliance
+
+## Incident response and forensics
+
+
 
