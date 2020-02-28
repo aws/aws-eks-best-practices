@@ -424,6 +424,8 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 ## Secrets management
 Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as a base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the podSpec can can be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. It is worth mentioning that secrets in a particular namespace can be referenced by all pods in the secret's namespace.
 
+Note: The node authorizer allows the Kubelet to read all of the secrets mounted to the node. 
+
 ### Recommendations
 + **Use separate namespaces as a way to isolate secrets from different applications**. If you have secrets that cannot be shared between applications in a namespace, create a separate namespace.  
 + **Use volume mounts instead of environment variables**. The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
