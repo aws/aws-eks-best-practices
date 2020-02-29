@@ -433,7 +433,23 @@ Kubernetes secrets are used to store sensitive information, such as user certifi
 + **Use volume mounts instead of environment variables**. The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
 + **Use an external secrets provider**. There are several viable alternatives to using Kubernetes secrets, include Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and Hashicorp's [Vault](
 https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). Unlike Kubernetes secrets which can be shared amongst all of the pods within a namespace, Vault gives you the ability to limit access to particular pods through the use of Kubernetes service accounts.  It also has support for secret rotation.  If Vault is not to your liking, you can use similar approach with AWS Secrets Manager, as in this example https://github.com/jicowan/secret-sidecar.  
-+ **Audit the use of secrets**. On EKS, turn on audit logging and create a CloudWatch metrics filter and alarm to alert you when a secret is used. The following is an example of a metrics filter for the Kubernetes audit log: `{($.verb="get") && ($.objectRef.resource="secret")}`    
++ **Audit the use of secrets**. On EKS, turn on audit logging and create a CloudWatch metrics filter and alarm to alert you when a secret is used. The following is an example of a metrics filter for the Kubernetes audit log: `{($.verb="get") && ($.objectRef.resource="secret")}`.  You can also use the following queries with log insights: 
+    ```
+    fields @timestamp, @message
+    | sort @timestamp desc
+    | limit 100
+    | stats count(*) by objectRef.name as secret
+    | filter verb="get" and objectRef.resource="secrets"
+    ```
+    The above query will display the number of times a secret has been accessed. 
+    ```
+    fields @timestamp, @message
+    | sort @timestamp desc
+    | limit 100
+    | filter verb="get" and objectRef.resource="secrets"
+    | display objectRef.namespace, objectRef.name, user.username, responseStatus.code
+    ```
+    This query will display the secret, along with the namespace, the username of the user who attempted to access the secret and the response code. 
 + **Rotate your secrets periodically**. Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets, consider using an external secret store, e.g. Vault. 
 + **Use AWS KMS for envelop encryption of Kubernetes secrets** ([coming soon](https://github.com/aws/containers-roadmap/issues/530)). When this option becomes available, Kubernetes will encrypt your secrets with a unique data encryption key (DEK). The DEK is then encypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. 
 
