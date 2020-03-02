@@ -76,7 +76,7 @@ When autosclaing, always know the EC2 limits in your account and if the limits n
 You can use [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA) to autoscale the applications running in your cluster. HPA uses metrics such as CPU utilization or custom metrics provided by the application to scale the pods. It is also possible to scale pods using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
 metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
 
-Before you can use HPA to autoscaling your applications, you will need to [install metrics server](https://aws.amazon.com/premiumsupport/knowledge-center/eks-metrics-server-pod-autoscaler/).
+Before you can use HPA to autoscale your applications, you will need to [install metrics server](https://aws.amazon.com/premiumsupport/knowledge-center/eks-metrics-server-pod-autoscaler/).
 
 
 ### Health checks
