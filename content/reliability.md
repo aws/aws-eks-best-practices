@@ -38,7 +38,54 @@ Since Amazon VPC CNI assigns an IP addresses from one of the subnets from your V
 ### Scaling Kubernetes applications
 When it comes to scaling your applications in Kubernetes, you need to think about two components in your application architecture, first your Kubernetes Worker Nodes and the application pods themselves.
 
-/Kubernetes Cluster Autoscaler/
-/HPA & Metrics Server/
-/Nodegroups/
-/multi-az vs single-az nodegroups/
+There are two common ways to scale worker nodes in EKS. 
+
+1. [Cluster Autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md) 
+2. [EC2 Auto Scaling Groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html)
+
+
+### Scaling Kubernetes worker nodes
+Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your Kubernetes cluster when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate
+it. 
+
+Cluster Autoscaler uses EC2 Auto Scaling groups (ASG) to adjust the size of the cluster. Typically all worker nodes are part of an auto scaling group. You may have multiple ASGs within a cluster. For example, if you co-locate two distinct workloads in your cluster you may want to use two different types of EC2 instances, each suited for its workload. In this case you would have two auto scaling groups.
+
+Another reason for having multiple ASGs is if you use EBS to provide persistent
+volumes for your pods or using statefulsets. At the time of writing, EBS volumes are only available within a single AZ. When your pods use EBS for storage, they need to reside in the same AZ as the EBS volume. In other words, a pod running in an AZ cannot access EBS volumes in another AZ. For this reason the scheduler needs to know that if a pod that uses an EBS volume crashes or gets terminated, it needs to be scheduled on a worker node in the same AZ, or else it will not be able to
+access the volume. 
+
+Using [EFS](https://github.com/kubernetes-sigs/aws-efs-csi-driver) can simplify cluster autoscaling when running applications that need persistent storage. In EFS, a file system can be concurrently accessed from all the AZs in the region, this means if you persistent storage using pod ceases to exist, and is resurrected in another AZ, it will still have access to the data stored by its predecessor.
+
+If you are using EBS, then you should create one autoscaling group for each AZ. If you use managed nodegroups, then you should create nodegroup per AZ. In addition, you should enable the `--balance-similar-node-groups feature` in Cluster Autoscaler.
+
+So you will need multiple autoscaling groups if you are:
+
+1. running worker nodes using a mix of EC2 instance families or purchasing options (on demand or spot)
+2. using EBS volumes.
+
+If you are running an application that uses EBS volume but has no requirements to be highly available then you may also choose to restrict your deployment of the application to a single AZ. To do this you will need to have an autoscaling group that only includes subnet(s) in a single AZ. Then you can constraint the application's pods to run on nodes with particular labels. In EKS worker nodes are automatically added `failure-domain.beta.kubernetes.io/zone` label which contains the name of the AZ. You can see all the labels attached to your nodes by running `kubectl describe nodes {name-of-the-node}`. More information about built-in node labels is available [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#built-in-node-labels). Similarly persistent volumes (backed by EBS) are also automatically labeled with AZ name, you can see which AZ your persistent volume belongs to by running `kubectl get nodes -L topology.ebs.csi.aws.com/zone`. When a pod is created and it claims a volume, Kubernetes will schedule the pod on a node in the same AZ as the volume. 
+
+Consider this scenario, you have an EKS cluster with one node group (or one autoscaling group), this node group has three worker nodes spread across three AZs. You have an application that needs to persist its data using an EBS volume. When you create this application and the corresponding volume, it gets created in the first of the three AZs. Your application running inside a Kubernetes pod is successfully able to store data on the persistent volume. Then, the worker node that runs this aforementioned pod becomes unhealthy and subsequently unavailable for use. Cluster Autoscaler will replace the unhealthy node with a new worker node, however because the autoscaling group spans across three AZs, the new worker node may get launched in the second or the third AZ, but not in the first AZ as our situation demands. Now we have a problem, the AZ-constrained volume only exists in the first AZ, but there are no worker nodes available in that AZ and hence, the pod cannot be scheduled. And due to this, you will have to create one node group in each AZ so there is always enough capacity available to run pods that cannot function in other AZs. 
+
+
+Note:
+When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
+
+
+### Scaling Kubernetes pods
+You can use [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA) to autoscale the applications running in your cluster. HPA uses metrics such as CPU utilization or custom metrics provided by the application to scale the pods. It is also possible to scale pods using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
+metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
+
+Before you can use HPA to autoscaling your applications, you will need to [install metrics server](https://aws.amazon.com/premiumsupport/knowledge-center/eks-metrics-server-pod-autoscaler/).
+
+
+### Health checks
+
+### Observability 
+
+### Service Meshes
+
+### CI/CD
+
+### Simulating failure
+
