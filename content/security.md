@@ -411,6 +411,8 @@ You should consider the container image as your first line of defense against an
     + [Anchore](https://docs.anchore.com/current/)
     + [Twistlock](https://www.twistlock.com/)
     + [Aqua](https://www.aquasec.com/)
+    
+    A kubernetes validation webhook could also be used to validate that images are free of critical vulnerabilities.  Validation webhooks are invoked prior to the Kubernetes API.  They are typically used to reject requests that don't comply with the validation criteria defined in the webhook.  [This](https://github.com/jicowan/ecr-validation-webhook) is an example of a serverless webhook that calls the ECR describeImageScanFindings API to deteremine whether a pod is pulling an image with critical vulnerabilities.  If vulnerabilities are found, the pod is rejected and a message with list of CVEs is returned as an  event.
 
 + **Create IAM policies for ECR repositories**.
 + **Implement endpoint policy for ECR**.
