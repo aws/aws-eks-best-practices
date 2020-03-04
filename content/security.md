@@ -392,18 +392,33 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 + [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor) is a tool that makes it easier to create K8s Pod Security Policies (PSPs) from either a live K8s environment or from a single .yaml file containing a pod specification (Deployment, DaemonSet, Pod, etc).
 
 ## Image security
+You should consider the container image as your first line of defense against an attack. An insecure, poorly constructed image can allow an attacker to escape the bounds of the container and gain access to the host.  Once on the host, an attacker can gain access to sensitive information or move laterally within the cluster or with your AWS account.  The following best practices will help mitigate risk of this happening. 
 
-+ **Remove extraneous binaries from the container image**.
++ **Create minimal images**. Start by removing all extraneous binaries from the container image.  If you’re using an unfamiliar image from Dockerhub, inspect the image using an application like Dive (https://github.com/wagoodman/dive) which can show you the contents of each of the container’s layers.  Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
+    ```
+    find / -perm +6000 -type f -exec ls -ld {} \;
+    ```
+    To remove the special permissions from these files, add the following directive to your container image:
+    ```
+    RUN find / -xdev -perm +6000 -type f -exec chmod a-s {} \; || true
+    ```
+    Colloquially, this is known as de-fanging your image. 
 + **Sign your images**
 + **Use multi-stage builds**
-+ **Scan images for vulnerabilities regularly**
-+ **Create IAM policies for ECR repositories**
-+ **Implement endpoint policy for ECR**
-+ **Consider using ECR private endpoints**
-+ **Create a set of curated images**
-+ **Make use of the USER directive to run as a non-root user**
-+ **Lint your Dockerfiles**
-+ **Build images from Scratch**
++ **Scan images for vulnerabilities regularly**. Like their VM counterparts, container images can contain binaries and application libraries with vulnerabilities or develop vulnerabilities over time.  The best way to safeguard against exploits is by regularly scanning your images with an image scanner.  Images that are stored in Amazon ECR can be scanned on push or on-demand (once during a 24 hour period). ECR currently leverages Clair (https://github.com/quay/clair) an open source image scanning solution.  After an image is scanned, the results are logged to the event stream for ECR in EventBridge. You can also see the results of a scan from within the ECR console.  Images with a HIGH or CRITICAL vulnerability should be deleted or rebuilt.  If an image that has been deployed develops a vulnerability, it should be replaced as soon as possible. 
+
+    Knowing where images with vulnerabilities have been deployed is essential to keeping your environment secure.  While you could conceivably build an image tracking solution yourself, there are already several commercial offerings that provide this and other advanced capabilities out of the box, including:
+    + [Anchore](https://docs.anchore.com/current/)
+    + [Twistlock](https://www.twistlock.com/)
+    + [Aqua](https://www.aquasec.com/)
+
++ **Create IAM policies for ECR repositories**.
++ **Implement endpoint policy for ECR**.
++ **Consider using ECR private endpoints**.
++ **Create a set of curated images**.
++ **Add the `USER` directive to your Dockerfiles to run as a non-root user.**  As was mentioned in the pod security section, you should avoid running container as root.  While you can configure this as part of the podSpec, it is a good practice to use the `USER` directive to your Dockerfiles.  The `USER` directive sets the UID to use when running `RUN`, `ENTRYPOINT`, or `CMD` instruction that appears after the USER directive.
++ **Lint your Dockerfiles**. Linting can be used to verify that your Dockerfiles are adhering to a set of predefined guidelines, e.g. the inclusion of the `USER` directive or the requirement that all images be tagged.  [dockerfile_lint](https://github.com/projectatomic/dockerfile_lint) is an open source project from RedHat that verifies common best practices and includes a rule engine that you can use to build your own rules for linting Dockerfiles. It can be incorporated into a CI pipeline, in that builds with Dockerfiles that violate a rule will automatically fail. 
++ **Build images from Scratch**.
 
 ### Tools
 + Bane
