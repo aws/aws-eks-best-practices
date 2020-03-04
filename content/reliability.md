@@ -76,7 +76,22 @@ When autosclaing, always know the EC2 limits in your account and if the limits n
 You can use [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA) to autoscale the applications running in your cluster. HPA uses metrics such as CPU utilization or custom metrics provided by the application to scale the pods. It is also possible to scale pods using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
 metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
 
-Before you can use HPA to autoscale your applications, you will need to [install metrics server](https://aws.amazon.com/premiumsupport/knowledge-center/eks-metrics-server-pod-autoscaler/).
+Before you can use HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data*.It is responsible for collecting resource metrics from kubelets and exposing them in Kubernetes Apiserver through [Metrics API](https://github.com/kubernetes/metrics). 
+
+You can find the instructions to install Kubernetes Metrics Server [here](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html).
+
+By default, HPA controller retrieves metrics from a series of APIs. For resource metrics, this is the `metrics.k8s.io` API, generally provided by metrics-server. You can see data provided by metrics-server api directly using curl like this 
+
+```
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"       
+{"kind":"NodeMetricsList","apiVersion":"metrics.k8s.io/v1beta1","metadata":{"selfLink":"/apis/metrics.k8s.io/v1beta1/nodes"},"items"
+:[{"metadata":{"name":"ip-192-168-76-71.us-west-2.compute.internal","selfLink":"/apis/metrics.k8s.io/v1beta1/nodes/ip-192-168-76-71.
+us-west-2.compute.internal","creationTimestamp":"2020-03-04T16:29:47Z"},"timestamp":"2020-03-04T16:29:35Z","window":"30s","usage":{"
+cpu":"25468986n","memory":"481412Ki"}},{"metadata":{"name":"ip-192-168-50-160.us-west-2.compute.internal","selfLink":"/apis/metrics.
+k8s.io/v1beta1/nodes/ip-192-168-50-160.us-west-2.compute.internal","creationTimestamp":"2020-03-04T16:29:47Z"},"timestamp":"2020-03-
+04T16:29:29Z","window":"30s","usage":{"cpu":"27248899n","memory":"467580Ki"}}]}"
+"}}]}
+```
 
 
 ### Health checks
