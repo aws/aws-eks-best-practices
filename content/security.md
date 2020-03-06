@@ -473,7 +473,32 @@ You should consider the container image as your first line of defense against an
 
 + **Lint your Dockerfiles**. Linting can be used to verify that your Dockerfiles are adhering to a set of predefined guidelines, e.g. the inclusion of the `USER` directive or the requirement that all images be tagged.  [dockerfile_lint](https://github.com/projectatomic/dockerfile_lint) is an open source project from RedHat that verifies common best practices and includes a rule engine that you can use to build your own rules for linting Dockerfiles. It can be incorporated into a CI pipeline, in that builds with Dockerfiles that violate a rule will automatically fail. 
 
-+ **Build images from Scratch**.
++ **Build images from Scratch**. Reducing the attack surface of your container images should be primary aim when building images.  The ideal way to do this is by creating minimal images that are devoid of binaries that can be used to exploit vulnerabilities. Fortunately, Docker has a mechanism to create images from [`scratch`](https://docs.docker.com/develop/develop-images/baseimages/#create-a-simple-parent-image-using-scratch). With langages like Go, you can create a static linked binary and reference it in your Dockerfile as in this example: 
+  ```
+  ############################
+  # STEP 1 build executable binary
+  ############################
+  FROM golang:alpine AS builder
+  # Install git.
+  # Git is required for fetching the dependencies.
+  RUN apk update && apk add --no-cache git
+  WORKDIR $GOPATH/src/mypackage/myapp/
+  COPY . .
+  # Fetch dependencies.
+  # Using go get.
+  RUN go get -d -v
+  # Build the binary.
+  RUN go build -o /go/bin/hello
+  ############################
+  # STEP 2 build a small image
+  ############################
+  FROM scratch
+  # Copy our static executable.
+  COPY --from=builder /go/bin/hello /go/bin/hello
+  # Run the hello binary.
+  ENTRYPOINT ["/go/bin/hello"]
+  ```
+  This creates a container image that consists of your application and nothing else, making it extremely secure.  
 
 ### Tools
 + Bane
