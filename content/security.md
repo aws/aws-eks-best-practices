@@ -392,24 +392,54 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 + [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor) is a tool that makes it easier to create K8s Pod Security Policies (PSPs) from either a live K8s environment or from a single .yaml file containing a pod specification (Deployment, DaemonSet, Pod, etc).
 
 ## Image security
+You should consider the container image as your first line of defense against an attack. An insecure, poorly constructed image can allow an attacker to escape the bounds of the container and gain access to the host.  Once on the host, an attacker can gain access to sensitive information or move laterally within the cluster or with your AWS account.  The following best practices will help mitigate risk of this happening. 
 
-+ **Remove extraneous binaries from the container image**.
-+ **Sign your images**
-+ **Use multi-stage builds**
-+ **Scan images for vulnerabilities regularly**
-+ **Create IAM policies for ECR repositories**
-+ **Implement endpoint policy for ECR**
-+ **Consider using ECR private endpoints**
-+ **Create a set of curated images**
-+ **Make use of the USER directive to run as a non-root user**
-+ **Lint your Dockerfiles**
-+ **Build images from Scratch**
++ **Create minimal images**. Start by removing all extraneous binaries from the container image.  If you’re using an unfamiliar image from Dockerhub, inspect the image using an application like Dive (https://github.com/wagoodman/dive) which can show you the contents of each of the container’s layers.  Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
+    ```
+    find / -perm +6000 -type f -exec ls -ld {} \;
+    ```
+    To remove the special permissions from these files, add the following directive to your container image:
+    ```
+    RUN find / -xdev -perm +6000 -type f -exec chmod a-s {} \; || true
+    ```
+    Colloquially, this is known as de-fanging your image. 
+
++ **Considering signing your images**. When Docker was first introduced, there was no cryptographic model for verifying container images.  With v2, Docker added digests to the image manifest. This allowed an image’s configuration to be hashed and for the hash to be used to generate an ID for the image.  When image signing is enabled, the \[Docker\] engine verifies the manifest’s signature, ensuring that the content was produced from a trusted source and no tampering has occurred. After each layer is downloaded, the engine verifies the digest of the layer, ensuring that the content matches the content specified in the manifest.  Image signing  effectively allows you to create a secure supply chain, through the verification of digital signatures associated with the image. 
+
+  In a Kubernetes environment, you can use an admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
+  
+### Tools
+  + [Notary](https://github.com/theupdateframework/notary)
+  + [Grafeas](https://grafeas.io/)
+
++ **Use multi-stage builds**.  Using multi-stage builds is a way to create minimal images. Oftentimes, multi-stage builds are used to automate parts of the Continuous Integration cycle.  For example, multi-stage builds can be used to lint your source code or perform static code analysis.  This affords developers an opportunity to get near immediate feedback instead of waiting for a pipeline to execute.  Multi-stage builds are attractive from a security standpoint because they allow you to minimize the size of the final image pushed to your container registry.  Container images devoid of build tools and other extraneous binaries decreases improves your security posture by reducing the attack surface of the image. For additional information about multi-stage builds, see https://docs.docker.com/develop/develop-images/multistage-build/.
+
++ **Scan images for vulnerabilities regularly**. Like their VM counterparts, container images can contain binaries and application libraries with vulnerabilities or develop vulnerabilities over time.  The best way to safeguard against exploits is by regularly scanning your images with an image scanner.  Images that are stored in Amazon ECR can be scanned on push or on-demand (once during a 24 hour period). ECR currently leverages Clair (https://github.com/quay/clair) an open source image scanning solution.  After an image is scanned, the results are logged to the event stream for ECR in EventBridge. You can also see the results of a scan from within the ECR console.  Images with a HIGH or CRITICAL vulnerability should be deleted or rebuilt.  If an image that has been deployed develops a vulnerability, it should be replaced as soon as possible. 
+
+    Knowing where images with vulnerabilities have been deployed is essential to keeping your environment secure.  While you could conceivably build an image tracking solution yourself, there are already several commercial offerings that provide this and other advanced capabilities out of the box, including:
+    + [Anchore](https://docs.anchore.com/current/)
+    + [Twistlock](https://www.twistlock.com/)
+    + [Aqua](https://www.aquasec.com/)
+    
+    A kubernetes validation webhook could also be used to validate that images are free of critical vulnerabilities.  Validation webhooks are invoked prior to the Kubernetes API.  They are typically used to reject requests that don't comply with the validation criteria defined in the webhook.  [This](https://github.com/jicowan/ecr-validation-webhook) is an example of a serverless webhook that calls the ECR describeImageScanFindings API to deteremine whether a pod is pulling an image with critical vulnerabilities.  If vulnerabilities are found, the pod is rejected and a message with list of CVEs is returned as an  event.
+
++ **Create IAM policies for ECR repositories**.
+
++ **Implement endpoint policy for ECR**.
+
++ **Consider using ECR private endpoints**.
+
++ **Create a set of curated images**.
+
++ **Add the `USER` directive to your Dockerfiles to run as a non-root user.**  As was mentioned in the pod security section, you should avoid running container as root.  While you can configure this as part of the podSpec, it is a good habit to use the `USER` directive to your Dockerfiles.  The `USER` directive sets the UID to use when running `RUN`, `ENTRYPOINT`, or `CMD` instruction that appears after the USER directive.
+
++ **Lint your Dockerfiles**. Linting can be used to verify that your Dockerfiles are adhering to a set of predefined guidelines, e.g. the inclusion of the `USER` directive or the requirement that all images be tagged.  [dockerfile_lint](https://github.com/projectatomic/dockerfile_lint) is an open source project from RedHat that verifies common best practices and includes a rule engine that you can use to build your own rules for linting Dockerfiles. It can be incorporated into a CI pipeline, in that builds with Dockerfiles that violate a rule will automatically fail. 
+
++ **Build images from Scratch**.
 
 ### Tools
 + Bane
 + docker-slim
-+ Notary
-+ Grafeas
 + dockerfile-lint
 + Gatekeeper and OPA
 
@@ -440,7 +470,7 @@ Kubernetes secrets are used to store sensitive information, such as user certifi
 + **Use separate namespaces as a way to isolate secrets from different applications**. If you have secrets that cannot be shared between applications in a namespace, create a separate namespace for those applications.  
 + **Use volume mounts instead of environment variables**. The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
 + **Use an external secrets provider**. There are several viable alternatives to using Kubernetes secrets, include Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and Hashicorp's [Vault](
-https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). Unlike Kubernetes secrets which can be shared amongst all of the pods within a namespace, Vault gives you the ability to limit access to particular pods through the use of Kubernetes service accounts.  It also has support for secret rotation.  If Vault is not to your liking, you can use similar approach with AWS Secrets Manager, as in this example https://github.com/jicowan/secret-sidecar.  
+https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). Unlike Kubernetes secrets which can be shared amongst all of the pods within a namespace, Vault gives you the ability to limit access to particular pods through the use of Kubernetes service accounts.  It also has support for secret rotation.  If Vault is not to your liking, you can use similar approach with AWS Secrets Manager, as in this example https://github.com/jicowan/secret-sidecar or you could try using a [serverless](https://github.com/mhausenblas/nase) mutating webhook instead.
 + **Audit the use of secrets**. On EKS, turn on audit logging and create a CloudWatch metrics filter and alarm to alert you when a secret is used (optional). The following is an example of a metrics filter for the Kubernetes audit log, `{($.verb="get") && ($.objectRef.resource="secret")}`.  You can also use the following queries with CloudWatchLog Insights: 
     ```
     fields @timestamp, @message
@@ -460,6 +490,7 @@ https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-
     This query will display the secret, along with the namespace and username of the user who attempted to access the secret and the response code. 
 + **Rotate your secrets periodically**. Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets, consider using an external secret store, e.g. Vault. 
 + **Use AWS KMS for envelop encryption of Kubernetes secrets** ([coming soon](https://github.com/aws/containers-roadmap/issues/530)). When this option becomes available, Kubernetes will encrypt your secrets with a unique data encryption key (DEK). The DEK is then encypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. 
+  + https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/
 
 ## Protecting the infrastructure (hosts)
 
@@ -467,25 +498,25 @@ https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-
 Compliance is a shared responsibility between AWS and the consumers of its services. Generally speaking, AWS is responsible for “security of the cloud” whereas its users are responsible for “security in the cloud.” The line that delineates what AWS and its users are responsible for will vary depending on the service. For example, with Fargate, AWS is responsible for managing the physical security of its data centers, the hardware, the virtual infrastructure (Amazon EC2), and the container runtime (Docker). Users of Fargate are responsible for securing the container image and their application. Knowing who is responsible for what is an important consideration when running workloads that must adhere to compliance standards. 
 The following table shows the compliance programs with which the different container services conform.
 
-<insert table>
-Compliance Program Amazon ECS Amazon EKS AWS Fargate Amazon ECR
-PCI DSS Level 1	1	1	1	1
-HIPAA Eligible	1	1	1	1
-SOC I	1	1	1	1
-SOC II	1	1	1	1
-SOC III	1	1	1	1
-ISO 27001	1	1	1	1
-ISO 9001	1	1	1	1
-ISO 27017	1	1	1	1
-ISO 27018	1	1	1	1
-IRAP	1	0	0	0
-FedRAMP
-JAB Review	0	0	JAB Review
-DOD CC SRG	JAB Review	0	0	JAB Review
-MTCS	1	0	0	1
-C5	1	0	0	1
-K-ISMS	0	0	0	0
-ENS High	1	0	1	0
+| Compliance Program | Amazon ECS | Amazon EKS | AWS Fargate | Amazon ECR |
+| ------------------ |:----------:|:----------:|:-----------:|:----------:|
+| PCI DSS Level 1	| 1 |	1 |	1 |	1 |
+| HIPAA Eligible	| 1 |	1	| 1	| 1 |
+| SOC I |	1 |	1 |	1 |	1 |
+| SOC II | 1 |	1 |	1 |	1 |
+| SOC III |	1 |	1 |	1 |	1 |
+| ISO 27001 |	1 |	1 |	1 |	1 |
+| ISO 9001 | 1 |	1 |	1 |	1 |
+| ISO 27017 |	1 |	1 |	1 |	1 |
+| ISO 27018 |	1 |	1 |	1 |	1 |
+| IRAP | 1 | 0 | 0 | 0 |
+| FedRAMP | | | | |
+| JAB Review | 0 | 0 | JAB Review | |
+| DOD CC SRG | JAB Review |	0 |	0 |	JAB Review |
+| MTCS | 1 | 0 | 0 | 1 |
+| C5 | 1 | 0 | 0 | 1 |
+| K-ISMS | 0 | 0 | 0 | 0 |
+| ENS High | 1 | 0 | 1 | 0 |
 
 ### Tools
 + kube-bench
