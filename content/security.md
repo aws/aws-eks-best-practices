@@ -440,7 +440,7 @@ You should consider the container image as your first line of defense against an
   ```
   We recommended applying the same policy to both the `com.amazonaws.<region>.ecr.dkr` and the `com.amazonaws.<region>.ecr.api` endpoints.
 
-  Note: Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will need to add the account ID of the registry, e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of resources in the endpoint policy.  The region where you provisioned your cluster will influence the account these images are pulled from.  
+  Note: Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will need to add the account ID of the registry, e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of resources in the endpoint policy or alter the policy to allow pulls from "*" and restrict pushes to your account ID.  Be aware that the region where you provisioned your cluster will influence the account these images are pulled from.  
 
 + **Consider using ECR private endpoints**. The ECR API has a public endpoint.  Consequently, ECR registriese can be accessed from the Internet so long as the request has been authenticated and authorized by IAM. For those who need to operate in a sandboxed environment where the cluster VPC lacks an Internet Gateway (IGW), you can configure a private endpoint for ECR.  Creating a private endpoint enables you to privately access the ECR API through a private IP address instead of routing traffic across the Internet. For additional information on this topic, see https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html. 
 
