@@ -408,9 +408,9 @@ You should consider the container image as your first line of defense against an
 
   In a Kubernetes environment, you can use an admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
   
-### Tools
-  + [Notary](https://github.com/theupdateframework/notary)
-  + [Grafeas](https://grafeas.io/)
+  ### Tools
+    + [Notary](https://github.com/theupdateframework/notary)
+    + [Grafeas](https://grafeas.io/)
 
 + **Use multi-stage builds**.  Using multi-stage builds is a way to create minimal images. Oftentimes, multi-stage builds are used to automate parts of the Continuous Integration cycle.  For example, multi-stage builds can be used to lint your source code or perform static code analysis.  This affords developers an opportunity to get near immediate feedback instead of waiting for a pipeline to execute.  Multi-stage builds are attractive from a security standpoint because they allow you to minimize the size of the final image pushed to your container registry.  Container images devoid of build tools and other extraneous binaries decreases improves your security posture by reducing the attack surface of the image. For additional information about multi-stage builds, see https://docs.docker.com/develop/develop-images/multistage-build/.
 
@@ -425,9 +425,24 @@ You should consider the container image as your first line of defense against an
 
 + **Create IAM policies for ECR repositories**.
 
-+ **Implement endpoint policy for ECR**.
++ **Implement endpoint policies for ECR**. The default endpoint policy for allows access to all ECR repositories within a region.  This might allow an attacker/insider to exfiltrate data by packaging it as a container image and pushing it to a registry in another AWS account.  Mitigating this risk involves creating an endpoint policy that limits API access to ECR respositories. For example, the following policy allows all AWS principles in your account to perform all actions against your and only your ECR repositories: 
+  ```
+  {
+    "Statement": [{
+        "Sid": "LimitECRAccess",
+        "Principal": "*",
+        "Action": "*"
+        "Effect": "Allow",
+        "Resource": "arn:aws:ecr:region:<your_account_id>:repository/*"
+      },
+    ]
+  }
+  ```
+  We recommended applying the same policy to both the `com.amazonaws.<region>.ecr.dkr` and the `com.amazonaws.<region>.ecr.api` endpoints.
 
-+ **Consider using ECR private endpoints**.
+  Note: Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will need to add the account ID of the registry, e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of resources in the endpoint policy.  The region where you provisioned your cluster will influence the account these images are pulled from.  
+
++ **Consider using ECR private endpoints**. The ECR API has a public endpoint.  Consequently, ECR registriese can be accessed from the Internet so long as the request has been authenticated and authorized by IAM. For those who need to operate in a sandboxed environment where the cluster VPC lacks an Internet Gateway (IGW), you can configure a private endpoint for ECR.  Creating a private endpoint enables you to privately access the ECR API through a private IP address instead of routing traffic across the Internet. For additional information on this topic, see https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html. 
 
 + **Create a set of curated images**.
 
