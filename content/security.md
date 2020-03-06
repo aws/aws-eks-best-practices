@@ -423,8 +423,31 @@ You should consider the container image as your first line of defense against an
     
     A kubernetes validation webhook could also be used to validate that images are free of critical vulnerabilities.  Validation webhooks are invoked prior to the Kubernetes API.  They are typically used to reject requests that don't comply with the validation criteria defined in the webhook.  [This](https://github.com/jicowan/ecr-validation-webhook) is an example of a serverless webhook that calls the ECR describeImageScanFindings API to deteremine whether a pod is pulling an image with critical vulnerabilities.  If vulnerabilities are found, the pod is rejected and a message with list of CVEs is returned as an  event.
 
-+ **Create IAM policies for ECR repositories**.
-
++ **Create IAM policies for ECR repositories**. Nowadays, it is not uncommon for an organization to have multiple development teams operating independently within a shared AWS account.  If these teams don't need to share assets, you may want to create a set of IAM policies that restrict access to the repositories each team can interact with.  A good way to implement this is by using namespaces. Namespaces are a way to group similar repositories together.  For example, all of the registries for team A can be prefaced with the team-a/ while those for team B can use the team-b/ prefix. The policy to restrict access might look like the following: 
+  ```
+  {
+    "Version": "2012-10-17",
+    "Statement": [{
+      "Sid": "AllowPushPull",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:role/<team_a_role_name>"
+      },
+      "Action": [
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+      ],
+      "Resource": [
+        "arn:aws:ecr:region:123456789012:repository/team-a/*"
+      ]
+      }]
+  }
+  ```
 + **Implement endpoint policies for ECR**. The default endpoint policy for allows access to all ECR repositories within a region.  This might allow an attacker/insider to exfiltrate data by packaging it as a container image and pushing it to a registry in another AWS account.  Mitigating this risk involves creating an endpoint policy that limits API access to ECR respositories. For example, the following policy allows all AWS principles in your account to perform all actions against your and only your ECR repositories: 
   ```
   {
@@ -444,7 +467,7 @@ You should consider the container image as your first line of defense against an
 
 + **Consider using ECR private endpoints**. The ECR API has a public endpoint.  Consequently, ECR registriese can be accessed from the Internet so long as the request has been authenticated and authorized by IAM. For those who need to operate in a sandboxed environment where the cluster VPC lacks an Internet Gateway (IGW), you can configure a private endpoint for ECR.  Creating a private endpoint enables you to privately access the ECR API through a private IP address instead of routing traffic across the Internet. For additional information on this topic, see https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html. 
 
-+ **Create a set of curated images**.
++ **Create a set of curated images**. Rather than allowing developers to create their own images, consider creating a set of vetted images for the different application stacks in your organization.  By doing so, developers can forego learning how to compose Dockerfiles and concentrate on writing code.  As changes are merged into Master, a CI/CD pipeline can automatically compile the asset, store it in an artifact repository and copy the artifact into the appropriate image before pushing it to a Docker registry like ECR. At the very least you should create a set of base images from which developers to create their own Dockerfiles.  Ideally, you want to avoid pulling images from Dockerhub because a) you don't always know what is in the image and b) about [a fifth](https://www.kennasecurity.com/blog/one-fifth-of-the-most-used-docker-containers-have-at-least-one-critical-vulnerability/) of the top 1000 images have vulnerabilties.
 
 + **Add the `USER` directive to your Dockerfiles to run as a non-root user.**  As was mentioned in the pod security section, you should avoid running container as root.  While you can configure this as part of the podSpec, it is a good habit to use the `USER` directive to your Dockerfiles.  The `USER` directive sets the UID to use when running `RUN`, `ENTRYPOINT`, or `CMD` instruction that appears after the USER directive.
 
