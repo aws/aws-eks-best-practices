@@ -28,10 +28,27 @@ keeping these limits in mind. Consider reviewing these service limits periodical
 Besides the limits from orchestration engines, there are limits in other AWS services, such as Elastic Load Balancing (ELB) and Amazon VPC, that may affect your application performance.
 More about EC2 limits here: [EC2 service limits](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html). 
 
-### Networking limits considerations
-With Amazon EKS, the default networking driver is [Amazon VPC CNI](https://github.com/aws/amazon-vpc-cni-k8s). There are a few design tradeoffs that you need to make when customizing the CNI configuration. Each instance is bound by the [number of elastic network interfaces that can be attached and the number of secondary IP addresses it can consume](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html). VPC CNI caches a certain number of IP addresses so that Kubernetes scheduler can schedule pods on these worker nodes. The IP addresses are available on the worker nodes whether you launch pods or not. If you need to constrain these IP addresses, you can customize them at the worker node level.
+### Networking considerations
+When you create an EKS cluster, you need to specify the VPC subnets for your cluster to use, EKS requires subnets in at least two Availabiilty Zones. The subnets that you pass when you create the cluster influence where Amazon EKS places elastic network interfaces that are used for the control plane to worker node communication. We recommend a network architecture that uses private subnets for your worker nodes and public subnets for Kubernetes to create internet-facing load balancers within. [EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html) includes more information about VPC considerations for EKS clusters.
 
-Since Amazon VPC CNI assigns an IP addresses from one of the subnets from your VPC to each pod, you need to have enough IP addresses available. If you do not have enough IP addresses available in the subnet that the CNI uses, your pods will not receive an IP address, and the pods will remain in pending state until an IP address is released from use. 
+If your cluster has high pod churn rate, then you may also create additional subnets in each Availability Zone, in this case container autoscaling will not affect IP address allocation of other resources in your VPC. This can be specified by customizing the Amazon VPC CNI. 
+
+### Amazon VPC CNI
+With Amazon EKS, the default networking driver is [Amazon VPC CNI](https://github.com/aws/amazon-vpc-cni-k8s). The CNI plugin allocates VPC IP addresses to Kubernetes pods and it uses [Elastic Network Interface (ENI)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html) for this purpose. Each EC2 Instance is bound by the number of elastic network interfaces that can be attached and the number of secondary IP addresses it can consume. Hence, the number of pods you can run on a particular EC2 Instance depends on how many ENIs can be attached to it.
+
+This [file](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) is helpful when determining how many pods an EC2 instance can run.
+
+The CNI plugin has two componenets:
+
+* [CNI plugin](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/#cni), which will wire up host's and pod's network stack when called.
+* `L-IPAMD` (aws-node daemonSet) runs on every node is a long running node-Local IP Address Management (IPAM) daemon and is responsible for:
+    * maintaining a warm-pool of available IP addresses, and
+    * assigning an IP address to a Pod.
+
+The CNI caches a certain number of IP addresses so that Kubernetes scheduler can schedule pods on these worker nodes. The IP addresses are available on the worker nodes whether you launch pods or not. If you need to constrain these IP addresses, you can customize them at the worker node level. The CNI supports customization of a number of configurations options, these options are set through environment variables. To configure these options, you can download aws-k8s-cni.yaml compatible
+with your cluster and set environment variables. At the time of writing, the latest release is located here https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.6/aws-k8s-cni.yaml .
+
+If you do not have enough IP addresses available in the subnet that the CNI uses, your pods will not an IP address, and the pods will remain in pending state until an IP address is released from use.
 
 [CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html) is a tool that can help you monitor number of IP addresses that are available and in use. 
 
@@ -63,7 +80,7 @@ So you will need multiple autoscaling groups if you are:
 1. running worker nodes using a mix of EC2 instance families or purchasing options (on demand or spot)
 2. using EBS volumes.
 
-If you are running an application that uses EBS volume but has no requirements to be highly available then you may also choose to restrict your deployment of the application to a single AZ. To do this you will need to have an autoscaling group that only includes subnet(s) in a single AZ. Then you can constraint the application's pods to run on nodes with particular labels. In EKS worker nodes are automatically added `failure-domain.beta.kubernetes.io/zone` label which contains the name of the AZ. You can see all the labels attached to your nodes by running `kubectl describe nodes {name-of-the-node}`. More information about built-in node labels is available [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#built-in-node-labels). Similarly persistent volumes (backed by EBS) are also automatically labeled with AZ name, you can see which AZ your persistent volume belongs to by running `kubectl get nodes -L topology.ebs.csi.aws.com/zone`. When a pod is created and it claims a volume, Kubernetes will schedule the pod on a node in the same AZ as the volume. 
+If you are running an application that uses EBS volume but has no requirements to be highly available then you may also choose to restrict your deployment of the application to a single AZ. To do this you will need to have an autoscaling group that only includes subnet(s) in a single AZ. Then you can constraint the application's pods to run on nodes with particular labels. In EKS worker nodes are automatically added `failure-domain.beta.kubernetes.io/zone` label which contains the name of the AZ. You can see all the labels attached to your nodes by running `kubectl describe nodes {name-of-the-node}`. More information about built-in node labels is available [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#built-in-node-labels). Similarly persistent volumes (backed by EBS) are also automatically labeled with AZ name, you can see which AZ your persistent volume belongs to by running `kubectl get pv -L topology.ebs.csi.aws.com/zone`. When a pod is created and it claims a volume, Kubernetes will schedule the pod on a node in the same AZ as the volume. 
 
 Consider this scenario, you have an EKS cluster with one node group (or one autoscaling group), this node group has three worker nodes spread across three AZs. You have an application that needs to persist its data using an EBS volume. When you create this application and the corresponding volume, it gets created in the first of the three AZs. Your application running inside a Kubernetes pod is successfully able to store data on the persistent volume. Then, the worker node that runs this aforementioned pod becomes unhealthy and subsequently unavailable for use. Cluster Autoscaler will replace the unhealthy node with a new worker node, however because the autoscaling group spans across three AZs, the new worker node may get launched in the second or the third AZ, but not in the first AZ as our situation demands. Now we have a problem, the AZ-constrained volume only exists in the first AZ, but there are no worker nodes available in that AZ and hence, the pod cannot be scheduled. And due to this, you will have to create one node group in each AZ so there is always enough capacity available to run pods that cannot function in other AZs. 
 
@@ -76,14 +93,21 @@ When autosclaing, always know the EC2 limits in your account and if the limits n
 You can use [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA) to autoscale the applications running in your cluster. HPA uses metrics such as CPU utilization or custom metrics provided by the application to scale the pods. It is also possible to scale pods using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
 metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
 
-Before you can use HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data*.It is responsible for collecting resource metrics from kubelets and exposing them in Kubernetes Apiserver through [Metrics API](https://github.com/kubernetes/metrics). 
+
+### Kubernetes Metrics Server
+Before you can use the HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data*.It is responsible for collecting resource metrics from kubelets and exposing them in Kubernetes Apiserver through [Metrics API](https://github.com/kubernetes/metrics). 
 
 You can find the instructions to install Kubernetes Metrics Server [here](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html).
 
-By default, HPA controller retrieves metrics from a series of APIs. For resource metrics, this is the `metrics.k8s.io` API, generally provided by metrics-server. You can see data provided by metrics-server api directly using curl like this 
+The HPA can retrieve metrics from the following APIs:
+1. `metrics.k8s.io`
+2. `custom.metrics.k8s.io`
+3. `external.metrics.k8s.io`
+
+The HPA controller retrieves resource metrics from, `metrics.k8s.io` API, provided by the Kubernetes Metrics Server. You can see data provided by the Metrics-Server api directly using curl like this 
 
 ```
-kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"       
+$ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"       
 {"kind":"NodeMetricsList","apiVersion":"metrics.k8s.io/v1beta1","metadata":{"selfLink":"/apis/metrics.k8s.io/v1beta1/nodes"},"items"
 :[{"metadata":{"name":"ip-192-168-76-71.us-west-2.compute.internal","selfLink":"/apis/metrics.k8s.io/v1beta1/nodes/ip-192-168-76-71.
 us-west-2.compute.internal","creationTimestamp":"2020-03-04T16:29:47Z"},"timestamp":"2020-03-04T16:29:35Z","window":"30s","usage":{"
@@ -92,6 +116,28 @@ k8s.io/v1beta1/nodes/ip-192-168-50-160.us-west-2.compute.internal","creationTime
 04T16:29:29Z","window":"30s","usage":{"cpu":"27248899n","memory":"467580Ki"}}]}"
 "}}]}
 ```
+
+Once the metrics-server has been installed, it will start collecting metrics and provide the aggregated metrics for consumption. One of the consumers of data provided by metrics API is kubectl, and we can get the same information we retrieved using curl example above using kubectl.
+
+```
+$ kubectl top nodes
+NAME                                           CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
+ip-192-168-50-160.us-west-2.compute.internal   30m          1%     456Mi           6%        
+ip-192-168-76-71.us-west-2.compute.internal    25m          1%     470Mi           6%  
+```
+The output is has a more human friendly format. 
+
+### Autoscaling deployments using HPA
+
+Now that resource metrics are available, we can configure our deployment to autoscale based on CPU utilization. You can autoscale an application using kubectl in the following way:
+
+```
+kubectl autoscale deployment php-apache --cpu-percent=80 --min=1 --max=10
+```
+
+This will create autoscale an existing deployment (nginx in this case). You can also run `kubectl get hpa` to get more information. If you generate enough load on the *php-apache* deployment, the HPA will create more pods until the maximum limit is reached. If load subsides, the HPA will terminate pods until there is at least one pod running. 
+
+
 
 
 ### Health checks
