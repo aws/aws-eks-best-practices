@@ -11,19 +11,16 @@ There are five design principles for reliability in the cloud:
 * Automatic recovery from failure
 * Horizontal scaling to increase aggregate system availability
 * Automatic scaling
-* Automating changes
-* Recovery mechanism(s)
+* Automatic changes
 
 To achieve reliability, a system must have a well-planned foundation and monitoring in place, with mechanisms for handling changes in demand or requirements. The system should be designed to detect failure and automatically heal itself.
 
 ## Best Practices
 ### Reliability of EKS Clusters
-Amazon EKS provides a highly-available control plane that runs across multiple availability zones in AWS Region. EKS automatically manages the availability and scalability of the Kubernetes API servers and the etcd persistence layer for each cluster. Amazon EKS runs the Kubernetes control plane across three Availability Zones in order to ensure high availability, and it automatically detects and replaces unhealthy masters. Hence, reliability of an EKS cluster is not a customer
-responsibility, it is already built-in.
+Amazon EKS provides a highly-available control plane that runs across multiple availability zones in AWS Region. EKS automatically manages the availability and scalability of the Kubernetes API servers and the etcd persistence layer for each cluster. Amazon EKS runs the Kubernetes control plane across three Availability Zones in order to ensure high availability, and it automatically detects and replaces unhealthy masters. Hence, reliability of an EKS cluster is not a customer responsibility, it is already built-in.
 
 ### Understanding service limits
-AWS sets service limits (an upper limit on the number of each resource your team can request) to protect you from accidentally over-provisioning resources. [Amazon EKS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html) lists the service limits. There are two types of limits, soft limits, that can be changed with proper justification via a support ticket. Hard limits cannot be changed. Because of this, you should carefully architect your applications
-keeping these limits in mind. Consider reviewing these service limits periodically and apply them during your application design. 
+AWS sets service limits (an upper limit on the number of each resource your team can request) to protect you from accidentally over-provisioning resources. [Amazon EKS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html) lists the service limits. There are two types of limits, soft limits, that can be changed with proper justification via a support ticket. Hard limits cannot be changed. Because of this, you should carefully architect your applications keeping these limits in mind. Consider reviewing these service limits periodically and apply them during your application design. 
 
 Besides the limits from orchestration engines, there are limits in other AWS services, such as Elastic Load Balancing (ELB) and Amazon VPC, that may affect your application performance.
 More about EC2 limits here: [EC2 service limits](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html). 
@@ -62,14 +59,12 @@ There are two common ways to scale worker nodes in EKS.
 
 
 ### Scaling Kubernetes worker nodes
-Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your Kubernetes cluster when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate
-it. 
+Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your Kubernetes cluster when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate it. 
 
-Cluster Autoscaler uses EC2 Auto Scaling groups (ASG) to adjust the size of the cluster. Typically all worker nodes are part of an auto scaling group. You may have multiple ASGs within a cluster. For example, if you co-locate two distinct workloads in your cluster you may want to use two different types of EC2 instances, each suited for its workload. In this case you would have two auto scaling groups.
+Cluster Autoscaler uses EC2 Auto Scaling groups (ASG) to adjust the size of the cluster. Typically all worker nodes are part of an auto scaling group. You may have multiple ASGs within a cluster. For example, if you co-locate two distinct workloads in your cluster you may want to use two different types of EC2 instances, each suited for its workload. In this case you would have two auto scaling groups. 
 
 Another reason for having multiple ASGs is if you use EBS to provide persistent
-volumes for your pods or using statefulsets. At the time of writing, EBS volumes are only available within a single AZ. When your pods use EBS for storage, they need to reside in the same AZ as the EBS volume. In other words, a pod running in an AZ cannot access EBS volumes in another AZ. For this reason the scheduler needs to know that if a pod that uses an EBS volume crashes or gets terminated, it needs to be scheduled on a worker node in the same AZ, or else it will not be able to
-access the volume. 
+volumes for your pods or using statefulsets. At the time of writing, EBS volumes are only available within a single AZ. When your pods use EBS for storage, they need to reside in the same AZ as the EBS volume. In other words, a pod running in an AZ cannot access EBS volumes in another AZ. For this reason the scheduler needs to know that if a pod that uses an EBS volume crashes or gets terminated, it needs to be scheduled on a worker node in the same AZ, or else it will not be able to access the volume. 
 
 Using [EFS](https://github.com/kubernetes-sigs/aws-efs-csi-driver) can simplify cluster autoscaling when running applications that need persistent storage. In EFS, a file system can be concurrently accessed from all the AZs in the region, this means if you persistent storage using pod ceases to exist, and is resurrected in another AZ, it will still have access to the data stored by its predecessor.
 
@@ -90,21 +85,14 @@ When autosclaing, always know the EC2 limits in your account and if the limits n
 
 
 ### Scaling Kubernetes pods
-You can use [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA) to autoscale the applications running in your cluster. HPA uses metrics such as CPU utilization or custom metrics provided by the application to scale the pods. It is also possible to scale pods using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
-metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
-
+Kubernetes provides two ways of scaling your applications running inside pods. First is the way of [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA), which would automatically create or delete pods (replicas) in a Deployment based on a scaling metric. Another way Kubernetes can scale your application is using Virtical Pod Autoscaler.
 
 ### Kubernetes Metrics Server
 Before you can use the HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data*.It is responsible for collecting resource metrics from kubelets and exposing them in Kubernetes Apiserver through [Metrics API](https://github.com/kubernetes/metrics). 
 
 You can find the instructions to install Kubernetes Metrics Server [here](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html).
 
-The HPA can retrieve metrics from the following APIs:
-1. `metrics.k8s.io`
-2. `custom.metrics.k8s.io`
-3. `external.metrics.k8s.io`
-
-The HPA controller retrieves resource metrics from, `metrics.k8s.io` API, provided by the Kubernetes Metrics Server. You can see data provided by the Metrics-Server api directly using curl like this 
+You can see data provided by the Metrics-Server api directly using curl like this 
 
 ```
 $ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"       
@@ -117,7 +105,7 @@ k8s.io/v1beta1/nodes/ip-192-168-50-160.us-west-2.compute.internal","creationTime
 "}}]}
 ```
 
-Once the metrics-server has been installed, it will start collecting metrics and provide the aggregated metrics for consumption. One of the consumers of data provided by metrics API is kubectl, and we can get the same information we retrieved using curl example above using kubectl.
+Once the metrics-server has been installed, it will start collecting metrics and provide the aggregated metrics for consumption. One of the consumers of data provided by metrics API is kubectl, you can get the same information you retrieved using curl example above using kubectl.
 
 ```
 $ kubectl top nodes
@@ -127,18 +115,44 @@ ip-192-168-76-71.us-west-2.compute.internal    25m          1%     470Mi        
 ```
 The output is has a more human friendly format. 
 
-### Autoscaling deployments using HPA
+### Autoscaling deployments using the Horizontal Pod Autoscaler (HPA)
 
-Now that resource metrics are available, we can configure our deployment to autoscale based on CPU utilization. You can autoscale an application using kubectl in the following way:
+Now that resource metrics are available, you can configure your deployment to autoscale based on CPU utilization. The Horizontal Pod Autoscaler is implemented as a control loop in Kubernetes, it periodically queries metrics from APIs that provide resource metrics.
+
+Including the metrics-server, the Horizontal Pod Autoscaler can retrieve metrics from the following APIs:
+1. `metrics.k8s.io` also known as Resource Metrics API -- Provides CPU and memory usage for pods
+2. `custom.metrics.k8s.io` -- Provides metrics from other metric collectors like Prometheus, these metrics are __internal__ to your Kubernetes cluster. 
+3. `external.metrics.k8s.io` -- Provides metrics that are __external__ to your Kubernetes cluster (E.g., SQS Queue Depth, ELB latency).
+
+Any metric that you want to use to scale should be provided by one of these three APIs. Using the `metrics.k8s.io`, you can autoscale an application based on its CPU usage using kubectl in the following way:
 
 ```
 kubectl autoscale deployment php-apache --cpu-percent=80 --min=1 --max=10
 ```
 
-This will create autoscale an existing deployment (nginx in this case). You can also run `kubectl get hpa` to get more information. If you generate enough load on the *php-apache* deployment, the HPA will create more pods until the maximum limit is reached. If load subsides, the HPA will terminate pods until there is at least one pod running. 
+This will create autoscale an existing deployment (nginx in this case). You can also run `kubectl get hpa` to get more information. If you generate enough load on the *php-apache* deployment and the aggregate CPU load exceeds 80%, the HPA will create more pods until the maximum limit is reached. If load subsides, the HPA will terminate pods until there is at least one pod running. 
 
+### Custom and external metrics for autoscaling deployments
 
+In pod autoscaling context, custom metrics are metrics other than CPU and memory usage (these are provided by the metrics-server) that you can use to scale your deployments. [Custom Metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/custom-metrics-api.md) API servers provide the `custom-metrics.k8s.io` API which is queried by the Horizontal Pod Autoscaler. You can use the [Prometheus Adapter for Kubernetes Metrics APIs](https://github.com/directxman12/k8s-prometheus-adapter) to collect metrics from Prometheus and use with the Horizontal Pod Autoscaler for autoscaling your deployments. In this case Prometheus adapter will expose Prometheus metrics in Kubernetes consistent way. A list of all custom metrics implementation can be found [here](https://github.com/kubernetes/metrics/blob/master/IMPLEMENTATIONS.md#custom-metrics-api). 
 
+Once you deploy the Prometheus Adapter, you can query custom metrics using kubectl.
+`kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1/`
+
+You will need to start producing custom metrics before you start consuming them for autoscaling. 
+
+[External metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md), as the name suggests provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
+
+You can also scale deployments using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
+metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
+
+### Vertical Pod Autoscaler (VPA)
+
+You might have wondered why the Horizontal Pod Autoscaler is not simply called "Autoscaler", this is because Kubernetes can scale your applications (running in pods) in two ways. First is the way of HPA, which would automatically scale replicas in a Deployment based on scaling metric. The [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) automatically adjusts the CPU and memory reservations for your pods to help you "right-size" your applications. Vertical Pod Autoscaler's current implementation does not perform in-place adjustments to pods, instead it will restart the pod that needs to be scaled with increased. 
+
+[EKS Documentation](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) includes a walkthrough for setting up VPA. 
+
+### Pod Disruption Budget
 
 ### Health checks
 
@@ -149,4 +163,3 @@ This will create autoscale an existing deployment (nginx in this case). You can 
 ### CI/CD
 
 ### Simulating failure
-
