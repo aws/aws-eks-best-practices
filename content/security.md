@@ -352,6 +352,9 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
     ```
 
     This policy prevents pods from running as privileged or escalating privileges.  It also restricts the types of volumes that can be mounted and the root supplemental groups that can be added. 
+    
+    ### Fargate
+    Fargate is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or  configure your pod to use hostNetwork or hostPort.  
 
 + **Do not run processes in containers as root**. All containers run as root by default.  This could be problematic if an attacker is able to exploit a vulnerability in the application and get shell access to the running container.  You can mitigate this risk a variety of ways.  First, by removing the shell from the container image.  Second, adding the USER directive to your Dockerfile or running the containers in the pod as a non-root user.  The Kubernetes podSpec includes a set of fields under spec.securityContext, that allow to let you specify the user and/or group to run your application as.  These fields are `runAsUser` and `runAsGroup` respectively.  You can mandate the use of these fields by creating a pod security policy.  See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#users-and-groups for further information on this topic. 
 
@@ -463,7 +466,15 @@ You should consider the container image as your first line of defense against an
   ```
   We recommended applying the same policy to both the `com.amazonaws.<region>.ecr.dkr` and the `com.amazonaws.<region>.ecr.api` endpoints.
 
-  Note: Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will need to add the account ID of the registry, e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of resources in the endpoint policy or alter the policy to allow pulls from "*" and restrict pushes to your account ID.  Be aware that the region where you provisioned your cluster will influence the account these images are pulled from.  
+  Note: Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will need to add the account ID of the registry, e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of resources in the endpoint policy or alter the policy to allow pulls from "*" and restrict pushes to your account ID.  The table below reveals the mapping between the AWS accounts where EKS images are vended from and cluster region.
+
+  | Account Number | Region |
+  | -------------- | ------ |
+  | 602401143452 | All commercial regions except for those listed below |
+  | 800184023465 | HKG | 
+  | 558608220178 | BAH |
+  | 918309763551 | BJS | 
+  | 961992271922 | ZHY |
 
 + **Consider using ECR private endpoints**. The ECR API has a public endpoint.  Consequently, ECR registriese can be accessed from the Internet so long as the request has been authenticated and authorized by IAM. For those who need to operate in a sandboxed environment where the cluster VPC lacks an Internet Gateway (IGW), you can configure a private endpoint for ECR.  Creating a private endpoint enables you to privately access the ECR API through a private IP address instead of routing traffic across the Internet. For additional information on this topic, see https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html. 
 
@@ -501,17 +512,17 @@ You should consider the container image as your first line of defense against an
   This creates a container image that consists of your application and nothing else, making it extremely secure.  
 
 ### Tools
-+ Bane
-+ docker-slim
-+ dockerfile-lint
-+ Gatekeeper and OPA
++ [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
++ [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images
++ [dockerfile-lint](https://github.com/projectatomic/dockerfile_lint) Rule based linter for Dockerfiles
++ [Gatekeeper and OPA](https://github.com/open-policy-agent/gatekeeper) A policy based admission controller
 
 ## Tenant Isolation
 ### Soft multi-tenancy
 ### Hard multi-tenancy
 
 ## Auditing and logging
-
+https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D
 
 ## Network security
 ### Network policy
@@ -551,11 +562,59 @@ https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-
     | display objectRef.namespace, objectRef.name, user.username, responseStatus.code
     ```
     This query will display the secret, along with the namespace and username of the user who attempted to access the secret and the response code. 
-+ **Rotate your secrets periodically**. Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets, consider using an external secret store, e.g. Vault. 
++ **Rotate your secrets periodically**. Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets, consider using an external secret store, e.g. Vault or AWS Secrets Manager. 
 + **Use AWS KMS for envelop encryption of Kubernetes secrets** ([coming soon](https://github.com/aws/containers-roadmap/issues/530)). When this option becomes available, Kubernetes will encrypt your secrets with a unique data encryption key (DEK). The DEK is then encypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. 
   + https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/
 
 ## Protecting the infrastructure (hosts)
++ **Run SELinux**. SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.
+Use a OS optimized for running containers, e.g. Flatcar Linux, Project Atomic, RancherOS, and [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/), a new OS from AWS that has a read only root file system and uses partition flips for fast and reliable system updates.  A majority of these operating systems, like Bottlerocket, have been substantially paired down and optimized to run containers. 
+  **Additional resources**
+  + https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/
+  + https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html 
++ **Treat your infrastructure as immutable**.  Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentally cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) utilizes the second approach and will present an option to upgrade workers when a new AMI becomes available. `eksctl` also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded. 
+With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your task to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod. 
++ **Periodically run [kube-bench](https://github.com/aquasecurity/kube-bench) to verify compliance with [CIS benchmarks for Kubernetes](https://www.cisecurity.org/benchmark/kubernetes/)**. When running kube-bench against an EKS cluster, follow these instructions, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. Be aware that false positives may appear in the report because of the way the he EKS optimized AMI configures the kubelet.  See https://github.com/aquasecurity/kube-bench/issues/571 for further information. 
++ **Minimize access to worker nodes**. Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.  If you've lost access to the host through SSH or Session Manager, you can try running a node-shell, a privileged pod that gives you shell access on the node. An example appears below: 
+```
+kind: Pod
+apiVersion: v1
+metadata:
+  name: node-shell
+  namespace: kube-system
+  annotations:
+    kubernetes.io/psp: eks.privileged
+spec:
+  containers:
+    - name: shell
+      image: 'docker.io/alpine:3.9'
+      command:
+        - nsenter
+      args:
+        - '-t'
+        - '1'
+        - '-m'
+        - '-u'
+        - '-i'
+        - '-n'
+        - sleep
+        - '14000'
+      securityContext:
+        privileged: true
+  restartPolicy: Never
+  nodeSelector:
+    kubernetes.io/hostname: ip-192-168-49-62.us-west-2.compute.internal
+  nodeName: ip-192-168-49-62.us-west-2.compute.internal
+  hostNetwork: true
+  hostPID: true
+  hostIPC: true
+  enableServiceLinks: true
+  ```
++ **Deploy workers onto private subnets**. By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. 
+
++ **Run [Amazon Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) to assesses applications for exposure, vulnerabilities, and deviations from best practices.  
+  **Alternatives**
+  + [Sysdig Secure](https://sysdig.com/products/kubernetes-security/)
 
 ## Compliance
 Compliance is a shared responsibility between AWS and the consumers of its services. Generally speaking, AWS is responsible for “security of the cloud” whereas its users are responsible for “security in the cloud.” The line that delineates what AWS and its users are responsible for will vary depending on the service. For example, with Fargate, AWS is responsible for managing the physical security of its data centers, the hardware, the virtual infrastructure (Amazon EC2), and the container runtime (Docker). Users of Fargate are responsible for securing the container image and their application. Knowing who is responsible for what is an important consideration when running workloads that must adhere to compliance standards. 
