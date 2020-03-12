@@ -518,8 +518,28 @@ You should consider the container image as your first line of defense against an
 + [Gatekeeper and OPA](https://github.com/open-policy-agent/gatekeeper) A policy based admission controller
 
 ## Tenant Isolation
+Kuberntes is a single tenant orchestrator in that there is an single instance of the API server, controller manager, and scheduler for the whole cluster. You can create the semblance of "tenants" by using various Kubernetes objects, such as namespaces, RBAC and network policies, along with resource quotas or limit ranges.  While these constructs will help to logically isolate tenants from each other, the cluster is still consider the security boundary.  And as described earlier, if an attacker is able to gain access to the host, they could retrieve Secrets, ConfigMaps, and Volumes, mounted on that host.  They could also impersonate the Kubelet which might give them the ability to move laterally within the cluster or manipulate the attributes of the node.  The following sections will explain how to implement tenant isolation while mitigating the risks of using a single tenant orchestrator like Kubernetes.
 ### Soft multi-tenancy
+With soft multi-tenancy, you use native Kubernetes constructs like namespaces, and RBAC and network policies to create logical isolation between tenants.  RBAC roles and bindings help prevent tenants from accessing each other's service accounts and secrets. Resource quotas and limit ranges control the amount of cluster resources each tenant can consume.  And network policies can help prevent applications deployed into different namespaces from communicating with each other.  This would not, however, prevent pods from different tenants from sharing a node.  If stronger isolation is required, you can create separate node groups for each tenant along with an admission controller that updates the pod with a node selector that causes it to be scheduled onto an instance in a particular node group. This could get rather complicated, and costly, in an environment with lots of tenants.  Additionally, soft multi-tenancy implemented with native Kubernetes objects doesn't give you the flexibility to provide tenants with a filtered list of namespaces or create hierarchical namespaces.   
+
+[Kiosk](https://github.com/kiosk-sh/kiosk) is an open source project that can aid in the implementation of soft multi-tenancy.  It is implemented as a series of CRDs and controllers that provide the following capabilities: 
+  + **Accounts & Account Users** to separate tenants in a shared Kubernetes cluster
+  + **Self-Service Namespace Provisioning** for account users
+  + **Account Limits** to ensure quality of service and fairness when sharing a cluster
+  + **Namespace Templates** for secure tenant isolation and self-service namespace initialization
+
+Hierarchical Namespace CRD and the Tenant CRD
+Separate node groups per "tenant"
++ Namespaces
++ Network policy
++ RBAC
++ Quotas and Limit Ranger
 ### Hard multi-tenancy
+Hard multi-tenancy implies there is zero trust between tenants. tenant should not have access to anything that other tenants have access to...
+Multiple clusters
+Sandboxed execution environments for containers: Firecracker
+Virtual Cluster
+### Mitigating controls
 
 ## Auditing and logging
 https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D
@@ -576,43 +596,45 @@ Use a OS optimized for running containers, e.g. Flatcar Linux, Project Atomic, R
 With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your task to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod. 
 + **Periodically run [kube-bench](https://github.com/aquasecurity/kube-bench) to verify compliance with [CIS benchmarks for Kubernetes](https://www.cisecurity.org/benchmark/kubernetes/)**. When running kube-bench against an EKS cluster, follow these instructions, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. Be aware that false positives may appear in the report because of the way the he EKS optimized AMI configures the kubelet.  See https://github.com/aquasecurity/kube-bench/issues/571 for further information. 
 + **Minimize access to worker nodes**. Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.  If you've lost access to the host through SSH or Session Manager, you can try running a node-shell, a privileged pod that gives you shell access on the node. An example appears below: 
-```
-kind: Pod
-apiVersion: v1
-metadata:
-  name: node-shell
-  namespace: kube-system
-  annotations:
-    kubernetes.io/psp: eks.privileged
-spec:
-  containers:
-    - name: shell
-      image: 'docker.io/alpine:3.9'
-      command:
-        - nsenter
-      args:
-        - '-t'
-        - '1'
-        - '-m'
-        - '-u'
-        - '-i'
-        - '-n'
-        - sleep
-        - '14000'
-      securityContext:
-        privileged: true
-  restartPolicy: Never
-  nodeSelector:
-    kubernetes.io/hostname: ip-192-168-49-62.us-west-2.compute.internal
-  nodeName: ip-192-168-49-62.us-west-2.compute.internal
-  hostNetwork: true
-  hostPID: true
-  hostIPC: true
-  enableServiceLinks: true
   ```
+  kind: Pod
+  apiVersion: v1
+  metadata:
+    name: node-shell
+    namespace: kube-system
+    annotations:
+      kubernetes.io/psp: eks.privileged
+  spec:
+    containers:
+      - name: shell
+        image: 'docker.io/alpine:3.9'
+        command:
+          - nsenter
+        args:
+          - '-t'
+          - '1'
+          - '-m'
+          - '-u'
+          - '-i'
+          - '-n'
+          - sleep
+          - '14000'
+        securityContext:
+          privileged: true
+    restartPolicy: Never
+    nodeSelector:
+      kubernetes.io/hostname: ip-192-168-49-62.us-west-2.compute.internal
+    nodeName: ip-192-168-49-62.us-west-2.compute.internal
+    hostNetwork: true
+    hostPID: true
+    hostIPC: true
+    enableServiceLinks: true
+    ```
 + **Deploy workers onto private subnets**. By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. 
 
-+ **Run [Amazon Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) to assesses applications for exposure, vulnerabilities, and deviations from best practices.  
++ **Run [Amazon Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) to assesses applications for exposure, vulnerabilities, and deviations from best practices**.  It requires the deployment of an agent that continually monitors activity on the instance while using set of rules to assess alignment with best practices. 
+  At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.  
+  Inspector cannot be run on the infrastructure used to run Fargate pods. 
   **Alternatives**
   + [Sysdig Secure](https://sysdig.com/products/kubernetes-security/)
 
