@@ -50,7 +50,7 @@ Once the user's identity has been authenticated by the AWS IAM service, the kube
 
 + **Employ least privilieged access when creating RoleBindings and ClusterRoleBindings**. Like the earlier point about granting access to AWS Resources, RoleBindings and ClusterRoleBindings should only include the set of permissions necessary to perform a specific function. Avoid using `["*"]` in your Roles and ClusterRoles unless it's absolutely necessary. If you're unsure what permissions to assign, consider using a tool like [audit2rbac](https://github.com/liggitt/audit2rbac) to automatically generate Roles and binding based on the observed API calls in the Kubernetes Audit Log.
 
-+ **Regularly audit access to the cluster**. Who requires access is likely to change over time. Periodically review the aws-auth ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on auditing.
++ **Regularly audit access to the cluster**. Who requires access is likely to change over time. Periodically review the aws-auth ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on auditing.  Additional ideas can be found in this [article](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D) from nccgroup. 
 
 + **Make the EKS Cluster Endpoint private**. By default when you provision an EKS cluster, the API cluster endpoint is set to public, i.e. it can be accessed from the Internet. Despite being public, the endpoint is considered secure because it requires that all API requests are first authenticated and then authorized. That said, if your security policy mandates that you restrict access to the API from the Internet or prevents you from routing traffic outside the cluster VPC, you can: 
     + Configure the EKS cluster endpoint to be private. See [Modifying Cluster Endpoint Access](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html) for further information on this topic. 
@@ -547,14 +547,87 @@ In each of these instances the following constructs are used to isolate tenants 
 ### Mitigating controls
 Your chief concern as an administrator of a multi-tenant environment is preventing an attacker from gaining access to the underlying host. The following controls should be considered to mitigate the risk of this happening: 
   + **Pod Security Policies (PSPs)**: PSPs should be used to curtail the actions that can be performed by a container and to reduce a container's privileges, e.g. running as a non-root user.   
-  + **Sandboxed execution environments for containers**: Not applicable to EKS, but useful in self-managed environments where you can configure alterate runtimes, e.g. [Kata Containers](https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support). Sandboxing is where you run a pod's containers within a micro VM like [Firecracker](https://firecracker-microvm.github.io/) or a user-space kernel. For additional information about the effort to make Firecracker a supported runtime for Kubernetes, See https://threadreaderapp.com/thread/1238496944684597248.html. 
+  + **Sandboxed execution environments for containers**: Not applicable to EKS, but useful in self-managed environments where you can configure alterate runtimes, e.g. [Kata Containers](https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support). Sandboxing is where you run a pod's containers within a micro VM like [Firecracker](https://firecracker-microvm.github.io/) as in Weave's [Firekube](https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite). For additional information about the effort to make Firecracker a supported runtime for EKS, See https://threadreaderapp.com/thread/1238496944684597248.html. 
   + **Open Policy Agent (OPA) & [Gatekeeper](https://github.com/open-policy-agent/gatekeeper)**: Gatekeeper is a Kubernetes admission controller that enforces policies created with OPA. With OPA you can create a policy that runs pods from tenants on separate instances or at a higher priority than other tenants. 
 
 ### Hard multi-tenancy
 Hard multi-tenancy can be implemented by provisioning separate clusters for each tenant.  While this provides very strong isolation between tenants, it has several drawbacks.  First, when you have lots of tenants, this approach can quickly become prohibitively expensive. Not only will you have to pay for the control plane costs for each cluster, you will not be able to share compute resources between clusters.  This will eventually cause fragmentation where subset of clusters are underutilized while others may be overutilized. Second, you will likely need to buy or build special tooling to manage all of these clusters.  In time, managing hundreds or thousands of clusters may simply become too unweildy.  Finally, creating a cluster per tenant will be slow relative to a creating a namespace. For a majority of cluster, the cluster per tenant model is not really practical or cost effective, yet it may be necessary in highly regulated industries or in SaaS environments where strong isolation is required. 
 
 ## Auditing and logging
-https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D
+Collecting and analyzing \[audit\] logs is useful for a variety of different reasons.  Logs can help with root cause analysis and attribution, i.e. ascribing a change to a particular user. When enough logs have been collected, they can be used to detect anomolous behaviors too. On EKS, the audit logs are sent to Amazon Cloudwatch Logs. The audit policy for EKS currently augments the reference [policy](https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh#L983-L1108) in the helper script with the following policy: 
+```
+- level: RequestResponse
+    namespaces: ["kube-system"]
+    verbs: ["update", "patch", "delete"]
+    resources:
+      - group: "" # core
+        resources: ["configmaps"]
+        resourceNames: ["aws-auth"]
+    omitStages:
+      - "RequestReceived"
+```
+This update logs changes to the `aws-auth` ConfigMap which is used to grant access to an EKS cluster. 
+
+### Best Practices
++ Kubernetes audit logs include two annotations that indicate whether or not a request was authorized (authorization.k8s.io/decision) and the reason for the decision (authorization.k8s.io/reason).  Use these attributes to ascertain why a particular API call was allowed. 
+   
++ Create an alarm to automatically alert you where there isn an increase in 403 Forbidden and 401 Unauthorized responses, and then use attributes like host, sourceIPs, and k8s_user.username to find out where those requests are coming from.
+
++ **Enable audit logs**. The audit logs are part of the EKS control plane logs.  Instructions for enabling/disabling the control plane logs, including the audit log, can be found here, https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export. 
+
+  > Be aware that the maximum size for a CWL entry is 256KB whereas the maximum Kubernetes API request size is 1.5MiB. The difference could allow an attacker to pad a API request with dummy data to obscure their tracks.
+  
++ Use Cloudwatch Log Insights to monitor changes to RBAC objects, e.g. roles, rolebindings, clusterroles, and clusterrolebindings.  A few sample queries appear below: 
+
+  Lists create, update, delete operations to roles
+  ```
+  fields @timestamp, @message
+  | sort @timestamp desc
+  | limit 100
+  | filter objectRef.resource="roles" and verb in ["create", "update", "patch", "delete"]
+  ```
+  Lists create, update, delete operations to rolebindings
+  ```
+  fields @timestamp, @message
+  | sort @timestamp desc
+  | limit 100
+  | filter objectRef.resource="rolebindings" and verb in ["create", "update", "patch", "delete"]
+  ```
+  Lists create, update, delete operations to clusterroles
+  ```
+  fields @timestamp, @message
+  | sort @timestamp desc
+  | limit 100
+  | filter objectRef.resource="clusterroles" and verb in ["create", "update", "patch", "delete"]
+  ```
+  Lists create, update, delete operations to clusterrolebindings
+  ```
+  fields @timestamp, @message
+  | sort @timestamp desc
+  | limit 100
+  | filter objectRef.resource="clusterrolebindings" and verb in ["create", "update", "patch", "delete"]
+  ```
+  Plots unauthorized read operations against secrets
+  ```
+  fields @timestamp, @message
+  | sort @timestamp desc
+  | limit 100
+  | filter objectRef.resource="secrets" and verb in ["get", "watch", "list"] and responseStatus.code="401"
+  | count() by bin(1m)
+  ```
+  List of failed anonymous requests
+  ```
+  fields @timestamp, @message, sourceIPs.0
+  | sort @timestamp desc
+  | limit 100
+  | filter user.username="system:anonymous" and responseStatus.code in ["401", "403"]
+  ```
+### Additional resources
+As the volume of logs increases, parsing and filtering them with Log Insights or another log analysis tool may become ineffective.  As an alternative, you might want to consider running [Sysdig Falco](https://github.com/falcosecurity/falco) and [ekscloudwatch](https://github.com/sysdiglabs/ekscloudwatch). Falco analyzes the logs and flags anomalies or abuse over an extended period of time. The ekscloudwatch project allows audit log events from EKS to be sent to Falco for analysis. Falco provides a set of [default audit rules](https://github.com/falcosecurity/falco/blob/master/rules/k8s_audit_rules.yaml) along with the ability to add your own. 
+
+Yet another option might be to store the audit logs in S3 and use the SageMaker [Random Cut Forest](https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html) algorithm to anomalous behaviors that warrant further investigation.
+
+An upcoming solution from Alcide called [kAudit](https://www.alcide.io/kaudit-K8s-forensics/) proclaims to identify suspicious activity patterns too. 
 
 ## Network security
 ### Network policy
@@ -681,5 +754,5 @@ The following table shows the compliance programs with which the different conta
 
 ## Incident response and forensics
 
-
+https://www.youtube.com/watch?v=CH7S5rE3j8w&feature=youtu.be
 
