@@ -79,16 +79,21 @@ If you are running an application that uses EBS volume but has no requirements t
 
 Consider this scenario, you have an EKS cluster with one node group (or one autoscaling group), this node group has three worker nodes spread across three AZs. You have an application that needs to persist its data using an EBS volume. When you create this application and the corresponding volume, it gets created in the first of the three AZs. Your application running inside a Kubernetes pod is successfully able to store data on the persistent volume. Then, the worker node that runs this aforementioned pod becomes unhealthy and subsequently unavailable for use. Cluster Autoscaler will replace the unhealthy node with a new worker node, however because the autoscaling group spans across three AZs, the new worker node may get launched in the second or the third AZ, but not in the first AZ as our situation demands. Now we have a problem, the AZ-constrained volume only exists in the first AZ, but there are no worker nodes available in that AZ and hence, the pod cannot be scheduled. And due to this, you will have to create one node group in each AZ so there is always enough capacity available to run pods that cannot function in other AZs. 
 
-## Recommendations
+### Recommendations
 Running worker nodes in multiple Availability Zones protects your workloads from failures in an individual Availability Zone. Due to the challenges presented in above mentioned scenarios, you may need multiple node-groups. 
 * For stateless workloads, you can create one node group that spans across multiple Availability Zones. 
 * If your cluster uses different types of EC2 instances then you should create multiple node groups, one for each instance type. 
-* If your application needs EBS volumes, then you should 
+* If your application that runs replicas in multiple Availability Zondes needs EBS volumes, then you should create a node group per Availability Zone. 
 
-******
+*****
+
 Here is a helpful flowchart to determine when to create node groups:
+
+
 ![auto-scaling group-flowchart](images/reliability-ca-asg.jpg)
-****** 
+
+
+*****
 
 Note:
 When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
