@@ -86,7 +86,8 @@ Running worker nodes in multiple Availability Zones protects your workloads from
 * If your application needs EBS volumes, then you should 
 
 ******
-Put a flow chart here
+Here is a helpful flowchart to determine when to create node groups:
+![auto-scaling group-flowchart](images/reliability-ca-asg.jpg)
 ****** 
 
 Note:
