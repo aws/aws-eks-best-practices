@@ -21,3 +21,7 @@ As with the other pillars, there are trade-offs to consider. For example, do you
 
 ## Best Practices
 
+### Cost-effective resources
+### Matching supply and demand
+### Expenditure awareness
+### Optimizing over time
