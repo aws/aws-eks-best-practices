@@ -22,7 +22,9 @@ As with the other pillars, there are trade-offs to consider. For example, do you
 ## Best Practices
 
 ### Cost-effective resources
-Amazon EKS supports running has different pricing models for the Fargate launch type that are based on the amount of vCPU and memory resources that your containerized application requests. With an EC2 launch type, you pay for AWS resources (e.g., EC2 instances, EBS volumes, and Load Balancers) that you create to store and run your application. 
+Amazon EKS on AWS supports running clusters using either EC2 or AWS Fargate, and on premises using AWS Outposts. It has different pricing models for the Fargate launch type that are based on the amount of vCPU and memory resources that your containerized application requests. With an EC2 launch type, you pay for AWS resources (e.g., EC2 instances, EBS volumes, and Load Balancers) that you create to store and run your application. 
+[There are important considerations that need to be taken into account before running usinh AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html#fargate-considerations).
+
 
 ### Matching supply and demand
 
@@ -40,9 +42,12 @@ $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluste
         "costcenter": "1234", 
         "team": "devops"
     }
-}```
+}
+```
 
 ### Optimizing over time
+
+Leverage Auto Scaling at a service level as well on container nodes, to provision resources and keep a buffer for traffic spikes. Leverage pricing models to gain efficiency for burst and spike modes.
 
 ### Key AWS Services
 Cost optimization is supported by the following AWS services and features:
@@ -59,17 +64,17 @@ Videos
 
 Documentation and Blogs
 +	[Using Spot Instances with EKS](https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks.html)
++   [Extending the EKS API: Managed Node Groups](https://aws.amazon.com/blogs/containers/eks-managed-node-groups/)
 +	[Autoscaling with Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html) 
-+	Kubernetes Cluster Monitoring
-+	Amazon EEKS supports tagging
-+	Clean up Your Container Images with Amazon ECR Lifecycle Policies
-+	Running GPU-Accelerated Kubernetes Workloads on P3 and P2 EC2 Instances with Amazon EKS
-+	AWS Fargate pricing
-+	Amazon EKS pricing
++	[Setting Up Container Insights on Amazon EKS and Kubernetes ](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html)
++	[Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
++	[Amazon ECR Lifecycle Policies](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html)
++	[Amazon EKS-Optimized AMI with GPU Support](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html)
++	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
++	[Amazon EKS pricing](https://aws.amazon.com/eks/pricing/)
 
 Tools
-+	AWS Organizations
-+	What is AWS Billing and Cost Management?
-+	Automated Image Cleanup for Amazon ECR
-+ Third party - Kube Cost 
++	[AWS Organizations](https://aws.amazon.com/organizations/)
++	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
++   [Third party - Kube Cost](https://kubecost.com/)
 
