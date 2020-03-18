@@ -22,9 +22,14 @@ As with the other pillars, there are trade-offs to consider. For example, do you
 ## Best Practices
 
 ### Cost-effective resources
-Amazon EKS on AWS supports running clusters using either EC2 or AWS Fargate, and on premises using AWS Outposts. It has different pricing models for the Fargate launch type that are based on the amount of vCPU and memory resources that your containerized application requests. With an EC2 launch type, you pay for AWS resources (e.g., EC2 instances, EBS volumes, and Load Balancers) that you create to store and run your application. 
-[There are important considerations that need to be taken into account before running using AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html#fargate-considerations).
+**Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs. Use pricing models for effective utilization.**
 
+Amazon EKS on AWS supports running the worker nodes on clusters using either EC2 Instance types or AWS Fargate, and on premises using AWS Outposts. Amazon EC2 based worker nodes can be either On-Demand Instances or Amazon EC2 Spot Instances. It has different pricing models for the Fargate launch type that are based on the amount of vCPU and memory resources that your containerized application requests. With an EC2 launch type, you pay for AWS resources (e.g., EC2 instances, EBS volumes, and Load Balancers) that you create to store and run your application. [There are important considerations that need to be taken into account before running using AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html#fargate-considerations).
+EC2 Spot Instances offer spare compute capacity available in the AWS Cloud at steep discounts compared to On-Demand Instances. Spot Instances typically cost 50–90% less than On-Demand Instances. Powering your EKS cluster with Spot Instances lets you reduce the cost of running your existing containerized workloads, or increase your compute capacity by two to ten times while keeping the same budget.Or you could do a combination of running a cluster with both On-Demand as well as Spot Instances. 
+The right strategy will depend upon a number of factors—including the application architecture's ability to run on Spot Instances, and the need to maintain a minimum amount of core compute capacity regardless of the availability of Spot Instances. There are [reference architectures that show how automatic scaling with a mix of On-Demand and Spot Instances can be architected in an EKS Cluster](https://eksworkshop.com/spotworkers/workers/). 
+For AWS Fargate, you only pay for the amount of vCPU and memory resources that your containerized application requests. AWS Fargate pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS Pod terminates, rounded up to the nearest second. [When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
+
+**Monitoring overall CPU and memory utilization of the Container Cluster to ensure that you are using the right EC2 instance type**
 
 ### Matching supply and demand
 
@@ -71,6 +76,7 @@ Documentation and Blogs
 +	[Amazon ECR Lifecycle Policies](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html)
 +	[Amazon EKS-Optimized AMI with GPU Support](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html)
 +	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
++   [Amazon EKS on AWS Fargate](https://aws.amazon.com/blogs/aws/amazon-eks-on-aws-fargate-now-generally-available/)
 +	[Amazon EKS pricing](https://aws.amazon.com/eks/pricing/)
 
 Tools
