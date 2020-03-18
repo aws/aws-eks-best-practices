@@ -23,7 +23,7 @@ As with the other pillars, there are trade-offs to consider. For example, do you
 
 ### Cost-effective resources
 Amazon EKS on AWS supports running clusters using either EC2 or AWS Fargate, and on premises using AWS Outposts. It has different pricing models for the Fargate launch type that are based on the amount of vCPU and memory resources that your containerized application requests. With an EC2 launch type, you pay for AWS resources (e.g., EC2 instances, EBS volumes, and Load Balancers) that you create to store and run your application. 
-[There are important considerations that need to be taken into account before running usinh AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html#fargate-considerations).
+[There are important considerations that need to be taken into account before running using AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html#fargate-considerations).
 
 
 ### Matching supply and demand
