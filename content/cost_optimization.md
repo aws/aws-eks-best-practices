@@ -22,6 +22,54 @@ As with the other pillars, there are trade-offs to consider. For example, do you
 ## Best Practices
 
 ### Cost-effective resources
+Amazon EKS supports running has different pricing models for the Fargate launch type that are based on the amount of vCPU and memory resources that your containerized application requests. With an EC2 launch type, you pay for AWS resources (e.g., EC2 instances, EBS volumes, and Load Balancers) that you create to store and run your application. 
+
 ### Matching supply and demand
+
 ### Expenditure awareness
+Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs. 
+
+Adding and Listing tags to an EKS cluster:
+```
+$ aws eks tag-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluster/ekscluster1 --tags team=devops,env=staging,bu=cio,costcenter=1234 
+$ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluster/ekscluster1
+{
+    "tags": {
+        "bu": "cio", 
+        "env": "staging", 
+        "costcenter": "1234", 
+        "team": "devops"
+    }
+}```
+
 ### Optimizing over time
+
+### Key AWS Services
+Cost optimization is supported by the following AWS services and features:
++ Cost-effective resources – Amazon EC2 provides multiple instance types, such as Reserved Instances and Spot Instances, at different prices.
++ Matching supply and demand – Match user demand with Auto Scaling. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores for elasticity and durability of the application data.
++ Expenditure awareness – The Billing and Cost Management console dashboard provides an overview of your AWS usage. Use AWS Organizations for granular billing details.
++ Optimizing over time – Amazon CloudWatch Container Metrics provides metrics around usage of resources by the EKS cluster. In addition to the Kubernetes dashboard, there are several tools in the Kubernetes ecosystem that can be used to monitor Kubernetes clusters, such as Prometheus.
+
+### Resources
+Refer to the following resources to learn more about AWS best practices for cost optimization.
+
+Videos
++	[AWS re:Invent 2019: Save up to 90% and run production workloads on Spot Instances (CMP331-R1)](https://www.youtube.com/watch?v=7q5AeoKsGJw)
+
+Documentation and Blogs
++	[Using Spot Instances with EKS](https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks.html)
++	[Autoscaling with Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html) 
++	Kubernetes Cluster Monitoring
++	Amazon EEKS supports tagging
++	Clean up Your Container Images with Amazon ECR Lifecycle Policies
++	Running GPU-Accelerated Kubernetes Workloads on P3 and P2 EC2 Instances with Amazon EKS
++	AWS Fargate pricing
++	Amazon EKS pricing
+
+Tools
++	AWS Organizations
++	What is AWS Billing and Cost Management?
++	Automated Image Cleanup for Amazon ECR
++ Third party - Kube Cost 
+
