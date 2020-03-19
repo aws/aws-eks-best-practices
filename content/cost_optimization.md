@@ -37,6 +37,7 @@ From https://eksworkshop.com/spotworkers/:
 For AWS Fargate, you only pay for the amount of vCPU and memory resources that your containerized application requests. AWS Fargate pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS Pod terminates, rounded up to the nearest second. [When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
 
 **Savings Plan**
+
 [Compute Savings Plans provide the most flexibility and help to reduce your costs by up to 66% (just like Convertible RIs). The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EMR, ECS, or EKS clusters, or launched by Fargate.](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/) For example, you can shift from C4 to C5 instances, move a workload from Dublin to London, or migrate from EC2 to Fargate, benefiting from Savings Plan prices along the way, without having to do anything. 
 
 **Monitoring overall CPU and memory utilization of the Container Cluster to ensure that you are using the right EC2 instance type**
