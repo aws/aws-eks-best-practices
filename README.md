@@ -1,4 +1,4 @@
-## AWS Eks Best Practices
+## Amazon Elastic Kubernetes Service (Amazon EKS) Best Practices
 
 A best practices guide for day 2 operations, including operational excellence, security, reliability, performance efficiency, and cost optimization.
 
