@@ -30,9 +30,24 @@ EC2 Spot Instances offer spare compute capacity available in the AWS Cloud at st
 
 The right strategy will depend upon a number of factors—including the application architecture's ability to run on Spot Instances, and the need to maintain a minimum amount of core compute capacity regardless of the availability of Spot Instances. There are [reference architectures that show how automatic scaling with a mix of On-Demand and Spot Instances can be architected in an EKS Cluster](https://eksworkshop.com/spotworkers/workers/). 
 
+From https://eksworkshop.com/spotworkers/:
+
+![auto-scaling group-flowchart](images/spot_diagram.png)
+
 For AWS Fargate, you only pay for the amount of vCPU and memory resources that your containerized application requests. AWS Fargate pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS Pod terminates, rounded up to the nearest second. [When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
 
+**Savings Plan**
+[Compute Savings Plans provide the most flexibility and help to reduce your costs by up to 66% (just like Convertible RIs). The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EMR, ECS, or EKS clusters, or launched by Fargate.](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/) For example, you can shift from C4 to C5 instances, move a workload from Dublin to London, or migrate from EC2 to Fargate, benefiting from Savings Plan prices along the way, without having to do anything. 
+
 **Monitoring overall CPU and memory utilization of the Container Cluster to ensure that you are using the right EC2 instance type**
+
+Use CloudWatch Container Insights to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Container Service, Amazon Elastic Kubernetes Service, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network. Container Insights also provides diagnostic information, such as container restart failures, to help you isolate issues and resolve them quickly. You can also set CloudWatch alarms on metrics that Container Insights collects.
+
+The metrics that Container Insights collects are available in CloudWatch automatic dashboards. You can analyze and troubleshoot container performance and logs data with CloudWatch Logs Insights. 
+
+[In Amazon EKS and Kubernetes, Container Insights uses a containerized version of the CloudWatch agent to discover all of the running containers in a cluster. It then collects performance data at every layer of the performance stack.](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) 
+
+[Amazon EKS Workshop - setting up EKS CloudWatch Container Insights sections has more details on how to set this up in your cluster.](https://eksworkshop.com/intermediate/250_cloudwatch_container_insights/)
 
 ### Matching supply and demand
 
