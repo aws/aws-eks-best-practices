@@ -36,7 +36,6 @@ From https://eksworkshop.com/spotworkers/:
 
 For AWS Fargate, you only pay for the amount of vCPU and memory resources that your containerized application requests. AWS Fargate pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS Pod terminates, rounded up to the nearest second. [When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
 
-Significant savings of the EC2 instance cost of the Kubernetes cluster can be achieved by auto scaling of nodes & pods, righ-saving, leveraging Savings Plan and usage of EC2 Spot. 
 **Savings Plan**
 
 [Compute Savings Plans provide the most flexibility and help to reduce your costs by up to 66% (just like Convertible RIs). The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EMR, ECS, or EKS clusters, or launched by Fargate.](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/) For example, you can shift from C4 to C5 instances, move a workload from Dublin to London, or migrate from EC2 to Fargate, benefiting from Savings Plan prices along the way, without having to do anything. 
@@ -51,6 +50,8 @@ The metrics that Container Insights collects are available in CloudWatch automat
 
 [Amazon EKS Workshop - setting up EKS CloudWatch Container Insights sections has more details on how to set this up in your cluster.](https://eksworkshop.com/intermediate/250_cloudwatch_container_insights/)
 
+Significant savings of the EC2 instance cost of the Kubernetes cluster can be achieved by auto scaling of nodes & pods, right-saving, leveraging Savings Plan and usage of EC2 Spot. 
+
 ### Matching supply and demand
 
 Leverage Auto Scaling at a Pod level as well on Container nodes, to provision resources and keep a buffer for traffic spikes. Leverage pricing models to gain efficiency for burst and spike modes. 
@@ -64,6 +65,7 @@ Leverage Auto Scaling at a Pod level as well on Container nodes, to provision re
 [Amazon EKS support both Horizontal Pod Autoscaler and Vertical Pod Autoscaler for scaling of Pods.](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html)
 + Horizontal Pod Autoscaler - The Kubernetes Horizontal Pod Autoscaler automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization.
 + Vertical Pod Autoscaler - The Kubernetes Vertical Pod Autoscaler automatically adjusts the CPU and memory reservations for your pods to help "right size" your applications. This adjustment can improve cluster resource utilization and free up CPU and memory for other pods. 
+
 ### Expenditure awareness
 Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs. 
 
