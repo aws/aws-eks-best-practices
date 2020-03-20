@@ -36,6 +36,7 @@ From https://eksworkshop.com/spotworkers/:
 
 For AWS Fargate, you only pay for the amount of vCPU and memory resources that your containerized application requests. AWS Fargate pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS Pod terminates, rounded up to the nearest second. [When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
 
+Significant savings of the EC2 instance cost of the Kubernetes cluster can be achieved by auto scaling of nodes & pods, righ-saving, leveraging Savings Plan and usage of EC2 Spot. 
 **Savings Plan**
 
 [Compute Savings Plans provide the most flexibility and help to reduce your costs by up to 66% (just like Convertible RIs). The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EMR, ECS, or EKS clusters, or launched by Fargate.](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/) For example, you can shift from C4 to C5 instances, move a workload from Dublin to London, or migrate from EC2 to Fargate, benefiting from Savings Plan prices along the way, without having to do anything. 
@@ -83,7 +84,7 @@ $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluste
 
 ### Optimizing over time
 
-As microservices scale, leverage platform tools to profile the service and usage. [Amazon EKS-Optimized AMI with and without GPU support are available.](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html). \
+As microservices scale, leverage platform tools to profile the service and usage. [Amazon EKS-Optimized AMI with and without GPU support are available.](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html). 
 
 An Amazon EKS cluster can use various EC2 instance types that the microservice needs,including such as Amazon EC2 GPU instances. Amazon EC2 P3 and P2 instances, featuring NVIDIA GPUs, power some of the most computationally advanced workloads today, including machine learning (ML), high performance computing (HPC), financial analytics, and video transcoding. [Now Amazon Elastic Container Service for Kubernetes (Amazon EKS) supports P3 and P2 instances, making it easy to deploy, manage, and scale GPU-based containerized applications.](https://aws.amazon.com/blogs/compute/running-gpu-accelerated-kubernetes-workloads-on-p3-and-p2-ec2-instances-with-amazon-eks/)
 
@@ -104,6 +105,7 @@ Videos
 +	[AWS re:Invent 2019: Save up to 90% and run production workloads on Spot Instances (CMP331-R1)](https://www.youtube.com/watch?v=7q5AeoKsGJw)
 
 Documentation and Blogs
++	[Cost optimization for Kubernetes on AWS](https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)
 +	[Using Spot Instances with EKS](https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks.html)
 +   [Extending the EKS API: Managed Node Groups](https://aws.amazon.com/blogs/containers/eks-managed-node-groups/)
 +	[Autoscaling with Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html) 
