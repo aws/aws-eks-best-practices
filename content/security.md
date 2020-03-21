@@ -720,7 +720,7 @@ _Kubernetes network policy_
         ports: 
         - 53
   ```
-  The following is an example of how to use associate a network policy to a service account while preventing users in the default namespace from editing the service account: 
+  The following is an example of how to use associate a network policy to a service account while preventing users associated with the readonly-sa-group from editing the service account my-sa in the default namespace: 
   ```
   apiVersion: v1
   kind: ServiceAccount
