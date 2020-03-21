@@ -79,16 +79,38 @@ If you are running an application that uses EBS volume but has no requirements t
 
 Consider this scenario, you have an EKS cluster with one node group (or one autoscaling group), this node group has three worker nodes spread across three AZs. You have an application that needs to persist its data using an EBS volume. When you create this application and the corresponding volume, it gets created in the first of the three AZs. Your application running inside a Kubernetes pod is successfully able to store data on the persistent volume. Then, the worker node that runs this aforementioned pod becomes unhealthy and subsequently unavailable for use. Cluster Autoscaler will replace the unhealthy node with a new worker node, however because the autoscaling group spans across three AZs, the new worker node may get launched in the second or the third AZ, but not in the first AZ as our situation demands. Now we have a problem, the AZ-constrained volume only exists in the first AZ, but there are no worker nodes available in that AZ and hence, the pod cannot be scheduled. And due to this, you will have to create one node group in each AZ so there is always enough capacity available to run pods that cannot function in other AZs. 
 
+### Recommendations
+Running worker nodes in multiple Availability Zones protects your workloads from failures in an individual Availability Zone. Due to the challenges presented in above mentioned scenarios, you may need multiple node-groups. 
+* For stateless workloads, you can create one node group that spans across multiple Availability Zones. 
+* If your cluster uses different types of EC2 instances then you should create multiple node groups, one for each instance type. 
+* If your application that runs replicas in multiple Availability Zondes needs EBS volumes, then you should create a node group per Availability Zone. 
+
+*****
+
+Here is a helpful flowchart to determine when to create node groups:
+
+
+![auto-scaling group-flowchart](images/reliability-ca-asg.jpg)
+
+
+*****
 
 Note:
 When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
 
+### Running highly-available applications 
+Highly available systems are designed to mitigate any harmful impact in the environment. Most modern applications depend on a network of resources that must all work together. Highly available applications are designed so a user never experiences a failure due to a malfunctioning component in the system. In order to make a service or application highly available, we need to eliminate any single points of failure and heal components as they get unhealthy. 
+
+Kubernetes provides us tools to easily run highly available applications and services. You can eliminate single points of failure in your applications by running multiple replicas. In Kubernetes pods are the smallest deployable units and while Kubernetes allows you to create individual pods, creating individual pods outside of testing and troubleshooting scenarios is not recommended. [Kubernetes Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) provides abstraction layer for pods, you describe a desired state in a [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#creating-a-deployment) and the Deployment controller changes the actual state to match the desired state. You can define the number of `replicas` with the deployment.
+
+You can scale-out your application by adjusting the number of replicas. We will take a deeper look at scaling applications in the following sections. Kubernetes can also automatically heal applications, it can check application's health and can recreate it if application's health check fails. 
+
 
 ### Scaling Kubernetes pods
-Kubernetes provides two ways of scaling your applications running inside pods. First is the way of [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA), which would automatically create or delete pods (replicas) in a Deployment based on a scaling metric. Another way Kubernetes can scale your application is using Virtical Pod Autoscaler.
+Kubernetes provides two ways of scaling your applications running inside pods. First is the way of [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA), which would automatically create or delete pods (replicas) in a Deployment based on a scaling metric. Another way Kubernetes can scale your application is using Vertical Pod Autoscaler.
 
 ### Kubernetes Metrics Server
-Before you can use the HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data*.It is responsible for collecting resource metrics from kubelets and exposing them in Kubernetes Apiserver through [Metrics API](https://github.com/kubernetes/metrics). 
+Before you can use the HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data* and it has been inspired by [Heapster](https://github.com/kubernetes-retired/heapster).The metrics-server is responsible for collecting resource metrics from kubelets and serving them in [Metrics API format](https://github.com/kubernetes/metrics). These metrics are consumed by monitoring systems like Prometheus and by itself the metrics-server only stores metrics in memory. 
 
 You can find the instructions to install Kubernetes Metrics Server [here](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html).
 
@@ -134,12 +156,14 @@ This will create autoscale an existing deployment (nginx in this case). You can 
 
 ### Custom and external metrics for autoscaling deployments
 
-In pod autoscaling context, custom metrics are metrics other than CPU and memory usage (these are provided by the metrics-server) that you can use to scale your deployments. [Custom Metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/custom-metrics-api.md) API servers provide the `custom-metrics.k8s.io` API which is queried by the Horizontal Pod Autoscaler. You can use the [Prometheus Adapter for Kubernetes Metrics APIs](https://github.com/directxman12/k8s-prometheus-adapter) to collect metrics from Prometheus and use with the Horizontal Pod Autoscaler for autoscaling your deployments. In this case Prometheus adapter will expose Prometheus metrics in Kubernetes consistent way. A list of all custom metrics implementation can be found [here](https://github.com/kubernetes/metrics/blob/master/IMPLEMENTATIONS.md#custom-metrics-api). 
+In pod autoscaling context, custom metrics are metrics other than CPU and memory usage (these are already provided by the metrics-server) that you can use to scale your deployments. [Custom Metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/custom-metrics-api.md) API servers provide the `custom-metrics.k8s.io` API which is queried by the Horizontal Pod Autoscaler. You can use the [Prometheus Adapter for Kubernetes Metrics APIs](https://github.com/directxman12/k8s-prometheus-adapter) to collect metrics from Prometheus and use with the Horizontal Pod Autoscaler to autoscale your deployments. In this case Prometheus adapter will expose Prometheus metrics in [Metrics API format](https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/v1alpha1/types.go). A list of all custom metrics implementation can be found in [Kubernetes Documentation](https://github.com/kubernetes/metrics/blob/master/IMPLEMENTATIONS.md#custom-metrics-api). 
 
 Once you deploy the Prometheus Adapter, you can query custom metrics using kubectl.
 `kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1/`
 
 You will need to start producing custom metrics before you start consuming them for autoscaling. 
+
+[Kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) can be used to generate metrics derived from the state of Kubernetes objects. It is not focused on the health of the individual Kubernetes components, but rather on the health of the various objects inside, such as deployments, nodes and pods. 
 
 [External metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md), as the name suggests provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
 
@@ -152,11 +176,15 @@ You might have wondered why the Horizontal Pod Autoscaler is not simply called "
 
 [EKS Documentation](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) includes a walkthrough for setting up VPA. 
 
-### Pod Disruption Budget
-
 ### Health checks
 
+### Disruptions
+A Pod in a cluster will run indefinitely unless a user (human or system) terminates it or the system(s) running the pod malfunction, e.g., a kernel panic on the worker node running the pod.   
+
+
 ### Observability 
+
+### Monitoring CoreDNS
 
 ### Service Meshes
 
