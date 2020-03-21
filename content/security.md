@@ -666,7 +666,7 @@ _Kubernetes network policy_
   ```
   _Calico network policy_
   ```
-  apiVersion: projectcalico.org/v3
+  apiVersion: crd.projectcalico.org/v1
   kind: GlobalNetworkPolicy
   metadata:
     name: default-deny
@@ -783,6 +783,10 @@ _Kubernetes network policy_
 ### Security groups
 
 ### Encryption in transit
+Applications that need to conform to PCI, HIPAA, or other regulations may need to encrypt data while it is in transit.  Nowadays TLS is the de facto choice for encrypting traffic on the wire.  TLS, like it's predecessor SSL, provides secure communications over a network using cyptographic protocols.  TLS uses symmetric encryption where the keys to encrypt the data are generated based on a shared secret that is negotiated at the beginning of the sesssion. The follow are a few ways that you can encrypt data in a Kubernetes environment. 
++ **Nitro Instances**. Traffic exchanged between select Nitro instance types, e.g. M5n, M5dn, R5n, and R5dn, is automatically encrypted by default.  When there's an intermediate hop, like a trasit gateway or a load balancer, the traffic is not encrypted. 
++ **Container Network Interfaces (CNIs)**. [WeaveNet](https://www.weave.works/oss/net/) can be configured to automatically encrypt all traffic using NaCl encryption for sleeve traffic, and IPsec ESP for fast datapath traffic.
++ **Service Mesh**. Encryption in transit can also be implemented with a service mesh like App Mesh, Linkerd v2, and Istio. Currently, App Mesh supports [TLS encryption](https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html) with a private certificate issued by ACM or a certificate stored on the local file system of the virtual node. Linkerd and Istio both have support for mTLS which adds another layer of security through mutual exchange and validation of certificates.
 
 ## Data encryption 
 
