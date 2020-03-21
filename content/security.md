@@ -720,8 +720,16 @@ _Kubernetes network policy_
         ports: 
         - 53
   ```
-  The following is an example of how to create an RBAC policy to prevent namespace administrators from editing the tags assigned to a service acount that is used to assign a network policy to a pod with Calico: 
+  The following is an example of how to use associate a network policy to a service account while preventing users in the default namespace from editing the service account: 
   ```
+  apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: my-sa
+    namespace: default
+    labels: 
+      name: my-sa
+  ---
   apiVersion: rbac.authorization.k8s.io/v1
   kind: Role
   metadata:
@@ -748,8 +756,22 @@ _Kubernetes network policy_
     kind: Role 
     name: readonly-sa-role 
     apiGroup: rbac.authorization.k8s.io
+  ---
+  apiVersion: crd.projectcalico.org/v1
+  kind: NetworkPolicy
+  metadata:
+    name: netpol-sa-demo
+    namespace: default
+  # Allows all ingress traffic to services in the default namespace that reference
+  # the service account called my-sa
+  spec:
+    ingress:
+      - action: Allow
+        source:
+          serviceAccounts:
+            selector: 'name == "my-sa"'
+    selector: all()
   ```
-
 + **Incrementally add rules to selectively allow the flow of traffic between namespaces/pods**.  Start by allowing pods within a namespace to communicate with each other and then add custom rules that further restrict pod to pod communication within that namespace. 
 + **Log network traffic metadata**. VPC Flow Logs captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicous or unusual activity between resources within the VPC, including pods.  However, since the IP addresses of pods frequently change as they replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels, making it easier to decipher the traffic flows between pods.  It also makes use of machine learning to identify anomalous traffic.
 
