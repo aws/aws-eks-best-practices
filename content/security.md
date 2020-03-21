@@ -630,8 +630,107 @@ Yet another option might be to store the audit logs in S3 and use the SageMaker 
 An upcoming solution from Alcide called [kAudit](https://www.alcide.io/kaudit-K8s-forensics/) proclaims to identify suspicious activity patterns too. 
 
 ## Network security
+Network security has a couple of different facets.  The first involves the application of rules that restrict the flow of network traffic between services.  The second involves the encryption of traffic while it is on the wire.  The mechanisms to implement these security measures on EKS are varied but often include the following items:
++ Network Policies
++ Security Groups
++ Encryption in transit
+  + Service Mesh
+  + Container Network Interfaces (CNIs)
+  + Nitro Instances
+
+
 ### Network policy
+Within a Kubernetes cluster, all pod to pod communication is allowed by default.  While this may help promote experimentation, it is not considered secure.  Kubernetes network policies give you a mechanism to restrict network traffic between pods or pods and external services.  The de facto policy engine for EKS is [Calico](https://docs.projectcalico.org/introduction/), an open source project from Tigera.  Network policies operate at layers 3 and 4 of the OSI model.  Rules can comprise of a src/dst address or port/protocol or a combination of both. Isovalent, the maintainers of [Cilium](https://cilium.readthedocs.io/en/stable/intro/), have extended the network policies to include partial support for layer 7 rules, e.g. HTTP.  Cilium also has support for DNS hostnames which can be useful for restricting traffic between Kubernetes services/pods and resources that run within or outside of your VPC. By contrast, Tigera Enterprise includes a feature that allows you to map a Kubernetes network policy to an AWS security group. 
+
+  > When you first provision an EKS cluster, the Calico policy engine is not installed by default. The manifests for installing Calico can be found at https://github.com/aws/amazon-vpc-cni-k8s/tree/master/config.
+
+Calico policies can be scoped to namespaces, pods, service accounts, or globally.  When policies are scoped to a service account, it associates a set of ingress/egress rules with that service account.  With the proper RBAC rules in place, you can prevent teams from overriding these rules, allowing IT security professionals to safely delegate administration of namespaces.
+
+You can find a list of common Kubernetes network policies at https://github.com/ahmetb/kubernetes-network-policy-recipes.  A similar set of rules for Calico are available at https://docs.projectcalico.org/security/calico-network-policy. 
+
+#### Recommendations
++ **Create a default deny policy**. As with RBAC policies, network policies should adhere to the policy of least privileged access.  Start by creating a deny all policy that restricts all inbound and outbound traffic from a namespace or create a global policy using Calico.
+
+_Kubernetes network policy_
+  ```
+  apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: default-deny
+    namespace: default
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+  ```
+  _Calico network policy_
+  ```
+  apiVersion: projectcalico.org/v3
+  kind: GlobalNetworkPolicy
+  metadata:
+    name: default-deny
+  spec:
+    selector: all()
+    types:
+    - Ingress
+    - Egress
+  ```
+
++ **Create a rule to allow DNS queries**. Once you have the defaul deny all rule in place, you can begin to layer on additional rules, such as a global rule that allows pods to query CoreDNS for name resolution. You begin by labeling the namespace: 
+  ```
+  kubectl label namespace kube-system name=kube-system
+  ```
+  Then add the network policy:
+  ```
+  apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: allow-dns-access
+    namespace: default
+  spec:
+    podSelector:
+      matchLabels: {}
+    policyTypes:
+    - Egress
+    egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            name: kube-system
+      ports:
+      - protocol: UDP
+        port: 53
+  ```
+  _Calico global policy equivalent_
+  ```
+  apiVersion: crd.projectcalico.org/v1
+  kind: GlobalNetworkPolicy
+  metadata:
+    name: allow-dns-egress
+  spec:
+    selector: all()
+    types:
+    - Egress
+    egress:
+    - action: Allow
+      protocol: UDP  
+      destination:
+        namespaceSelector: name == "kube-system"
+        ports: 
+        - 53
+  ```
+
++ **Incrementally add rules to selectively allow the flow of traffic between namespaces/pods**.  Start by allowing pods within a namespace to communicate with each other and then add custom rules that further restrict pod to pod communication within that namespace. 
++ **Log network traffic metadata**. VPC Flow Logs captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicous or unusual activity between resources within the VPC, including pods.  However, since the IP addresses of pods frequently change as they replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels, making it easier to decipher the traffic flows between pods.  It also makes use of machine learning to identify anomalous traffic.
+
+#### Additional Resources
++ [Kubernetes & Tigera: Network Policies, Security, and Audit](https://youtu.be/lEY2WnRHYpg) 
++ [Cilium](https://cilium.readthedocs.io/en/stable/intro/)
++ [Calico Enterprise](https://www.tigera.io/tigera-products/calico-enterprise/)
+
 ### Security groups
+
 ### Encryption in transit
 
 ## Data encryption 
@@ -753,6 +852,41 @@ The following table shows the compliance programs with which the different conta
 + actuary
 
 ## Incident response and forensics
+
+* Incident response: commands  and tools to investigate suspect containers. 
+* Forensics: commands and tools  to collect and preserve the data for offline analysis and use in  criminal/civil court. 
+
+When security events are detected involving a Docker container on ECS, they have to decide to destroy and replace the container, or isolate and inspect the container. There are different factors that may lead to the either decision, but if they choose to isolate the instance for forensic investigation and root cause analysis, then the following set of steps need to be completed.
+
+The incident response and evidence capture steps are outlined below;
+
+1. Identify container  id, cluster name, container instance, task id, and EC2 instance.
+2. Enable termination  protection on impacted EC2 container instance.
+3. Disable access keys  and revoke temporary security credentials if required.
+4. Deregister the EC2  container instance from the cluster.
+5. Tag the container  instance.
+6. Capture volatile  artifacts in runtime on the running container instance.
+    1. Memory capture of  OS - this will capture the docker daemon and its subprocess per  container.
+    2. netstat tree dump  of the OS process running and ports open - this will capture the docker  daemon and its subprocess per container running to their individual  processes. 
+7. Run docker commands  before evidence is altered in the container EC2 instance.
+    1. docker container  top CONTAINER for processes running
+    2. docker container  logs CONTAINER for daemon level held logs
+    3. docker container  port CONTAINER for list of open ports
+    4. docker container  diff CONTAINER to capture changes to files and directories to container's  filesystem since its initial launch   
+8. Pause the container  for forensic capture.
+9. Snapshot the  container instance EBS volume.
+10. Isolate the  container instance from the network.
+While collecting the forensics data, they want to capture current state of system:
+
+* Memory utilized, essentially Memory capture of underlying OS - this will capture the docker daemon and its subprocess per  container.
+* Hard-drive state
+* Processes running
+* Ports open or listening
+* Audit logs
+
+Container-level information is great, but they also need hosting instance info for painting the full evidence and prove in court that they are not manipulating the data.
+
+
 
 https://www.youtube.com/watch?v=CH7S5rE3j8w&feature=youtu.be
 
