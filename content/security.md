@@ -720,6 +720,35 @@ _Kubernetes network policy_
         ports: 
         - 53
   ```
+  The following is an example of how to create an RBAC policy to prevent namespace administrators from editing the tags assigned to a service acount that is used to assign a network policy to a pod with Calico: 
+  ```
+  apiVersion: rbac.authorization.k8s.io/v1
+  kind: Role
+  metadata:
+    namespace: default
+    name: readonly-sa-role
+  rules:
+  # Allows the subject to read a service account called my-sa
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    resourceNames: ["my-sa"]
+    verbs: ["get", "watch", "list"]
+  ---
+  apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    namespace: default
+    name: readonly-sa-rolebinding
+  # Binds the readonly-sa-role to the RBAC group called readonly-sa-group
+  subjects:
+  - kind: Group 
+    name: readonly-sa-group 
+    apiGroup: rbac.authorization.k8s.io 
+  roleRef:
+    kind: Role 
+    name: readonly-sa-role 
+    apiGroup: rbac.authorization.k8s.io
+  ```
 
 + **Incrementally add rules to selectively allow the flow of traffic between namespaces/pods**.  Start by allowing pods within a namespace to communicate with each other and then add custom rules that further restrict pod to pod communication within that namespace. 
 + **Log network traffic metadata**. VPC Flow Logs captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicous or unusual activity between resources within the VPC, including pods.  However, since the IP addresses of pods frequently change as they replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels, making it easier to decipher the traffic flows between pods.  It also makes use of machine learning to identify anomalous traffic.
