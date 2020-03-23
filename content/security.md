@@ -846,7 +846,7 @@ Applications that need to conform to PCI, HIPAA, or other regulations may need t
 + **Service Mesh**. Encryption in transit can also be implemented with a service mesh like App Mesh, Linkerd v2, and Istio. Currently, App Mesh supports [TLS encryption](https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html) with a private certificate issued by ACM or a certificate stored on the local file system of the virtual node. Linkerd and Istio both have support for mTLS which adds another layer of security through mutual exchange and validation of certificates.
 
 ## Encryption at rest
-There are 3 different AWS-native storage options you can use with Kubernetes: EBS, EFS, and FSx for Lustre.  All 3 offer encryption at rest using a service managed key or a customer managed key (CMK). For EBS you can use the in-tree storage driver or the [EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver).  Both include parameters for encrypting volumes and supplying a CMK.  For EFS, you can use the [EFS CSI driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver), however, unlike EBS, the EFS CSI driver does not support dynamic provisioning.  If you want to use EFS with EKS, you will need to provision and configure at-rest encryption for the file system prior to creating a PV. For further information about EFS file encryption, please refer to [Encrypting Data at Rest](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html). Besides offering at-rest encryption, EFS and FSx for Lustre include an option for encrypting data in transit.  FSx for Luster does this by default.  For EFS, you can add transport encryption by adding the `tls` parameter to `mountOptions` in your PV as in this example: 
+There are 3 different AWS-native storage options you can use with Kubernetes: EBS, EFS, and FSx for Lustre.  All 3 offer encryption at rest using a service managed key or a customer master key (CMK). For EBS you can use the in-tree storage driver or the [EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver).  Both include parameters for encrypting volumes and supplying a CMK.  For EFS, you can use the [EFS CSI driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver), however, unlike EBS, the EFS CSI driver does not support dynamic provisioning.  If you want to use EFS with EKS, you will need to provision and configure at-rest encryption for the file system prior to creating a PV. For further information about EFS file encryption, please refer to [Encrypting Data at Rest](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html). Besides offering at-rest encryption, EFS and FSx for Lustre include an option for encrypting data in transit.  FSx for Luster does this by default.  For EFS, you can add transport encryption by adding the `tls` parameter to `mountOptions` in your PV as in this example: 
 ```
 apiVersion: v1
 kind: PersistentVolume
@@ -879,8 +879,39 @@ parameters:
   deploymentType: PERSISTENT_1
   kmsKeyId: <kms_arn>
 ``` 
+### Recommendations
++ **Encrypt data at rest**.  Encrypting data at rest is considered a best practice.  If you're unsure whether encryption is necessary, encrypt your data. 
++ **Rotate your CMKs periodically**. Configure KMS to automatically rotate you CMKs.  This will rotate your keys once a year while saving old keys indefinitely so that your data can still be decrypted.  For additional information see [Rotating customer master keys](https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
++ **Use EFS access points to simplify access to shared datasets**. If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today, if you want to use access point (AP) you'll need to reference the AP in the PV's `volumeHandle` parameter.
 
 ## Runtime security 
+Runtime security provides active protection for your containers while they're running.  The idea is to detect and/or prevent malicious activity from occuring inside the container. With secure computing (seccomp) you can prevent a containerized application from making certain syscalls to the underlying host operating system's kernel. While the Linux operating system has a few hundred system calls, the lion's share of them are not necessary for running containers. By restricting what syscalls can be made by a container, you can effectively decrease your application's attack surface. To get started with seccomp, analyze the results of a stack trace to see which calls your application is making or use a tool such as [syscall2seccomp](https://github.com/antitree/syscall2seccomp).
+
+> Seccomp profiles are a Kubelet alpha feature.  You'll need to add the `--seccomp-profile-root` flag to the Kubelet arguments to make use of this feature. 
+
+AppArmor is similar to seccomp, only it restricts an container's capabilities including accessing parts of the file system. It can be run in either enforcement or complain mode. Since building Apparmor profiles can be challenging, it is recommended you use a tool like [bane](https://github.com/genuinetools/bane) instead. 
+
+> Apparmor is only available Ubuntu/Debian distributions of Linux. 
+
+> Kubernetes does not currently provide any native mechanisms for loading AppArmor or seccomp profiles onto nodes.  They either have to be loaded manually or installed onto nodes when they are bootstrapped.  This has to be done prior to referencing them in your Pods because the scheduler is unaware of which nodes have profiles. 
+
+### Recommendations
++ **Use a 3rd party solution for runtime defense**. Creating and managing seccomp and Apparmor profiles can be difficult if you're not familiar with Linux security.  If you don't have the time to become proficient, consider using a commercial solution.  A lot of them have moved beyond static profiles like Apparmor and seccomp and have begun using machine learning to block or alert on suspicious activity. 
++ **Consider add/dropping Linux capabilities before writing seccomp policies**. Capabilities involve various checks in kernel functions reachable by syscalls. If the check fails, the syscall typically returns an error. The check can be done either right at the beginning of a specific syscall, or deeper in the kernel in areas that might be reachable through multiple different syscalls (such as writing to a specific privileged file).  Seccomp, on the other hand, is a syscall filter which is applied to all syscalls before they are run. A process can set up a filter which allows them to revoke their right to run certain syscalls, or specific arguments for certain syscalls. 
+
+Before using seccomp, consider whether adding/removing Linux capabilities gives you the control you need. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-capabilities-for-a-container for further information. 
++ **See whether you can accomplish your aims by using Pod Security Policies (PSPs)**. Pod Security Policies offer a lot of different ways to improve your security posture without introducing undue complexity.  Explore the options available in PSPs before venturing into building seccomp and Apparmor profiles. 
+
+### Additional Resources
++ https://itnext.io/seccomp-in-kubernetes-part-i-7-things-you-should-know-before-you-even-start-97502ad6b6d6
++ https://github.com/kubernetes/kubernetes/tree/master/test/images/apparmor-loader
++ https://kubernetes.io/docs/tutorials/clusters/apparmor/#setting-up-nodes-with-profiles
+
+### Tools
++ [Aqua](https://www.aquasec.com/products/aqua-cloud-native-security-platform/)
++ [Qualys](https://www.qualys.com/apps/container-security/)
++ [Sysdig Secure](https://sysdig.com/products/kubernetes-security/)
++ [Twistlock](https://www.twistlock.com/platform/runtime-defense/)
 
 ## Secrets management
 Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the podSpec.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. 
