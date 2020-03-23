@@ -1028,41 +1028,31 @@ The following table shows the compliance programs with which the different conta
 + actuary
 
 ## Incident response and forensics
+Your ability to react quickly to an incident can help minimize damage caused from a breach. Having a reliable alerting system that can warn you of suspicious behavior is the first step in a good incident response plan. When an incident does arise you have to quickly decide whether to destroy and replace the container, or isolate and inspect the container. There are different factors that may lead to the either decision, but if you choose to isolate the worker node for forensic investigation and root cause analysis, then the following set of activities should be followed:
 
-* Incident response: commands  and tools to investigate suspect containers. 
-* Forensics: commands and tools  to collect and preserve the data for offline analysis and use in  criminal/civil court. 
++ Identify the offending pod and worker node.
++ Enable termination protection on impacted worker node.
++ Revoke temporary security credentials assigned to the pod or worker node if necessary.
++ Cordon the worker node.
++ Isolate the pod by creating a network policy the denies all ingress and egress traffic
++ Label offending the pod/node with a label indicating that it is part of an active investigation.
++ Capture volatile artifacts in runtime on the worker node.
+  + Memory capture operating system memory. This will capture the docker daemon and its subprocess per  container.
+  + Perform a netstat tree dump of the processes running and the open ports. This will capture the docker daemon and its subprocess per container. 
++ Run docker commands before evidence is altered on the worker node.
+    + Docker container top CONTAINER for processes running.
+    + Docker container logs CONTAINER for daemon level held logs.
+    + Docker container port CONTAINER for list of open ports.
+    + Docker container diff CONTAINER to capture changes to files and directories to container's  filesystem since its initial launch.   
++ Pause the container for forensic capture.
++ Snapshot the container instance EBS volume.
++ Isolate the worker node from the network by remove it from its node security groups.
 
-When security events are detected involving a Docker container on ECS, they have to decide to destroy and replace the container, or isolate and inspect the container. There are different factors that may lead to the either decision, but if they choose to isolate the instance for forensic investigation and root cause analysis, then the following set of steps need to be completed.
+### Recommendations
++ **Practice security game days**. Divide your security practitioners into 2 teams: red and blue.  The red team will be focused on probing different systems for vulnerabilities while the blue team will be responsible for defending against them.  If you don't have enough security practitioners to create separate teams, consider hiring an outside entity that has knowledge of Kubernetes exploits. 
++ **Run penetration tests against your cluster**. Periodically attacking your own cluster can help you discover vulnerabilities and misconfigurations.  Before getting started, follow the [penetration test guidelines](https://aws.amazon.com/security/penetration-testing/) before conducting a test against your cluster. 
 
-The incident response and evidence capture steps are outlined below;
-
-1. Identify container  id, cluster name, container instance, task id, and EC2 instance.
-2. Enable termination  protection on impacted EC2 container instance.
-3. Disable access keys  and revoke temporary security credentials if required.
-4. Deregister the EC2  container instance from the cluster.
-5. Tag the container  instance.
-6. Capture volatile  artifacts in runtime on the running container instance.
-    1. Memory capture of  OS - this will capture the docker daemon and its subprocess per  container.
-    2. netstat tree dump  of the OS process running and ports open - this will capture the docker  daemon and its subprocess per container running to their individual  processes. 
-7. Run docker commands  before evidence is altered in the container EC2 instance.
-    1. docker container  top CONTAINER for processes running
-    2. docker container  logs CONTAINER for daemon level held logs
-    3. docker container  port CONTAINER for list of open ports
-    4. docker container  diff CONTAINER to capture changes to files and directories to container's  filesystem since its initial launch   
-8. Pause the container  for forensic capture.
-9. Snapshot the  container instance EBS volume.
-10. Isolate the  container instance from the network.
-While collecting the forensics data, they want to capture current state of system:
-
-* Memory utilized, essentially Memory capture of underlying OS - this will capture the docker daemon and its subprocess per  container.
-* Hard-drive state
-* Processes running
-* Ports open or listening
-* Audit logs
-
-Container-level information is great, but they also need hosting instance info for painting the full evidence and prove in court that they are not manipulating the data.
-
-
-
-https://www.youtube.com/watch?v=CH7S5rE3j8w&feature=youtu.be
-
+### Tools
++ [kube-hunter](https://github.com/aquasecurity/kube-hunter)
++ [Gremlin](https://www.gremlin.com/product/#kubernetes)
++ https://twitter.com/IanColdwater
