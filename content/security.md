@@ -774,6 +774,56 @@ _Kubernetes network policy_
   ```
 + **Incrementally add rules to selectively allow the flow of traffic between namespaces/pods**.  Start by allowing pods within a namespace to communicate with each other and then add custom rules that further restrict pod to pod communication within that namespace. 
 + **Log network traffic metadata**. VPC Flow Logs captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicous or unusual activity between resources within the VPC, including pods.  However, since the IP addresses of pods frequently change as they replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels, making it easier to decipher the traffic flows between pods.  It also makes use of machine learning to identify anomalous traffic.
++ **Use encryption with AWS load balancers**. The ALB and NLB both have support for transport encryption (SSL and TLS).  The `alb.ingress.kubernetes.io/certificate-arn` annotation for the ALB lets you to specify which certificates to add to the ALB.  If you omit the annotation the controller will attempt to add certificates to listeners that require it by matching the available ACM certiciates using the host field. Starting with EKS v1.15 you can use the service.beta.kubernetes.io/aws-load-balancer-ssl-cert annotation with the NLB as shown in the example below. 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app
+  namespace: default
+  labels:
+    app: demo-app
+  annotations:
+     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<certificate ARN>"
+     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 443
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: demo-app
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nginx
+  namespace: default
+  labels:
+    app: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 443
+              protocol: TCP
+            - containerPort: 80
+              protocol: TCP
+```
 
 #### Additional Resources
 + [Kubernetes & Tigera: Network Policies, Security, and Audit](https://youtu.be/lEY2WnRHYpg) 
@@ -787,13 +837,48 @@ Prior to 1.14 platform version eks.3 there were separate security groups configu
 
 If you need to control communication between services that run within the cluster and service the run outside the cluster, consider using a network policy engine like Cilium which allows you to use a DNS name.  Alternatively, use Calico Enterprise which allows you to map a network policy to an AWS security group.  If you're implemting a service mesh like Istio, you can use an egress gateway to restrict network egress to specific fully qualified domains or IP addresses. Read the 3 part series on [egress traffic control in Istio](https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/) for further information. 
 
+> Unless you are running 1 pod per instance or dedicating a set of instances to run a particular application, security groups are considered to be too course grained to control network traffic.  Contemplate using network policies which are Kubernetes-aware instead. 
+
 ### Encryption in transit
 Applications that need to conform to PCI, HIPAA, or other regulations may need to encrypt data while it is in transit.  Nowadays TLS is the de facto choice for encrypting traffic on the wire.  TLS, like it's predecessor SSL, provides secure communications over a network using cyptographic protocols.  TLS uses symmetric encryption where the keys to encrypt the data are generated based on a shared secret that is negotiated at the beginning of the sesssion. The follow are a few ways that you can encrypt data in a Kubernetes environment. 
 + **Nitro Instances**. Traffic exchanged between select Nitro instance types, e.g. M5n, M5dn, R5n, and R5dn, is automatically encrypted by default.  When there's an intermediate hop, like a trasit gateway or a load balancer, the traffic is not encrypted. 
 + **Container Network Interfaces (CNIs)**. [WeaveNet](https://www.weave.works/oss/net/) can be configured to automatically encrypt all traffic using NaCl encryption for sleeve traffic, and IPsec ESP for fast datapath traffic.
 + **Service Mesh**. Encryption in transit can also be implemented with a service mesh like App Mesh, Linkerd v2, and Istio. Currently, App Mesh supports [TLS encryption](https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html) with a private certificate issued by ACM or a certificate stored on the local file system of the virtual node. Linkerd and Istio both have support for mTLS which adds another layer of security through mutual exchange and validation of certificates.
 
-## Data encryption 
+## Encryption at rest
+There are 3 different AWS-native storage options you can use with Kubernetes: EBS, EFS, and FSx for Lustre.  All 3 offer encryption at rest using a service managed key or a customer managed key (CMK). For EBS you can use the in-tree storage driver or the [EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver).  Both include parameters for encrypting volumes and supplying a CMK.  For EFS, you can use the [EFS CSI driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver), however, unlike EBS, the EFS CSI driver does not support dynamic provisioning.  If you want to use EFS with EKS, you will need to provision and configure at-rest encryption for the file system prior to creating a PV. For further information about EFS file encryption, please refer to [Encrypting Data at Rest](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html). Besides offering at-rest encryption, EFS and FSx for Lustre include an option for encrypting data in transit.  FSx for Luster does this by default.  For EFS, you can add transport encryption by adding the `tls` parameter to `mountOptions` in your PV as in this example: 
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  mountOptions:
+    - tls
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: <file_system_id>
+```
+The [FSx CSI driver](https://github.com/kubernetes-sigs/aws-fsx-csi-driver) supports dynamic provisioning of Lustre file systems.  It encrypts data with a service managed key by default, although there is an option to provide you own CMK as in this example:
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: fsx-sc
+provisioner: fsx.csi.aws.com
+parameters:
+  subnetId: subnet-056da83524edbe641
+  securityGroupIds: sg-086f61ea73388fb6b
+  deploymentType: PERSISTENT_1
+  kmsKeyId: <kms_arn>
+``` 
 
 ## Runtime security 
 
