@@ -28,7 +28,7 @@ To generate a authentication token, type the following command in a terminal win
 aws eks get-token --cluster <cluster_name>
 ```
 The output should resemble this: 
-```
+```json
 {"kind": "ExecCredential", "apiVersion": "client.authentication.k8s.io/v1alpha1", "spec": {}, "status": {"expirationTimestamp": "2020-02-19T16:08:27Z", "token": "k8s-aws-v1.aHR0cHM6Ly9zdHMuYW1hem9uYXdzLmNvbS8_QWN0aW9uPUdldENhbGxlcklkZW50aXR5JlZlcnNpb249MjAxMS0wNi0xNSZYLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFKTkdSSUxLTlNSQzJXNVFBJTJGMjAyMDAyMTklMkZ1cy1lYXN0LTElMkZzdHMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIwMDIxOVQxNTU0MjdaJlgtQW16LUV4cGlyZXM9NjAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JTNCeC1rOHMtYXdzLWlkJlgtQW16LVNpZ25hdHVyZT0yMjBmOGYzNTg1ZTMyMGRkYjVlNjgzYTVjOWE0MDUzMDFhZDc2NTQ2ZjI0ZjI4MTExZmRhZDA5Y2Y2NDhhMzkz"}}
 ```
 Each token starts with `k8s-aws-v1.` followed by a base64 encoded string. The string, when decoded, should resemble this: 
@@ -69,7 +69,7 @@ Certain applications that run within a Kubernetes cluster need permission to cal
 
 #### Kubernetes Service Accounts
 A service account is a special type of object that allows you to assign a Kubernetes RBAC role to a pod.  A default service account is created for each namespace within a cluster. When you deploy a pod into a namespace without referencing a specific service account, the default service account for that namespace will automatically get assigned to the pod and the secret, i.e. the service account (JWT) token for that service account, will get mounted to the pod as a volume at `/var/run/secrets/kubernetes.io/serviceaccount`. Decoding the service account token in that directory will reveal the following metadata: 
-```
+```json
 {
   "iss": "kubernetes/serviceaccount",
   "kubernetes.io/serviceaccount/namespace": "default",
@@ -81,7 +81,7 @@ A service account is a special type of object that allows you to assign a Kubern
 ``` 
 
 The default service account has the following permissions to the Kubernetes API.
-```
+```yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -107,7 +107,7 @@ rules:
   - /version/
   verbs:
   - get
-  ```
+```
 This role authorizes unauthenticated and authenticated users to read API information and is deemed safe to be publicly accessible.
 
 When an application running within a pod calls the Kubernetes APIs, the pod needs to be assigned a service account that grants it permission to do so.  Similar to guidelines for user access, the Role or ClusterRole bound to a service account should be restricted to the API resources and methods that the application needs to function and nothing else. To use a non-default service account simply set the `spec.serviceAccountName` field of a pod to the name of the service account you wish to use. For additional information about creating service accounts, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions. 
@@ -116,7 +116,7 @@ When an application running within a pod calls the Kubernetes APIs, the pod need
 IRSA is a new feature that allows you to assign an IAM role to a Kubernetes service account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). Pods with service accounts that reference an IAM Role call a public OIDC discovery endpoint for AWS IAM upon startup. The endpoint cyrptographically signs the OIDC token issued by Kubernetes which ultimately allows the pod to call the AWS APIs associated IAM role. When an AWS API is invoked, the AWS SDKs calls `sts:AssumeRoleWithWebIdentity` and automatically exchanges the Kubernetes issued token for a AWS role credential. 
 
 Decoding the (JWT) token for IRSA will produce output similar to the example you see below: 
-```
+```json
 {
   "aud": [
     "sts.amazonaws.com"
@@ -140,7 +140,7 @@ Decoding the (JWT) token for IRSA will produce output similar to the example you
 }
 ```
 This particular token grants the pod view-only privileges to S3. When the application attempt to read from S3, the token is exchanged for a temporary set of IAM credentials that resembles this: 
-```
+```json
 {
     "AssumedRoleUser": {
         "AssumedRoleId": "AROA36C6WWEJULFUYMPB6:abc", 
