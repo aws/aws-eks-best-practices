@@ -1,0 +1,18 @@
+site_name: EKS Security Best Practices
+theme: 
+  name: gitbook
+nav:
+    - Home: 'index.md'
+    - Identity and Access Management: 'iam.md'
+    - Pod Security: 'pods.md'
+    - Multi-tenancy: 'multitenancy.md'
+    - Detective Controls: 'detective.md'
+    - Network Security: 'network.md'
+    - Data Encryption and Secrets Management: 'data.md'
+    - Runtime Security: 'runtime.md'
+    - Infrastructure Security: 'hosts.md'
+    - Regulatory Compliance: 'compliance.md'
+    - Incident Response and Forensics: 'incidents.md'
+markdown_extensions:
+    - toc:
+        permalink: "&para;"
