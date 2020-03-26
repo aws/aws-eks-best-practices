@@ -13,11 +13,12 @@ You should consider the container image as your first line of defense against an
 
 + **Considering signing your images**. When Docker was first introduced, there was no cryptographic model for verifying container images.  With v2, Docker added digests to the image manifest. This allowed an image’s configuration to be hashed and for the hash to be used to generate an ID for the image.  When image signing is enabled, the \[Docker\] engine verifies the manifest’s signature, ensuring that the content was produced from a trusted source and no tampering has occurred. After each layer is downloaded, the engine verifies the digest of the layer, ensuring that the content matches the content specified in the manifest.  Image signing  effectively allows you to create a secure supply chain, through the verification of digital signatures associated with the image. 
 
-  In a Kubernetes environment, you can use an admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
+  In a Kubernetes environment, you can use an dynamic admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
   
-  ### Tools
-    + [Notary](https://github.com/theupdateframework/notary)
-    + [Grafeas](https://grafeas.io/)
+### Tools
++ [Notary](https://github.com/theupdateframework/notary)
++ [Grafeas](https://grafeas.io/)
++ [Gatekeeper](https://github.com/open-policy-agent/gatekeeper) 
 
 + **Use multi-stage builds**.  Using multi-stage builds is a way to create minimal images. Oftentimes, multi-stage builds are used to automate parts of the Continuous Integration cycle.  For example, multi-stage builds can be used to lint your source code or perform static code analysis.  This affords developers an opportunity to get near immediate feedback instead of waiting for a pipeline to execute.  Multi-stage builds are attractive from a security standpoint because they allow you to minimize the size of the final image pushed to your container registry.  Container images devoid of build tools and other extraneous binaries decreases improves your security posture by reducing the attack surface of the image. For additional information about multi-stage builds, see https://docs.docker.com/develop/develop-images/multistage-build/.
 
@@ -68,6 +69,8 @@ You should consider the container image as your first line of defense against an
     ]
   }
   ```
+  You can enhance this further by setting a condition that uses the new `PrincipalOrgID` attribute which will prevent pushing/pulling of images by an IAM principle that is not part of your AWS Organization. See, [aws:PrincipalOrgID](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-principalorgid) for additional details. 
+
   We recommended applying the same policy to both the `com.amazonaws.<region>.ecr.dkr` and the `com.amazonaws.<region>.ecr.api` endpoints.
 
   Note: Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will need to add the account ID of the registry, e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of resources in the endpoint policy or alter the policy to allow pulls from "*" and restrict pushes to your account ID.  The table below reveals the mapping between the AWS accounts where EKS images are vended from and cluster region.

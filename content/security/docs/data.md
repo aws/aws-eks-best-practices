@@ -20,8 +20,10 @@ spec:
     driver: efs.csi.aws.com
     volumeHandle: <file_system_id>
 ```
+
 The [FSx CSI driver](https://github.com/kubernetes-sigs/aws-fsx-csi-driver) supports dynamic provisioning of Lustre file systems.  It encrypts data with a service managed key by default, although there is an option to provide you own CMK as in this example:
-```
+
+```yaml
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -35,15 +37,17 @@ parameters:
 ``` 
 ## Recommendations
 + **Encrypt data at rest**.  Encrypting data at rest is considered a best practice.  If you're unsure whether encryption is necessary, encrypt your data. 
+
 + **Rotate your CMKs periodically**. Configure KMS to automatically rotate you CMKs.  This will rotate your keys once a year while saving old keys indefinitely so that your data can still be decrypted.  For additional information see [Rotating customer master keys](https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
+
 + **Use EFS access points to simplify access to shared datasets**. If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today, if you want to use access point (AP) you'll need to reference the AP in the PV's `volumeHandle` parameter.
 
 # Secrets management
-Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the podSpec.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. 
+Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the `podSpec`.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. 
 
-> Note: Secrets in a particular namespace can be referenced by all pods in the secret's namespace.
+> Caution: Secrets in a particular namespace can be referenced by all pods in the secret's namespace.
 
-> Note: The node authorizer allows the Kubelet to read all of the secrets mounted to the node. 
+> Caution: The node authorizer allows the Kubelet to read all of the secrets mounted to the node. 
 
 ## Recommendations
 + **Use separate namespaces as a way to isolate secrets from different applications**. If you have secrets that cannot be shared between applications in a namespace, create a separate namespace for those applications.  

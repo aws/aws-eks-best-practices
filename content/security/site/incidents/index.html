@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Incident Response and Forensics - EKS Security Best Practices</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+<div id="book-search-input" role="search">
+<input type="text" placeholder="Type to search" />
+</div> <!-- end of book-search-input -->
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href=".." target="_blank" class="custom-link">EKS Security Best Practices</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="..">Home</a>
+<li class="chapter" data-path="iam/">
+<a href="../iam/">Identity and Access Management</a>
+<li class="chapter" data-path="pods/">
+<a href="../pods/">Pod Security</a>
+<li class="chapter" data-path="multitenancy/">
+<a href="../multitenancy/">Multi-tenancy</a>
+<li class="chapter" data-path="detective/">
+<a href="../detective/">Detective Controls</a>
+<li class="chapter" data-path="network/">
+<a href="../network/">Network Security</a>
+<li class="chapter" data-path="data/">
+<a href="../data/">Data Encryption and Secrets Management</a>
+<li class="chapter" data-path="runtime/">
+<a href="../runtime/">Runtime Security</a>
+<li class="chapter" data-path="hosts/">
+<a href="../hosts/">Infrastructure Security</a>
+<li class="chapter" data-path="compliance/">
+<a href="../compliance/">Regulatory Compliance</a>
+<li class="chapter active" data-path="incidents/">
+<a href="./">Incident Response and Forensics</a>
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+<div id="book-search-results">
+<div class="search-noresults">
+
+<section class="normal markdown-section">
+
+
+
+<h2 id="incident-response-and-forensics">Incident response and forensics<a class="headerlink" href="#incident-response-and-forensics" title="Permanent link">&para;</a></h2>
+<p>Your ability to react quickly to an incident can help minimize damage caused from a breach. Having a reliable alerting system that can warn you of suspicious behavior is the first step in a good incident response plan. When an incident does arise you have to quickly decide whether to destroy and replace the container, or isolate and inspect the container. There are different factors that may lead to the either decision, but if you choose to isolate the worker node for forensic investigation and root cause analysis, then the following set of activities should be followed:</p>
+<ul>
+<li>Identify the offending pod and worker node.</li>
+<li>Enable termination protection on impacted worker node.</li>
+<li>Revoke temporary security credentials assigned to the pod or worker node if necessary.</li>
+<li>Cordon the worker node.</li>
+<li>Isolate the pod by creating a network policy the denies all ingress and egress traffic</li>
+<li>Label offending the pod/node with a label indicating that it is part of an active investigation.</li>
+<li>Capture volatile artifacts in runtime on the worker node.</li>
+<li>Memory capture operating system memory. This will capture the docker daemon and its subprocess per  container.</li>
+<li>Perform a netstat tree dump of the processes running and the open ports. This will capture the docker daemon and its subprocess per container. </li>
+<li>Run docker commands before evidence is altered on the worker node.<ul>
+<li>Docker container top CONTAINER for processes running.</li>
+<li>Docker container logs CONTAINER for daemon level held logs.</li>
+<li>Docker container port CONTAINER for list of open ports.</li>
+<li>Docker container diff CONTAINER to capture changes to files and directories to container's  filesystem since its initial launch.   </li>
+</ul>
+</li>
+<li>Pause the container for forensic capture.</li>
+<li>Snapshot the container instance EBS volume.</li>
+<li>Isolate the worker node from the network by remove it from its node security groups.</li>
+</ul>
+<h2 id="recommendations">Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Practice security game days</strong>. Divide your security practitioners into 2 teams: red and blue.  The red team will be focused on probing different systems for vulnerabilities while the blue team will be responsible for defending against them.  If you don't have enough security practitioners to create separate teams, consider hiring an outside entity that has knowledge of Kubernetes exploits. </p>
+</li>
+<li>
+<p><strong>Run penetration tests against your cluster</strong>. Periodically attacking your own cluster can help you discover vulnerabilities and misconfigurations.  Before getting started, follow the <a href="https://aws.amazon.com/security/penetration-testing/">penetration test guidelines</a> before conducting a test against your cluster. </p>
+</li>
+</ul>
+<h2 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://github.com/aquasecurity/kube-hunter">kube-hunter</a></li>
+<li><a href="https://www.gremlin.com/product/#kubernetes">Gremlin</a></li>
+<li>https://twitter.com/IanColdwater</li>
+</ul>
+
+
+</section>
+</div> <!-- end of search-noresults -->
+<div class="search-results">
+<div class="has-results">
+
+<h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+<ul class="search-results-list"></ul>
+
+</div> <!-- end of has-results -->
+<div class="no-results">
+
+<h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+
+</div> <!-- end of no-results -->
+</div> <!-- end of search-results -->
+</div> <!-- end of book-search-results -->
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../js/main.js"></script>
+<script src="../search/main.js"></script>
+<script src="../js/gitbook.min.js"></script>
+<script src="../js/theme.min.js"></script>
+</body>
+</html>

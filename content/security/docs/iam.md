@@ -1,5 +1,5 @@
 # Identity and Access Management
-Identity and Access Management (IAM) is an AWS service that performs 2 essential functions: Authentication and Authorization.  Authentication involves the verification of a indentity whereas authorization governs the actions that can be performed by AWS resources.  Within AWS, a resource can be another AWS service, e.g. EC2, or an AWS principle such as an IAM User or Role.  The rules governing the actions that a resource is allowed to peform are expressed as IAM policies.  
+Identity and Access Management (IAM) is an AWS service that performs two essential functions: Authentication and Authorization.  Authentication involves the verification of a indentity whereas authorization governs the actions that can be performed by AWS resources.  Within AWS, a resource can be another AWS service, e.g. EC2, or an AWS principle such as an IAM User or Role.  The rules governing the actions that a resource is allowed to peform are expressed as IAM policies.  
 
 ## Controlling Access to EKS Clusters
 The Kubernetes project supports a variety of different strategies to authenticate requests to the kube-apiserver service, e.g. Bearer Tokens, X.509 certificates, OIDC, etc. EKS currently has native support for [webhook token authentication](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#webhook-token-authentication) and [serivce account tokens](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#service-account-tokens).  
@@ -12,7 +12,15 @@ aws eks get-token --cluster <cluster_name>
 ```
 The output should resemble this: 
 ```json
-{"kind": "ExecCredential", "apiVersion": "client.authentication.k8s.io/v1alpha1", "spec": {}, "status": {"expirationTimestamp": "2020-02-19T16:08:27Z", "token": "k8s-aws-v1.aHR0cHM6Ly9zdHMuYW1hem9uYXdzLmNvbS8_QWN0aW9uPUdldENhbGxlcklkZW50aXR5JlZlcnNpb249MjAxMS0wNi0xNSZYLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFKTkdSSUxLTlNSQzJXNVFBJTJGMjAyMDAyMTklMkZ1cy1lYXN0LTElMkZzdHMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIwMDIxOVQxNTU0MjdaJlgtQW16LUV4cGlyZXM9NjAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JTNCeC1rOHMtYXdzLWlkJlgtQW16LVNpZ25hdHVyZT0yMjBmOGYzNTg1ZTMyMGRkYjVlNjgzYTVjOWE0MDUzMDFhZDc2NTQ2ZjI0ZjI4MTExZmRhZDA5Y2Y2NDhhMzkz"}}
+{
+  "kind": "ExecCredential", 
+  "apiVersion": "client.authentication.k8s.io/v1alpha1", 
+  "spec": {}, 
+  "status": {
+    "expirationTimestamp": "2020-02-19T16:08:27Z", 
+    "token": "k8s-aws-v1.aHR0cHM6Ly9zdHMuYW1hem9uYXdzLmNvbS8_QWN0aW9uPUdldENhbGxlcklkZW50aXR5JlZlcnNpb249MjAxMS0wNi0xNSZYLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFKTkdSSUxLTlNSQzJXNVFBJTJGMjAyMDAyMTklMkZ1cy1lYXN0LTElMkZzdHMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIwMDIxOVQxNTU0MjdaJlgtQW16LUV4cGlyZXM9NjAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JTNCeC1rOHMtYXdzLWlkJlgtQW16LVNpZ25hdHVyZT0yMjBmOGYzNTg1ZTMyMGRkYjVlNjgzYTVjOWE0MDUzMDFhZDc2NTQ2ZjI0ZjI4MTExZmRhZDA5Y2Y2NDhhMzkz"
+  }
+}
 ```
 Each token starts with `k8s-aws-v1.` followed by a base64 encoded string. The string, when decoded, should resemble this: 
 ```

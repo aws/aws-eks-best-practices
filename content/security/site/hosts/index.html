@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Infrastructure Security - EKS Security Best Practices</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+<div id="book-search-input" role="search">
+<input type="text" placeholder="Type to search" />
+</div> <!-- end of book-search-input -->
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href=".." target="_blank" class="custom-link">EKS Security Best Practices</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="..">Home</a>
+<li class="chapter" data-path="iam/">
+<a href="../iam/">Identity and Access Management</a>
+<li class="chapter" data-path="pods/">
+<a href="../pods/">Pod Security</a>
+<li class="chapter" data-path="multitenancy/">
+<a href="../multitenancy/">Multi-tenancy</a>
+<li class="chapter" data-path="detective/">
+<a href="../detective/">Detective Controls</a>
+<li class="chapter" data-path="network/">
+<a href="../network/">Network Security</a>
+<li class="chapter" data-path="data/">
+<a href="../data/">Data Encryption and Secrets Management</a>
+<li class="chapter" data-path="runtime/">
+<a href="../runtime/">Runtime Security</a>
+<li class="chapter active" data-path="hosts/">
+<a href="./">Infrastructure Security</a>
+<li class="chapter" data-path="compliance/">
+<a href="../compliance/">Regulatory Compliance</a>
+<li class="chapter" data-path="incidents/">
+<a href="../incidents/">Incident Response and Forensics</a>
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+<div id="book-search-results">
+<div class="search-noresults">
+
+<section class="normal markdown-section">
+
+
+
+<h1 id="protecting-the-infrastructure-hosts">Protecting the infrastructure (hosts)<a class="headerlink" href="#protecting-the-infrastructure-hosts" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Run SELinux</strong>. SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.
+Use a OS optimized for running containers, e.g. Flatcar Linux, Project Atomic, RancherOS, and <a href="https://github.com/bottlerocket-os/bottlerocket/">Bottlerocket</a>, a new OS from AWS that has a read only root file system and uses partition flips for fast and reliable system updates.  A majority of these operating systems, like Bottlerocket, have been substantially paired down and optimized to run containers. </li>
+</ul>
+<p><strong>Additional resources</strong></p>
+<ul>
+<li>https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/</li>
+<li>
+<p>https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html </p>
+</li>
+<li>
+<p><strong>Treat your infrastructure as immutable</strong>.  Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentally cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">managed node groups</a> utilizes the second approach and will present an option to upgrade workers when a new AMI becomes available. <code>eksctl</code> also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded. 
+With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your task to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod. </p>
+</li>
+<li>
+<p><strong>Periodically run <a href="https://github.com/aquasecurity/kube-bench">kube-bench</a> to verify compliance with <a href="https://www.cisecurity.org/benchmark/kubernetes/">CIS benchmarks for Kubernetes</a></strong>. When running kube-bench against an EKS cluster, follow these instructions, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. Be aware that false positives may appear in the report because of the way the he EKS optimized AMI configures the kubelet.  See https://github.com/aquasecurity/kube-bench/issues/571 for further information. </p>
+</li>
+<li>
+<p><strong>Minimize access to worker nodes</strong>. Instead of enabling SSH access, use <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html">SSM Session Manager</a> when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.  If you've lost access to the host through SSH or Session Manager, you can try running a node-shell, a privileged pod that gives you shell access on the node. An example appears below: </p>
+</li>
+</ul>
+<pre><code class="yaml">kind: Pod
+apiVersion: v1
+metadata:
+  name: node-shell
+  namespace: kube-system
+  annotations:
+    kubernetes.io/psp: eks.privileged
+spec:
+  containers:
+    - name: shell
+      image: 'docker.io/alpine:3.9'
+      command:
+        - nsenter
+      args:
+        - '-t'
+        - '1'
+        - '-m'
+        - '-u'
+        - '-i'
+        - '-n'
+        - sleep
+        - '14000'
+      securityContext:
+        privileged: true
+  restartPolicy: Never
+  nodeSelector:
+    kubernetes.io/hostname: ip-192-168-49-62.us-west-2.compute.internal
+  nodeName: ip-192-168-49-62.us-west-2.compute.internal
+  hostNetwork: true
+  hostPID: true
+  hostIPC: true
+  enableServiceLinks: true
+</code></pre>
+
+<ul>
+<li>
+<p><strong>Deploy workers onto private subnets</strong>. By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. </p>
+</li>
+<li>
+<p><strong>Run <a href="https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html">Amazon Inspector</a> to assesses applications for exposure, vulnerabilities, and deviations from best practices</strong>.  It requires the deployment of an agent that continually monitors activity on the instance while using set of rules to assess alignment with best practices. 
+  At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.<br />
+  Inspector cannot be run on the infrastructure used to run Fargate pods. </p>
+</li>
+</ul>
+<p><strong>Alternatives</strong></p>
+<ul>
+<li><a href="https://sysdig.com/products/kubernetes-security/">Sysdig Secure</a></li>
+</ul>
+<h3 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://github.com/keikoproj/keiko">Keiko</a></li>
+</ul>
+
+
+</section>
+</div> <!-- end of search-noresults -->
+<div class="search-results">
+<div class="has-results">
+
+<h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+<ul class="search-results-list"></ul>
+
+</div> <!-- end of has-results -->
+<div class="no-results">
+
+<h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+
+</div> <!-- end of no-results -->
+</div> <!-- end of search-results -->
+</div> <!-- end of book-search-results -->
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../js/main.js"></script>
+<script src="../search/main.js"></script>
+<script src="../js/gitbook.min.js"></script>
+<script src="../js/theme.min.js"></script>
+</body>
+</html>

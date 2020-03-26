@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Network Security - EKS Security Best Practices</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+<div id="book-search-input" role="search">
+<input type="text" placeholder="Type to search" />
+</div> <!-- end of book-search-input -->
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href=".." target="_blank" class="custom-link">EKS Security Best Practices</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="..">Home</a>
+<li class="chapter" data-path="iam/">
+<a href="../iam/">Identity and Access Management</a>
+<li class="chapter" data-path="pods/">
+<a href="../pods/">Pod Security</a>
+<li class="chapter" data-path="multitenancy/">
+<a href="../multitenancy/">Multi-tenancy</a>
+<li class="chapter" data-path="detective/">
+<a href="../detective/">Detective Controls</a>
+<li class="chapter active" data-path="network/">
+<a href="./">Network Security</a>
+<li class="chapter" data-path="data/">
+<a href="../data/">Data Encryption and Secrets Management</a>
+<li class="chapter" data-path="runtime/">
+<a href="../runtime/">Runtime Security</a>
+<li class="chapter" data-path="hosts/">
+<a href="../hosts/">Infrastructure Security</a>
+<li class="chapter" data-path="compliance/">
+<a href="../compliance/">Regulatory Compliance</a>
+<li class="chapter" data-path="incidents/">
+<a href="../incidents/">Incident Response and Forensics</a>
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+<div id="book-search-results">
+<div class="search-noresults">
+
+<section class="normal markdown-section">
+
+
+
+<h1 id="network-security">Network security<a class="headerlink" href="#network-security" title="Permanent link">&para;</a></h1>
+<p>Network security has a couple of different facets.  The first involves the application of rules that restrict the flow of network traffic between services.  The second involves the encryption of traffic while it is on the wire.  The mechanisms to implement these security measures on EKS are varied but often include the following items:</p>
+<ul>
+<li>Network Policies</li>
+<li>Security Groups</li>
+<li>Encryption in transit</li>
+<li>Service Mesh</li>
+<li>Container Network Interfaces (CNIs)</li>
+<li>Nitro Instances</li>
+</ul>
+<h2 id="network-policy">Network policy<a class="headerlink" href="#network-policy" title="Permanent link">&para;</a></h2>
+<p>Within a Kubernetes cluster, all pod to pod communication is allowed by default.  While this may help promote experimentation, it is not considered secure.  Kubernetes network policies give you a mechanism to restrict network traffic between pods or pods and external services.  The de facto policy engine for EKS is <a href="https://docs.projectcalico.org/introduction/">Calico</a>, an open source project from Tigera.  Network policies operate at layers 3 and 4 of the OSI model.  Rules can comprise of a src/dst address or port/protocol or a combination of both. Isovalent, the maintainers of <a href="https://cilium.readthedocs.io/en/stable/intro/">Cilium</a>, have extended the network policies to include partial support for layer 7 rules, e.g. HTTP.  Cilium also has support for DNS hostnames which can be useful for restricting traffic between Kubernetes services/pods and resources that run within or outside of your VPC. By contrast, Tigera Enterprise includes a feature that allows you to map a Kubernetes network policy to an AWS security group. </p>
+<blockquote>
+<p>When you first provision an EKS cluster, the Calico policy engine is not installed by default. The manifests for installing Calico can be found at https://github.com/aws/amazon-vpc-cni-k8s/tree/master/config.</p>
+</blockquote>
+<p>Calico policies can be scoped to namespaces, pods, service accounts, or globally.  When policies are scoped to a service account, it associates a set of ingress/egress rules with that service account.  With the proper RBAC rules in place, you can prevent teams from overriding these rules, allowing IT security professionals to safely delegate administration of namespaces.</p>
+<p>You can find a list of common Kubernetes network policies at https://github.com/ahmetb/kubernetes-network-policy-recipes.  A similar set of rules for Calico are available at https://docs.projectcalico.org/security/calico-network-policy. </p>
+<h3 id="recommendations">Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Create a default deny policy</strong>. As with RBAC policies, network policies should adhere to the policy of least privileged access.  Start by creating a deny all policy that restricts all inbound and outbound traffic from a namespace or create a global policy using Calico.</li>
+</ul>
+<p><em>Kubernetes network policy</em></p>
+<pre><code class="yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+</code></pre>
+
+<p><em>Calico network policy</em></p>
+<pre><code class="yaml">apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  selector: all()
+  types:
+  - Ingress
+  - Egress
+</code></pre>
+
+<ul>
+<li><strong>Create a rule to allow DNS queries</strong>. Once you have the defaul deny all rule in place, you can begin to layer on additional rules, such as a global rule that allows pods to query CoreDNS for name resolution. You begin by labeling the namespace: </li>
+</ul>
+<pre><code>kubectl label namespace kube-system name=kube-system
+</code></pre>
+
+<p>Then add the network policy:</p>
+<pre><code class="yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-access
+  namespace: default
+spec:
+  podSelector:
+    matchLabels: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+</code></pre>
+
+<p><em>Calico global policy equivalent</em></p>
+<pre><code class="yaml">apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: allow-dns-egress
+spec:
+  selector: all()
+  types:
+  - Egress
+  egress:
+  - action: Allow
+    protocol: UDP  
+    destination:
+      namespaceSelector: name == &quot;kube-system&quot;
+      ports: 
+      - 53
+</code></pre>
+
+<p>The following is an example of how to use associate a network policy to a service account while preventing users associated with the readonly-sa-group from editing the service account my-sa in the default namespace: </p>
+<pre><code class="yaml">apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-sa
+  namespace: default
+  labels: 
+    name: my-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: readonly-sa-role
+rules:
+# Allows the subject to read a service account called my-sa
+- apiGroups: [&quot;&quot;]
+  resources: [&quot;serviceaccounts&quot;]
+  resourceNames: [&quot;my-sa&quot;]
+  verbs: [&quot;get&quot;, &quot;watch&quot;, &quot;list&quot;]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: default
+  name: readonly-sa-rolebinding
+# Binds the readonly-sa-role to the RBAC group called readonly-sa-group
+subjects:
+- kind: Group 
+  name: readonly-sa-group 
+  apiGroup: rbac.authorization.k8s.io 
+roleRef:
+  kind: Role 
+  name: readonly-sa-role 
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: crd.projectcalico.org/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-sa-demo
+  namespace: default
+# Allows all ingress traffic to services in the default namespace that reference
+# the service account called my-sa
+spec:
+  ingress:
+    - action: Allow
+      source:
+        serviceAccounts:
+          selector: 'name == &quot;my-sa&quot;'
+  selector: all()
+</code></pre>
+
+<ul>
+<li>
+<p><strong>Incrementally add rules to selectively allow the flow of traffic between namespaces/pods</strong>.  Start by allowing pods within a namespace to communicate with each other and then add custom rules that further restrict pod to pod communication within that namespace. </p>
+</li>
+<li>
+<p><strong>Log network traffic metadata</strong>. VPC Flow Logs captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicous or unusual activity between resources within the VPC, including pods.  However, since the IP addresses of pods frequently change as they replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels, making it easier to decipher the traffic flows between pods.  It also makes use of machine learning to identify anomalous traffic.</p>
+</li>
+<li>
+<p><strong>Use encryption with AWS load balancers</strong>. The ALB and NLB both have support for transport encryption (SSL and TLS).  The <code>alb.ingress.kubernetes.io/certificate-arn</code> annotation for the ALB lets you to specify which certificates to add to the ALB.  If you omit the annotation the controller will attempt to add certificates to listeners that require it by matching the available ACM certiciates using the host field. Starting with EKS v1.15 you can use the service.beta.kubernetes.io/aws-load-balancer-ssl-cert annotation with the NLB as shown in the example below. </p>
+</li>
+</ul>
+<pre><code class="yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app
+  namespace: default
+  labels:
+    app: demo-app
+  annotations:
+     service.beta.kubernetes.io/aws-load-balancer-type: &quot;nlb&quot;
+     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: &quot;&lt;certificate ARN&gt;&quot;
+     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: &quot;443&quot;
+     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: &quot;http&quot;
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 443
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: demo-app
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nginx
+  namespace: default
+  labels:
+    app: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 443
+              protocol: TCP
+            - containerPort: 80
+              protocol: TCP
+</code></pre>
+
+<h3 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://youtu.be/lEY2WnRHYpg">Kubernetes &amp; Tigera: Network Policies, Security, and Audit</a> </li>
+<li><a href="https://www.tigera.io/tigera-products/calico-enterprise/">Calico Enterprise</a></li>
+<li><a href="https://cilium.readthedocs.io/en/stable/intro/">Cilium</a></li>
+</ul>
+<h2 id="security-groups">Security groups<a class="headerlink" href="#security-groups" title="Permanent link">&para;</a></h2>
+<p>EKS uses security groups (SGs) to control the traffic between the EKS control plane and the cluster's worker nodes. Security groups are also used to control the traffic between worker nodes, worker nodes and other VPC resources, and external IP addresses.  When you provision a 1.14 cluster at platform version eks.3 or greater a cluster security group is automatically created for you.  The security group allows unfettered communication between the EKS control plane and the nodes from managed node groups. For simplicity, it is recommended that you add the cluster SG to all node groups, including unmanaged node groups.</p>
+<p>Prior to 1.14 platform version eks.3 there were separate security groups configured for the EKS control plane and node groups. The minimum and suggested rules for the control plan and node group security groups can be found at https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html.  The minimum rules for the control plane security group allows port 443 inbound from the worker node SG and is there for securely communicating with the Kubernetes API server.  It also allows port 10250 outbound to the worker node SG; the port that the kubelet listens on. The minimum node group rules allow port 10250 inbound from the control plane SG and 443 outbound to the control plane SG.  Finally there is a rule that allows unfettered communication between nodes within a node group. </p>
+<p>If you need to control communication between services that run within the cluster and service the run outside the cluster, consider using a network policy engine like Cilium which allows you to use a DNS name.  Alternatively, use Calico Enterprise which allows you to map a network policy to an AWS security group.  If you're implemting a service mesh like Istio, you can use an egress gateway to restrict network egress to specific fully qualified domains or IP addresses. Read the 3 part series on <a href="https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/">egress traffic control in Istio</a> for further information. </p>
+<blockquote>
+<p>Unless you are running 1 pod per instance or dedicating a set of instances to run a particular application, security groups are considered to be too course grained to control network traffic.  Contemplate using network policies which are Kubernetes-aware instead. </p>
+</blockquote>
+<h2 id="encryption-in-transit">Encryption in transit<a class="headerlink" href="#encryption-in-transit" title="Permanent link">&para;</a></h2>
+<p>Applications that need to conform to PCI, HIPAA, or other regulations may need to encrypt data while it is in transit.  Nowadays TLS is the de facto choice for encrypting traffic on the wire.  TLS, like it's predecessor SSL, provides secure communications over a network using cyptographic protocols.  TLS uses symmetric encryption where the keys to encrypt the data are generated based on a shared secret that is negotiated at the beginning of the sesssion. The follow are a few ways that you can encrypt data in a Kubernetes environment. </p>
+<ul>
+<li>
+<p><strong>Nitro Instances</strong>. Traffic exchanged between select Nitro instance types, e.g. M5n, M5dn, R5n, and R5dn, is automatically encrypted by default.  When there's an intermediate hop, like a trasit gateway or a load balancer, the traffic is not encrypted. </p>
+</li>
+<li>
+<p><strong>Container Network Interfaces (CNIs)</strong>. <a href="https://www.weave.works/oss/net/">WeaveNet</a> can be configured to automatically encrypt all traffic using NaCl encryption for sleeve traffic, and IPsec ESP for fast datapath traffic.</p>
+</li>
+<li>
+<p><strong>Service Mesh</strong>. Encryption in transit can also be implemented with a service mesh like App Mesh, Linkerd v2, and Istio. Currently, App Mesh supports <a href="https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html">TLS encryption</a> with a private certificate issued by ACM or a certificate stored on the local file system of the virtual node. Linkerd and Istio both have support for mTLS which adds another layer of security through mutual exchange and validation of certificates.</p>
+</li>
+</ul>
+
+
+</section>
+</div> <!-- end of search-noresults -->
+<div class="search-results">
+<div class="has-results">
+
+<h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+<ul class="search-results-list"></ul>
+
+</div> <!-- end of has-results -->
+<div class="no-results">
+
+<h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+
+</div> <!-- end of no-results -->
+</div> <!-- end of search-results -->
+</div> <!-- end of book-search-results -->
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../js/main.js"></script>
+<script src="../search/main.js"></script>
+<script src="../js/gitbook.min.js"></script>
+<script src="../js/theme.min.js"></script>
+</body>
+</html>

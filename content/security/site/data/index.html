@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Data Encryption and Secrets Management - EKS Security Best Practices</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+<div id="book-search-input" role="search">
+<input type="text" placeholder="Type to search" />
+</div> <!-- end of book-search-input -->
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href=".." target="_blank" class="custom-link">EKS Security Best Practices</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="..">Home</a>
+<li class="chapter" data-path="iam/">
+<a href="../iam/">Identity and Access Management</a>
+<li class="chapter" data-path="pods/">
+<a href="../pods/">Pod Security</a>
+<li class="chapter" data-path="multitenancy/">
+<a href="../multitenancy/">Multi-tenancy</a>
+<li class="chapter" data-path="detective/">
+<a href="../detective/">Detective Controls</a>
+<li class="chapter" data-path="network/">
+<a href="../network/">Network Security</a>
+<li class="chapter active" data-path="data/">
+<a href="./">Data Encryption and Secrets Management</a>
+<li class="chapter" data-path="runtime/">
+<a href="../runtime/">Runtime Security</a>
+<li class="chapter" data-path="hosts/">
+<a href="../hosts/">Infrastructure Security</a>
+<li class="chapter" data-path="compliance/">
+<a href="../compliance/">Regulatory Compliance</a>
+<li class="chapter" data-path="incidents/">
+<a href="../incidents/">Incident Response and Forensics</a>
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+<div id="book-search-results">
+<div class="search-noresults">
+
+<section class="normal markdown-section">
+
+
+
+<h1 id="encryption-at-rest">Encryption at rest<a class="headerlink" href="#encryption-at-rest" title="Permanent link">&para;</a></h1>
+<p>There are 3 different AWS-native storage options you can use with Kubernetes: EBS, EFS, and FSx for Lustre.  All 3 offer encryption at rest using a service managed key or a customer master key (CMK). For EBS you can use the in-tree storage driver or the <a href="https://github.com/kubernetes-sigs/aws-ebs-csi-driver">EBS CSI driver</a>.  Both include parameters for encrypting volumes and supplying a CMK.  For EFS, you can use the <a href="https://github.com/kubernetes-sigs/aws-efs-csi-driver">EFS CSI driver</a>, however, unlike EBS, the EFS CSI driver does not support dynamic provisioning.  If you want to use EFS with EKS, you will need to provision and configure at-rest encryption for the file system prior to creating a PV. For further information about EFS file encryption, please refer to <a href="https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html">Encrypting Data at Rest</a>. Besides offering at-rest encryption, EFS and FSx for Lustre include an option for encrypting data in transit.  FSx for Luster does this by default.  For EFS, you can add transport encryption by adding the <code>tls</code> parameter to <code>mountOptions</code> in your PV as in this example: </p>
+<pre><code class="yaml">apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  mountOptions:
+    - tls
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: &lt;file_system_id&gt;
+</code></pre>
+
+<p>The <a href="https://github.com/kubernetes-sigs/aws-fsx-csi-driver">FSx CSI driver</a> supports dynamic provisioning of Lustre file systems.  It encrypts data with a service managed key by default, although there is an option to provide you own CMK as in this example:</p>
+<pre><code>kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: fsx-sc
+provisioner: fsx.csi.aws.com
+parameters:
+  subnetId: subnet-056da83524edbe641
+  securityGroupIds: sg-086f61ea73388fb6b
+  deploymentType: PERSISTENT_1
+  kmsKeyId: &lt;kms_arn&gt;
+</code></pre>
+
+<h2 id="recommendations">Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Encrypt data at rest</strong>.  Encrypting data at rest is considered a best practice.  If you're unsure whether encryption is necessary, encrypt your data. </li>
+<li><strong>Rotate your CMKs periodically</strong>. Configure KMS to automatically rotate you CMKs.  This will rotate your keys once a year while saving old keys indefinitely so that your data can still be decrypted.  For additional information see <a href="https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html">Rotating customer master keys</a></li>
+<li><strong>Use EFS access points to simplify access to shared datasets</strong>. If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today, if you want to use access point (AP) you'll need to reference the AP in the PV's <code>volumeHandle</code> parameter.</li>
+</ul>
+<h1 id="secrets-management">Secrets management<a class="headerlink" href="#secrets-management" title="Permanent link">&para;</a></h1>
+<p>Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html">EBS encryption</a>.  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the podSpec.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. </p>
+<blockquote>
+<p>Note: Secrets in a particular namespace can be referenced by all pods in the secret's namespace.</p>
+<p>Note: The node authorizer allows the Kubelet to read all of the secrets mounted to the node. </p>
+</blockquote>
+<h2 id="recommendations_1">Recommendations<a class="headerlink" href="#recommendations_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Use separate namespaces as a way to isolate secrets from different applications</strong>. If you have secrets that cannot be shared between applications in a namespace, create a separate namespace for those applications.  </p>
+</li>
+<li>
+<p><strong>Use volume mounts instead of environment variables</strong>. The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. </p>
+</li>
+<li>
+<p><strong>Use an external secrets provider</strong>. There are several viable alternatives to using Kubernetes secrets, include Bitnami's <a href="https://github.com/bitnami-labs/sealed-secrets">Sealed Secrets</a> and Hashicorp's <a href="https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/">Vault</a>. Unlike Kubernetes secrets which can be shared amongst all of the pods within a namespace, Vault gives you the ability to limit access to particular pods through the use of Kubernetes service accounts.  It also has support for secret rotation.  If Vault is not to your liking, you can use similar approach with AWS Secrets Manager, as in this example https://github.com/jicowan/secret-sidecar or you could try using a <a href="https://github.com/mhausenblas/nase">serverless</a> mutating webhook instead.</p>
+</li>
+<li>
+<p><strong>Audit the use of secrets</strong>. On EKS, turn on audit logging and create a CloudWatch metrics filter and alarm to alert you when a secret is used (optional). The following is an example of a metrics filter for the Kubernetes audit log, <code>{($.verb="get") &amp;&amp; ($.objectRef.resource="secret")}</code>.  You can also use the following queries with CloudWatch Log Insights: </p>
+</li>
+</ul>
+<pre><code>fields @timestamp, @message
+| sort @timestamp desc
+| limit 100
+| stats count(*) by objectRef.name as secret
+| filter verb=&quot;get&quot; and objectRef.resource=&quot;secrets&quot;
+</code></pre>
+
+<p>The above query will display the number of times a secret has been accessed within a specific timeframe. </p>
+<pre><code>fields @timestamp, @message
+| sort @timestamp desc
+| limit 100
+| filter verb=&quot;get&quot; and objectRef.resource=&quot;secrets&quot;
+| display objectRef.namespace, objectRef.name, user.username, responseStatus.code
+</code></pre>
+
+<p>This query will display the secret, along with the namespace and username of the user who attempted to access the secret and the response code. </p>
+<ul>
+<li>
+<p><strong>Rotate your secrets periodically</strong>. Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets, consider using an external secret store, e.g. Vault or AWS Secrets Manager. </p>
+</li>
+<li>
+<p><strong>Use AWS KMS for envelop encryption of Kubernetes secrets</strong> (<a href="https://github.com/aws/containers-roadmap/issues/530">coming soon</a>). When this option becomes available, Kubernetes will encrypt your secrets with a unique data encryption key (DEK). The DEK is then encypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. </p>
+<ul>
+<li>https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/</li>
+</ul>
+</li>
+</ul>
+
+
+</section>
+</div> <!-- end of search-noresults -->
+<div class="search-results">
+<div class="has-results">
+
+<h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+<ul class="search-results-list"></ul>
+
+</div> <!-- end of has-results -->
+<div class="no-results">
+
+<h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+
+</div> <!-- end of no-results -->
+</div> <!-- end of search-results -->
+</div> <!-- end of book-search-results -->
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../js/main.js"></script>
+<script src="../search/main.js"></script>
+<script src="../js/gitbook.min.js"></script>
+<script src="../js/theme.min.js"></script>
+</body>
+</html>

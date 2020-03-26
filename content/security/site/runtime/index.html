@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Runtime Security - EKS Security Best Practices</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
+
+<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+<meta name="HandheldFriendly" content="true"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta rel="next" href="" />
+<link href="../css/style.min.css" rel="stylesheet"> 
+</head>
+
+<body>
+<div class="book">
+<div class="book-summary">
+<div id="book-search-input" role="search">
+<input type="text" placeholder="Type to search" />
+</div> <!-- end of book-search-input -->
+
+<nav role="navigation">
+<ul class="summary">
+<li>
+<a href=".." target="_blank" class="custom-link">EKS Security Best Practices</a>
+</li>
+<li class="divider"></li>
+<li class="chapter" data-path="">
+<a href="..">Home</a>
+<li class="chapter" data-path="iam/">
+<a href="../iam/">Identity and Access Management</a>
+<li class="chapter" data-path="pods/">
+<a href="../pods/">Pod Security</a>
+<li class="chapter" data-path="multitenancy/">
+<a href="../multitenancy/">Multi-tenancy</a>
+<li class="chapter" data-path="detective/">
+<a href="../detective/">Detective Controls</a>
+<li class="chapter" data-path="network/">
+<a href="../network/">Network Security</a>
+<li class="chapter" data-path="data/">
+<a href="../data/">Data Encryption and Secrets Management</a>
+<li class="chapter active" data-path="runtime/">
+<a href="./">Runtime Security</a>
+<li class="chapter" data-path="hosts/">
+<a href="../hosts/">Infrastructure Security</a>
+<li class="chapter" data-path="compliance/">
+<a href="../compliance/">Regulatory Compliance</a>
+<li class="chapter" data-path="incidents/">
+<a href="../incidents/">Incident Response and Forensics</a>
+<li class="divider"></li>
+
+
+
+<li><a href="http://www.mkdocs.org">
+Published with MkDocs
+</a></li>
+
+<li><a href="https://github.com/GitbookIO/theme-default">
+Theme by GitBook
+</a></li>
+</ul>
+
+</nav>
+
+</div> <!-- end of book-summary -->
+
+<div class="book-body">
+<div class="body-inner">
+<div class="book-header" role="navigation">
+
+<!-- Title -->
+<h1>
+<i class="fa fa-circle-o-notch fa-spin"></i>
+<a href="." ></a>
+</h1>
+
+</div> <!-- end of book-header -->
+
+<div class="page-wrapper" tabindex="-1" role="main">
+<div class="page-inner">
+<div id="book-search-results">
+<div class="search-noresults">
+
+<section class="normal markdown-section">
+
+
+
+<h1 id="runtime-security">Runtime security<a class="headerlink" href="#runtime-security" title="Permanent link">&para;</a></h1>
+<p>Runtime security provides active protection for your containers while they're running.  The idea is to detect and/or prevent malicious activity from occuring inside the container. With secure computing (seccomp) you can prevent a containerized application from making certain syscalls to the underlying host operating system's kernel. While the Linux operating system has a few hundred system calls, the lion's share of them are not necessary for running containers. By restricting what syscalls can be made by a container, you can effectively decrease your application's attack surface. To get started with seccomp, analyze the results of a stack trace to see which calls your application is making or use a tool such as <a href="https://github.com/antitree/syscall2seccomp">syscall2seccomp</a>.</p>
+<blockquote>
+<p>Seccomp profiles are a Kubelet alpha feature.  You'll need to add the <code>--seccomp-profile-root</code> flag to the Kubelet arguments to make use of this feature. </p>
+</blockquote>
+<p>AppArmor is similar to seccomp, only it restricts an container's capabilities including accessing parts of the file system. It can be run in either enforcement or complain mode. Since building Apparmor profiles can be challenging, it is recommended you use a tool like <a href="https://github.com/genuinetools/bane">bane</a> instead. </p>
+<blockquote>
+<p>Apparmor is only available Ubuntu/Debian distributions of Linux. </p>
+<p>Kubernetes does not currently provide any native mechanisms for loading AppArmor or seccomp profiles onto nodes.  They either have to be loaded manually or installed onto nodes when they are bootstrapped.  This has to be done prior to referencing them in your Pods because the scheduler is unaware of which nodes have profiles. </p>
+</blockquote>
+<h2 id="recommendations">Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Use a 3rd party solution for runtime defense</strong>. Creating and managing seccomp and Apparmor profiles can be difficult if you're not familiar with Linux security.  If you don't have the time to become proficient, consider using a commercial solution.  A lot of them have moved beyond static profiles like Apparmor and seccomp and have begun using machine learning to block or alert on suspicious activity. </p>
+</li>
+<li>
+<p><strong>Consider add/dropping Linux capabilities before writing seccomp policies</strong>. Capabilities involve various checks in kernel functions reachable by syscalls. If the check fails, the syscall typically returns an error. The check can be done either right at the beginning of a specific syscall, or deeper in the kernel in areas that might be reachable through multiple different syscalls (such as writing to a specific privileged file).  Seccomp, on the other hand, is a syscall filter which is applied to all syscalls before they are run. A process can set up a filter which allows them to revoke their right to run certain syscalls, or specific arguments for certain syscalls. </p>
+</li>
+</ul>
+<p>Before using seccomp, consider whether adding/removing Linux capabilities gives you the control you need. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-capabilities-for-a-container for further information. </p>
+<ul>
+<li><strong>See whether you can accomplish your aims by using Pod Security Policies (PSPs)</strong>. Pod Security Policies offer a lot of different ways to improve your security posture without introducing undue complexity.  Explore the options available in PSPs before venturing into building seccomp and Apparmor profiles. </li>
+</ul>
+<h2 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li>https://itnext.io/seccomp-in-kubernetes-part-i-7-things-you-should-know-before-you-even-start-97502ad6b6d6</li>
+<li>https://github.com/kubernetes/kubernetes/tree/master/test/images/apparmor-loader</li>
+<li>https://kubernetes.io/docs/tutorials/clusters/apparmor/#setting-up-nodes-with-profiles</li>
+</ul>
+<h2 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.aquasec.com/products/aqua-cloud-native-security-platform/">Aqua</a></li>
+<li><a href="https://www.qualys.com/apps/container-security/">Qualys</a></li>
+<li><a href="https://sysdig.com/products/kubernetes-security/">Sysdig Secure</a></li>
+<li><a href="https://www.twistlock.com/platform/runtime-defense/">Twistlock</a></li>
+</ul>
+
+
+</section>
+</div> <!-- end of search-noresults -->
+<div class="search-results">
+<div class="has-results">
+
+<h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+<ul class="search-results-list"></ul>
+
+</div> <!-- end of has-results -->
+<div class="no-results">
+
+<h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+
+</div> <!-- end of no-results -->
+</div> <!-- end of search-results -->
+</div> <!-- end of book-search-results -->
+
+</div> <!-- end of page-inner -->
+</div> <!-- end of page-wrapper -->
+
+</div> <!-- end of body-inner -->
+
+</div> <!-- end of book-body -->
+<script src="../js/main.js"></script>
+<script src="../search/main.js"></script>
+<script src="../js/gitbook.min.js"></script>
+<script src="../js/theme.min.js"></script>
+</body>
+</html>
