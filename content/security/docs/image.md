@@ -3,13 +3,13 @@ You should consider the container image as your first line of defense against an
 
 ## Recommendations
 ### Create minimal images
-Start by removing all extraneous binaries from the container image.  If you’re using an unfamiliar image from Dockerhub, inspect the image using an application like Dive (https://github.com/wagoodman/dive) which can show you the contents of each of the container’s layers.  Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
+Start by removing all extraneous binaries from the container image.  If you’re using an unfamiliar image from Dockerhub, inspect the image using an application like [Dive](https://github.com/wagoodman/dive) which can show you the contents of each of the container’s layers.  Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
 ```bash
 find / -perm +6000 -type f -exec ls -ld {} \;
 ```
     
 To remove the special permissions from these files, add the following directive to your container image:
-```bash
+```dockerfile
 RUN find / -xdev -perm +6000 -type f -exec chmod a-s {} \; || true
 ```
 Colloquially, this is known as de-fanging your image. 
@@ -18,7 +18,7 @@ Colloquially, this is known as de-fanging your image.
 Using multi-stage builds is a way to create minimal images. Oftentimes, multi-stage builds are used to automate parts of the Continuous Integration cycle.  For example, multi-stage builds can be used to lint your source code or perform static code analysis.  This affords developers an opportunity to get near immediate feedback instead of waiting for a pipeline to execute.  Multi-stage builds are attractive from a security standpoint because they allow you to minimize the size of the final image pushed to your container registry.  Container images devoid of build tools and other extraneous binaries decreases improves your security posture by reducing the attack surface of the image. For additional information about multi-stage builds, see https://docs.docker.com/develop/develop-images/multistage-build/.
 
 ### Scan images for vulnerabilities regularly
-Like their VM counterparts, container images can contain binaries and application libraries with vulnerabilities or develop vulnerabilities over time.  The best way to safeguard against exploits is by regularly scanning your images with an image scanner.  Images that are stored in Amazon ECR can be scanned on push or on-demand (once during a 24 hour period). ECR currently leverages Clair (https://github.com/quay/clair) an open source image scanning solution.  After an image is scanned, the results are logged to the event stream for ECR in EventBridge. You can also see the results of a scan from within the ECR console.  Images with a HIGH or CRITICAL vulnerability should be deleted or rebuilt.  If an image that has been deployed develops a vulnerability, it should be replaced as soon as possible. 
+Like their VM counterparts, container images can contain binaries and application libraries with vulnerabilities or develop vulnerabilities over time.  The best way to safeguard against exploits is by regularly scanning your images with an image scanner.  Images that are stored in Amazon ECR can be scanned on push or on-demand (once during a 24 hour period). ECR currently leverages [Clair](https://github.com/quay/clair) an open source image scanning solution.  After an image is scanned, the results are logged to the event stream for ECR in EventBridge. You can also see the results of a scan from within the ECR console.  Images with a HIGH or CRITICAL vulnerability should be deleted or rebuilt.  If an image that has been deployed develops a vulnerability, it should be replaced as soon as possible. 
 
 Knowing where images with vulnerabilities have been deployed is essential to keeping your environment secure.  While you could conceivably build an image tracking solution yourself, there are already several commercial offerings that provide this and other advanced capabilities out of the box, including:
 + [Anchore](https://docs.anchore.com/current/)
@@ -61,11 +61,11 @@ The default endpoint policy for allows access to all ECR repositories within a r
     "Statement": [{
     "Sid": "LimitECRAccess",
     "Principal": "*",
-    "Action": "*"
+    "Action": "*",
     "Effect": "Allow",
     "Resource": "arn:aws:ecr:region:<your_account_id>:repository/*"
-  },
-]
+    },
+  ]
 }
 ```
 You can enhance this further by setting a condition that uses the new `PrincipalOrgID` attribute which will prevent pushing/pulling of images by an IAM principle that is not part of your AWS Organization. See, [aws:PrincipalOrgID](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-principalorgid) for additional details. 
