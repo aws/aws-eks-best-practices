@@ -23,7 +23,8 @@ The following table shows the compliance programs with which the different conta
 | K-ISMS | 0 | 0 | 0 | 0 |
 | ENS High | 1 | 0 | 1 | 0 |
 
-### Tools
-+ kube-bench
-+ docker-bench-security
-+ actuary
+### Tools and resources
++ [kube-bench](https://github.com/aquasecurity/kube-bench)
++ [docker-bench-security](https://github.com/docker/docker-bench-security)
++ [actuary](https://github.com/diogomonica/actuary)
++ [AWS Inspector](https://aws.amazon.com/inspector/)
