@@ -17,8 +17,9 @@ Calico policies can be scoped to namespaces, pods, service accounts, or globally
 
 You can find a list of common Kubernetes network policies at https://github.com/ahmetb/kubernetes-network-policy-recipes.  A similar set of rules for Calico are available at https://docs.projectcalico.org/security/calico-network-policy. 
 
-### Recommendations
-+ **Create a default deny policy**. As with RBAC policies, network policies should adhere to the policy of least privileged access.  Start by creating a deny all policy that restricts all inbound and outbound traffic from a namespace or create a global policy using Calico.
+## Recommendations
+### Create a default deny policy
+As with RBAC policies, network policies should adhere to the policy of least privileged access.  Start by creating a deny all policy that restricts all inbound and outbound traffic from a namespace or create a global policy using Calico.
 
 _Kubernetes network policy_
 ```yaml
@@ -47,7 +48,8 @@ spec:
   - Egress
 ```
 
-+ **Create a rule to allow DNS queries**. Once you have the defaul deny all rule in place, you can begin to layer on additional rules, such as a global rule that allows pods to query CoreDNS for name resolution. You begin by labeling the namespace: 
+### Create a rule to allow DNS queries 
+Once you have the defaul deny all rule in place, you can begin to layer on additional rules, such as a global rule that allows pods to query CoreDNS for name resolution. You begin by labeling the namespace: 
 
 ```
 kubectl label namespace kube-system name=kube-system
@@ -150,11 +152,14 @@ spec:
   selector: all()
 ```
 
-+ **Incrementally add rules to selectively allow the flow of traffic between namespaces/pods**.  Start by allowing pods within a namespace to communicate with each other and then add custom rules that further restrict pod to pod communication within that namespace. 
+### Incrementally add rules to selectively allow the flow of traffic between namespaces/pods
+Start by allowing pods within a namespace to communicate with each other and then add custom rules that further restrict pod to pod communication within that namespace. 
 
-+ **Log network traffic metadata**. VPC Flow Logs captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicous or unusual activity between resources within the VPC, including pods.  However, since the IP addresses of pods frequently change as they replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels, making it easier to decipher the traffic flows between pods.  It also makes use of machine learning to identify anomalous traffic.
+### Log network traffic metadata
+VPC Flow Logs captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicous or unusual activity between resources within the VPC, including pods.  However, since the IP addresses of pods frequently change as they replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels, making it easier to decipher the traffic flows between pods.  It also makes use of machine learning to identify anomalous traffic.
 
-+ **Use encryption with AWS load balancers**. The ALB and NLB both have support for transport encryption (SSL and TLS).  The `alb.ingress.kubernetes.io/certificate-arn` annotation for the ALB lets you to specify which certificates to add to the ALB.  If you omit the annotation the controller will attempt to add certificates to listeners that require it by matching the available ACM certiciates using the host field. Starting with EKS v1.15 you can use the service.beta.kubernetes.io/aws-load-balancer-ssl-cert annotation with the NLB as shown in the example below. 
+### Use encryption with AWS load balancers
+The ALB and NLB both have support for transport encryption (SSL and TLS).  The `alb.ingress.kubernetes.io/certificate-arn` annotation for the ALB lets you to specify which certificates to add to the ALB.  If you omit the annotation the controller will attempt to add certificates to listeners that require it by matching the available ACM certiciates using the host field. Starting with EKS v1.15 you can use the service.beta.kubernetes.io/aws-load-balancer-ssl-cert annotation with the NLB as shown in the example below. 
 
 ```yaml
 apiVersion: v1
@@ -223,7 +228,5 @@ If you need to control communication between services that run within the cluste
 Applications that need to conform to PCI, HIPAA, or other regulations may need to encrypt data while it is in transit.  Nowadays TLS is the de facto choice for encrypting traffic on the wire.  TLS, like it's predecessor SSL, provides secure communications over a network using cyptographic protocols.  TLS uses symmetric encryption where the keys to encrypt the data are generated based on a shared secret that is negotiated at the beginning of the sesssion. The follow are a few ways that you can encrypt data in a Kubernetes environment. 
 
 + **Nitro Instances**. Traffic exchanged between select Nitro instance types, e.g. M5n, M5dn, R5n, and R5dn, is automatically encrypted by default.  When there's an intermediate hop, like a trasit gateway or a load balancer, the traffic is not encrypted. 
-
 + **Container Network Interfaces (CNIs)**. [WeaveNet](https://www.weave.works/oss/net/) can be configured to automatically encrypt all traffic using NaCl encryption for sleeve traffic, and IPsec ESP for fast datapath traffic.
-
 + **Service Mesh**. Encryption in transit can also be implemented with a service mesh like App Mesh, Linkerd v2, and Istio. Currently, App Mesh supports [TLS encryption](https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html) with a private certificate issued by ACM or a certificate stored on the local file system of the virtual node. Linkerd and Istio both have support for mTLS which adds another layer of security through mutual exchange and validation of certificates.
