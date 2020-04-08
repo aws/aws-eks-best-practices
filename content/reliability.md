@@ -167,20 +167,48 @@ You will need to start producing custom metrics before you start consuming them 
 
 [External metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md), as the name suggests provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
 
+--TODO--
+https://github.com/zalando-incubator/kube-metrics-adapter
+--TODO--
+
 You can also scale deployments using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
 metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
 
 ### Vertical Pod Autoscaler (VPA)
 
-You might have wondered why the Horizontal Pod Autoscaler is not simply called "Autoscaler", this is because Kubernetes can scale your applications (running in pods) in two ways. First is the way of HPA, which would automatically scale replicas in a Deployment based on scaling metric. The [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) automatically adjusts the CPU and memory reservations for your pods to help you "right-size" your applications. Vertical Pod Autoscaler's current implementation does not perform in-place adjustments to pods, instead it will restart the pod that needs to be scaled with increased. 
+You might have wondered why the Horizontal Pod Autoscaler is not simply called "the Autoscaler", this is because Kubernetes can scale your applications (running in pods) in two ways. First is the way of HPA, which would automatically scale replicas in a Deployment based on scaling metric. The [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) automatically adjusts the CPU and memory reservations for your pods to help you "right-size" your applications. Vertical Pod Autoscaler's current implementation does not perform in-place adjustments to pods, instead it will restart the pod that needs to be scaled with increased. 
 
 [EKS Documentation](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) includes a walkthrough for setting up VPA. 
 
+[Fairwinds Goldilocks](https://github.com/FairwindsOps/goldilocks/) project simplifies implementation of VPA. Goldilocks can provide VPA recommendations and it can optionally auto-scale the Pods. 
+
 ### Health checks
+It’s a truism that no software is bug-free. Kubernetes gives you the ability to minimize impact of software crashes. In the past, if an application crashed, someone had to manually remediate the situation by restarting the application. Kubernetes gives you the ability to detect software failures in your application and restart it. Kubernetes can monitor the health of your application and restart it’s Pod in case of health-check failure.  
+
+Kubernetes supports three types of health-checks:
+1. Readiness probe
+2. Liveness probe
+3. Startup probe (requires Kubernetes 1.16+)
+
+#### Readiness Probe
+#### Liveness Probe
+#### Startup Probe
+
+
+
+
 
 ### Disruptions
-A Pod in a cluster will run indefinitely unless a user (human or system) terminates it or the system(s) running the pod malfunction, e.g., a kernel panic on the worker node running the pod.   
 
+Kubernetes makes it easy to run highly-available applications by providing the ability to run multiple replicas. Running multiple replicas and using Kubernetes health checks you can mitigate disruptions. If aggregate load in a Deployment exceeds the threshold, HPA can add replicas. If a Pod fails health checks 
+
+
+
+A Pod in a cluster will run indefinitely unless a user (human or system) terminates it or the host running the pod malfunctions, e.g., a kernel panic on the worker node running the pod. 
+
+
+
+—-PDB here—
 
 ### Observability 
 
