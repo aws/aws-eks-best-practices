@@ -168,7 +168,9 @@ You will need to start producing custom metrics before you start consuming them 
 [External metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md), as the name suggests provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
 
 --TODO--
+
 https://github.com/zalando-incubator/kube-metrics-adapter
+
 --TODO--
 
 You can also scale deployments using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
@@ -189,6 +191,8 @@ Kubernetes supports three types of health-checks:
 1. Readiness probe
 2. Liveness probe
 3. Startup probe (requires Kubernetes 1.16+)
+
+[Kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/) is responsible for running all the above-mentioned checks. Kubernetes has two ways of checking the health of your application, it can either run a command inside the container or it can send a HTTP GET request to the container. 
 
 #### Readiness Probe
 #### Liveness Probe
