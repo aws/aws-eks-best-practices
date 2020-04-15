@@ -221,6 +221,8 @@ A Pod in a cluster will run indefinitely unless a user (human or system) termina
 
 —-PDB here—
 
+https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+
 ### Observability 
 
 ### Monitoring CoreDNS
