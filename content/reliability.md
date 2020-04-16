@@ -182,41 +182,47 @@ You might have wondered why the Horizontal Pod Autoscaler is not simply called �
 
 [Fairwinds Goldilocks](https://github.com/FairwindsOps/goldilocks/) project simplifies implementation of VPA. Goldilocks can provide VPA recommendations and it can optionally auto-scale the Pods. 
 
-### Health checks
-It’s a truism that no software is bug-free. Kubernetes gives you the ability to minimize impact of software crashes. In the past, if an application crashed, someone had to manually remediate the situation by restarting the application. Kubernetes gives you the ability to detect software failures in your application and restart it. Kubernetes can monitor the health of your application and restart it’s Pod in case of health-check failure.  
+### Health checks and self-healing
+It’s a truism that no software is bug-free. Kubernetes gives you the ability to minimize impact of software failures. In the past, if an application crashed, someone had to manually remediate the situation by restarting the application. Kubernetes gives you the ability to detect software failures in your application and automatically heal them. Kubernetes can monitor the health of your application and stop sending requests to the Pod if it fails health-checks.  
 
 Kubernetes supports three types of (health-checks)[https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/]:
-1. Readiness probe
-2. Liveness probe
+
+1. Liveness probe
+2. Readiness probe
 3. Startup probe (requires Kubernetes 1.16+)
 
-[Kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/) is responsible for running all the above-mentioned checks. Kubelet can check the health of your applications in three ways, it can either run a shell command inside the container, send a HTTP GET request to the container or try connecting to open a TCP socket on a specified port. 
+[Kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/) is responsible for running all the above-mentioned checks. Kubelet can check the health of your applications in three ways, it can either run a shell command inside the container, send a HTTP GET request to the container or open a TCP socket on a specified port. 
 
+
+#### Liveness Probe
+You can use the Liveness probe to detect failure in a running application. For example, if you are running a web application that listens on port 80, you can configure a Liveness probe to send a HTTP GET request on Pod’s port 80. Kubelet will periodically send a GET request to the Pod and expect a response, if the Pod responds between 200-399 then Kubelet considers that Pod as healthy, otherwise the Pod will be considered unhealthy. If a running pod fails health-checks, Kubernetes will restart the pod. 
 
 #### Readiness Probe
-When you deploy a pod, your application may take some time before it is ready to accept requests. Readiness probes should be used to determine when a Pod is ready to its work. If your application depends on external services, for example a database, you can run a shell script to verify that your database connection is successful before accepting traffic. 
+While Liveness probe is used to detect failure in an application that can only be remediated by restarting the Pod, Readiness Probe can be used to detect situations where the application may be _temporarily_ unavailable. Some applications have external dependencies or need to perform actions such as opening a database connection, loading a large file, etc. And, they may need to do this not just during startup. In these situations the application may become temporarily unresponsive however once this operation completes, it is expected to be healthy again. You can use the Readiness Probe to detect this behavior and stop sending requests to applications’ Pod until it becomes healthy again. Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic through Kubernetes Services. When the Liveness Probe succeeds, Pod will resume receiving traffic from Services.
  
-#### Liveness Probe
-You can use the Liveness probe to detect failure in a running application. For example, if you are running a web application that listens on port 80, you can configure a Liveness probe to send a HTTP GET request on Pod’s port 80. Kubelet will periodically send a GET request to the Pod and expect a response, if the Pod responds between 200-399 then Kubelet considers that Pod as healthy, otherwise the Pod will be considered unhealthy. 
 
 #### Startup Probe
-
-—-TODO—-
-How is this different from readiness probe. 
-—-TODO—- 
+When your application needs additional time to startup, you can use the Startup Probe to delay the Liveness Probe. Once the Startup Probe succeeds, the Liveness Probe takes over. You can define maximum time Kubernetes should wait for application startup. If after the maximum configured time, the Pod still fails Startup Probes, it will be restarted. 
 
 ### Recommendations
-At minimum, configure Readiness and Liveness probe in your Pod spec. Use `initialDelaySeconds` to delay the first probe. For example, if in your tests, you’ve identified that your application takes on an average 60 seconds to load libraries, open database connections, etc, then configure `initialDelaySeconds` to 60 seconds. 
+Configure both Readiness and Liveness probe in your Pods. Use `initialDelaySeconds` to delay the first probe. For example, if in your tests, you’ve identified that your application takes on an average 60 seconds to load libraries, open database connections, etc, then configure `initialDelaySeconds` to 60 seconds + plus ~10 seconds for grace period. 
 
 
 ### Disruptions
 
-Kubernetes makes it easy to run highly-available applications by providing the ability to run multiple replicas. Running multiple replicas and using Kubernetes health checks you can mitigate disruptions. If aggregate load in a Deployment exceeds the threshold, HPA can add replicas. If a Pod fails health checks 
+A Pod will run indefinitely unless a user stops or the worker node it runs on fails. Outside of failed health-checks and autoscaling there aren’t many situations where Pods need to be restarted. Performing Kubernetes cluster upgrades is one such event. When you need to upgrade your Kubernetes cluster, after performing control plane upgrade, you will need to upgrade your worker nodes. If you are not using [EKS managed node group](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html), we recommend you create new worker nodes with updated Kubernetes components rather than performing an in-place upgrade of your worker nodes. 
 
+Worker node upgrades are generally done by terminating old worker nodes and creating new worker nodes. Before terminating a worker nodes, you should `drain` it. When a worker node is drained, all its pods are safely evicted. Safely is a key word here, when Pods on a worker are evicted, they are not sent a KILL signal. Instead a TERM signal is sent to the main process of each container in the Pods being evicted. After the TERM signal is sent, Kubernetes will give the process some time (grace period) before a KILL signal is sent. This grace period is 30 seconds by default, you can override the default by using `grace-period` flag in kubectl. 
 
+`kubectl delete pod <pod name> —grace-period=<seconds>`
 
-A Pod in a cluster will run indefinitely unless a user (human or system) terminates it or the host running the pod malfunctions, e.g., a kernel panic on the worker node running the pod. 
+Draining also respects `PodDisruptionBudgets`
 
+Pod
+
+***
+Open question. How do managed nodes get drained, kubectl drain or the eviction api?
+***
 
 
 —-PDB here—
