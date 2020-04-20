@@ -50,3 +50,4 @@ Hard multi-tenancy can be implemented by provisioning separate clusters for each
 + [Weave Flux](https://www.weave.works/oss/flux/)
 + [Banzai Cloud](https://banzaicloud.com/)
 + [Rafay](https://rafay.co/)
++ [Lens](https://github.com/lensapp/lens)
