@@ -9,7 +9,7 @@ AppArmor is similar to seccomp, only it restricts an container's capabilities in
 
 > Apparmor is only available Ubuntu/Debian distributions of Linux. 
 
-> Kubernetes does not currently provide any native mechanisms for loading AppArmor or seccomp profiles onto nodes.  They either have to be loaded manually or installed onto nodes when they are bootstrapped.  This has to be done prior to referencing them in your Pods because the scheduler is unaware of which nodes have profiles. 
+> Kubernetes does not currently provide any native mechanisms for loading AppArmor or seccomp profiles onto Nodes.  They either have to be loaded manually or installed onto Nodes when they are bootstrapped.  This has to be done prior to referencing them in your Pods because the scheduler is unaware of which nodes have profiles. 
 
 ## Recommendations
 ### Use a 3rd party solution for runtime defense
@@ -21,7 +21,7 @@ Capabilities involve various checks in kernel functions reachable by syscalls. I
 Before using seccomp, consider whether adding/removing Linux capabilities gives you the control you need. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-capabilities-for-a-container for further information. 
 
 ### See whether you can accomplish your aims by using Pod Security Policies (PSPs)
-Pod Security Policies offer a lot of different ways to improve your security posture without introducing undue complexity.  Explore the options available in PSPs before venturing into building seccomp and Apparmor profiles. 
+Pod Security Policies offer a lot of different ways to improve your security posture without introducing undue complexity. Explore the options available in PSPs before venturing into building seccomp and Apparmor profiles. 
 
 ## Additional Resources
 + [7 things you should know before you start](https://itnext.io/seccomp-in-kubernetes-part-i-7-things-you-should-know-before-you-even-start-97502ad6b6d6)
