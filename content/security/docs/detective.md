@@ -85,6 +85,7 @@ Yet another option might be to store the audit logs in S3 and use the SageMaker 
 The following open source projects can be used to assess your cluster's alignment with established best practices:
 
 + [kubeaudit](https://github.com/Shopify/kubeaudit)
++ [MKIT](https://github.com/darkbitio/mkit)
 + [kubesec.io](https://kubesec.io/)
 + [polaris](https://github.com/FairwindsOps/polaris)
 + [kAudit](https://www.alcide.io/kaudit-K8s-forensics/)
