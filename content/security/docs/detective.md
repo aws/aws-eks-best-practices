@@ -17,8 +17,9 @@ This logs changes to the `aws-auth` ConfigMap which is used to grant access to a
 ## Recommendations
 ### Enable audit logs
 The audit logs are part of the EKS managed Kubernetes control plane logs that are managed by EKS.  Instructions for enabling/disabling the control plane logs, which includes the logs for the Kubernetes API server, the controller manager, and the scheduler, along with the audit log, can be found here, https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export. 
+> When you enable control plane logging, you will incur [costs](https://aws.amazon.com/cloudwatch/pricing/) for storing the logs in CloudWatch. This raises a broader issue about the ongoing cost of security. Ultimately you will have to weigh those costs against the cost of a security breach, e.g. financial loss, damage to your reputation, etc. You may find that you can adequately secure your environment by implementing only some of the recommendations in this guide. 
 
-  > Caution: the maximum size for a CWL entry is 256KB whereas the maximum Kubernetes API request size is 1.5MiB.
+> Caution: the maximum size for a CWL entry is 256KB whereas the maximum Kubernetes API request size is 1.5MiB.
 
 ### Utilize audit metadata
 Kubernetes audit logs include two annotations that indicate whether or not a request was authorized `authorization.k8s.io/decision` and the reason for the decision `authorization.k8s.io/reason`.  Use these attributes to ascertain why a particular API call was allowed. 
