@@ -134,5 +134,6 @@ In a Kubernetes environment, you can use an dynamic admission controller to veri
 + [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images
 + [dockerfile-lint](https://github.com/projectatomic/dockerfile_lint) Rule based linter for Dockerfiles
 + [Gatekeeper and OPA](https://github.com/open-policy-agent/gatekeeper) A policy based admission controller
++ [in-toto](https://in-toto.io/) Allows the user to verify if a step in the supply chain was intended to be performed, and if the step was performed by the right actor
 + [Notary](https://github.com/theupdateframework/notary) A project for signing container images
-+ [Grafeas](https://grafeas.io/) An open artifact metadata API to audit and govern your software supply chain.
++ [Grafeas](https://grafeas.io/) An open artifact metadata API to audit and govern your software supply chain
