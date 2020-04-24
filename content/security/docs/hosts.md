@@ -32,7 +32,7 @@ By deploying workers onto private subnets, you minimize their exposure to the In
 
 ## Alternatives
 ### Run SELinux 
-> Available on RHEL instances
+> Available on RHEL and CoreOS instances
 
 SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts access to specific resources on the operation based on a set of labels.  On EKS it can be used to prevent containers from accessing each other's resources. 
 
