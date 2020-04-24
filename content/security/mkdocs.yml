@@ -1,6 +1,6 @@
 site_name: EKS Security Best Practices
 theme: 
-  name: gitbook
+  name: material
 nav:
     - Home: 'index.md'
     - Identity and Access Management: 'iam.md'
