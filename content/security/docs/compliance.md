@@ -3,7 +3,7 @@ Compliance is a shared responsibility between AWS and the consumers of its servi
 
 The following table shows the compliance programs with which the different container services conform.
 
-| Compliance Program | Amazon ECS | Amazon EKS | ECS Fargate | Amazon ECR |
+| Compliance Program | Amazon ECS Orchestrator | Amazon EKS Orchestrator| ECS Fargate | Amazon ECR |
 | ------------------ |:----------:|:----------:|:-----------:|:----------:|
 | PCI DSS Level 1	| 1 | 1 | 1 | 1 |
 | HIPAA Eligible	| 1 | 1	| 1	| 1 |
