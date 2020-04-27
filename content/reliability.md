@@ -286,7 +286,6 @@ You can also use service mesh features like automatic retries and rate limiting 
 
 ### Pod resource management
 
-
 ### Chaos Engineering Practice 
 
 
