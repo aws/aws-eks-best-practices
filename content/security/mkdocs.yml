@@ -15,4 +15,5 @@ nav:
     - Incident Response and Forensics: 'incidents.md'
 markdown_extensions:
     - toc:
-        permalink: "&para;"
+        permalink: true
+    - admonition
