@@ -12,7 +12,8 @@ Network security has several facets.  The first involves the application of rule
 ## Network policy
 Within a Kubernetes cluster, all Pod to Pod communication is allowed by default.  While this flexibility may help promote experimentation, it is not considered secure.  Kubernetes network policies give you a mechanism to restrict network traffic between Pods (often referred to as East/West traffic) and between Pods and external services.  [Calico](https://docs.projectcalico.org/introduction/), is an open source policy engine from [Tigera](https://tigera.io) that works well with EKS.  Network policies operate at layers 3 and 4 of the OSI model.  Rules can comprise of a source and destination IP address, port number, protocol number, or a combination of these. Isovalent, the maintainers of [Cilium](https://cilium.readthedocs.io/en/stable/intro/), have extended the network policies to include partial support for layer 7 rules, e.g. HTTP.  Cilium also has support for DNS hostnames which can be useful for restricting traffic between Kubernetes Services/Pods and resources that run within or outside of your VPC. By contrast, Tigera Enterprise includes a feature that allows you to map a Kubernetes network policy to an AWS security group. 
 
-  > When you first provision an EKS cluster, the Calico policy engine is not installed by default. The manifests for installing Calico can be found in the VPC CNI repository at https://github.com/aws/amazon-vpc-cni-k8s/tree/master/config.
+!!! attention
+    When you first provision an EKS cluster, the Calico policy engine is not installed by default. The manifests for installing Calico can be found in the VPC CNI repository at https://github.com/aws/amazon-vpc-cni-k8s/tree/master/config.
 
 Calico policies can be scoped to Namespaces, Pods, service accounts, or globally.  When policies are scoped to a service account, it associates a set of ingress/egress rules with that service account.  With the proper RBAC rules in place, you can prevent teams from overriding these rules, allowing IT security professionals to safely delegate administration of namespaces.
 
@@ -223,7 +224,8 @@ Prior to 1.14 platform version eks.3 there were separate security groups configu
 
 If you need to control communication between services that run within the cluster and service the run outside the cluster, consider using a network policy engine like Cilium which allows you to use a DNS name.  Alternatively, use Calico Enterprise which allows you to map a network policy to an AWS security group.  If you're implemting a service mesh like Istio, you can use an egress gateway to restrict network egress to specific fully qualified domains or IP addresses. Read the 3 part series on [egress traffic control in Istio](https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/) for further information. 
 
-> Unless you are running 1 pod per instance or dedicating a set of instances to run a particular application, security groups are considered to be too course grained to control network traffic.  Contemplate using network policies which are Kubernetes-aware instead. 
+!!! caution 
+    Unless you are running 1 pod per instance or dedicating a set of instances to run a particular application, security groups are considered to be too course grained to control network traffic.  Contemplate using network policies which are Kubernetes-aware instead. 
 
 ## Encryption in transit
 Applications that need to conform to PCI, HIPAA, or other regulations may need to encrypt data while it is in transit.  Nowadays TLS is the de facto choice for encrypting traffic on the wire.  TLS, like it's predecessor SSL, provides secure communications over a network using cyptographic protocols.  TLS uses symmetric encryption where the keys to encrypt the data are generated based on a shared secret that is negotiated at the beginning of the session. The following are a few ways that you can encrypt data in a Kubernetes environment. 
@@ -248,7 +250,8 @@ An ingress controller can be configured to terminate SSL/TLS connections. An exa
 + [Securing EKS Ingress With Contour And Let’s Encrypt The GitOps Way](https://aws.amazon.com/blogs/containers/securing-eks-ingress-contour-lets-encrypt-gitops/)
 + [How do I terminate HTTPS traffic on Amazon EKS workloads with ACM?](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/)
 
-> Some Ingresses, like the ALB ingress controller, implement the SSL/TLS using Annotations instead of as part of the Ingress Spec. 
+!!! attention 
+    Some Ingresses, like the ALB ingress controller, implement the SSL/TLS using Annotations instead of as part of the Ingress Spec. 
 
 ## Tooling
 + [Verifying Service Mesh TLS in Kubernetes, Using ksniff and Wireshark](https://itnext.io/verifying-service-mesh-tls-in-kubernetes-using-ksniff-and-wireshark-2e993b26bf95)
