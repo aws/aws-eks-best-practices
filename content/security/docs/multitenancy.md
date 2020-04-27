@@ -25,7 +25,8 @@ In each of these instances the following constructs are used to isolate tenants 
 Namespaces are fundamental to implementing multi-tenancy.  They allow you to logical divide the cluster into logical partitions.  Moreover, quotas, network policies, service accounts, and other objects needed to implement multi-tenancy are scoped to a namespace.
 ### Network policies
 Network policies restrict communication between pods using labels or ip address ranges.  In a multi-tenant environment where strict network isolation between tenants is required, we recommend starting with a deny rule that prevents applications between pods, another rule that allows all pods to query CoreDNS for name resolution.  With that in place, you can begin layering additional rules that allows all communication within a namespace.  This can be further refined as required.  By default, all pods in all namespaces are allowed to communicate with each other. 
-> Network policies are necessary but not sufficient. The enforcement of network policies requires a policy engine like Calico or Cilium. 
+!!! attention 
+    Network policies are necessary but not sufficient. The enforcement of network policies requires a policy engine like Calico or Cilium. 
 ### RBAC
 RBAC roles and bindings are the mechanism used to restrict the actions that can be performed againsts objects in different namespaces.  In the enterprise and KaaS use cases, RBAC can be used to delegate administration of namespaced objects to select groups of individuals.
 ### Quotas
