@@ -110,14 +110,14 @@ You can scale-out your application by adjusting the number of replicas. We will 
 Kubernetes provides two ways of scaling your applications running inside pods. First is the way of [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) (HPA), which would automatically create or delete pods (replicas) in a Deployment based on a scaling metric. Another way Kubernetes can scale your application is using Vertical Pod Autoscaler.
 
 ### Kubernetes Metrics Server
-Before you can use the HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data* and it has been inspired by [Heapster](https://github.com/kubernetes-retired/heapster).The metrics-server is responsible for collecting resource metrics from kubelets and serving them in [Metrics API format](https://github.com/kubernetes/metrics). These metrics are consumed by monitoring systems like Prometheus and by itself the metrics-server only stores metrics in memory. 
+Before you can use the HPA to autoscale your applications, you will need [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server). Metrics Server defines itself as a *cluster-wide aggregator resource usage data* and it has been inspired by [Heapster](https://github.com/kubernetes-retired/heapster).The metrics-server is responsible for collecting resource metrics from kubelets and serving them in [Metrics API format](https://github.com/kubernetes/metrics). These metrics are consumed by monitoring systems like Prometheus and by itself the metrics server only stores metrics in memory. 
 
 You can find the instructions to install Kubernetes Metrics Server [here](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html).
 
 You can see data provided by the Metrics-Server api directly using curl like this 
 
 ```
-$ kubectl get —raw “/apis/metrics.k8s.io/v1beta1/nodes”       
+$ kubectl get —raw /apis/metrics.k8s.io/v1beta1/nodes     
 {“kind”:”NodeMetricsList”,”apiVersion”:”metrics.k8s.io/v1beta1”,”metadata”:{“selfLink”:”/apis/metrics.k8s.io/v1beta1/nodes”},”items”
 :[{“metadata”:{“name”:”ip-192-168-76-71.us-west-2.compute.internal”,”selfLink”:”/apis/metrics.k8s.io/v1beta1/nodes/ip-192-168-76-71.
 us-west-2.compute.internal”,”creationTimestamp”:”2020-03-04T16:29:47Z”},”timestamp”:”2020-03-04T16:29:35Z”,”window”:”30s”,”usage”:{“
@@ -218,23 +218,75 @@ Worker node upgrades are generally done by terminating old worker nodes and crea
 
 Draining also respects `PodDisruptionBudgets`
 
-Pod
+### Pod Disruption Budget
 
-***
-Open question. How do managed nodes get drained, kubectl drain or the eviction api?
-***
+Pod Disruption Budget (or PDB) can temporarily halt the eviction process if the number of replicas of an application fall below the declared threshold. The eviction process will continue once the number of available replicas is more than the threshold. You can use PDB to declare the `minAvailable` and `maxUnavailable` number of replicas. For example, if you want to ensure that at least three copies of your application are available, you can create a PDB for your application. 
 
+```
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: my-app-pdb
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: my-app
+```
 
-—-PDB here—
+This tells Kubernetes to halt the eviction process until three or more replicas are available. 
 
 https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
 
 ### Observability 
 
+Observability, in this context, is an umbrella term that includes monitoring, logging and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in microservices architecture each component needs to be monitored individually as well as cohesively, as one application. Cluster-level monitoring, logging 
+
+Kubernetes tools for troubleshooting and monitoring are very limited. The metrics-server collects resource metrics and stores them in memory but doesn’t persist them. You can view the logs of a Pod using kubectl but these logs are not retained. And implementation of distributed tracing is done either at application code level or using services meshes. 
+
+This is where Kubernetes extensibility shines, you can bring your own preferred centralized monitoring and logging and tracing solution and use Kubernetes to manage and run it. 
+
+### Monitoring 
+
+Consider using a tool like [Prometheus](https://prometheus.io) or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) for centralized monitoring Kubernetes infrastructure and applications. 
+
+### Logging
+
+For centralized logging, you can use tools like [FluentD](https://www.fluentd.org) or CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) 
+
+### Tracing
+
+Tracing can help you identify problems in your microservices. While logging can be used to troubleshoot problems, logs are often scattered and may not be implemented consistently across services. Distributed tracing can show you how requests are being handled by the microservices in your application and help you identify malfunctioning components. It can provide you insights into your application’s performance and identify sources of errors and latency.
+
+You can enable tracing in your applications running in Kubernetes in two ways. You can either implement distributed tracing at the code level by using shared libraries or you can use a service mesh. 
+
+Implementing tracing at the code level can be disadvantageous. In this method, you have to make changes to your code. This is further complicated if you have polyglot applications. You’re also responsible to upgrading yet another library, across your application. 
+
+Service Meshes like [LinkerD](http://linkerd.io), [Istio](http://istio.io) , and [AWS App Mesh](https://aws.amazon.com/app-mesh/) can be used to implement distributed tracing in your application without changing a single line of code. 
+
+Tracing tools like [AWS X-Ray](https://aws.amazon.com/xray/), [Jaeger](https://www.jaegertracing.io) support both shared library and service mesh implementations. Consider using a tracing tool that supports both implementations so you will not have to switch tools if you adopt service mesh. 
+
 ### Monitoring CoreDNS
+
+CoreDNS fulfills name resolution and service discovery functions in Kubernetes and it is installed by default on EKS clusters. For interoperability, the Kubernetes service for CoreDNS is still named [kube-dns](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/). CoreDNS runs as a deployment in kube-system namespaces, and by default it runs two replicas with declared requests and limits. 
+
+CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_response_rcode_count_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption. 
+
+For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
+`for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done`
+
 
 ### Service Meshes
 
-### CI/CD
+Service meshes enable service-to-service communication in a secure, reliable, and greatly increase observability of your microservices network. Most service mesh products works by having a small network proxy sit alongside each microservice. This so-called “sidecar” intercepts all of the service’s traffic, and handles it more intelligently than a simple layer 3 network can. The sidecar proxy is able to intercept, inspect, and manipulate all network traffic heading through the Pod, while primary container needs no alteration or even knowledge that this is happening.
 
-### Simulating failure
+Service mesh can help you implement observability in your application with minimal code change. Proxies like [Envoy](https://www.envoyproxy.io) provide in-built support for monitoring, logging and tracing and support.
+
+You can also use service mesh features like automatic retries and rate limiting to make your microservices more resilient.
+
+### Pod resource management
+
+
+### Chaos Engineering Practice 
+
+
