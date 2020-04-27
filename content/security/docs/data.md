@@ -48,9 +48,11 @@ If you have shared datasets with different POSIX file permissions or want to res
 # Secrets management
 Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the `podSpec`.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. 
 
-> Caution: Secrets in a particular namespace can be referenced by all pods in the secret's namespace.
+!!! caution
+    Secrets in a particular namespace can be referenced by all pods in the secret's namespace.
 
-> Caution: The node authorizer allows the Kubelet to read all of the secrets mounted to the node. 
+!!! caution 
+    The node authorizer allows the Kubelet to read all of the secrets mounted to the node. 
 
 ## Recommendations
 ### Use AWS KMS for envelop encryption of Kubernetes secrets
@@ -88,4 +90,3 @@ The values of environment variables can unintentionally appear in logs. Secrets 
 ### Use an external secrets provider
 There are several viable alternatives to using Kubernetes secrets, include Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and Hashicorp's [Vault](
 https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). Unlike Kubernetes secrets which can be shared amongst all of the pods within a namespace, Vault gives you the ability to limit access to particular pods through the use of Kubernetes service accounts.  It also has support for secret rotation.  If Vault is not to your liking, you can use similar approach with AWS Secrets Manager, as in this example https://github.com/jicowan/secret-sidecar or you could try using a [serverless](https://github.com/mhausenblas/nase) mutating webhook instead.
-
