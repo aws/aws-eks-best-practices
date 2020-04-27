@@ -3,13 +3,16 @@ Runtime security provides active protection for your containers while they're ru
 
 Unlike SELinux, seccomp was not designed to isolate containers from each other, however, it will protect the host kernel from unauthorized syscalls. It works by intercepting syscalls and only allowing those that have been whitelisted to pass through. Docker has a [default](https://github.com/moby/moby/blob/master/profiles/seccomp/default.json) seccomp profile which is suitable for a majority of general purpose workloads. You can also create own profiles for things that require additional privileges.
 
-> Caution: seccomp profiles are a Kubelet alpha feature.  You'll need to add the `--seccomp-profile-root` flag to the Kubelet arguments to make use of this feature. 
+!!! caution
+    seccomp profiles are a Kubelet alpha feature.  You'll need to add the `--seccomp-profile-root` flag to the Kubelet arguments to make use of this feature. 
 
 AppArmor is similar to seccomp, only it restricts an container's capabilities including accessing parts of the file system. It can be run in either enforcement or complain mode. Since building Apparmor profiles can be challenging, it is recommended you use a tool like [bane](https://github.com/genuinetools/bane) instead. 
 
-> Apparmor is only available Ubuntu/Debian distributions of Linux. 
+!!! attention
+    Apparmor is only available Ubuntu/Debian distributions of Linux. 
 
-> Kubernetes does not currently provide any native mechanisms for loading AppArmor or seccomp profiles onto Nodes.  They either have to be loaded manually or installed onto Nodes when they are bootstrapped.  This has to be done prior to referencing them in your Pods because the scheduler is unaware of which nodes have profiles. 
+!!! attention 
+    Kubernetes does not currently provide any native mechanisms for loading AppArmor or seccomp profiles onto Nodes.  They either have to be loaded manually or installed onto Nodes when they are bootstrapped.  This has to be done prior to referencing them in your Pods because the scheduler is unaware of which nodes have profiles. 
 
 ## Recommendations
 ### Use a 3rd party solution for runtime defense
@@ -22,7 +25,8 @@ Before using seccomp, consider whether adding/removing Linux capabilities gives 
 
 ### See whether you can accomplish your aims by using Pod Security Policies (PSPs)
 Pod Security Policies offer a lot of different ways to improve your security posture without introducing undue complexity. Explore the options available in PSPs before venturing into building seccomp and Apparmor profiles. 
-> With the future propects of PSPs in doubt, you may want to look at implementing these controls using Pod security contexts or OPA. 
+!!! warning 
+    With the future propects of PSPs in doubt, you may want to look at implementing these controls using Pod security contexts or OPA. 
 
 ## Additional Resources
 + [7 things you should know before you start](https://itnext.io/seccomp-in-kubernetes-part-i-7-things-you-should-know-before-you-even-start-97502ad6b6d6)
