@@ -9,7 +9,7 @@ Security and compliance are considered shared responsibilities when using a mana
 
 When it comes to infrastructure security, AWS will assume additional responsibilities as you move from self-managed workers, to managed node groups, to Fargate. For example, with Fargate, AWS becomes  responsible for securing the underlying instance/runtime used to run your Pods. 
 
-![](../site/images/SRM-EKS.jpg)
+![Shared Responsibility Model](images/SRM-EKS.jpg)
 
 Before designing your system, it is important to know where the line of demarcation is between your responsibilities and the provider of the service (AWS).
 
