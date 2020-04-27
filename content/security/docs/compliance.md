@@ -3,25 +3,30 @@ Compliance is a shared responsibility between AWS and the consumers of its servi
 
 The following table shows the compliance programs with which the different container services conform.
 
-| Compliance Program | Amazon ECS | Amazon EKS | AWS Fargate | Amazon ECR |
+| Compliance Program | Amazon ECS Orchestrator | Amazon EKS Orchestrator| ECS Fargate | Amazon ECR |
 | ------------------ |:----------:|:----------:|:-----------:|:----------:|
-| PCI DSS Level 1	| 1 |	1 |	1 |	1 |
-| HIPAA Eligible	| 1 |	1	| 1	| 1 |
-| SOC I |	1 |	1 |	1 |	1 |
+| PCI DSS Level 1	| 1 | 1 | 1 | 1 |
+| HIPAA Eligible	| 1 | 1	| 1	| 1 |
+| SOC I | 1 | 1 | 1 | 1 |
 | SOC II | 1 |	1 |	1 |	1 |
 | SOC III |	1 |	1 |	1 |	1 |
-| ISO 27001 |	1 |	1 |	1 |	1 |
-| ISO 9001 | 1 |	1 |	1 |	1 |
-| ISO 27017 |	1 |	1 |	1 |	1 |
-| ISO 27018 |	1 |	1 |	1 |	1 |
-| IRAP | 1 | 0 | 0 | 0 |
-| FedRAMP | | | | |
-| JAB Review | 0 | 0 | JAB Review | |
-| DOD CC SRG | JAB Review |	0 |	0 |	JAB Review |
-| MTCS | 1 | 0 | 0 | 1 |
-| C5 | 1 | 0 | 0 | 1 |
-| K-ISMS | 0 | 0 | 0 | 0 |
-| ENS High | 1 | 0 | 1 | 0 |
+| ISO 27001:2013 | 1 | 1 | 1 | 1 |
+| ISO 9001:2015 | 1 | 1 | 1 | 1 |
+| ISO 27017:2015 |	1 |	1 |	1 |	1 |
+| ISO 27018:2019 |	1 |	1 |	1 |	1 |
+| IRAP | 1 | 0 | 1 | 1 |
+| FedRAMP Moderate (East/West) | 1 | 3PAO Assessment | 0 | 1 |
+| FedRAMP High (GovCloud) | 1 | 0 | 0 | 1 |
+| DOD CC SRG | 1 |	Undergoing assessment |	0 |	1 |
+| HIPAA BAA | 1 | 1 | 1 | 1 |
+| MTCS | 1 | 1 | 0 | 1 |
+| C5 | 1 | 1 | 0 | 1 |
+| K-ISMS | 1 | 1 | 0 | 1 |
+| ENS High | 1 | 1 | 0 | 1 |
+| OSPAR | 1 | 0 | 0 | 1 | 
+| HITRUSST CSF | 1 | 1 | 1 | 1 |
+
+Compliance status changes over time. For the latest status, always refer to https://aws.amazon.com/compliance/services-in-scope/. 
 
 ### Tools and resources
 + [kube-bench](https://github.com/aquasecurity/kube-bench)

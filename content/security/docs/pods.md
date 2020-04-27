@@ -4,6 +4,9 @@ Pods have variety of different settings that can strengthen or weaken your overa
 
 `CAP_CHOWN, CAP_DAC_OVERERIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_SETGID, CAP_SETUID, CAP_SETPCAP, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SYS_CHROOT, CAP_MKNOD, CAP_AUDIT_WRITE, CAP_SETFCAP`
 
+!!! info 
+    EC2 and Fargate pods are assigned the aforementioned capabilites by default. Additionally, Linux capabilities can only be dropped from Fargate pods. 
+
 Pods that are run as privileged, inherit _all_ of the Linux capabilities associated with root on the host and should be avoided if possible.
 
 Second, all Kubernetes worker nodes use an authorization mode called the node authorizer.  The node authorizer authorizes all API requests that originate from the kubelet and allows nodes to perform the following actions: 
@@ -33,7 +36,7 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 ### Restrict the containers that can run as privileged
 As mentioned, containers that run as privileged inherit all of the Linux capabilities assigned to root on the host.  Seldom do containers need these types of privileges to function properly.  You can reject pods with containers configured to run as privileged by creating a [pod security policy](https://kubernetes.io/docs/concepts/policy/pod-security-policy/).  You can think of a pod security policy as a set requirements that pods have to meet before they can be created.  If you elect to use pod security policies, you will need to create a role binding that allows service accounts to read your pod security policies. 
 
-    When you provision an EKS cluster, a pod security policy called `eks.privileged` is automatically created.  The manifest for that policy appears below: 
+When you provision an EKS cluster, a pod security policy called `eks.privileged` is automatically created.  The manifest for that policy appears below: 
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -170,7 +173,8 @@ spec:
 
 This policy prevents pods from running as privileged or escalating privileges.  It also restricts the types of volumes that can be mounted and the root supplemental groups that can be added. 
 
-> **Fargate** is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or  configure your pod to use hostNetwork or hostPort.
+!!! attention 
+    Fargate is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or configure your pod to use hostNetwork or hostPort.
 
 ### Do not run processes in containers as root
 All containers run as root by default.  This could be problematic if an attacker is able to exploit a vulnerability in the application and get shell access to the running container.  You can mitigate this risk a variety of ways.  First, by removing the shell from the container image.  Second, adding the USER directive to your Dockerfile or running the containers in the pod as a non-root user.  The Kubernetes podSpec includes a set of fields under `spec.securityContext`, that allow to let you specify the user and/or group to run your application as.  These fields are `runAsUser` and `runAsGroup` respectively.  You can mandate the use of these fields by creating a pod security policy.  See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#users-and-groups for further information on this topic. 
@@ -210,7 +214,7 @@ _Limits_ are the maximum amount of CPU and memory resources that a container is 
 
 Kubernetes uses 3 Quality of Service (QoS) classes to prioritize the workloads running on a node.  These include: guaranteed, burstable, and best effort.  If limits and requests are not set, the pod is configured as burstable (lowest priority).  Burstable pods are the first to get killed when there is insufficient memory.  If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values, the pod is configured as guaranteed (higheest priority).  Guaranteed pods will not be killed unless they exceed their configured memory limits. If the limits and requests are configured with different values, or 1 container within the pod sets limits and the other don’t or have limits set for different resources, the pods are configured as burstable (medium priority). These pods have some resource guarantees, but can be killed once they exceed their requested memory. Be aware that requests doesn’t actually affect the `memory_limit_in_bytes` value of the cgroup; the cgroup limit is set to the amount of memory available on the host. Nevertheless, setting the requests value too low could cause the pod to be targeted for termination by the kubelet if the node undergoes memory pressure. 
 
-For additional information about resource QoS, see https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md
+For additional information about resource QoS, please refer to the [Kubernetes documentation](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md)
 
 You can force the use of requests and limits by setting a [resource quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range](https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it’s applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. By contrast, limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.
 

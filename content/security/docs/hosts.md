@@ -10,27 +10,34 @@ Rather than performing in-place upgrades, replace your workers when a new patch 
 
 With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your task to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod. 
 
-### Periodically run [kube-bench](https://github.com/aquasecurity/kube-bench) to verify compliance with [CIS benchmarks for Kubernetes](https://www.cisecurity.org/benchmark/kubernetes/)
-When running kube-bench against an EKS cluster, follow these instructions from Aqua Security, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. 
+### Periodically run kube-bench to verify compliance with [CIS benchmarks for Kubernetes](https://www.cisecurity.org/benchmark/kubernetes/)
+When running [kube-bench](https://github.com/aquasecurity/kube-bench) against an EKS cluster, follow these instructions from Aqua Security, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. 
 
-> Caution: false positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on [GitHub](https://github.com/aquasecurity/kube-bench/issues/571). 
+!!! caution
+    false positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on [GitHub](https://github.com/aquasecurity/kube-bench/issues/571). 
 
 ### Minimize access to worker nodes
 Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.
 
 ### Deploy workers onto private subnets
-By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. 
+By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. 
 
-### Run [Amazon Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) to assesses hosts for exposure, vulnerabilities, and deviations from best practices  
-Inspector requires the deployment of an agent that continually monitors activity on the instance while using set of rules to assess alignment with best practices. 
+!!! info 
+    Starting 22,2020, EKS will be updating the behavior of managed nodes groups to no longer assign public IPs to nodes. After this date, public IP assignment must be controlled via the subnet settings where the node is instantiated.
 
-> At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.
+### Run Amazon Inspector to assesses hosts for exposure, vulnerabilities, and deviations from best practices  
+[Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using set of rules to assess alignment with best practices. 
 
-> Inspector cannot be run on the infrastructure used to run Fargate pods. 
+!!! tip
+    At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.
+
+!!! attention
+    Inspector cannot be run on the infrastructure used to run Fargate pods. 
 
 ## Alternatives
 ### Run SELinux 
-> Available on RHEL instances
+!!! info 
+    Available on RHEL and CoreOS instances
 
 SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts access to specific resources on the operation based on a set of labels.  On EKS it can be used to prevent containers from accessing each other's resources. 
 
@@ -50,7 +57,9 @@ In this example `s0:c144:c154` corresponds to an MCS label assigned to a file th
 
 On EKS you could create policies that allow for privileged containers to run, like FluentD and create an SELinux policy to allow it to read from /var/log on the host. 
 
-> Caution: SELinux will ignore containers where the type is unconfined. 
+!!! caution
+    SELinux will ignore containers where the type is unconfined. 
+    
 #### Additional resources
 + [SELinux Kubernetes RBAC and Shipping Security Policies for On-prem Applications](https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/)
 + [Iterative Hardening of Kubernetes](https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html) 
