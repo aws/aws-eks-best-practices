@@ -4,7 +4,8 @@ Pods have variety of different settings that can strengthen or weaken your overa
 
 `CAP_CHOWN, CAP_DAC_OVERERIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_SETGID, CAP_SETUID, CAP_SETPCAP, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SYS_CHROOT, CAP_MKNOD, CAP_AUDIT_WRITE, CAP_SETFCAP`
 
-> EC2 and Fargate pods are assigned the aforementioned capabilites by default. Additiionally, Linux capabilities can only be dropped from Fargate pods. 
+!!! info 
+    EC2 and Fargate pods are assigned the aforementioned capabilites by default. Additionally, Linux capabilities can only be dropped from Fargate pods. 
 
 Pods that are run as privileged, inherit _all_ of the Linux capabilities associated with root on the host and should be avoided if possible.
 
@@ -172,7 +173,8 @@ spec:
 
 This policy prevents pods from running as privileged or escalating privileges.  It also restricts the types of volumes that can be mounted and the root supplemental groups that can be added. 
 
-> **Fargate** is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or  configure your pod to use hostNetwork or hostPort.
+!!! attention 
+    Fargate is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or configure your pod to use hostNetwork or hostPort.
 
 ### Do not run processes in containers as root
 All containers run as root by default.  This could be problematic if an attacker is able to exploit a vulnerability in the application and get shell access to the running container.  You can mitigate this risk a variety of ways.  First, by removing the shell from the container image.  Second, adding the USER directive to your Dockerfile or running the containers in the pod as a non-root user.  The Kubernetes podSpec includes a set of fields under `spec.securityContext`, that allow to let you specify the user and/or group to run your application as.  These fields are `runAsUser` and `runAsGroup` respectively.  You can mandate the use of these fields by creating a pod security policy.  See https://kubernetes.io/docs/concepts/policy/pod-security-policy/#users-and-groups for further information on this topic. 
