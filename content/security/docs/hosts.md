@@ -37,7 +37,8 @@ By deploying workers onto private subnets, you minimize their exposure to the In
 
 ## Alternatives
 
-### Run SELinux 
+### Run SELinux
+ 
 !!! info 
     Available on RHEL and CoreOS instances
 
