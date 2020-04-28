@@ -2,6 +2,7 @@
 Inasmuch as it's important to secure your container images, it's equally important to safeguard the infrastructure that runs them. This section explores different ways to mitigate risks from attacks launched directly against the host.  These guidelines should be used in conjunction with those outlined in the [Runtime Security](runtime.md) section. 
 
 ## Recommendations
+
 ### Use a OS optimized for running containers
 Conside using Flatcar Linux, Project Atomic, RancherOS, and [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/) (currently in preview), a special purpose OS from AWS designed for running Linux containers.  It includes a reduced attack surface, a disk image that is verified on boot, and enforced permission boundaries using SELinux. 
 
@@ -35,7 +36,9 @@ By deploying workers onto private subnets, you minimize their exposure to the In
     Inspector cannot be run on the infrastructure used to run Fargate pods. 
 
 ## Alternatives
-### Run SELinux 
+
+### Run SELinux
+ 
 !!! info 
     Available on RHEL and CoreOS instances
 

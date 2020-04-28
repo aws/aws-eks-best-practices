@@ -23,23 +23,31 @@ In each of these instances the following constructs are used to isolate tenants 
 
 ### Namespaces
 Namespaces are fundamental to implementing multi-tenancy.  They allow you to logical divide the cluster into logical partitions.  Moreover, quotas, network policies, service accounts, and other objects needed to implement multi-tenancy are scoped to a namespace.
+
 ### Network policies
 Network policies restrict communication between pods using labels or ip address ranges.  In a multi-tenant environment where strict network isolation between tenants is required, we recommend starting with a deny rule that prevents applications between pods, another rule that allows all pods to query CoreDNS for name resolution.  With that in place, you can begin layering additional rules that allows all communication within a namespace.  This can be further refined as required.  By default, all pods in all namespaces are allowed to communicate with each other. 
+
 !!! attention 
     Network policies are necessary but not sufficient. The enforcement of network policies requires a policy engine like Calico or Cilium. 
+
 ### RBAC
 RBAC roles and bindings are the mechanism used to restrict the actions that can be performed againsts objects in different namespaces.  In the enterprise and KaaS use cases, RBAC can be used to delegate administration of namespaced objects to select groups of individuals.
+
 ### Quotas
 Quotas specify the maximum amount of CPU and memory and/or number of resoures, e.g. pods, for a namespace whereas **limit ranges** allow you to set default along with min/max for requets and limits.  The scheduler uses the aggregate requests for all the containers in a pod to determine which nodes it can schedule the pod onto.  Limits specify the maximum amount of CPU or memory that a container can consume from the node.  If the requests are set too low and the actual resource utilization exceeds the capacity of the node, the node will begin to experience CPU or memory pressure.  When this happens pods may be restarted and/or evicted from the node.  Overcommitting resources in a shared cluster is usually beneficial because it allows you maximize your resources.  Nevertheless, you should plan to impose quotas on namespaces in a multi-tenant environment as this will force tenants to specify requests and limits when scheduling their pods on the cluster.  It will also mitigate occurrances DoS by contraining the amount of resources a pod can consume.  Lastly, you can use quotas to apportion the cluster's resources to align with a tenant's spend.
+
 ### Pod priority and pre-emption
 Pod priority and pre-emption can be useful when you want to provide different qualties of services for different customers.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the Kubelet will kill the low priority pods from customer B to accommodate the high priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher quality of service.
 
 ## Mitigating controls
 Your chief concern as an administrator of a multi-tenant environment is preventing an attacker from gaining access to the underlying host. The following controls should be considered to mitigate the risk of this happening: 
+
 ### Pod Security Policies (PSPs)
 PSPs should be used to curtail the actions that can be performed by a container and to reduce a container's privileges, e.g. running as a non-root user.
+
 ### Sandboxed execution environments for containers
 Not applicable to EKS, but useful in self-managed environments where you can configure alterate runtimes, e.g. [Kata Containers](https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support). Sandboxing is where you run a pod's containers within a micro VM like [Firecracker](https://firecracker-microvm.github.io/) as in Weave's [Firekube](https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite). For additional information about the effort to make Firecracker a supported runtime for EKS, See https://threadreaderapp.com/thread/1238496944684597248.html. 
+
 ### Open Policy Agent (OPA) & Gatekeeper
 [Gatekeeper](https://github.com/open-policy-agent/gatekeeper) is a Kubernetes admission controller that enforces policies created with [OPA](https://www.openpolicyagent.org/). With OPA you can create a policy that runs pods from tenants on separate instances or at a higher priority than other tenants. 
 
