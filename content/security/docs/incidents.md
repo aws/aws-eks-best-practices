@@ -22,18 +22,25 @@ spec:
 ```
 !!! attention 
     A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use [AWS Security Groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) to isolate a compromised host from other hosts. When changing a host's security group, be aware that it will impact all containers running on that host.  
+
 ### Revoke temporary security credentials assigned to the pod or worker node if necessary
 If the worker node has been assigned an IAM role that allows Pods to gain access to other AWS resources, remove those roles from the instance to prevent further damage from the attack. Similarly, if the Pod has been assigned an IAM role, evaluate whether you can safely remove the IAM policies from the role without impacting other workloads.
+
 ### Cordon the worker node
 By cordoning the impacted worker node, you're informing the scheduler to avoid scheduling pods onto the affected node. This will allow you to remove the node for forensic study without disrupting other workloads.
+
 !!! info
     This guidance is not applicable to Fargate where each Fargate pod run in its own sandboxed environment.  Instead of cordoning, sequester the affected Fargate pods by applying a network policy that denies all ingress and egress traffic. 
+
 ### Enable termination protection on impacted worker node
 An attacker may attempt to erase their misdeeds by terminating affected node.  Enabling [termination protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination) can prevent this from happening.  [Instance scale-in protection](https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html#instance-protection) will protect the node from a scale-in event. 
+
 !!! warning 
     You cannot enable termination protection on a Spot instance. 
+
 ### Label offending the Pod/Node with a label indicating that it is part of an active investigation
 This will serve as a warning to cluster administrators not to tamper with the affected Pods/Nodes until the investigation is complete. 
+
 ### Capture volatile artifacts on the worker node
 + **Capture the operating system memory**. This will capture the Docker daemon and its subprocess per container.  [MargaritaShotgun](https://github.com/ThreatResponse/margaritashotgun), a remote memory acquisition tool, can aid in this effort. 
 + **Perform a netstat tree dump of the processes running and the open ports**. This will capture the docker daemon and its subprocess per container. 
