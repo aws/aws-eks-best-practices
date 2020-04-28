@@ -247,7 +247,8 @@ The [aws-app-mesh-examples](https://github.com/aws/aws-app-mesh-examples) GitHub
 ### Ingress Controllers and Load Balancers
 Ingress controllers are a way for you to intelligently route HTTP/S traffic that eminates from outside the cluster to services running inside the cluster. Oftentimes, these Ingresses are fronted by a layer 4 load balancer, like the Classic Load Balancer or the Network Load Balancer (NLB). Encrypted traffic can be terminated at different places within the network, e.g. at the load balancer, at the ingress resource, or the Pod. How and where you terminate your SSL connection will ultimately be dictated by your organization's network security policy. For instance, if you have a policy that requires end-to-end encryption, you will have to decrypt the traffic at the Pod. This will place additional burden on your Pod as it will have to spend cycles establishing the initial handshake. Overall SSL/TLS processing is very CPU intensive. Consequently, if have the flexibility, try performing the SSL offload at the Ingress or the load balancer. 
 
-An ingress controller can be configured to terminate SSL/TLS connections. An example for how to terminate SSL/TLS connections at the NLB appears [above](#Use-encryption-with-AWS-load-balancers). Additional examples for SSL/TLS termination appear below. 
+An ingress controller can be configured to terminate SSL/TLS connections. An example for how to terminate SSL/TLS connections at the NLB appears [above](#Use-encryption-with-AWS-load-balancers). Additional examples for SSL/TLS termination appear below.
+ 
 + [Securing EKS Ingress With Contour And Let’s Encrypt The GitOps Way](https://aws.amazon.com/blogs/containers/securing-eks-ingress-contour-lets-encrypt-gitops/)
 + [How do I terminate HTTPS traffic on Amazon EKS workloads with ACM?](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/)
 
