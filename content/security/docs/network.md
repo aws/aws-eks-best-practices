@@ -20,6 +20,7 @@ Calico policies can be scoped to Namespaces, Pods, service accounts, or globally
 You can find a list of common Kubernetes network policies at https://github.com/ahmetb/kubernetes-network-policy-recipes.  A similar set of rules for Calico are available at https://docs.projectcalico.org/security/calico-network-policy. 
 
 ## Recommendations
+
 ### Create a default deny policy
 As with RBAC policies, network policies should adhere to the policy of least privileged access.  Start by creating a deny all policy that restricts all inbound and outbound traffic from a namespace or create a global policy using Calico.
 

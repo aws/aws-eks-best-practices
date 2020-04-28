@@ -20,6 +20,7 @@ spec:
   - Ingress
   - Egress
 ```
+
 !!! attention 
     A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use [AWS Security Groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) to isolate a compromised host from other hosts. When changing a host's security group, be aware that it will impact all containers running on that host.  
 

@@ -2,6 +2,7 @@
 You should consider the container image as your first line of defense against an attack. An insecure, poorly constructed image can allow an attacker to escape the bounds of the container and gain access to the host.  Once on the host, an attacker can gain access to sensitive information or move laterally within the cluster or with your AWS account.  The following best practices will help mitigate risk of this happening. 
 
 ## Recommendations
+
 ### Create minimal images
 Start by removing all extraneous binaries from the container image.  If you’re using an unfamiliar image from Dockerhub, inspect the image using an application like [Dive](https://github.com/wagoodman/dive) which can show you the contents of each of the container’s layers.  Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
 ```bash

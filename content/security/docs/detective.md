@@ -15,6 +15,7 @@ Collecting and analyzing \[audit\] logs is useful for a variety of different rea
 This logs changes to the `aws-auth` ConfigMap which is used to grant access to an EKS cluster. 
 
 ## Recommendations
+
 ### Enable audit logs
 The audit logs are part of the EKS managed Kubernetes control plane logs that are managed by EKS.  Instructions for enabling/disabling the control plane logs, which includes the logs for the Kubernetes API server, the controller manager, and the scheduler, along with the audit log, can be found here, https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export. 
 

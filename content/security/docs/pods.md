@@ -33,6 +33,7 @@ Auth-related operations:
 EKS uses the [node restriction admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction) which only allows the node to modify a limited set of node attributes and pod objects that are bound to the node.   Nevertheless, an attacker who manages to get access to the host will still be able to glean sensitive information about the environment from the Kubernetes API that could allow them to move laterally within the cluster.
 
 ## Recommendations
+
 ### Restrict the containers that can run as privileged
 As mentioned, containers that run as privileged inherit all of the Linux capabilities assigned to root on the host.  Seldom do containers need these types of privileges to function properly.  You can reject pods with containers configured to run as privileged by creating a [pod security policy](https://kubernetes.io/docs/concepts/policy/pod-security-policy/).  You can think of a pod security policy as a set requirements that pods have to meet before they can be created.  If you elect to use pod security policies, you will need to create a role binding that allows service accounts to read your pod security policies. 
 
