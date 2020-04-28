@@ -284,7 +284,22 @@ Service mesh can help you implement observability in your application with minim
 
 You can also use service mesh features like automatic retries and rate limiting to make your microservices more resilient.
 
-### Pod resource management
+### Resource management
+
+Kubernetes allows you to declare CPU and memory resources for the containers in a Pod to avoid CPU and memory over-subscription. When you run a Pod, you can define `requests` and `limits` for containers to set Pod’s [Quality of Service class](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/). Pod level requests and limits are computed by summing up per-resource requests and limits across all containers. Kubernetes scheduler will use these values to place the Pod and it will ensure that, for each compute resource type (CPU or memory), the sum of the resource requests of the scheduled containers is less than the capacity of the node.
+
+You can control the minimum compute resources a container needs by declaring `requests` and you define a maximum resources by declaring `limits`. Based on the values of `requests` and `limits`, a Pod will be assigned a QoS class.
+
+There are three QoS classes:
+* **Guaranteed**. In this the values of `limits` and `requests` for any container in the Pod are the same. 
+* **Burstable**. In this the value of `limits` is either undefined or is greater than `requests`. 
+* **BestEffort**. In this both `requests` and `limits` are undefined for any container in the Pod. 
+
+Kubernetes documentation defines CPU as a compressible resource while memory is incompressible resource. Pods that are guaranteed get the amount of CPU they request and they get throttled if they exceed their limit. If a CPU limit is undefined then the Pods can use excess CPU when available. 
+
+Similarly, Pods are guaranteed the amount of memory they request and they will get killed if they exceed their memory request, they could be killed if another Pod needs memory. If they exceed their limit a process that is using the most amount of memory, inside one of the pod’s containers, will be killed by the kernel.
+
+For critical applications, consider defining `requests`=`limits` for the container in the Pod. This will ensure that the container will not be killed if another Pod requests resources.  
 
 ### Chaos Engineering Practice 
 
