@@ -301,6 +301,8 @@ Similarly, Pods are guaranteed the amount of memory they request and they will g
 
 For critical applications, consider defining `requests`=`limits` for the container in the Pod. This will ensure that the container will not be killed if another Pod requests resources.  
 
+### Resource Quotas For Namespaces
+
 ### Chaos Engineering Practice 
 
 
