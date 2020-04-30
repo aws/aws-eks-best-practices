@@ -1,4 +1,6 @@
 site_name: EKS Security Best Practices
+repo_name: "aws/aws-eks-best-practices"
+repo_url: "https://github.com/aws/aws-eks-best-practices"
 theme: 
   name: material
 nav:
