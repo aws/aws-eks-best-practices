@@ -32,7 +32,7 @@ The right strategy will depend upon a number of factors—including the applicat
 
 From https://eksworkshop.com/spotworkers/:
 
-![auto-scaling group-flowchart](images/spot_diagram.png)
+![auto-scaling group-flowchart](../images/spot_diagram.png)
 
 For AWS Fargate, you only pay for the amount of vCPU and memory resources that your containerized application requests. AWS Fargate pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS Pod terminates, rounded up to the nearest second. [When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
 
