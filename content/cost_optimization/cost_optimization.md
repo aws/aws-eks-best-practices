@@ -1,504 +1,126 @@
-# Amazon EKS Best Practices Guide for Cost Optimization 
-
-The cost optimization best practices includes the continual process of refinement and improvement of a system over its entire lifecycle to constantly look for ways to reduce costs. From your initial design to the ongoing operations of production workloads, adopting the practices specified in this document will help you to build and operate cost-aware systems. By doing so, you can achieve cost-effective business outcomes and maximize your return on investment.
+# Cost Optimization Pillar
+The cost optimization pillar includes the continual process of refinement and improvement of a system over its entire lifecycle to constantly look for ways to reduce costs. From your initial design to the ongoing operations of production workloads, adopting the practices specified in this document will help you to build and operate cost-aware systems. By doing so, you can achieve cost-effective business outcomes and maximize your return on investment.
 
 # Design Principles
-
 In the cloud, there are a number of principles that can help you achieve cost optimization of your microservices:
-+ Ensure that workloads running on Amazon EKS are independent of specific infrastructure types for running your containers, this will give greater flexibility with regards to running them on the least expensive types of infrastructure. While using Amazon EKS with EC2, there can be exceptions when we have workloads that require specific type of EC2 Instance types like [requiring a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or  other instance types, due to the nature of the workload.
-+ Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics like CPU and memory, using services like [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) or third party tools that are available in the Kubernetes ecosystem. This will ensure that we can allocate the right amount of resources and avoid  wastage of resources.
-+ Take advantage of the different purchasing options that are available in AWS for running EKS with EC2, e.g. On-Demand, Spot and Savings Plan.
+
++ Ensure that microservices are disposable—that is, the microservices are based on disposable and immutable containers. By ensuring that containers are disposable, recovering from a server failure is fast as the containers can be moved to different servers easily. When containers are based on immutable images, the containers can be upgraded to new versions by updating the image, deploying it, and then disposing of the old image.
++ Ensure that microservices are independent of specific infrastructure types for running your containers—so that microservices can scale out independently on heterogeneous infrastructure. There can be exceptions like workloads that [require a GPU](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-gpu.html) or a specific type of server.
++ Select optimally profiled container instances—profile your production or pre-production environments and monitor critical metrics. like CPU and memory, using [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html). 
++ Take advantage of the different purchasing options that are available in AWS, e.g. On-Demand, Spot, and Reserved Instances.
 
 # Definition
+There are four general best practice areas for cost optimization in the cloud:
 
-There are three general best practice areas for cost optimization in the cloud:
++ Cost-effective resources
++ Matching supply and demand
++ Expenditure awareness
++ Optimizing over time
 
-+ Cost-effective resources (Auto Scaling, Down Scaling, Policies and Purchasing Options)
-+ Expenditure awareness (Using AWS and third party tools)
-+ Optimizing over time (Right Sizing)
-
-As with the other best practices, there are trade-offs to consider. For example, do you want to optimize for speed to market or for cost? In some cases, it’s best to optimize for speed—going to market quickly, shipping new features, or simply meeting a deadline—rather than investing in upfront cost optimization. Design decisions are sometimes guided by haste as opposed to empirical data, as the temptation always exists to overcompensate “just in case” rather than spend time benchmarking for the most cost-optimal deployment. This often leads to drastically over-provisioned and under-optimized deployments. 
+As with the other pillars, there are trade-offs to consider. For example, do you want to optimize for speed to market or for cost? In some cases, it’s best to optimize for speed—going to market quickly, shipping new features, or simply meeting a deadline—rather than investing in upfront cost optimization. Design decisions are sometimes guided by haste as opposed to empirical data, as the temptation always exists to overcompensate “just in case” rather than spend time benchmarking for the most cost-optimal deployment. This often leads to drastically over-provisioned and under-optimized deployments. 
 
 ## Best Practices
 
-### 1. Cost-effective resources 
-**1.1 Auto Scaling - Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs.**
+### Cost-effective resources
+**Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs. Use pricing models for effective utilization.**
 
-Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters. All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. Amazon EKS tags managed node group resources so that they are configured to use the Kubernetes Cluster Autoscaler. 
+Amazon EKS on AWS supports running the worker nodes on clusters using either EC2 Instance types or AWS Fargate, and on premises using AWS Outposts. Amazon EC2 based worker nodes can be either On-Demand Instances or Amazon EC2 Spot Instances. It has different pricing models for the Fargate launch type that are based on the amount of vCPU and memory resources that your containerized application requests. With an EC2 launch type, you pay for AWS resources (e.g., EC2 instances, EBS volumes, and Load Balancers) that you create to store and run your application. [There are important considerations that need to be taken into account when using AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html#fargate-considerations).
 
-The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. 
+EC2 Spot Instances offer spare compute capacity available in the AWS Cloud at steep discounts compared to On-Demand Instances. Spot Instances typically cost 50–90% less than On-Demand Instances. Powering your EKS cluster with Spot Instances lets you reduce the cost of running your existing containerized workloads, or increase your compute capacity by two to ten times while keeping the same budget. Or you could do a combination of running a cluster with both On-Demand as well as Spot Instances. 
 
-***To create a Kubernetes cluster 1.16 with a single managed group that spans multiple Availability Zones and deploying Kubernetes Cluster AutoScaler on Amazon EKS:***
+The right strategy will depend upon a number of factors—including the application architecture's ability to run on Spot Instances, and the need to maintain a minimum amount of core compute capacity regardless of the availability of Spot Instances. There are [reference architectures that show how automatic scaling with a mix of On-Demand and Spot Instances can be architected in an EKS Cluster](https://eksworkshop.com/spotworkers/workers/). 
 
-***Create a EKS cluster with one nodegroup containing 2 m5.large nodes***
-```
-$ eksctl version
-0.19.0
-$ eksctl create cluster --name my-cluster-testscaling --version 1.16 --managed --asg-access
-```
+From https://eksworkshop.com/spotworkers/:
 
-***Deploy the Cluster Autoscaler for EC2 based Worker Nodes:***
-```
-$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+![auto-scaling group-flowchart](../images/spot_diagram.png)
 
-$ kubectl -n kube-system annotate deployment.apps/cluster-autoscaler cluster-autoscaler.kubernetes.io/safe-to-evict="false"
+For AWS Fargate, you only pay for the amount of vCPU and memory resources that your containerized application requests. AWS Fargate pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS Pod terminates, rounded up to the nearest second. [When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
 
-$ kubectl -n kube-system edit deployment.apps/cluster-autoscaler
+**Savings Plan**
 
-$ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.16.5
+[Compute Savings Plans provide the most flexibility and help to reduce your costs by up to 66% (just like Convertible RIs). The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EMR, ECS, or EKS clusters, or launched by Fargate.](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/) For example, you can shift from C4 to C5 instances, move a workload from Dublin to London, or migrate from EC2 to Fargate, benefiting from Savings Plan prices along the way, without having to do anything. 
 
-$ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
-```
-Cluster Autoscaler logs -
-![Kubernetes Cluster Auto Scaler logs](../images/cluster-auto-scaler.png)
+**Monitoring overall CPU and memory utilization of the Container Cluster to ensure that you are using the right EC2 instance type**
 
-***Deploy Horizontal Pod Autoscaling***
+Use CloudWatch Container Insights to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Container Service, Amazon Elastic Kubernetes Service, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network. Container Insights also provides diagnostic information, such as container restart failures, to help you isolate issues and resolve them quickly. You can also set CloudWatch alarms on metrics that Container Insights collects.
 
-Setup Metrics server:
-```
+The metrics that Container Insights collects are available in CloudWatch automatic dashboards. You can analyze and troubleshoot container performance and logs data with CloudWatch Logs Insights. 
 
-$ kubectl create namespace metrics
-$ helm install metrics-server \
-    stable/metrics-server \
-    --version 2.9.0 \
-    --namespace metrics
+[In Amazon EKS and Kubernetes, Container Insights uses a containerized version of the CloudWatch agent to discover all of the running containers in a cluster. It then collects performance data at every layer of the performance stack.](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) 
 
-$ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"
-$ kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
-```
-Now you can deploy apps which can leverage HPA. Follow https://eksworkshop.com/beginner/080_scaling/test_hpa/ to deploy a sample app, perform a simple load test to test the autoscaling of pods.
-```
-kubectl run php-apache --image=us.gcr.io/k8s-artifacts-prod/hpa-example --requests=cpu=200m --expose --port=80
-```
-HPA scales up when CPU exceeds 50% of the allocated container resource, with a minimum of one pod and a maximum of ten pods.
-```
-kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
-kubectl get hpa
-```
-You can then load test the app, and simulate pod autoscaling. 
+[Amazon EKS Workshop - setting up EKS CloudWatch Container Insights sections has more details on how to set this up in your cluster.](https://eksworkshop.com/intermediate/250_cloudwatch_container_insights/)
 
-The combination of Cluster Auto Scaler for the Kubernetes worker nodes and Horizontal Pod Autoscaler for the pods, will ensure that the provisioned resources will be as close to the actual utilization as possible.
+Significant savings of the EC2 instance cost of the Kubernetes cluster can be achieved by auto scaling of nodes & pods, right-saving, leveraging Savings Plan and usage of EC2 Spot. 
 
-![Kubernetes Cluster AutoScaler and HPA](../images/ClusterAS-HPA.png)
-***(Image source: https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)***
+### Matching supply and demand
 
-***Autoscaling of Pods on Amazon EKS with Fargate***
+Leverage Auto Scaling at a Pod level as well on Container nodes, to provision resources and keep a buffer for traffic spikes. Leverage pricing models to gain efficiency for burst and spike modes. 
 
-Autoscaling EKS on Fargate can be done using the following mechanisms:
+#### Managed Node Groups
 
-1. Using the Kubernetes metrics server and configure auto-scaling based on CPU and/or memory usage.
-2. Configure autoscaling based on custom metrics like HTTP traffic using Prometheus and Prometheus metrics adapter
-3. Configure autoscaling based on App Mesh traffic
+[Amazon EKS managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters.](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. A managed node group's Auto Scaling group spans all of the subnets that you specify when you create the group. Amazon EKS tags managed node group resources so that they are configured to use the Kubernetes Cluster Autoscaler. 
 
-The above scenarios are explained in a hands-on blog on ["Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
+#### Pod Auto Scaling
 
+[Amazon EKS support both Horizontal Pod Autoscaler and Vertical Pod Autoscaler for scaling of Pods.](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html)
++ Horizontal Pod Autoscaler - The Kubernetes Horizontal Pod Autoscaler automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization.
++ Vertical Pod Autoscaler - The Kubernetes Vertical Pod Autoscaler automatically adjusts the CPU and memory reservations for your pods to help "right size" your applications. This adjustment can improve cluster resource utilization and free up CPU and memory for other pods. 
 
-**1.2 Down Scaling**
-
-As part of controlling costs, apart from Auto-scaling of the Kubernetes cluster nodes and pods, Down-Scaling of resources when not in-use can also have an huge impact on the overall costs. There are tools like [kube-downscaler](https://github.com/hjacobs/kube-downscaler), which can be used to Scale down Kubernetes deployments after work hours or during set periods of time. 
-
-Installation of kube-downscaler:
-```
-git clone https://github.com/hjacobs/kube-downscaler
-cd kube-downscaler
-kubectl apply -k deploy/
-```
-
-The example configuration uses the --dry-run as a safety flag to prevent downscaling --- remove it to enable the downscaler, e.g. by editing the deployment:
-```
-$ kubectl edit deploy kube-downscaler
-```
-
-Deploy an nginx pod and schedule it to be run in the time zone - Mon-Fri 09:00-17:00 Asia/Kolkata: 
-```
-$ kubectl run nginx1 --image=nginx
-$ kubectl annotate deploy nginx1 'downscaler/uptime=Mon-Fri 09:00-17:00 Asia/Kolkata'
-```
-Note that the default grace period of 15 minutes applies to the new nginx deployment, i.e. if the current time is not within Mon-Fri 9-17 (Asia/Kolkata timezone), it will downscale not immediately, but after 15 minutes. 
-
-![Kube-down-scaler for nginx](../images/kube-down-scaler.png)
-
-More advanced downscaling deployment scenarios are available at the [kube-down-scaler github project](https://github.com/hjacobs/kube-downscaler).
-
-**1.3 Policies using LimitRanges and Resource Quotas**
-
-From the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/limit-range/) - By default, containers run with unbounded compute resources on a Kubernetes cluster. With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace’s resource quota. There is a concern that one Pod or Container could monopolize all available resources. 
-
-Kubernetes controls the allocation of resources such as CPU, memory, PersistentVolumeClaims and others using Resource Quotas and Limit Ranges. ResourceQuota is at the Namespace level, while a LimitRange applies at an container level. 
-
-***Limit Ranges***
-
-A LimitRange is a policy to constrain resource allocations (to Pods or Containers) in a namespace. 
-
-The following is an example of setting an default memory request and a default memory limit using Limit Range. 
-```
-apiVersion: v1
-kind: LimitRange
-metadata:
-  name: mem-limit-range
-spec:
-  limits:
-  - default:
-      memory: 512Mi
-    defaultRequest:
-      memory: 256Mi
-    type: Container
-```
-
-More examples are available in the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/).
-
-***Resource Quotas***
-
-When several users or teams share a cluster with a fixed number of nodes, there is a concern that one team could use more than its fair share of resources. Resource quotas are a tool for administrators to address this concern.
-
-The following is an example of how to set quotas for the total amount memory and CPU that can be used by all Containers running in a namespace, by specifying quotas in a ResourceQuota object. This specifies that a Container must have a memory request, memory limit, cpu request, and cpu limit, and should not exceed the threshold set in the ResourceQuota.
-
-```
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: mem-cpu-demo
-spec:
-  hard:
-    requests.cpu: "1"
-    requests.memory: 1Gi
-    limits.cpu: "2"
-    limits.memory: 2Gi
-```
-
-More examples are available in the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/).
-
-**1.4 Use pricing models for effective utilization.**
-
-The pricing details for Amazon EKS are given in the [pricing page](https://aws.amazon.com/eks/pricing/). There is a common control plane cost for both Amazon EKS on Fargate and EC2. 
-
-If you are using AWS Fargate, pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS pod terminates, rounded up to the nearest second. A minimum charge of 1 minute applies. See detailed pricing information on the [AWS Fargate pricing page](https://aws.amazon.com/fargate/pricing/).
-
-***Amazon EKS on EC2:***
-
-Amazon EC2 provides a wide selection of [instance types](https://aws.amazon.com/ec2/instance-types/) optimized to fit different use cases. Instance types comprise varying combinations of CPU, memory, storage, and networking capacity and give you the flexibility to choose the appropriate mix of resources for your applications. Each instance type includes one or more instance sizes, allowing you to scale your resources to the requirements of your target workload.
-
-One of the key decision parameters apart from number of cpus, memory, processor family type related to the instance type is the [number of Elastic network interfaces(ENI's)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html), which in-turn has a bearing on the maximum number of pods on that EC2 Instance. The list of [max pods per EC2 Instance type](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) is maintained in a github.
-
-****On-Demand EC2 Instances:****
-
-With [On-Demand instances](https://aws.amazon.com/ec2/pricing/), you pay for compute capacity by the hour or the second depending on which instances you run. No longer-term commitments or upfront payments are needed. 
-
-Amazon EC2 A1 instances deliver significant cost savings and are ideally suited for scale-out and Arm-based workloads that are supported by the extensive Arm ecosystem. You can now use Amazon Elastic Container Service for Kubernetes (EKS) to run containers on Amazon EC2 A1 Instances as part of a [public developer preview](https://github.com/aws/containers-roadmap/tree/master/preview-programs/eks-arm-preview). 
-
-You can use the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.com/index.html) or the new [pricing calculator](https://calculator.aws/) to get pricing for the On-Demand Ec2 instances for the EKS workder nodes.
-
-****Spot EC2 Instances:****
-
-Amazon [EC2 Spot instances](https://aws.amazon.com/ec2/pricing/) allow you to request spare Amazon EC2 computing capacity for up to 90% off the On-Demand price.
-
-We can create multiple nodegroups with a mix of on-demand instance types and EC2 Spot instances to leverage the advantages of pricing between these two instance types.
-
-![On-Demand and Spot Node Groups](../images/spot_diagram.png)
-***(Image source: https://eksworkshop.com/spot)***
-
-
-A sample yaml file for eksctl to create a nodegroup with EC2 spot instances is given below. During the creation of the Node Group, we have configured a node-label so that kubernetes knows what type of nodes we have provisioned. We set the lifecycle for the nodes as Ec2Spot. We are also tainting with PreferNoSchedule to prefer pods not be scheduled on Spot Instances. This is a “preference” or “soft” version of NoSchedule – the system will try to avoid placing a pod that does not tolerate the taint on the node, but it is not required.
-
-```
-apiVersion: eksctl.io/v1alpha5
-kind: ClusterConfig
-metadata:
-  name: my-cluster-testscaling 
-  region: us-west-2
-nodeGroups:
-  - name: ng-spot
-    labels:
-      lifecycle: Ec2Spot
-    taints:
-      spotInstance: true:PreferNoSchedule
-    minSize: 2
-    maxSize: 5
-    instancesDistribution: # At least two instance types should be specified
-      instanceTypes:
-        - m4.large
-        - c4.large
-        - c5.large
-      onDemandBaseCapacity: 0
-      onDemandPercentageAboveBaseCapacity: 0 # all the instances will be spot instances
-      spotInstancePools: 2
-```
-Use the node-labels to identify the lifecycle of the nodes.
-```
-$ kubectl get nodes --label-columns=lifecycle --selector=lifecycle=Ec2Spot
-```
-
-We should also deploy the [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) on each Spot Instance. This will monitor the EC2 metadata service on the instance for an interruption notice. The termination handler consists of a ServiceAccount, ClusterRole, ClusterRoleBinding, and a DaemonSet.
-
-```
-$ kubectl --namespace=kube-system get daemonsets 
-NAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR       AGE
-aws-node                       4         4         4       4            4           <none>              6d11h
-aws-node-termination-handler   2         2         2       2            2           lifecycle=Ec2Spot   33m
-kube-proxy                     4         4         4       4            4           <none>              6d11h
-```
-
-We can design our services to be deployed on Spot Instances when they are available. We can use Node Affinity in our manifest file to configure this, to prefer Spot Instances, but not require them. This will allow the pods to be scheduled on On-Demand nodes if no spot instances were available or correctly labelled.
-
-```
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-              - key: lifecycle
-                operator: In
-                values:
-                - Ec2Spot
-      tolerations:
-      - key: "spotInstance"
-        operator: "Equal"
-        value: "true"
-        effect: "PreferNoSchedule"
-
-```
-
-You can do a complete hands-on workshop on EC2 spot instances at the [online AWS EKS Workshop](https://eksworkshop.com/beginner/150_spotworkers/).
-
-****Compute Savings Plan:****
-
-Compute Savings Plans, a new and flexible discount model that provides you with the same discounts as Reserved Instances, in exchange for a commitment to use a specific amount (measured in dollars per hour) of compute power over a one or three year period. The details are covered in the [Savings Plan launch page](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/).The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EKS clusters. For example, you can shift from C4 to C5 instances, move a workload from Dublin to London benefiting from Savings Plan prices along the way, without having to do anything.
-
-The AWS Cost Explorer will help you to choose a Savings Plan, and will guide you through the purchase process.
-![Compute Savings Plan](../images/Compute-savings-plan.png)
-
-Note, that compute savings plans does not apply to EKS Fargate yet.
-
-****Note, that the above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
-
-### 2. Expenditure awareness
-**2.1 Tagging of Resources**
-
-Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
+### Expenditure awareness
+Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs. 
 
 Adding and Listing tags to an EKS cluster:
 ```
-$ aws eks tag-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluster/ekscluster1 --tags team=devops,env=staging,bu=cio,costcenter=1234
+$ aws eks tag-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluster/ekscluster1 --tags team=devops,env=staging,bu=cio,costcenter=1234 
 $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluster/ekscluster1
 {
     "tags": {
-        "bu": "cio",
-        "env": "staging",
-        "costcenter": "1234",
+        "bu": "cio", 
+        "env": "staging", 
+        "costcenter": "1234", 
         "team": "devops"
     }
 }
 ```
-After you activate cost allocation tags in the [AWS Cost Explorer](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html), AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.
+[After you activate cost allocation tags in the AWS Cost Explorer, AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
 
-**2.2 Using AWS Trusted Advisor**
+### Optimizing over time
 
-AWS Trusted Advisor offers a rich set of best practice checks and recommendations across five categories: cost optimization; security; fault tolerance; performance; and service limits.
+As microservices scale, leverage platform tools to profile the service and usage. [Amazon EKS-Optimized AMI with and without GPU support are available.](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html). 
 
-Under Cost Optimization, it helps in eliminating unused and idle resources or making commitments to reserved capacity. The key action items that will help Amazon EKS with EC2 will be around low utilsed EC2 instances, unassociated Elastic IP addresses, Idle Load Balancers, underutilized EBS volumes among other things. The complete list of checks are provided at https://aws.amazon.com/premiumsupport/technology/trusted-advisor/best-practice-checklist/. 
+An Amazon EKS cluster can use various EC2 instance types that the microservice needs,including such as Amazon EC2 GPU instances. Amazon EC2 P3 and P2 instances, featuring NVIDIA GPUs, power some of the most computationally advanced workloads today, including machine learning (ML), high performance computing (HPC), financial analytics, and video transcoding. [Now Amazon Elastic Container Service for Kubernetes (Amazon EKS) supports P3 and P2 instances, making it easy to deploy, manage, and scale GPU-based containerized applications.](https://aws.amazon.com/blogs/compute/running-gpu-accelerated-kubernetes-workloads-on-p3-and-p2-ec2-instances-with-amazon-eks/)
 
-The Trusted Advisor also provides Savings Plan and Reserved Instances recommendations for EC2 instances and Fargate - which allows you to commit to a consistent usage amount in exchange for discounted rates.
-
-**2.3 Using Kubernetes dashboard and kubectl tools**
-
-***Kubernetes dashboard***
-Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes ckluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html). 
-
-Kubernetes Dashboard 
-
-![Kubernetes Cluster Auto Scaler logs](../images/kubernetes-dashboard.png)
-
-***kubectl top command***
-
-Viewing resource usage metrics with kubectl top and kubectl describe commands. kubectl top will show current CPU and memory usage for the pods or nodes across your cluster, or for a specific pod or node. The kubectl describe command will give more detailed information about a specific node or a pod.
-```
-$ kubectl top pods
-$ kubectl top nodes
-$ kubectl describe node <node>
-$ kubectl describe pod <pod>
-```
-**2.4 Using Container Insights on Amazon EKS and Kubernetess**
-
-Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Kubernetes Service on EC2, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network. 
-
-The installation of insights is given in the [documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html).
-
-**2.5 Using KubeCost for expenditure awareness and guidance**
-
-There are third party tools like [kubecost](https://kubecost.com/), which can also be deployed on Amazon EKS to get visibility into spend of your Kubernetes cluster.
-
-Deploying kubecost using Helm 3:
-```
-$ curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-$ helm version --short
-v3.2.1+gfe51cd1
-$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/c^C
-$ kubectl create namespace kubecost 
-namespace/kubecost created
-$ helm repo add kubecost https://kubecost.github.io/cost-analyzer/ 
-"kubecost" has been added to your repositories
-
-$ helm install kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="aGRoZEBqc2pzLmNvbQ==xm343yadf98"
-NAME: kubecost
-LAST DEPLOYED: Mon May 18 08:49:05 2020
-NAMESPACE: kubecost
-STATUS: deployed
-REVISION: 1
-TEST SUITE: None
-NOTES:
---------------------------------------------------Kubecost has been successfully installed. When pods are Ready, you can enable port-forwarding with the following command:
-    
-    kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
-    
-Next, navigate to http://localhost:9090 in a web browser.
-$ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
-
-Note: If you are using Cloud 9 or have a need to forward it to a different port like 8080, issue the following command
-$ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 8080:9090
-
-```
-Kube Cost Dashboard -
-![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
-
-**2.6 Partner products**
-
-***Magalix Kubeadvisor***
-
-[KubeAdvisor](https://www.magalix.com/kubeadvisor) continuously scans your Kubernetes clusters and reports how you can fix issues, apply best practices, and optimize your cluster (with recommendations of resources like CPU/Memory around cost-efficiency).
-
-***Spot.io, previously called Spotinst***
-
-Spotinst Ocean is an application scaling service. Similar to Amazon Elastic Compute Cloud (Amazon EC2) Auto Scaling groups, Spotinst Ocean is designed to optimize performance and costs by leveraging Spot Instances combined with On-Demand and Reserved Instances. Using a combination of automated Spot Instance management and the variety of instance sizes, the Ocean cluster autoscaler scales according to the pod resource requirements. Spotinst Ocean also includes a prediction algorithm to predict Spot Instance interruption 15 minutes ahead of time and spin up a new node in a different Spot capacity pool.
-
-This is available as an [AWS Quickstart](https://aws.amazon.com/quickstart/architecture/spotinst-ocean-eks/) developed by Spotinst, Inc. in collaboration with AWS. 
-
-The EKS workshop also has a module on [Optimized Worker Node on Amazon EKS Management](https://eksworkshop.com/beginner/190_ocean/) with Ocean by Spot.io which includes sections on cost allocation, right sizing and scaling strategies.
-
-***Yotascale***
-
-Yotascale helps with accurately allocating Kubernetes costs. Yotascale Kubernetes Cost Allocation feature utilizes actual cost data, which is inclusive of Reserved Instance discounts and spot instance pricing instead of generic market-rate estimations, to inform the total Kubernetes cost footprint
-
-More details can be found at [their website](https://www.yotascale.com/).
-
-**2.7 Other tools**
-
-***Kube janitor***
-
-[Kubernetes Janitor](https://github.com/hjacobs/kube-janitor) cleans up (deletes) Kubernetes resources on (1) a configured TTL (time to live) or (2) a configured expiry date (absolute timestamp). 
-The resources can also include unused Persistent Volume Claims (PVC) on Amazon EBS, which can result in substantial savings over time.
-
-Installation of kube-janitor:
-```
-git clone https://github.com/hjacobs/kube-janitor
-cd kube-janitor
-kubectl apply -k deploy/
-```
-
-The example configuration uses the --dry-run as a safety flag to prevent any deletion --- remove it to enable the janitor, e.g. by editing the deployment:
-```
-$ kubectl edit deploy kube-janitor
-```
-
-To see the janitor in action, deploy a simple nginx and annotate it accordingly:
-```
-$ kubectl run temp-nginx --image=nginx
-$ kubectl annotate deploy temp-nginx janitor/ttl=5m
-```
-You should see the temp-nginx deployment being deleted after 5 minutes.
-
-More advanced cleanup scenarios are described in the [kube-janitor github project](https://github.com/hjacobs/kube-janitor).
-
-***Right Size Guide***
-
-The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
-
-***Fargate count***
-
-[Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of EKS pods that have been deployed on Fargate in a specific region of a specific account. This helps in keeping track of all the Fargate pods running across an EKS cluster.
-
-***Kubernetes Ops View***
-
-[Kube Ops View](https://github.com/hjacobs/kube-ops-view) is an useful tool, which provides a common operational picture visually for multiple Kubernetes clusters.
-
-```
-git clone https://github.com/hjacobs/kube-ops-view
-cd kube-ops-view
-kubectl apply -k deploy/
-```
-
-![Home Page](../images/kube-ops-report.png)
-
-### 3. Optimizing over time (Right Sizing)
-
-Right Sizing as per the AWS Well-Architected Framework, is using “… using the lowest cost resource that still meets the technical specifications of a specific workload”.
-
-In Kubernetes, this means setting the right CPU and Memory for Amazon EKS on AWS Fargate and selecting the right EC2 Instance type, for running containers on Pods. The details of how Kubernetes manages resources for containers are given in the [documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
-
-***Amazon EKS on AWS Fargate***
-When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod. 
-
-The list of vCPU and memory combinations that are available for pods running on Fargate are listed in the [Amazon EKS User Guide](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). If you do not specify a vCPU and memory combination, then the smallest available combination is used (.25 vCPU and 0.5 GB memory). 
-
-***Amazon EKS on EC2***
-
-When we specify a Pod, we can specify how much of each resource like CPU and Memory, a Container needs. It is important we do not over-provision or under-provision the resources allocated to the containers. 
-
-There are tools like [kube resource report](https://github.com/hjacobs/kube-resource-report) which can help with right sizing of pods deployed on Amazpn EKS with EC2 nodes.
-
-Deployment steps for kube resource report (the installation of helm is covered in the previous section on deploying kube cost :
-```
-$ git clone https://github.com/hjacobs/kube-resource-report
-$ cd kube-resource-report
-$ helm install kube-resource-report ./unsupported/chart/kube-resource-report
-$ helm status kube-resource-report
-$ export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kube-resource-report,app.kubernetes.io/instance=kube-resource-report" -o jsonpath="{.items[0].metadata.name}")
-$ echo "Visit http://127.0.0.1:8080 to use your application"
-$ kubectl port-forward $POD_NAME 8080:8080
-```
-Screenshots from a sample reports from this tool:
-
-![Home Page](../images/kube-resource-report1.png)
-
-![Cluster level data](../images/kube-resource-report2.png)
-
-![Pod level data](../images/kube-resource-report3.png)
-
+Machine learning (ML) training is increasingly being done inside containers. Being able to run those workloads on machines that are optimized for machine learning is more cost effective than running them on generic EC2 instances.
 
 
 ### Key AWS Services
 Cost optimization is supported by the following AWS services and features:
-+ Cost-effective resources – Amazon EC2 provides multiple instance types, as well as Savibgs Plan (and Reserved Instances) and Spot Instances, at different prices.
-+ Matching supply and demand – Match user demand with Auto Scaling along with Kubernetes native Auto Scaling policies. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores like EBS and EFS, for elasticity and durability of the application data.
-+ Expenditure awareness – The Billing and Cost Management console dashboard  along with AWS Cost Explorer provides an overview of your AWS usage. Use AWS Organizations for granular billing details. Details of several third party tools have also been shared. 
-+ Optimizing over time – Amazon CloudWatch Container Metrics provides metrics around usage of resources by the EKS cluster. In addition to the Kubernetes dashboard, there are several tools in the Kubernetes ecosystem that can be used to reduce wastage.
++ Cost-effective resources – Amazon EC2 provides multiple instance types, such as Reserved Instances and Spot Instances, at different prices.
++ Matching supply and demand – Match user demand with Auto Scaling. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores for elasticity and durability of the application data.
++ Expenditure awareness – The Billing and Cost Management console dashboard provides an overview of your AWS usage. Use AWS Organizations for granular billing details.
++ Optimizing over time – Amazon CloudWatch Container Metrics provides metrics around usage of resources by the EKS cluster. In addition to the Kubernetes dashboard, there are several tools in the Kubernetes ecosystem that can be used to monitor Kubernetes clusters, such as Prometheus.
 
 ### Resources
-Refer to the following resources to learn more about best practices for cost optimization.
+Refer to the following resources to learn more about AWS best practices for cost optimization.
 
 Videos
 +	[AWS re:Invent 2019: Save up to 90% and run production workloads on Spot Instances (CMP331-R1)](https://www.youtube.com/watch?v=7q5AeoKsGJw)
 
 Documentation and Blogs
 +	[Cost optimization for Kubernetes on AWS](https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)
-+ [Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
 +	[Using Spot Instances with EKS](https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks.html)
 +   [Extending the EKS API: Managed Node Groups](https://aws.amazon.com/blogs/containers/eks-managed-node-groups/)
 +	[Autoscaling with Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html) 
 +	[Setting Up Container Insights on Amazon EKS and Kubernetes ](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html)
 +	[Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
++	[Amazon ECR Lifecycle Policies](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html)
 +	[Amazon EKS-Optimized AMI with GPU Support](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html)
-+	[Amazon EKS pricing](https://aws.amazon.com/eks/pricing/)
 +	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
-+   [Savings Plan](https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html)
-+   [Saving Cloud Costs with Kubernetes on AWS](https://srcco.de/posts/saving-cloud-costs-kubernetes-aws.html) 
++   [Amazon EKS on AWS Fargate](https://aws.amazon.com/blogs/aws/amazon-eks-on-aws-fargate-now-generally-available/)
++	[Amazon EKS pricing](https://aws.amazon.com/eks/pricing/)
 
 Tools
++	[AWS Organizations](https://aws.amazon.com/organizations/)
 +	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
-+   [Kube Cost](https://kubecost.com/)
-+   [Kube downscaler](https://github.com/hjacobs/kube-downscaler)
-+  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
-+  [Right size guide](https://github.com/mhausenblas/right-size-guide)
-+ [Fargate count](https://github.com/mreferre/fargatecount)
++   [Third party - Kube Cost](https://kubecost.com/)
 
