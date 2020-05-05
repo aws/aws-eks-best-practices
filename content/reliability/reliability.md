@@ -90,7 +90,7 @@ Running worker nodes in multiple Availability Zones protects your workloads from
 Here is a helpful flowchart to determine when to create node groups:
 
 
-![auto-scaling group-flowchart](images/reliability-ca-asg.jpg)
+![auto-scaling group-flowchart](../images/reliability-ca-asg.jpg)
 
 
 *****
