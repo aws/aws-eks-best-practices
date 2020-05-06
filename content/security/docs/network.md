@@ -40,7 +40,8 @@ spec:
 
 ![](./images/default-deny.jpg)
 
-!!! tip The image above was created by the network policy viewer from [Tufin](https://orca.tufin.io/netpol/).
+!!! tip 
+The image above was created by the network policy viewer from [Tufin](https://orca.tufin.io/netpol/).
 
 _Calico global network policy_
 ```yaml
