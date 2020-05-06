@@ -7,9 +7,13 @@ This guide is meant for security practitioner who are responsible for implementi
 ## Understanding the Shared Responsibility Model
 Security and compliance are considered shared responsibilities when using a managed service like EKS. Generally speaking, AWS is responisble for security "of" the cloud whereas you, the customer, are responsible for security "in" the cloud. With EKS, AWS is responsible for managing of the EKS managed Kubernetes control plane. This includes the Kubernetes masters, the ETCD database, and other infrastructure necessary for AWS to deliver a secure and reliable service. As a consumer of EKS, you are largely responsible for the topics in this guide, e.g. IAM, pod security, runtime security, network security, and so forth. 
 
-When it comes to infrastructure security, AWS will assume additional responsibilities as you move from self-managed workers, to managed node groups, to Fargate. For example, with Fargate, AWS becomes  responsible for securing the underlying instance/runtime used to run your Pods. 
+When it comes to infrastructure security, AWS will assume additional responsibilities as you move from self-managed workers, to managed node groups, to Fargate. For example, with Fargate, AWS becomes responsible for securing the underlying instance/runtime used to run your Pods. 
 
-![Shared Responsibility Model](images/SRM-EKS.jpg)
+![Shared Responsibility Model - Fargate](images/SRM-EKS.jpg)
+
+AWS will also assume responsibility for securing and maintaining the underlying instance when you use Managed Node Groups (MNG).  However, unlike Fargate, MNGs will not automatically scale your infrastructure/cluster.  That can be handled by the [cluster-autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md) or other technologies such as native AWS autoscaling, SpotInst's [Ocean](https://spot.io/solutions/kubernetes-2/), or Atlassian's [Escalator](https://github.com/atlassian/escalator). 
+
+![Shared Responsibility Model - MNG](./images/SRM-MNG.jpg)
 
 Before designing your system, it is important to know where the line of demarcation is between your responsibilities and the provider of the service (AWS).
 
