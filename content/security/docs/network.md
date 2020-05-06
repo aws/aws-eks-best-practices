@@ -38,6 +38,10 @@ spec:
   - Egress
 ```
 
+![](./images/default-deny.jpg)
+
+!!! tip The image above was created by the network policy viewer from [Tufin](https://orca.tufin.io/netpol/).
+
 _Calico global network policy_
 ```yaml
 apiVersion: crd.projectcalico.org/v1
@@ -80,7 +84,9 @@ spec:
     - protocol: UDP
       port: 53
 ```
-  
+
+![](./images/allow-dns-access.jpg)
+
 _Calico global policy equivalent_
 
 ```yaml
