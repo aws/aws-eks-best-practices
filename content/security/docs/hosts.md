@@ -68,6 +68,7 @@ On EKS you could create policies that allow for privileged containers to run, li
 + [Iterative Hardening of Kubernetes](https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html) 
 + [Audit2Allow](https://linux.die.net/man/1/audit2allow)
 + [SEAlert](https://linux.die.net/man/8/sealert)
++ [Generate SELinux policies for containers with Udica](https://www.redhat.com/en/blog/generate-selinux-policies-containers-with-udica) describes a tool that looks at container spec files for Linux capabilities, ports, and mount points, and generates a set of SELinux rules that allow the container to run properly
 
 ## Tools
 + [Keiko](https://github.com/keikoproj/keiko)
