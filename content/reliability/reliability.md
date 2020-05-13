@@ -215,6 +215,63 @@ metrics and alarms](https://github.com/aws/containers-roadmap/issues/120).
 ### Implement horizontal scaling 
 - Consider using Zolando’s [kube-metrics-adapter](https://github.com/zalando-incubator/kube-metrics-adapter), it can collect and serve custom and external metrics for Horizontal Pod Autoscaling. It supports scaling based on Prometheus metrics, SQS queues and others out of the box.
 ### Spread out application replicas to different worker node availability zones for redundancy
+If you are using AWS optimized AMIs, worker nodes are automatically labelled with failure-
+domain.beta.kubernetes.io/zone as key and the corresponding availability zone with the
+value. You can decorate your application’s manifest files with NodeAffinity and AntiAffinity specs as follows, so that the replica sets are distributed across AZs and hence redundant to AZ failures. There are two types of node affinity currently supported in Kubernetes: `requiredDuringSchedulingIgnoredDuringExecution` and `preferredDuringSchedulingIgnoredDuringExecution`.
+* `requiredDuringSchedulingIgnoredDuringExecution` is the "hard" rule for
+scheduling pod deployments because the first half (requiredDuringScheduling)
+details the rules that are required to be met before a pod can be scheduled to
+deploy onto a node. The second half (IgnoredDuringExecution) states that if a node
+changes in such a way that the requirements are no longer met (post deployment)
+that the pod is allowed to continue to run on the node.
+* `preferredDuringSchedulingIgnoredDuringExecution` is the "soft" rule for
+scheduling pod deployments because the first half (preferredDuringScheduling)
+details the rules that are desired to be met before a pod can be scheduled to
+deploy onto a node. If no node is available where those conditions are met the pod
+will still be scheduled for deployment. The second half (IgnoredDuringExecution)
+states that if a node changes in such a way that the requirements are no longer met
+(post deployment) that the pod is allowed to continue to run on the node.
+* In the example below, the requiredDuringSchedulingIgnoredDuringExecution
+statement indicates that the pod should not be placed in the same availability zone
+as another pod with the same name (to ensure that the replicaSet is spread across
+all of the availability zones to achieve high availability). The
+preferredDuringSchedulingIgnoredDuringExecution statement indicates that ideally
+the pod should not be placed on a node where a pod of the same node is already
+running.
+```
+---   
+spec:   
+  affinity:   
+    podAffinity:   
+      requiredDuringSchedulingIgnoredDuringExecution:   
+        -   
+          podAffinityTerm:   
+            labelSelector:   
+              matchExpressions:   
+                -   
+                  key: component  
+                  operator: In  
+                  values:   
+                    - ${NAME_OF_THE_APP}  
+            topologyKey: failure-domain.beta.kubernetes.io/zone  
+          weight: 100  
+    podAntiAffinity:   
+      preferredDuringSchedulingIgnoredDuringExecution:   
+        -   
+          podAffinityTerm:   
+            labelSelector:   
+              matchExpressions:   
+                -   
+                  key: app  
+                  operator: In  
+                  values:   
+                    - ${NAME_OF_THE_APP}  
+            topologyKey: kubernetes.io/hostname  
+          weight: 99  
+   
+```
+* The `topologyKey` value can be any label key but note that for any affinity rule and for `requiredDuringSchedulingIgnoredDuringExecution` anti-affinity rules the `toplogyKey` is not allowed to be empty. Additionally, if it is empty on a `preferredDUringSchedulingIgnoredDuringExecution` then the `topologyKey` is interpreted as "all topologies" which means the combination of `kubernetes.io/hostname`, `failure-domain.beta.kubernetes.io/zone`, and `failure-domain.beta.kubernetes.io/region` (node hostname, availability zone, and region).
+
 
 ### Vertical Pod Autoscaler (VPA)
 
@@ -224,7 +281,7 @@ You might have wondered why the Horizontal Pod Autoscaler is not simply called �
 
 [Fairwinds Goldilocks](https://github.com/FairwindsOps/goldilocks/) project simplifies implementation of VPA. Goldilocks can provide VPA recommendations and it can optionally auto-scale the Pods. 
 
-### Health checks and self-healing
+## Health checks and self-healing
 It’s a truism that no software is bug-free. Kubernetes gives you the ability to minimize impact of software failures. In the past, if an application crashed, someone had to manually remediate the situation by restarting the application. Kubernetes gives you the ability to detect software failures in your application and automatically heal them. Kubernetes can monitor the health of your application and stop sending requests to the Pod if it fails health-checks.  
 
 Kubernetes supports three types of (health-checks)[https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/]:
@@ -246,11 +303,11 @@ While Liveness probe is used to detect failure in an application that can only b
 #### Startup Probe
 When your application needs additional time to startup, you can use the Startup Probe to delay the Liveness Probe. Once the Startup Probe succeeds, the Liveness Probe takes over. You can define maximum time Kubernetes should wait for application startup. If after the maximum configured time, the Pod still fails Startup Probes, it will be restarted. 
 
-### Recommendations
+## Recommendations
 Configure both Readiness and Liveness probe in your Pods. Use `initialDelaySeconds` to delay the first probe. For example, if in your tests, you’ve identified that your application takes on an average 60 seconds to load libraries, open database connections, etc, then configure `initialDelaySeconds` to 60 seconds + plus ~10 seconds for grace period. 
 
 
-### Disruptions
+## Disruptions
 
 A Pod will run indefinitely unless a user stops or the worker node it runs on fails. Outside of failed health-checks and autoscaling there aren’t many situations where Pods need to be restarted. Performing Kubernetes cluster upgrades is one such event. When you need to upgrade your Kubernetes cluster, after performing control plane upgrade, you will need to upgrade your worker nodes. If you are not using [EKS managed node group](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html), we recommend you create new worker nodes with updated Kubernetes components rather than performing an in-place upgrade of your worker nodes. 
 
@@ -280,6 +337,24 @@ This tells Kubernetes to halt the eviction process until three or more replicas 
 
 https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
 
+## Recommendations
+### Protect critical workloads
+Configure `PodDisruptionBudget` for critical applications so a voluntary change doesn't cause disruption. 
+### Chaos Engineering 
+> Chaos Engineering is discipline of experimenting on a distributed system in order to build confidence in the system’s capability to withstand turbulent conditions in production.
+
+[Kubernetes is declarative system](https://medium.com/@dominik.tornow/the-mechanics-of-kubernetes-ac8112eaa302) where user defines the *desired state* and the system works towards transitioning from the current state to the desired state. This means Kubernetes always knows the *desired state* and if the system deviates, Kubernetes can restore (or at least attempt to) state. For example, if a worker node becomes unavailable, Kubernetes will schedule the Pods on another worker node. Similarly, if a `replica` crashes, the [Deployment Contoller](https://kubernetes.io/docs/concepts/architecture/controller/#design) will create a new `replica`. In this way, Kubernetes controllers automatically fix failures. 
+
+Consider testing the resiliency of your cluster by using a tool that *breaks things on purpose* to detect failures. 
+
+## Resources
+[Gremlin](https://www.gremlin.com)
+[Chaos Mesh](https://github.com/pingcap/chaos-mesh)
+[PowerfulSeal](https://github.com/bloomberg/powerfulseal)
+[kube-monkey](https://github.com/asobti/kube-monkey)
+[chaoskube](https://github.com/linki/chaoskube)
+
+
 ## Observability 
 
 Observability, in this context, is an umbrella term that includes monitoring, logging and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in microservices architecture each component needs to be monitored individually as well as cohesively, as one application. Cluster-level monitoring, logging 
@@ -294,7 +369,7 @@ Consider using a tool like [Prometheus](https://prometheus.io) or [CloudWatch Co
 
 ### Logging
 
-For centralized logging, you can use tools like [FluentD](https://www.fluentd.org) or CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) 
+For centralized logging, you can use tools like [FluentD](https://www.fluentd.org) or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) 
 
 ### Tracing
 
@@ -316,6 +391,8 @@ Service meshes enable service-to-service communication in a secure, reliable, an
 A service mesh can help you implement observability in your application with minimal code change. Proxies like [Envoy](https://www.envoyproxy.io) provide in-built support for monitoring, logging and tracing and support and can help you visualize your application network, making troubleshooting and deployments easier. 
 
 You can also use service mesh features like automatic retries and rate limiting to make your microservices more resilient.
+### Use Prometheus cient library to expose metrics
+In addition to monitoring the state of the appliation and aggregating standard metrics, you can also use Prometheus to expose application specifc custom metrics to improve application's observability. 
 
 ## Service Mesh 
 + [AWS App Mesh](https://aws.amazon.com/app-mesh/)
@@ -369,10 +446,3 @@ Resource Quotas help limit the amount of resources a namespace can use. The [`Li
 
 Consider using `LimitRange` in conjunction with `ResourceQuota` to enforce limits at a container as well as namespace level. Setting these limits will ensure that a container or a namespace does not usurp upon resources used by other tenants in the cluster. 
 
-
-## Chaos Engineering Practice 
-
-## Recommendations
-
-## Resources
-[Chaos Mesh](https://github.com/pingcap/chaos-mesh)
