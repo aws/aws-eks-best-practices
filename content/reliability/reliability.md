@@ -58,7 +58,7 @@ There are two common ways to scale worker nodes in EKS.
 2. [EC2 Auto Scaling Groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html)
 
 
-### Scaling Kubernetes worker nodes
+## Scaling Kubernetes worker nodes
 Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your Kubernetes cluster when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate it. 
 
 Cluster Autoscaler uses EC2 Auto Scaling groups (ASG) to adjust the size of the cluster. Typically all worker nodes are part of an auto scaling group. You may have multiple ASGs within a cluster. For example, if you co-locate two distinct workloads in your cluster you may want to use two different types of EC2 instances, each suited for its workload. In this case you would have two auto scaling groups. 
@@ -79,13 +79,37 @@ If you are running an application that uses EBS volume but has no requirements t
 
 Consider this scenario, you have an EKS cluster with one node group (or one autoscaling group), this node group has three worker nodes spread across three AZs. You have an application that needs to persist its data using an EBS volume. When you create this application and the corresponding volume, it gets created in the first of the three AZs. Your application running inside a Kubernetes pod is successfully able to store data on the persistent volume. Then, the worker node that runs this aforementioned pod becomes unhealthy and subsequently unavailable for use. Cluster Autoscaler will replace the unhealthy node with a new worker node, however because the autoscaling group spans across three AZs, the new worker node may get launched in the second or the third AZ, but not in the first AZ as our situation demands. Now we have a problem, the AZ-constrained volume only exists in the first AZ, but there are no worker nodes available in that AZ and hence, the pod cannot be scheduled. And due to this, you will have to create one node group in each AZ so there is always enough capacity available to run pods that cannot function in other AZs. 
 
-### Recommendations
-Running worker nodes in multiple Availability Zones protects your workloads from failures in an individual Availability Zone. Due to the challenges presented in above mentioned scenarios, you may need multiple node-groups. 
+## Recommendations
+Consider running worker nodes in multiple Availability Zones to protect your workloads from failures in an individual Availability Zone. Due to the challenges presented in above mentioned scenarios, you may need multiple node-groups. 
 * For stateless workloads, you can create one node group that spans across multiple Availability Zones. 
 * If your cluster uses different types of EC2 instances then you should create multiple node groups, one for each instance type. 
 * If your application that runs replicas in multiple Availability Zondes needs EBS volumes, then you should create a node group per Availability Zone. 
+* Consider using EFS for storage. EFS volumes are accessible in all the Availability Zones in a region and support concurrency, i.e., one EFS volume can be used by multiple Pods/EC2 Instances. 
+* The Cluster Autoscaler does not support Auto Scaling Groups which span multiple
+Availability Zones; instead you should use an Auto Scaling Group for each
+Availability Zone and enable the --balance-similar-node-groups feature. If you do
+use a single Auto Scaling Group that spans multiple Availability Zones you will find
+that AWS unexpectedly terminates nodes without them being drained because of the [rebalancing](https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html#arch-AutoScalingMultiAZ) feature.
+* Run the Cluster Autoscaler with the `--node-group-auto-discovery` flag enabled. This
+will enable the Cluster Autoscaler to find all autoscaling groups that include a
+particular defined tag and prevents the need to define and maintain each and every
+autoscaling group in the manifest.
+* When using Cluster Autoscaler with more than one autoscaling-group, there
+are 4 expander options for determining which instance group to use for the scaling
+activity: random (selects the ASG randomly), most-pods (chooses the ASG that will
+allow for the scheduling of the most pods), least-waste (chooses the ASG that will
+provide the least waste of CPU and Memory resources), and price (selects the ASG
+based on price). By default the random expander is used.
+* By default the Cluster Autoscaler does not scale-down nodes that have pods
+deployed with local storage attached. Set the `--skip-nodes-with-local-storage` flag
+to false to allow Cluster Autoscaler to scale-down these nodes.
+* The Cluster Autoscaler’s level of aggressiveness when triggering scale-down events
+can be adjusted through the use of several flags: `--scale-down-delay-after-add`, `--scale-down-delay-after-delete`, and `--scale-down-delay-after-failure`
 
-*****
+* Consider running [node-problem-detector](https://github.com/kubernetes/node-problem-detector) to monitor health of worker nodes. 
+
+
+---
 
 Here is a helpful flowchart to determine when to create node groups:
 
@@ -93,10 +117,11 @@ Here is a helpful flowchart to determine when to create node groups:
 ![auto-scaling group-flowchart](../images/reliability-ca-asg.jpg)
 
 
-*****
+---
 
 Note:
 When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
+
 
 ### Running highly-available applications 
 Highly available systems are designed to mitigate any harmful impact in the environment. Most modern applications depend on a network of resources that must all work together. Highly available applications are designed so a user never experiences a failure due to a malfunctioning component in the system. In order to make a service or application highly available, we need to eliminate any single points of failure and heal components as they get unhealthy. 
@@ -167,12 +192,13 @@ You will need to start producing custom metrics before you start consuming them 
 
 [External metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md), as the name suggests provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
 
-—TODO—
-https://github.com/zalando-incubator/kube-metrics-adapter
-—TODO—
-
 You can also scale deployments using Amazon CloudWatch, at the time of writing, to do this you have to use `k8s-cloudwatch-adapter`. There is also a feature request to [enable HPA with CloudWatch
 metrics and alarms](https://github.com/aws/containers-roadmap/issues/120). 
+
+## Recommendations
+### Implement horizontal scaling 
+- Consider using Zolando’s [kube-metrics-adapter](https://github.com/zalando-incubator/kube-metrics-adapter), it can collect and serve custom and external metrics for Horizontal Pod Autoscaling. It supports scaling based on Prometheus metrics, SQS queues and others out of the box.
+
 
 ### Vertical Pod Autoscaler (VPA)
 
@@ -266,27 +292,37 @@ Service Meshes like [LinkerD](http://linkerd.io), [Istio](http://istio.io) , and
 
 Tracing tools like [AWS X-Ray](https://aws.amazon.com/xray/), [Jaeger](https://www.jaegertracing.io) support both shared library and service mesh implementations. Consider using a tracing tool that supports both implementations so you will not have to switch tools if you adopt service mesh. 
 
-### Monitoring CoreDNS
+# CoreDNS
 
 CoreDNS fulfills name resolution and service discovery functions in Kubernetes and it is installed by default on EKS clusters. For interoperability, the Kubernetes service for CoreDNS is still named [kube-dns](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/). CoreDNS runs as a deployment in kube-system namespaces, and by default it runs two replicas with declared requests and limits. 
 
+## Recommendations
+### Monitor CoreDNS metrics
 CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_response_rcode_count_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption. 
 
 For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
 `for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done`
 
 
-### Service Meshes
+# Service Mesh
 
 Service meshes enable service-to-service communication in a secure, reliable, and greatly increase observability of your microservices network. Most service mesh products works by having a small network proxy sit alongside each microservice. This so-called “sidecar” intercepts all of the service’s traffic, and handles it more intelligently than a simple layer 3 network can. The sidecar proxy is able to intercept, inspect, and manipulate all network traffic heading through the Pod, while primary container needs no alteration or even knowledge that this is happening.
 
-Service mesh can help you implement observability in your application with minimal code change. Proxies like [Envoy](https://www.envoyproxy.io) provide in-built support for monitoring, logging and tracing and support.
+## Recommendations
+### Improve observability and resilience using a Service Mesh
+A service mesh can help you implement observability in your application with minimal code change. Proxies like [Envoy](https://www.envoyproxy.io) provide in-built support for monitoring, logging and tracing and support and can help you visualize your application network, making troubleshooting and deployments easier. 
 
 You can also use service mesh features like automatic retries and rate limiting to make your microservices more resilient.
 
+## Service Mesh 
++ [AWS App Mesh](https://aws.amazon.com/app-mesh/)
++ [Istio](https://istio.io)
++ [LinkerD](http://linkerd.io)
++ [Consul](https://www.consul.io)
+
 ### Resource management
 
-Kubernetes allows you to declare CPU and memory resources for the containers in a Pod to avoid CPU and memory over-subscription. When you run a Pod, you can define `requests` and `limits` for containers to set Pod’s [Quality of Service class](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/). Pod level requests and limits are computed by summing up per-resource requests and limits across all containers. Kubernetes scheduler will use these values to place the Pod and it will ensure that, for each compute resource type (CPU or memory), the sum of the resource requests of the scheduled containers is less than the capacity of the node.
+Kubernetes allows you to declare CPU and memory resources for the containers in a Pod to avoid CPU and memory over-subscription. When you run a Pod, you can optionally define `requests` and `limits` for containers to set Pod’s [Quality of Service class](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/). Pod level requests and limits are computed by summing up per-resource requests and limits across all containers. Kubernetes scheduler will use these values to place the Pod and it will ensure that, for each compute resource type (CPU or memory), the sum of the resource requests of the scheduled containers is less than the capacity of the node.
 
 You can control the minimum compute resources a container needs by declaring `requests` and you define a maximum resources by declaring `limits`. Based on the values of `requests` and `limits`, a Pod will be assigned a QoS class.
 
@@ -299,10 +335,28 @@ Kubernetes documentation defines CPU as a compressible resource while memory is 
 
 Similarly, Pods are guaranteed the amount of memory they request and they will get killed if they exceed their memory request, they could be killed if another Pod needs memory. If they exceed their limit a process that is using the most amount of memory, inside one of the pod’s containers, will be killed by the kernel.
 
+## Recommendations
+### Implement QoS
 For critical applications, consider defining `requests`=`limits` for the container in the Pod. This will ensure that the container will not be killed if another Pod requests resources.  
 
-### Resource Quotas For Namespaces
+Consider implementing CPU and memory limits for all containers, this will prevent a container inadvertently consuming system resources impacting other co-located processes.
 
-### Chaos Engineering Practice 
+### Resource quotas for namespaces
+Namespaces are intended for use in environments with many users spread across multiple teams, or projects. They provide a scope for names and are a way to divide cluster resources between multiple teams, projects, workloads. You can limit the aggregate resource consumption in a namespace. The [`ResourceQuota`](https://kubernetes.io/docs/concepts/policy/resource-quotas/) object can limit the quantity of objects that can be created in a namespace by type, as well as the total amount of compute resources that may be consumed by resources in that project. You can limit the total sum of storage and/or compute (CPU and memory) resources that can be requested in a given namespace.
+
+> If resource quota is enabled for a namespace for compute resources like CPU and memory, users must specify requests or limits for each container in that namespace.
+
+Consider configuring quotas for each namespace. Consider using `LimitRanges` to automatically apply preconfigured limits to containers within a namespaces. 
+
+### Limit container resource usage within a namespace
+Resource Quotas help limit the amount of resources a namespace can use. The [`LimitRange` object](https://kubernetes.io/docs/concepts/policy/limit-range/) can help you implement minimum and maximum resources a container can request. Using `LimitRange` you can set a default request and limits for containers, which is helpful if setting compute resource limits is not a standard practice in your organization. As the name suggests, `LimitRange` can enforce minimum and maximum compute resources usage per Pod or Container in a namespace. As well as, enforce minimum and maximum storage request per PersistentVolumeClaim in a namespace.
+
+Consider using `LimitRange` in conjunction with `ResourceQuota` to enforce limits at a container as well as namespace level. Setting these limits will ensure that a container or a namespace does not usurp upon resources used by other tenants in the cluster. 
 
 
+## Chaos Engineering Practice 
+
+## Recommendations
+
+## Resources
+[Chaos Mesh](https://github.com/pingcap/chaos-mesh)
