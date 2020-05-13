@@ -59,7 +59,7 @@ There are two common ways to scale worker nodes in EKS.
 
 
 ## Scaling Kubernetes worker nodes
-Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your Kubernetes cluster when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate it. 
+Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your data-plane, aka worker nodes, when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate it.
 
 Cluster Autoscaler uses EC2 Auto Scaling groups (ASG) to adjust the size of the cluster. Typically all worker nodes are part of an auto scaling group. You may have multiple ASGs within a cluster. For example, if you co-locate two distinct workloads in your cluster you may want to use two different types of EC2 instances, each suited for its workload. In this case you would have two auto scaling groups. 
 
@@ -73,7 +73,7 @@ If you are using EBS, then you should create one autoscaling group for each AZ. 
 So you will need multiple autoscaling groups if you are:
 
 1. running worker nodes using a mix of EC2 instance families or purchasing options (on demand or spot)
-2. using EBS volumes.
+2. using EBS volumes for pods that can be scheduled in multiple AZs.
 
 If you are running an application that uses EBS volume but has no requirements to be highly available then you may also choose to restrict your deployment of the application to a single AZ. To do this you will need to have an autoscaling group that only includes subnet(s) in a single AZ. Then you can constraint the application’s pods to run on nodes with particular labels. In EKS worker nodes are automatically added `failure-domain.beta.kubernetes.io/zone` label which contains the name of the AZ. You can see all the labels attached to your nodes by running `kubectl describe nodes {name-of-the-node}`. More information about built-in node labels is available [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#built-in-node-labels). Similarly persistent volumes (backed by EBS) are also automatically labeled with AZ name, you can see which AZ your persistent volume belongs to by running `kubectl get pv -L topology.ebs.csi.aws.com/zone`. When a pod is created and it claims a volume, Kubernetes will schedule the pod on a node in the same AZ as the volume. 
 
@@ -99,13 +99,30 @@ are 4 expander options for determining which instance group to use for the scali
 activity: random (selects the ASG randomly), most-pods (chooses the ASG that will
 allow for the scheduling of the most pods), least-waste (chooses the ASG that will
 provide the least waste of CPU and Memory resources), and price (selects the ASG
-based on price). By default the random expander is used.
+based on price). By default the random expander is used. Consider using `most-pods` for faster scaling, or `least-waste` to optimize cost. 
 * By default the Cluster Autoscaler does not scale-down nodes that have pods
 deployed with local storage attached. Set the `--skip-nodes-with-local-storage` flag
 to false to allow Cluster Autoscaler to scale-down these nodes.
 * The Cluster Autoscaler’s level of aggressiveness when triggering scale-down events
-can be adjusted through the use of several flags: `--scale-down-delay-after-add`, `--scale-down-delay-after-delete`, and `--scale-down-delay-after-failure`
-
+can be adjusted through the use of several flags: `--scale-down-delay-after-add`, `--scale-down-delay-after-delete`, and `--scale-down-delay-after-failure`. A sample
+command value for the cluster-autoscaler including expander and scale-down limits
+is as follows:
+```
+command:
+  - ./cluster-autoscaler
+  - --v=4
+  - --stderrthreshold=info
+  - --cloud-provider=aws
+  - --skip-nodes-with-local-storage=false
+  - --expander=least-waste
+  - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/dev
+  - --skip-nodes-with-system-pods=false
+  - --scale-down-delay-after-add=60m
+  - --scale-down-delay-after-delete=60m
+  - --scale-down-unneeded-time=60m
+  - --max-graceful-termination-sec=1800
+  - --scale-down-utilization-threshold=0.25}
+```
 * Consider running [node-problem-detector](https://github.com/kubernetes/node-problem-detector) to monitor health of worker nodes. 
 
 
@@ -119,11 +136,10 @@ Here is a helpful flowchart to determine when to create node groups:
 
 ---
 
-Note:
-When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
+> When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
 
 
-### Running highly-available applications 
+## Running highly-available applications 
 Highly available systems are designed to mitigate any harmful impact in the environment. Most modern applications depend on a network of resources that must all work together. Highly available applications are designed so a user never experiences a failure due to a malfunctioning component in the system. In order to make a service or application highly available, we need to eliminate any single points of failure and heal components as they get unhealthy. 
 
 Kubernetes provides us tools to easily run highly available applications and services. You can eliminate single points of failure in your applications by running multiple replicas. In Kubernetes pods are the smallest deployable units and while Kubernetes allows you to create individual pods, creating individual pods outside of testing and troubleshooting scenarios is not recommended. [Kubernetes Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) provides abstraction layer for pods, you describe a desired state in a [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#creating-a-deployment) and the Deployment controller changes the actual state to match the desired state. You can define the number of `replicas` with the deployment.
@@ -198,7 +214,7 @@ metrics and alarms](https://github.com/aws/containers-roadmap/issues/120).
 ## Recommendations
 ### Implement horizontal scaling 
 - Consider using Zolando’s [kube-metrics-adapter](https://github.com/zalando-incubator/kube-metrics-adapter), it can collect and serve custom and external metrics for Horizontal Pod Autoscaling. It supports scaling based on Prometheus metrics, SQS queues and others out of the box.
-
+### Spread out application replicas to different worker node availability zones for redundancy
 
 ### Vertical Pod Autoscaler (VPA)
 
@@ -264,7 +280,7 @@ This tells Kubernetes to halt the eviction process until three or more replicas 
 
 https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
 
-### Observability 
+## Observability 
 
 Observability, in this context, is an umbrella term that includes monitoring, logging and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in microservices architecture each component needs to be monitored individually as well as cohesively, as one application. Cluster-level monitoring, logging 
 
@@ -291,22 +307,9 @@ Implementing tracing at the code level can be disadvantageous. In this method, y
 Service Meshes like [LinkerD](http://linkerd.io), [Istio](http://istio.io) , and [AWS App Mesh](https://aws.amazon.com/app-mesh/) can be used to implement distributed tracing in your application without changing a single line of code. 
 
 Tracing tools like [AWS X-Ray](https://aws.amazon.com/xray/), [Jaeger](https://www.jaegertracing.io) support both shared library and service mesh implementations. Consider using a tracing tool that supports both implementations so you will not have to switch tools if you adopt service mesh. 
+ Service Mesh
 
-# CoreDNS
-
-CoreDNS fulfills name resolution and service discovery functions in Kubernetes and it is installed by default on EKS clusters. For interoperability, the Kubernetes service for CoreDNS is still named [kube-dns](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/). CoreDNS runs as a deployment in kube-system namespaces, and by default it runs two replicas with declared requests and limits. 
-
-## Recommendations
-### Monitor CoreDNS metrics
-CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_response_rcode_count_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption. 
-
-For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
-`for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done`
-
-
-# Service Mesh
-
-Service meshes enable service-to-service communication in a secure, reliable, and greatly increase observability of your microservices network. Most service mesh products works by having a small network proxy sit alongside each microservice. This so-called “sidecar” intercepts all of the service’s traffic, and handles it more intelligently than a simple layer 3 network can. The sidecar proxy is able to intercept, inspect, and manipulate all network traffic heading through the Pod, while primary container needs no alteration or even knowledge that this is happening.
+Service meshes enable service-to-service communication in a secure, reliable, and greatly increase observability of your microservices network. Most service mesh products works by having a small network proxy sit alongside each microservice. This so-called "sidecar" intercepts all of the service’s traffic, and handles it more intelligently than a simple layer 3 network can. The sidecar proxy is able to intercept, inspect, and manipulate all network traffic heading through the Pod, while primary container needs no alteration or even knowledge that this is happening.
 
 ## Recommendations
 ### Improve observability and resilience using a Service Mesh
@@ -320,7 +323,20 @@ You can also use service mesh features like automatic retries and rate limiting 
 + [LinkerD](http://linkerd.io)
 + [Consul](https://www.consul.io)
 
-### Resource management
+
+## CoreDNS
+
+CoreDNS fulfills name resolution and service discovery functions in Kubernetes and it is installed by default on EKS clusters. For interoperability, the Kubernetes service for CoreDNS is still named [kube-dns](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/). CoreDNS runs as a deployment in kube-system namespaces, and by default it runs two replicas with declared requests and limits. 
+
+## Recommendations
+### Monitor CoreDNS metrics
+CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_response_rcode_count_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption. 
+
+For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
+`for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done`
+
+
+## Resource management
 
 Kubernetes allows you to declare CPU and memory resources for the containers in a Pod to avoid CPU and memory over-subscription. When you run a Pod, you can optionally define `requests` and `limits` for containers to set Pod’s [Quality of Service class](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/). Pod level requests and limits are computed by summing up per-resource requests and limits across all containers. Kubernetes scheduler will use these values to place the Pod and it will ensure that, for each compute resource type (CPU or memory), the sum of the resource requests of the scheduled containers is less than the capacity of the node.
 
