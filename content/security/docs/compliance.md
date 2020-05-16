@@ -28,7 +28,22 @@ The following table shows the compliance programs with which the different conta
 
 Compliance status changes over time. For the latest status, always refer to https://aws.amazon.com/compliance/services-in-scope/. 
 
-### Tools and resources
+## Shifting Left
+The concept of shifting left involves catching policy violations and errors earlier in the software development lifecycle. From a security perspective, this can be very beneficial. A developer, for example, can fix issues with their configuration before their application is deployed to the cluster. Catching mistakes like this earlier will help prevent configurations that violate your policies from being deployed.
+
+### Policy
+Policy can be thought of a set of rules for governing behaviors, i.e. behavior that are allowed or those that are prohibited. For example, you may have a policy that says that all Dockerfiles should include a USER directive that causes the container to run as a non-root user. As a document, a policy like this can be hard to discover and enforce. It may also become outdated as your requirements change.
+
+## Recommendations
+
+### Use Open Policy Agent (OPA) or Alcide's sKan to detect policy violations before deployment
+
+[OPA](https://www.openpolicyagent.org/) is open source policy engine that's part of CNCF. It's used for making policy decisions and can be run a variety of different ways, e.g. as a language library or a service. OPA policies are written in Domain Specific Languagee (DSL) called Rego. While it is often run as part of a Kubernetes Dynamic Admission Controller, OPA can also be incorporated into your CI/CD pipeline. This allows developers to get feedback about their configuration earlier in the release cycle which can subsequently help them resolve issues before they get to production.  
+
++ [Conftest](https://github.com/open-policy-agent/conftest) is built on top of OPA and it provides a developer focused experience for testing Kubernetes configuration. 
++ [sKan](https://github.com/alcideio/skan) is powered by OPA and is "tailor made" to check whether their Kubernetes configuration files are compliant with security and operational best practices. 
+
+## Tools and resources
 + [kube-bench](https://github.com/aquasecurity/kube-bench)
 + [docker-bench-security](https://github.com/docker/docker-bench-security)
 + [actuary](https://github.com/diogomonica/actuary)
