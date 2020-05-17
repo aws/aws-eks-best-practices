@@ -48,3 +48,4 @@ Policy can be thought of a set of rules for governing behaviors, i.e. behavior t
 + [docker-bench-security](https://github.com/docker/docker-bench-security)
 + [actuary](https://github.com/diogomonica/actuary)
 + [AWS Inspector](https://aws.amazon.com/inspector/)
++ [Kubernetes Security Review](https://github.com/kubernetes/community/blob/master/wg-security-audit/findings/Kubernetes%20Final%20Report.pdf) A 3rd party security assessment of Kubernetes 1.13.4 (2019)
