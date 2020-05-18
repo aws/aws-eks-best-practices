@@ -1,7 +1,9 @@
-# Cost Optimization Pillar
-The cost optimization pillar includes the continual process of refinement and improvement of a system over its entire lifecycle to constantly look for ways to reduce costs. From your initial design to the ongoing operations of production workloads, adopting the practices specified in this document will help you to build and operate cost-aware systems. By doing so, you can achieve cost-effective business outcomes and maximize your return on investment.
+# Amazon EKS Best Practices Guide for Cost Optimization 
+
+The cost optimization best practices includes the continual process of refinement and improvement of a system over its entire lifecycle to constantly look for ways to reduce costs. From your initial design to the ongoing operations of production workloads, adopting the practices specified in this document will help you to build and operate cost-aware systems. By doing so, you can achieve cost-effective business outcomes and maximize your return on investment.
 
 # Design Principles
+
 In the cloud, there are a number of principles that can help you achieve cost optimization of your microservices:
 
 + Ensure that microservices are independent of specific infrastructure types for running your containers — so that microservices can scale out independently on heterogeneous infrastructure. There can be exceptions like workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or a specific type of server.
