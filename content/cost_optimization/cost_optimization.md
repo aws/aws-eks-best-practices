@@ -49,11 +49,16 @@ $ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-au
 
 $ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 ```
+Cluster Autoscaler logs -
 ![Kubernetes Cluster Auto Scaler logs](../images/cluster-auto-scaler.png)
+
 
 **Down Scaling**
 
+
 **Use pricing models for effective utilization.**
+
+
 
 ### Expenditure awareness
 **Tagging of Resources**
