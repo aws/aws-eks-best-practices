@@ -6,7 +6,7 @@ The cost optimization best practices includes the continual process of refinemen
 
 In the cloud, there are a number of principles that can help you achieve cost optimization of your microservices:
 
-+ Ensure that microservices are independent of specific infrastructure types for running your containers — so that microservices can scale out independently on heterogeneous infrastructure. There can be exceptions like workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or a specific type of server.
++ Ensure that microservices are independent of specific infrastructure types for running your containers — so that microservices can scale out independently of EC2 Instance types. There can be exceptions like workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or if specific type of EC2 Instance types.
 + Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics. like CPU and memory, using [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html). 
 + Take advantage of the different purchasing options that are available in AWS, e.g. On-Demand, Spot and Savings Plan.
 
@@ -14,19 +14,44 @@ In the cloud, there are a number of principles that can help you achieve cost op
 
 There are four general best practice areas for cost optimization in the cloud:
 
-+ Cost-effective resources
-+ Matching supply and demand
++ Cost-effective resources (Auto Scaling, Down Scaling and Purchasing Options)
++ Optimizing over time (Right Sizing)
 + Expenditure awareness
-+ Optimizing over time
 
 As with the other best practices, there are trade-offs to consider. For example, do you want to optimize for speed to market or for cost? In some cases, it’s best to optimize for speed—going to market quickly, shipping new features, or simply meeting a deadline—rather than investing in upfront cost optimization. Design decisions are sometimes guided by haste as opposed to empirical data, as the temptation always exists to overcompensate “just in case” rather than spend time benchmarking for the most cost-optimal deployment. This often leads to drastically over-provisioned and under-optimized deployments. 
 
 ## Best Practices
 
-### Cost-effective resources
-**Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs. Use pricing models for effective utilization.**
+### Cost-effective resources 
+**Auto Scaling - Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs.**
 
+Amazon EKS managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters. All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. Amazon EKS tags managed node group resources so that they are configured to use the Kubernetes Cluster Autoscaler. 
 
+The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. 
+
+To create a Kubernetes cluster 1.16 with a single managed group that spans multiple Availability Zones and deploying Kubernetes Cluster AutoScaler on Amazon EKS:
+
+```
+$ eksctl version
+0.19.0
+$ eksctl create cluster --name my-cluster-testscaling --version 1.16 --managed --asg-access
+```
+
+To deploy the Cluster Autoscaler:
+```
+ $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+
+$ kubectl -n kube-system annotate deployment.apps/cluster-autoscaler cluster-autoscaler.kubernetes.io/safe-to-evict="false"
+
+$ kubectl -n kube-system edit deployment.apps/cluster-autoscaler
+
+$ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.16.5
+
+$ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
+```
+**Down Scaling - **
+
+**Use pricing models for effective utilization.**
 
 ### Key AWS Services
 Cost optimization is supported by the following AWS services and features:
