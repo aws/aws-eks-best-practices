@@ -39,7 +39,7 @@ $ eksctl create cluster --name my-cluster-testscaling --version 1.16 --managed -
 
 To deploy the Cluster Autoscaler:
 ```
- $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
 
 $ kubectl -n kube-system annotate deployment.apps/cluster-autoscaler cluster-autoscaler.kubernetes.io/safe-to-evict="false"
 
@@ -49,7 +49,9 @@ $ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-au
 
 $ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 ```
-**Down Scaling - **
+![Kubernetes Cluster Auto Scaler logs](../images/cluster-autu-scaler.[ng)
+
+**Down Scaling**
 
 **Use pricing models for effective utilization.**
 
