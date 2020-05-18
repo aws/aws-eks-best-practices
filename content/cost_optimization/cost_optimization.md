@@ -15,8 +15,8 @@ In the cloud, there are a number of principles that can help you achieve cost op
 There are four general best practice areas for cost optimization in the cloud:
 
 + Cost-effective resources (Auto Scaling, Down Scaling and Purchasing Options)
-+ Optimizing over time (Right Sizing)
 + Expenditure awareness
++ Optimizing over time (Right Sizing)
 
 As with the other best practices, there are trade-offs to consider. For example, do you want to optimize for speed to market or for cost? In some cases, it’s best to optimize for speed—going to market quickly, shipping new features, or simply meeting a deadline—rather than investing in upfront cost optimization. Design decisions are sometimes guided by haste as opposed to empirical data, as the temptation always exists to overcompensate “just in case” rather than spend time benchmarking for the most cost-optimal deployment. This often leads to drastically over-provisioned and under-optimized deployments. 
 
@@ -49,11 +49,35 @@ $ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-au
 
 $ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 ```
-![Kubernetes Cluster Auto Scaler logs](../images/cluster-autu-scaler.[ng)
+![Kubernetes Cluster Auto Scaler logs](../images/cluster-auto-scaler.png)
 
 **Down Scaling**
 
 **Use pricing models for effective utilization.**
+
+### Expenditure awareness
+**Tagging of Resources**
+
+Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
+
+Adding and Listing tags to an EKS cluster:
+```
+$ aws eks tag-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluster/ekscluster1 --tags team=devops,env=staging,bu=cio,costcenter=1234
+$ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluster/ekscluster1
+{
+    "tags": {
+        "bu": "cio",
+        "env": "staging",
+        "costcenter": "1234",
+        "team": "devops"
+    }
+}
+```
+[After you activate cost allocation tags in the AWS Cost Explorer, AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
+
+**Using third party tools for expenditure awareness**
+
+### Optimizing over time (Right Sizing)
 
 ### Key AWS Services
 Cost optimization is supported by the following AWS services and features:
