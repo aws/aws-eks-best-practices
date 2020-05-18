@@ -2,6 +2,8 @@
 
 A best practices guide for day 2 operations, including operational excellence, security, reliability, performance efficiency, and cost optimization.
 
+Return to [Live Docs](https://aws.github.io/aws-eks-best-practices/).
+
 ## License Summary
 
 The documentation is made available under the Creative Commons Attribution-ShareAlike 4.0 International License. See the LICENSE file.
