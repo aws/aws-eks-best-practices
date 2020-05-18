@@ -110,6 +110,10 @@ NOTES:
     
 Next, navigate to http://localhost:9090 in a web browser.
 $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
+
+Note: If you are using Cloud 9 or have a need to forward it to a different port like 8080, issue the following command
+$ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 8080:9090
+
 ```
 Kube Cost Dashboard -
 ![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
