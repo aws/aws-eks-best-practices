@@ -82,6 +82,36 @@ $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluste
 
 **Using third party tools for expenditure awareness**
 
+There are third party tools like [kubecost](https://kubecost.com/), which can also be deployed on Amazon EKS to get visibility into spend of your Kubernetes cluster.
+
+Deploying kubecost using Helm 3:
+```
+$ curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+$ helm version --short
+v3.2.1+gfe51cd1
+$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/c^C
+$ kubectl create namespace kubecost 
+namespace/kubecost created
+$ helm repo add kubecost https://kubecost.github.io/cost-analyzer/ 
+"kubecost" has been added to your repositories
+
+$ helm install kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="aGRoZEBqc2pzLmNvbQ==xm343yadf98"
+NAME: kubecost
+LAST DEPLOYED: Mon May 18 08:49:05 2020
+NAMESPACE: kubecost
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+--------------------------------------------------Kubecost has been successfully installed. When pods are Ready, you can enable port-forwarding with the following command:
+    
+    kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
+    
+Next, navigate to http://localhost:9090 in a web browser.
+$ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
+```
+
 ### Optimizing over time (Right Sizing)
 
 ### Key AWS Services
