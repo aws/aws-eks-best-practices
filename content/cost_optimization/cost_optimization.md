@@ -111,6 +111,8 @@ NOTES:
 Next, navigate to http://localhost:9090 in a web browser.
 $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
 ```
+Kube Cost Dashboard -
+![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
 
 ### Optimizing over time (Right Sizing)
 
