@@ -1,6 +1,7 @@
 site_name: EKS Best Practices Guide for Security
 repo_name: "aws/aws-eks-best-practices"
 repo_url: "https://github.com/aws/aws-eks-best-practices"
+edit_uri: edit/master/content/security/docs
 theme: 
   name: material
 nav:
