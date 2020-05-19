@@ -139,7 +139,7 @@ Decoding the (JWT) token for IRSA will produce output similar to the example you
   "sub": "system:serviceaccount:default:s3-read-only"
 }
 ```
-This particular token grants the Pod view-only privileges to S3. When the application attempt to read from S3, the token is exchanged for a temporary set of IAM credentials that resembles this: 
+This particular token grants the Pod view-only privileges to S3. When the application attempts to read from S3, the token is exchanged for a temporary set of IAM credentials that resembles this: 
 ```json
 {
     "AssumedRoleUser": {
