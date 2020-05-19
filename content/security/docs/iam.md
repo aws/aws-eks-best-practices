@@ -26,7 +26,7 @@ Each token starts with `k8s-aws-v1.` followed by a base64 encoded string. The st
 ```bash
 https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJNGRILKNSRC2W5QA%2F20200219%2Fus-east-1%2Fsts%2Faws4_request&X-Amz-Date=20200219T155427Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host%3Bx-k8s-aws-id&X-Amz-Signature=220f8f3585e320ddb5e683a5c9a405301ad76546f24f28111fdad09cf648a393
 ```
-The token consists of a pre-signed URL that includes an Amazon credential and signature. For additional see https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html. 
+The token consists of a pre-signed URL that includes an Amazon credential and signature. For additional details see https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html. 
 
 The token has a time to live (TTL) of 15 minutes after which a new token will need to be generated. This is handled automatically when you use a client like `kubectl`, however, if you're using the Kubernetes dashboard, you will need to generate a new token and re-authenticate each time the token expires. 
 
