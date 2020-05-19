@@ -20,7 +20,7 @@ None of these controls, however, prevent pods from different tenants from sharin
   + **Account Limits** to ensure quality of service and fairness when sharing a cluster
   + **Namespace Templates** for secure tenant isolation and self-service namespace initialization
 
-There are 3 primary use cases that can be addressed by soft multi-tenancy.
+There are three primary use cases that can be addressed by soft multi-tenancy.
 
 ### Enterprise Setting
 
