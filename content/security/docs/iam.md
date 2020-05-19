@@ -158,7 +158,7 @@ This particular token grants the Pod view-only privileges to S3. When the applic
 }
 ```  
 
-A mutating webhook that runs as part of the EKS control plane injects the AWS Role Arn and the path to a web identity token file into the Pod as environment variables. These values can also be supplied manually. 
+A mutating webhook that runs as part of the EKS control plane injects the AWS Role ARN and the path to a web identity token file into the Pod as environment variables. These values can also be supplied manually. 
 ```
 AWS_ROLE_ARN=arn:aws:iam::AWS_ACCOUNT_ID:role/IAM_ROLE_NAME
 AWS_WEB_IDENTITY_TOKEN_FILE=/var/run/secrets/eks.amazonaws.com/serviceaccount/token
