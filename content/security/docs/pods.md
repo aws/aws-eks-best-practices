@@ -27,8 +27,8 @@ Write operations:
 
 Auth-related operations:
 
-+ read/write access to the certificationsigningrequests API for TLS bootstrapping
-+ the ability to create tokenreviews and subjectaccessreviews for delegated authentication/authorization checks
++ Read/write access to the CertificateSigningRequest (CSR) API for TLS bootstrapping
++ the ability to create TokenReview and SubjectAccessReview for delegated authentication/authorization checks
 
 EKS uses the [node restriction admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction) which only allows the node to modify a limited set of node attributes and pod objects that are bound to the node.   Nevertheless, an attacker who manages to get access to the host will still be able to glean sensitive information about the environment from the Kubernetes API that could allow them to move laterally within the cluster.
 
