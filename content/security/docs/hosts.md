@@ -3,7 +3,7 @@ Inasmuch as it's important to secure your container images, it's equally importa
 
 ## Recommendations
 
-### Use a OS optimized for running containers
+### Use an OS optimized for running containers
 Conside using Flatcar Linux, Project Atomic, RancherOS, and [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/) (currently in preview), a special purpose OS from AWS designed for running Linux containers.  It includes a reduced attack surface, a disk image that is verified on boot, and enforced permission boundaries using SELinux. 
 
 ### Treat your infrastructure as immutable and automate the replacement of your worker nodes
