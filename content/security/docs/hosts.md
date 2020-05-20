@@ -20,6 +20,11 @@ When running [kube-bench](https://github.com/aquasecurity/kube-bench) against an
 ### Minimize access to worker nodes
 Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.
 
+At present, you cannot use custom AMIs with Managed Node Groups or modify the EC2 launch template for managed workers.  This presents a "chicken and egg problem", i.e. how can you use the SSM agent to remotely access these instances without using SSH to install the SSM agent first? As a temporary stop-gap you can run a privileged [DaemonSet](https://github.com/jicowan/ssm-agent-daemonset) to run a shell script that installs the SSM agent.  
+
+!!! caution
+    Since the DaemonSet is runs as a privileged pod, you should consider deleting it once the SSM agent is installed on your worker nodes. This workaround will no longer be necessary once Managed Node Groups adds support for custom AMIs and EC2 launch templates. 
+
 ### Deploy workers onto private subnets
 By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. 
 
