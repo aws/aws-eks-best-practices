@@ -68,7 +68,7 @@ Quotas are used to define limits on workloads hosted in your cluster. With quota
 
 Overcommitting resources in a shared cluster is often beneficial because it allows you maximize your resources.  However, unbounded access to a cluster can cause resource starvation, which can lead to performance degradation and loss of application availability. If a pod's requests are set too low and the actual resource utilization exceeds the capacity of the node, the node will begin to experience CPU or memory pressure.  When this happens, pods may be restarted and/or evicted from the node.
 
-To prevent this from happening, you should plan to impose quotas on namespaces in a multi-tenant environment to force tenants to specify requests and limits when scheduling their pods on the cluster.  It will also mitigate a potential denial of service by contraining the amount of resources a pod can consume.
+To prevent this from happening, you should plan to impose quotas on namespaces in a multi-tenant environment to force tenants to specify requests and limits when scheduling their pods on the cluster.  It will also mitigate a potential denial of service by constraining the amount of resources a pod can consume.
 
 You can also use quotas to apportion the cluster's resources to align with a tenant's spend.  This is particularly useful in the KaaS scenario.
 
