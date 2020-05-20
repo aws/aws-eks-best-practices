@@ -20,7 +20,7 @@ None of these controls, however, prevent pods from different tenants from sharin
   + **Account Limits** to ensure quality of service and fairness when sharing a cluster
   + **Namespace Templates** for secure tenant isolation and self-service namespace initialization
 
-There are 3 primary use cases that can be addressed by soft multi-tenancy.
+There are three primary use cases that can be addressed by soft multi-tenancy.
 
 ### Enterprise Setting
 
@@ -68,13 +68,13 @@ Quotas are used to define limits on workloads hosted in your cluster. With quota
 
 Overcommitting resources in a shared cluster is often beneficial because it allows you maximize your resources.  However, unbounded access to a cluster can cause resource starvation, which can lead to performance degradation and loss of application availability. If a pod's requests are set too low and the actual resource utilization exceeds the capacity of the node, the node will begin to experience CPU or memory pressure.  When this happens, pods may be restarted and/or evicted from the node.
 
-To prevent this from happening, you should plan to impose quotas on namespaces in a multi-tenant environment to force tenants to specify requests and limits when scheduling their pods on the cluster.  It will also mitigate a potential denial of service by contraining the amount of resources a pod can consume.
+To prevent this from happening, you should plan to impose quotas on namespaces in a multi-tenant environment to force tenants to specify requests and limits when scheduling their pods on the cluster.  It will also mitigate a potential denial of service by constraining the amount of resources a pod can consume.
 
 You can also use quotas to apportion the cluster's resources to align with a tenant's spend.  This is particularly useful in the KaaS scenario.
 
 ### Pod priority and pre-emption
 
-Pod priority and pre-emption can be useful when you want to provide different qualties of services (QoS) for different customers.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the Kubelet will evict the lower-priority pods from customer B to accommodate the higher-priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher quality of service.
+Pod priority and pre-emption can be useful when you want to provide different qualities of services (QoS) for different customers.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the Kubelet will evict the lower-priority pods from customer B to accommodate the higher-priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher quality of service.
 
 ## Mitigating controls
 
@@ -90,7 +90,7 @@ Sandboxing is a technique by which each container is run in its own isolated vir
 
 If you are building your own self-managed Kubernetes cluster on AWS, you may be able to configure alternate container runtimes such as [Kata Containers](https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support).
 
-For additional information about the effort to make Firecracker a supported runtime for EKS, See
+For additional information about the effort to make Firecracker a supported runtime for EKS, see
 https://threadreaderapp.com/thread/1238496944684597248.html. 
 
 ### Open Policy Agent (OPA) & Gatekeeper
@@ -100,7 +100,7 @@ https://threadreaderapp.com/thread/1238496944684597248.html.
 ## Hard multi-tenancy
 Hard multi-tenancy can be implemented by provisioning separate clusters for each tenant.  While this provides very strong isolation between tenants, it has several drawbacks.  
 
-First, when you have many tenants, this approach can quickly become expensive. Not only will you have to pay for the control plane costs for each cluster, you will not be able to share compute resources between clusters.  This will eventually cause fragmentation where subset of your clusters are underutilized while others are overutilized. 
+First, when you have many tenants, this approach can quickly become expensive. Not only will you have to pay for the control plane costs for each cluster, you will not be able to share compute resources between clusters.  This will eventually cause fragmentation where a subset of your clusters are underutilized while others are overutilized. 
 
 Second, you will likely need to buy or build special tooling to manage all of these clusters.  In time, managing hundreds or thousands of clusters may simply become too unweildy.  
 

@@ -1,5 +1,5 @@
 # Encryption at rest
-There are 3 different AWS-native storage options you can use with Kubernetes: [EBS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html), [EFS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEFS.html), and [FSx for Lustre](https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html).  All 3 offer encryption at rest using a service managed key or a customer master key (CMK). For EBS you can use the in-tree storage driver or the [EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver).  Both include parameters for encrypting volumes and supplying a CMK.  For EFS, you can use the [EFS CSI driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver), however, unlike EBS, the EFS CSI driver does not support dynamic provisioning.  If you want to use EFS with EKS, you will need to provision and configure at-rest encryption for the file system prior to creating a PV. For further information about EFS file encryption, please refer to [Encrypting Data at Rest](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html). Besides offering at-rest encryption, EFS and FSx for Lustre include an option for encrypting data in transit.  FSx for Luster does this by default.  For EFS, you can add transport encryption by adding the `tls` parameter to `mountOptions` in your PV as in this example: 
+There are three different AWS-native storage options you can use with Kubernetes: [EBS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html), [EFS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEFS.html), and [FSx for Lustre](https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html).  All three offer encryption at rest using a service managed key or a customer master key (CMK). For EBS you can use the in-tree storage driver or the [EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver).  Both include parameters for encrypting volumes and supplying a CMK.  For EFS, you can use the [EFS CSI driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver), however, unlike EBS, the EFS CSI driver does not support dynamic provisioning.  If you want to use EFS with EKS, you will need to provision and configure at-rest encryption for the file system prior to creating a PV. For further information about EFS file encryption, please refer to [Encrypting Data at Rest](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html). Besides offering at-rest encryption, EFS and FSx for Lustre include an option for encrypting data in transit.  FSx for Luster does this by default.  For EFS, you can add transport encryption by adding the `tls` parameter to `mountOptions` in your PV as in this example: 
 
 ```yaml
 apiVersion: v1
@@ -43,7 +43,7 @@ Encrypting data at rest is considered a best practice.  If you're unsure whether
 Configure KMS to automatically rotate you CMKs.  This will rotate your keys once a year while saving old keys indefinitely so that your data can still be decrypted.  For additional information see [Rotating customer master keys](https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
 
 ### Use EFS access points to simplify access to shared datasets
-If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today, if you want to use access point (AP) you'll need to reference the AP in the PV's `volumeHandle` parameter.
+If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today, if you want to use an access point (AP) you'll need to reference the AP in the PV's `volumeHandle` parameter.
 
 # Secrets management
 Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the `podSpec`.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see https://kubernetes.io/docs/concepts/configuration/secret/. 
@@ -55,7 +55,7 @@ Kubernetes secrets are used to store sensitive information, such as user certifi
     The node authorizer allows the Kubelet to read all of the secrets mounted to the node. 
 
 ## Recommendations
-### Use AWS KMS for envelop encryption of Kubernetes secrets
+### Use AWS KMS for envelope encryption of Kubernetes secrets
 This allows you to encrypt your secrets with a unique data encryption key (DEK). The DEK is then encypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. 
 For additional details, see [using EKS encryption provider support for defense in depth](https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/)
 
@@ -85,7 +85,7 @@ Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets,
 If you have secrets that cannot be shared between applications in a namespace, create a separate namespace for those applications.
 
 ### Use volume mounts instead of environment variables
-The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
+The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instantiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
 
 ### Use an external secrets provider
 There are several viable alternatives to using Kubernetes secrets, include Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and Hashicorp's [Vault](

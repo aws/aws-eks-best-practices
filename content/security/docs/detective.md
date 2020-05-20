@@ -32,37 +32,37 @@ Kubernetes audit logs include two annotations that indicate whether or not a req
 Create an alarm to automatically alert you where there is an increase in 403 Forbidden and 401 Unauthorized responses, and then use attributes like `host`, `sourceIPs`, and `k8s_user.username` to find out where those requests are coming from.
   
 ### Analyze logs with Log Insights
-Use CloudWatch Log Insights to monitor changes to RBAC objects, e.g. roles, rolebindings, clusterroles, and clusterrolebindings.  A few sample queries appear below: 
+Use CloudWatch Log Insights to monitor changes to RBAC objects, e.g. Roles, RoleBindings, ClusterRoles, and ClusterRoleBindings.  A few sample queries appear below: 
 
-Lists create, update, delete operations to roles:
+Lists create, update, delete operations to Roles:
 ```
 fields @timestamp, @message
 | sort @timestamp desc
 | limit 100
 | filter objectRef.resource="roles" and verb in ["create", "update", "patch", "delete"]
 ```
-Lists create, update, delete operations to rolebindings:
+Lists create, update, delete operations to RoleBindings:
 ```
 fields @timestamp, @message
 | sort @timestamp desc
 | limit 100
 | filter objectRef.resource="rolebindings" and verb in ["create", "update", "patch", "delete"]
 ```
-Lists create, update, delete operations to clusterroles:
+Lists create, update, delete operations to ClusterRoles:
 ```
 fields @timestamp, @message
 | sort @timestamp desc
 | limit 100
 | filter objectRef.resource="clusterroles" and verb in ["create", "update", "patch", "delete"]
 ```
-Lists create, update, delete operations to clusterrolebindings:
+Lists create, update, delete operations to ClusterRoleBindings:
 ```
 fields @timestamp, @message
 | sort @timestamp desc
 | limit 100
 | filter objectRef.resource="clusterrolebindings" and verb in ["create", "update", "patch", "delete"]
 ```
-Plots unauthorized read operations against secrets:
+Plots unauthorized read operations against Secrets:
 ```
 fields @timestamp, @message
 | sort @timestamp desc

@@ -3,11 +3,11 @@ Inasmuch as it's important to secure your container images, it's equally importa
 
 ## Recommendations
 
-### Use a OS optimized for running containers
+### Use an OS optimized for running containers
 Conside using Flatcar Linux, Project Atomic, RancherOS, and [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/) (currently in preview), a special purpose OS from AWS designed for running Linux containers.  It includes a reduced attack surface, a disk image that is verified on boot, and enforced permission boundaries using SELinux. 
 
 ### Treat your infrastructure as immutable and automate the replacement of your worker nodes
-Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentally cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) utilizes the second approach and will present an option to upgrade workers when a new AMI becomes available. `eksctl` also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is strongly recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded. 
+Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentially cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) uses the second approach and will present an option to upgrade workers when a new AMI becomes available. `eksctl` also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is strongly recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded. 
 
 With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your task to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod. 
 
@@ -15,7 +15,7 @@ With EKS Fargate, AWS will automatically update the underlying infrastructure as
 When running [kube-bench](https://github.com/aquasecurity/kube-bench) against an EKS cluster, follow these instructions from Aqua Security, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. 
 
 !!! caution
-    false positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on [GitHub](https://github.com/aquasecurity/kube-bench/issues/571). 
+    False positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on [GitHub](https://github.com/aquasecurity/kube-bench/issues/571). 
 
 ### Minimize access to worker nodes
 Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.
@@ -28,8 +28,8 @@ At present, you cannot use custom AMIs with Managed Node Groups or modify the EC
 ### Deploy workers onto private subnets
 By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  Beginning April 22, 2020, the assignment of public IP addresses to nodes in a managed node groups will be controlled by the subnet they are deployed onto.  Prior to this, nodes in a Managed Node Group were automatically assigned a public IP. If you choose to deploy your worker nodes on to public subnets, implement restrictive AWS security group rules to limit their exposure. 
 
-### Run Amazon Inspector to assesses hosts for exposure, vulnerabilities, and deviations from best practices  
-[Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using set of rules to assess alignment with best practices. 
+### Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices  
+[Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using a set of rules to assess alignment with best practices. 
 
 !!! tip
     At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.
