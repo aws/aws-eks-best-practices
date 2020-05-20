@@ -38,7 +38,7 @@ Policy can be thought of as a set of rules for governing behaviors, i.e. behavio
 
 ### Use Open Policy Agent (OPA) or Alcide's sKan to detect policy violations before deployment
 
-[OPA](https://www.openpolicyagent.org/) is open source policy engine that's part of CNCF. It's used for making policy decisions and can be run a variety of different ways, e.g. as a language library or a service. OPA policies are written in Domain Specific Languagee (DSL) called Rego. While it is often run as part of a Kubernetes Dynamic Admission Controller, OPA can also be incorporated into your CI/CD pipeline. This allows developers to get feedback about their configuration earlier in the release cycle which can subsequently help them resolve issues before they get to production.  
+[OPA](https://www.openpolicyagent.org/) is open source policy engine that's part of CNCF. It's used for making policy decisions and can be run a variety of different ways, e.g. as a language library or a service. OPA policies are written in a Domain Specific Language (DSL) called Rego. While it is often run as part of a Kubernetes Dynamic Admission Controller, OPA can also be incorporated into your CI/CD pipeline. This allows developers to get feedback about their configuration earlier in the release cycle which can subsequently help them resolve issues before they get to production.  
 
 + [Conftest](https://github.com/open-policy-agent/conftest) is built on top of OPA and it provides a developer focused experience for testing Kubernetes configuration. 
 + [sKan](https://github.com/alcideio/skan) is powered by OPA and is "tailor made" to check whether their Kubernetes configuration files are compliant with security and operational best practices. 
