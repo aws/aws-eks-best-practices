@@ -34,7 +34,7 @@ By cordoning the impacted worker node, you're informing the scheduler to avoid s
     This guidance is not applicable to Fargate where each Fargate pod run in its own sandboxed environment.  Instead of cordoning, sequester the affected Fargate pods by applying a network policy that denies all ingress and egress traffic. 
 
 ### Enable termination protection on impacted worker node
-An attacker may attempt to erase their misdeeds by terminating affected node.  Enabling [termination protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination) can prevent this from happening.  [Instance scale-in protection](https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html#instance-protection) will protect the node from a scale-in event. 
+An attacker may attempt to erase their misdeeds by terminating an affected node.  Enabling [termination protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination) can prevent this from happening.  [Instance scale-in protection](https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html#instance-protection) will protect the node from a scale-in event. 
 
 !!! warning 
     You cannot enable termination protection on a Spot instance. 
