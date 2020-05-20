@@ -57,7 +57,7 @@ spec:
 ```
 
 ### Create a rule to allow DNS queries 
-Once you have the defaul deny all rule in place, you can begin layering on additional rules, such as a global rule that allows pods to query CoreDNS for name resolution. You begin by labeling the namespace: 
+Once you have the default deny all rule in place, you can begin layering on additional rules, such as a global rule that allows pods to query CoreDNS for name resolution. You begin by labeling the namespace: 
 
 ```
 kubectl label namespace kube-system name=kube-system
