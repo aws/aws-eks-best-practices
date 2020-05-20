@@ -39,7 +39,7 @@ An attacker may attempt to erase their misdeeds by terminating an affected node.
 !!! warning 
     You cannot enable termination protection on a Spot instance. 
 
-### Label offending the Pod/Node with a label indicating that it is part of an active investigation
+### Label the offending Pod/Node with a label indicating that it is part of an active investigation
 This will serve as a warning to cluster administrators not to tamper with the affected Pods/Nodes until the investigation is complete. 
 
 ### Capture volatile artifacts on the worker node
