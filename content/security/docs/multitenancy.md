@@ -11,7 +11,8 @@ With soft multi-tenancy, you use native Kubernetes constructs, e.g. namespaces, 
 
 None of these controls, however, prevent pods from different tenants from sharing a node. If stronger isolation is required, you can use a node selector, anti-affinity rules, and/or taints and tolerations to force pods from different tenants to be scheduled onto separate nodes; often referred to as _sole tenant nodes_. This could get rather complicated, and cost prohibitive, in an environment with many tenants. 
 
-!!! attention Soft multi-tenancy implemented with Namespaces does not allow you to provide tenants with a filtered list of Namespaces because Namespaces are a globaly scoped Type. If a tenant has the ability to view a particular Namespace, it can view all Namespaces within the cluster. 
+!!! attention
+    Soft multi-tenancy implemented with Namespaces does not allow you to provide tenants with a filtered list of Namespaces because Namespaces are a globaly scoped Type. If a tenant has the ability to view a particular Namespace, it can view all Namespaces within the cluster. 
 
 [Kiosk](https://github.com/kiosk-sh/kiosk) is an open source project that can aid in the implementation of soft multi-tenancy.  It is implemented as a series of CRDs and controllers that provide the following capabilities: 
 
