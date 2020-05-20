@@ -15,7 +15,7 @@ With EKS Fargate, AWS will automatically update the underlying infrastructure as
 When running [kube-bench](https://github.com/aquasecurity/kube-bench) against an EKS cluster, follow these instructions from Aqua Security, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. 
 
 !!! caution
-    false positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on [GitHub](https://github.com/aquasecurity/kube-bench/issues/571). 
+    False positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on [GitHub](https://github.com/aquasecurity/kube-bench/issues/571). 
 
 ### Minimize access to worker nodes
 Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.
