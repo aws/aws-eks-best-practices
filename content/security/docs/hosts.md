@@ -26,10 +26,7 @@ At present, you cannot use custom AMIs with Managed Node Groups or modify the EC
     Since the DaemonSet is runs as a privileged pod, you should consider deleting it once the SSM agent is installed on your worker nodes. This workaround will no longer be necessary once Managed Node Groups adds support for custom AMIs and EC2 launch templates. 
 
 ### Deploy workers onto private subnets
-By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. 
-
-!!! info 
-    Starting 22,2020, EKS will be updating the behavior of managed nodes groups to no longer assign public IPs to nodes. After this date, public IP assignment must be controlled via the subnet settings where the node is instantiated.
+By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  Beginning April 22, 2020, the assignment of public IP addresses to nodes in a managed node groups will be controlled by the subnet they are deployed onto.  Prior to this, nodes in a Managed Node Group were automatically assigned a public IP. If you choose to deploy your worker nodes on to public subnets, implement restrictive AWS security group rules to limit their exposure. 
 
 ### Run Amazon Inspector to assesses hosts for exposure, vulnerabilities, and deviations from best practices  
 [Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using set of rules to assess alignment with best practices. 
