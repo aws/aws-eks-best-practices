@@ -37,7 +37,7 @@ $ eksctl version
 $ eksctl create cluster --name my-cluster-testscaling --version 1.16 --managed --asg-access
 ```
 
-To deploy the Cluster Autoscaler:
+***To deploy the Cluster Autoscaler:***
 ```
 $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
 
@@ -52,6 +52,42 @@ $ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 Cluster Autoscaler logs -
 ![Kubernetes Cluster Auto Scaler logs](../images/cluster-auto-scaler.png)
 
+***Horizontal Pod Autoscaling***
+
+Setup Metrics server:
+```
+
+$ kubectl create namespace metrics
+$ helm install metrics-server \
+    stable/metrics-server \
+    --version 2.9.0 \
+    --namespace metrics
+
+$ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"
+$ kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
+```
+Now you can deploy apps which can leverage HPA. Follow https://eksworkshop.com/beginner/080_scaling/test_hpa/ to deploy a sample app, perform a simple load test to test the autoscaling of pods.
+```
+kubectl run php-apache --image=us.gcr.io/k8s-artifacts-prod/hpa-example --requests=cpu=200m --expose --port=80
+```
+HPA scales up when CPU exceeds 50% of the allocated container resource, with a minimum of one pod and a maximum of ten pods.
+```
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+kubectl get hpa
+```
+You can then load test the app, and simulate pod autoscaling. 
+
+The combination of Cluster Auto Scaler for the Kubernetes worker nodes and Horizontal Pod Autoscaler for the pods, will ensure that the provisioned resources will be as close to the actual utilization as possible.
+
+![Kubernetes Cluster AutoScaler and HPA](../images/ClusterAS-HPA.png)
+(Image source: https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)
+
+Amazon EKS with Fargate
+
+WIP - 
+
+https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html
+https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/
 
 **Down Scaling**
 
@@ -79,6 +115,14 @@ $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluste
 }
 ```
 [After you activate cost allocation tags in the AWS Cost Explorer, AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
+
+**Using AWS Trusted Advisor**
+
+AWS Trusted Advisor offers a rich set of best practice checks and recommendations across five categories: cost optimization; security; fault tolerance; performance; and service limits.
+
+Under Cost Optimization, it helps in eliminating unused and idle resources or making commitments to reserved capacity. The key action items that will help Amazon EKS with EC2 will be around low utilsed EC2 instances, unassociated Elastic IP addresses, Idle Load Balancers, underutilized EBS volumes among other things. The complete list of checks are provided at https://aws.amazon.com/premiumsupport/technology/trusted-advisor/best-practice-checklist/. 
+
+The Trusted Advisor also provides Savings Plan and Reserved Instances recommendations for EC2 instances and Fargate - which allows you to commit to a consistent usage amount in exchange for discounted rates.
 
 **Using third party tools for expenditure awareness**
 
@@ -119,6 +163,10 @@ Kube Cost Dashboard -
 ![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
 
 ### Optimizing over time (Right Sizing)
+
+Right Sizing as per the AWS Well-Architected Framework, is using “… using the lowest cost resource that still meets the technical specifications of a specific workload”.
+
+
 
 ### Key AWS Services
 Cost optimization is supported by the following AWS services and features:
