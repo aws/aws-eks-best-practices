@@ -85,7 +85,7 @@ Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets,
 If you have secrets that cannot be shared between applications in a namespace, create a separate namespace for those applications.
 
 ### Use volume mounts instead of environment variables
-The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instatiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
+The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instantiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
 
 ### Use an external secrets provider
 There are several viable alternatives to using Kubernetes secrets, include Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and Hashicorp's [Vault](
