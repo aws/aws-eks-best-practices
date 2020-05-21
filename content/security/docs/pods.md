@@ -174,6 +174,8 @@ spec:
 
 This policy prevents pods from running as privileged or escalating privileges.  It also restricts the types of volumes that can be mounted and the root supplemental groups that can be added. 
 
+Another, albeit similar, approach is to start with policy that locks everything down and incrementally add exceptions for applications that need looser restrictions such as logging agents which need the ability to mount a host path.  You can learn more about this in a recent post on the [Square engineering blog](https://developer.squareup.com/blog/kubernetes-pod-security-policies/).
+
 !!! attention 
     Fargate is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or configure your pod to use hostNetwork or hostPort.
 
