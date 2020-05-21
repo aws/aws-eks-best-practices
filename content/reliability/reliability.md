@@ -141,7 +141,7 @@ Here is a helpful flowchart to determine when to create node groups:
 
 ---
 
-> When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
+> When autosclaing, always know the EC2 limits in your account and if the limits need to be increased request a [limit increase](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html).
 
 ---
 
@@ -324,7 +324,7 @@ This tells Kubernetes to halt the eviction process until three or more replicas 
 ## Recommendations
 ### Protect critical workloads
 Configure `PodDisruptionBudget` for critical services so a voluntary change doesn't impact its availability. 
-### Chaos Engineering 
+### Practice chaos engineering 
 > Chaos Engineering is discipline of experimenting on a distributed system in order to build confidence in the system’s capability to withstand turbulent conditions in production.
 
 [Kubernetes is declarative system](https://medium.com/@dominik.tornow/the-mechanics-of-kubernetes-ac8112eaa302) where user defines the *desired state* and the system works towards transitioning from the current state to the desired state. This means Kubernetes always knows the *desired state* and if the system deviates, Kubernetes can (or at least attempt to) restore state. For example, if a worker node becomes unavailable, Kubernetes will schedule the Pods on another worker node. Similarly, if a `replica` crashes, the [Deployment Contoller](https://kubernetes.io/docs/concepts/architecture/controller/#design) will create a new `replica`. In this way, Kubernetes controllers automatically fix failures. 
@@ -421,7 +421,8 @@ Kubernetes documentation defines CPU as a compressible resource while memory is 
 Similarly, Pods are guaranteed the amount of memory they request and they will get killed if they exceed their memory request, they could be killed if another Pod needs memory. If they exceed their limit a process that is using the most amount of memory, inside one of the pod’s containers, will be killed by the kernel.
 
 ## Recommendations
-### Use https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+### Use Pod priority
+[Priority](https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass) indicates the importance of a Pod relative to other Pods. If a Pod cannot be scheduled, the scheduler tries to preempt (evict) lower priority Pods to make scheduling of the pending Pod possible.
 
 ### Implement QoS
 For critical applications, consider defining `requests`=`limits` for the container in the Pod. This will ensure that the container will not be killed if another Pod requests resources.  
