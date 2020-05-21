@@ -24,7 +24,7 @@ The output should resemble this:
 ```
 Each token starts with `k8s-aws-v1.` followed by a base64 encoded string. The string, when decoded, should resemble this: 
 ```bash
-https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJNGRILKNSRC2W5QA%2F20200219%2Fus-east-1%2Fsts%2Faws4_request&X-Amz-Date=20200219T155427Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host%3Bx-k8s-aws-id&X-Amz-Signature=220f8f3585e320ddb5e683a5c9a405301ad76546f24f28111fdad09cf648a393
+https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJPFRILKNSRC2W5QA%2F20200219%2Fus-east-1%2Fsts%2Faws4_request&X-Amz-Date=20200219T155427Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host%3Bx-k8s-aws-id&X-Amz-Signature=220f8f3285e320ddb5e683a5c9a405301ad76546f24f28111fdad09cf648a393
 ```
 The token consists of a pre-signed URL that includes an Amazon credential and signature. For additional details see https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html. 
 
@@ -123,7 +123,7 @@ Decoding the (JWT) token for IRSA will produce output similar to the example you
   ],
   "exp": 1582306514,
   "iat": 1582220114,
-  "iss": "https://oidc.eks.us-west-2.amazonaws.com/id/D43CF17C27A865987144EA99A26FB128",
+  "iss": "https://oidc.eks.us-west-2.amazonaws.com/id/D43CF17C27A865933144EA99A26FB128",
   "kubernetes.io": {
     "namespace": "default",
     "pod": {
@@ -144,10 +144,10 @@ This particular token grants the Pod view-only privileges to S3. When the applic
 {
     "AssumedRoleUser": {
         "AssumedRoleId": "AROA36C6WWEJULFUYMPB6:abc", 
-        "Arn": "arn:aws:sts::820537372947:assumed-role/eksctl-winterfell-addon-iamserviceaccount-de-Role1-1D61LT75JH3MB/abc"
+        "Arn": "arn:aws:sts::123456789012:assumed-role/eksctl-winterfell-addon-iamserviceaccount-de-Role1-1D61LT75JH3MB/abc"
     }, 
     "Audience": "sts.amazonaws.com", 
-    "Provider": "arn:aws:iam::820537372947:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/D43CF17C27A865987144EA99A26FB128", 
+    "Provider": "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/D43CF17C27A865933144EA99A26FB128", 
     "SubjectFromWebIdentityToken": "system:serviceaccount:default:s3-read-only", 
     "Credentials": {
         "SecretAccessKey": "ORJ+8Adk+wW+nU8FETq7+mOqeA8Z6jlPihnV8hX1", 
