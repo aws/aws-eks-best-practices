@@ -6,13 +6,13 @@ The cost optimization best practices includes the continual process of refinemen
 
 In the cloud, there are a number of principles that can help you achieve cost optimization of your microservices:
 
-+ Ensure that microservices are independent of specific infrastructure types for running your containers — so that microservices can scale out independently of EC2 Instance types. There can be exceptions like workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or if specific type of EC2 Instance types.
++ Ensure that microservices are independent of specific infrastructure types for running your containers — so that microservices can scale out independently of EC2 Instance types. This is not applicable to AWS Fargate for Amazon EKS. For Amazon EKS with EC2 worker nodes - there can be exceptions like workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or if specific type of EC2 Instance type is required due to the nature of the workload.
 + Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics. like CPU and memory, using [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html). 
 + Take advantage of the different purchasing options that are available in AWS, e.g. On-Demand, Spot and Savings Plan.
 
 # Definition
 
-There are four general best practice areas for cost optimization in the cloud:
+There are three general best practice areas for cost optimization in the cloud:
 
 + Cost-effective resources (Auto Scaling, Down Scaling and Purchasing Options)
 + Expenditure awareness
@@ -25,7 +25,7 @@ As with the other best practices, there are trade-offs to consider. For example,
 ### Cost-effective resources 
 **Auto Scaling - Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs.**
 
-Amazon EKS managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters. All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. Amazon EKS tags managed node group resources so that they are configured to use the Kubernetes Cluster Autoscaler. 
+Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters. All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. Amazon EKS tags managed node group resources so that they are configured to use the Kubernetes Cluster Autoscaler. 
 
 The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. 
 
