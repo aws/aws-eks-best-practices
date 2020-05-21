@@ -30,7 +30,8 @@ Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle 
 The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. 
 
 ***To create a Kubernetes cluster 1.16 with a single managed group that spans multiple Availability Zones and deploying Kubernetes Cluster AutoScaler on Amazon EKS:***
-***Create a EKS clusterwith one nodegroup containing 2 m5.large nodes**
+
+***Create a EKS cluster with one nodegroup containing 2 m5.large nodes***
 ```
 $ eksctl version
 0.19.0
