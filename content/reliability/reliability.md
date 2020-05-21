@@ -47,9 +47,10 @@ with your cluster and set environment variables. At the time of writing, the lat
 
 If you do not have enough IP addresses available in the subnet that the CNI uses, your pods will not an IP address, and the pods will remain in pending state until an IP address is released from use.
 
-[CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html) is a tool that can help you monitor number of IP addresses that are available and in use. 
+## Recommendations
+Consider using [CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html), which is a tool that can help you monitor number of IP addresses that are available and in use. 
 
-### Scaling Kubernetes applications
+## Scaling Kubernetes data plane
 When it comes to scaling your applications in Kubernetes, you need to think about two components in your application architecture, first your Kubernetes Worker Nodes and the application pods themselves.
 
 There are two common ways to scale worker nodes in EKS. 
@@ -59,7 +60,7 @@ There are two common ways to scale worker nodes in EKS.
 
 
 ## Scaling Kubernetes worker nodes
-Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your data-plane, aka worker nodes, when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate it.
+Cluster Autoscaler is the preferred way to automatically scale EC2 worker nodes in EKS even though it performs reactive scaling. Cluster Autoscaler will adjust the size of your data plane, aka worker nodes, when there are pods that cannot be run because the cluster has insufficient resources and adding another worker node would help. On the other hand, if a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler will terminate it.
 
 Cluster Autoscaler uses EC2 Auto Scaling groups (ASG) to adjust the size of the cluster. Typically all worker nodes are part of an auto scaling group. You may have multiple ASGs within a cluster. For example, if you co-locate two distinct workloads in your cluster you may want to use two different types of EC2 instances, each suited for its workload. In this case you would have two auto scaling groups. 
 
@@ -348,11 +349,11 @@ Configure `PodDisruptionBudget` for critical applications so a voluntary change 
 Consider testing the resiliency of your cluster by using a tool that *breaks things on purpose* to detect failures. 
 
 ## Resources
-[Gremlin](https://www.gremlin.com)
-[Chaos Mesh](https://github.com/pingcap/chaos-mesh)
-[PowerfulSeal](https://github.com/bloomberg/powerfulseal)
-[kube-monkey](https://github.com/asobti/kube-monkey)
-[chaoskube](https://github.com/linki/chaoskube)
+* [Gremlin](https://www.gremlin.com)
+* [Chaos Mesh](https://github.com/pingcap/chaos-mesh)
+* [PowerfulSeal](https://github.com/bloomberg/powerfulseal)
+* [kube-monkey](https://github.com/asobti/kube-monkey)
+* [chaoskube](https://github.com/linki/chaoskube)
 
 
 ## Observability 
