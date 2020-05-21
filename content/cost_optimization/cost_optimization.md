@@ -5,9 +5,8 @@ The cost optimization best practices includes the continual process of refinemen
 # Design Principles
 
 In the cloud, there are a number of principles that can help you achieve cost optimization of your microservices:
-
-+ Ensure that microservices are independent of specific infrastructure types for running your containers — so that microservices can scale out independently of EC2 Instance types. This is not applicable to AWS Fargate for Amazon EKS. For Amazon EKS with EC2 worker nodes - there can be exceptions like workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or if specific type of EC2 Instance type is required due to the nature of the workload.
-+ Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics. like CPU and memory, using [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html). 
++ Ensure that workloads running on Amazon EKS are independent of specific infrastructure types for running your containers. While using Amazon EKS with EC2, there can be exceptions when we have have workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or specific type of EC2 Instance types are required due to the nature of the workload.
++ Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics. like CPU and memory, using services like [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) or third party tools. 
 + Take advantage of the different purchasing options that are available in AWS, e.g. On-Demand, Spot and Savings Plan.
 
 # Definition
@@ -115,7 +114,7 @@ $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluste
     }
 }
 ```
-[After you activate cost allocation tags in the AWS Cost Explorer, AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
+After you activate cost allocation tags in the [AWS Cost Explorer](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html), AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.
 
 **Using AWS Trusted Advisor**
 
@@ -167,6 +166,14 @@ Kube Cost Dashboard -
 
 Right Sizing as per the AWS Well-Architected Framework, is using “… using the lowest cost resource that still meets the technical specifications of a specific workload”.
 
+In Kubernetes, this means setting the right CPU and Memory for Amazon EKS on AWS Fargate and selecting the right EC2 Instance type, for running containers on POds.
+
+***Amazon EKS on AWS Fargate***
+When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod. 
+
+The list of vCPU and memory combinations that are available for pods running on Fargate are listed in the [Amazon EKS User Guide](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). If you do not specify a vCPU and memory combination, then the smallest available combination is used (.25 vCPU and 0.5 GB memory). 
+
+***Amazon EKS on EC2***
 
 
 ### Key AWS Services
