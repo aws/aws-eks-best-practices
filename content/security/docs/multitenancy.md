@@ -57,7 +57,8 @@ By default, all pods in a Kubernetes cluster are allowed to communicate with eac
 
 Network policies restrict communication between pods using labels or IP address ranges. In a multi-tenant environment where strict network isolation between tenants is required, we recommend starting with a default rule that denies communication between pods, and another rule that allows all pods to query the DNS server for name resolution. With that in place, you can begin adding more permissive rules that allow for communication within a namespace. This can be further refined as required. 
 
-!!! attention Network policies are necessary but not sufficient. The enforcement of network policies requires a policy engine such as Calico or Cilium.
+!!! attention 
+    Network policies are necessary but not sufficient. The enforcement of network policies requires a policy engine such as Calico or Cilium.
 
 ### Role-based access control (RBAC)
 
