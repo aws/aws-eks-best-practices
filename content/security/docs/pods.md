@@ -217,6 +217,11 @@ _Limits_ are the maximum amount of CPU and memory resources that a container is 
 
 Kubernetes uses three Quality of Service (QoS) classes to prioritize the workloads running on a node.  These include: guaranteed, burstable, and best-effort.  If limits and requests are not set, the pod is configured as best-effort (lowest priority).  Burstable pods are the first to get killed when there is insufficient memory.  If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values and not equal to 0, the pod is configured as guaranteed (highest priority).  Guaranteed pods will not be killed unless they exceed their configured memory limits. If the limits and requests are configured with different values and not equal to 0, or one container within the pod sets limits and the others don’t or have limits set for different resources, the pods are configured as burstable (medium priority). These pods have some resource guarantees, but can be killed once they exceed their requested memory. Be aware that requests doesn’t actually affect the `memory_limit_in_bytes` value of the cgroup; the cgroup limit is set to the amount of memory available on the host. Nevertheless, setting the requests value too low could cause the pod to be targeted for termination by the kubelet if the node undergoes memory pressure. 
 
+| Class | Priority | Condition | Kill Condition |
+| :-- | :-- | :-- | :-- |
+| Guaranteed | highest | limit = request != 0  | Only exceed memory limits |
+| Burstable  | medium  | limit != request != 0 | Can be killed if exceed request memory |
+| Best-Effort| lowest  | limit & request Not Set | First to get killed when there's insufficient menory |
 
 For additional information about resource QoS, please refer to the [Kubernetes documentation](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md).
 
