@@ -82,7 +82,7 @@ The combination of Cluster Auto Scaler for the Kubernetes worker nodes and Horiz
 ![Kubernetes Cluster AutoScaler and HPA](../images/ClusterAS-HPA.png)
 (Image source: https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)
 
-Amazon EKS with Fargate
+***Autoscaling of Pods on Amazon EKS with Fargate***
 
 WIP - 
 
@@ -91,11 +91,45 @@ https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-m
 
 **Down Scaling**
 
+As part of controlling costs, apart from Auto-scaling of the Kubernetes cluster nodes and pods, Down-Scaling of resources when not in-use can also a huge impact on the overall costs. There are tools like [kube-downscaler](https://github.com/hjacobs/kube-downscaler), which can be used to Scale down Kubernetes deployments after work hours or during set periods of time. 
+
 
 **Use pricing models for effective utilization.**
 
+The pricing details for Amazon EKS are given in the [pricing page](https://aws.amazon.com/eks/pricing/). There is a common control plane cost for both Amazon EKS on Fargate and EC2. 
+
+***Amazon EKS on Fargate:***
+
+If you are using AWS Fargate, pricing is calculated based on the vCPU and memory resources used from the time you start to download your container image until the Amazon EKS pod terminates, rounded up to the nearest second. A minimum charge of 1 minute applies. See detailed pricing information on the [AWS Fargate pricing page](https://aws.amazon.com/fargate/pricing/).
+
+***Amazon EKS on EC2:***
+
+Amazon EC2 provides a wide selection of [instance types](https://aws.amazon.com/ec2/instance-types/) optimized to fit different use cases. Instance types comprise varying combinations of CPU, memory, storage, and networking capacity and give you the flexibility to choose the appropriate mix of resources for your applications. Each instance type includes one or more instance sizes, allowing you to scale your resources to the requirements of your target workload.
+
+One of the key decision parameters apart from number of cpus, memory, processor family type related to the instance type is the [number of Elastic network interfaces(ENI's)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html), which in-turn has a bearing on the maximum number of pods on that EC2 Instance. The list of [max pods per EC2 Instance type](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) is maintained in a github.
+
+****On-Demand EC2 Instances:****
+
+With [On-Demand instances](https://aws.amazon.com/ec2/pricing/), you pay for compute capacity by the hour or the second depending on which instances you run. No longer-term commitments or upfront payments are needed. 
+
+Amazon EC2 A1 instances deliver significant cost savings and are ideally suited for scale-out and Arm-based workloads that are supported by the extensive Arm ecosystem. You can now use Amazon Elastic Container Service for Kubernetes (EKS) to run containers on Amazon EC2 A1 Instances as part of a [public developer preview](https://github.com/aws/containers-roadmap/tree/master/preview-programs/eks-arm-preview). 
+
+You can use the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.com/index.html) or the new [pricing calculator](https://calculator.aws/) to get pricing for the On-Demand Ec2 instances for the EKS workder nodes.
+
+****Spot EC2 Instances:****
+
+Amazon [EC2 Spot instances](https://aws.amazon.com/ec2/pricing/) allow you to request spare Amazon EC2 computing capacity for up to 90% off the On-Demand price.
 
 
+****Savings Plan:****
+
+Savings Plans, a new and flexible discount model that provides you with the same discounts as Reserved Instances, in exchange for a commitment to use a specific amount (measured in dollars per hour) of compute power over a one or three year period. The details are covered in the [Savings Plan launch page](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/).The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EKS clusters. For example, you can shift from C4 to C5 instances, move a workload from Dublin to London benefiting from Savings Plan prices along the way, without having to do anything.
+
+The AWS Cost Explorer will help you to choose a Savings Plan, and will guide you through the purchase process.
+![Compute Savings Plan](../images/Compute-savings-plan.png)
+
+
+****Note, that the above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
 
 ### Expenditure awareness
 **Tagging of Resources**
@@ -130,10 +164,11 @@ The Trusted Advisor also provides Savings Plan and Reserved Instances recommenda
 ***Kubernetes dashboard***
 Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes ckluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html). 
 
-Kubernetes Dashboard -
+Kubernetes Dashboard 
+
 ![Kubernetes Cluster Auto Scaler logs](../images/kubernetes-dashboard.png)
 
-***kubectl top command**
+***kubectl top command***
 
 Viewing resource usage metrics with kubectl top and kubectl describe commands. kubectl top will show current CPU and memory usage for the pods or nodes across your cluster, or for a specific pod or node. The kubectl describe command will give more detailed information about a specific node or a pod.
 ```
@@ -142,6 +177,11 @@ $ kubectl top nodes
 $ kubectl describe node <node>
 $ kubectl describe pod <pod>
 ```
+**Using Container Insights on Amazon EKS and Kubernetess**
+
+Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Kubernetes Service on EC2, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network. 
+
+The installation of insights is given in the [documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html).
 
 **Using third party tools for expenditure awareness**
 
@@ -213,6 +253,21 @@ Screenshots from a sample reports from this tool:
 ![Cluster level data](../images/kube-resource-report2.png)
 ![Pod level data](../images/kube-resource-report3.png)
 
+**Other tools**
+
+***Kube janitor***
+
+[Kubernetes Janitor](https://github.com/hjacobs/kube-janitor) cleans up (deletes) Kubernetes resources on (1) a configured TTL (time to live) or (2) a configured expiry date (absolute timestamp). 
+The resources can also include unused Persistent Volume Claims (PVC) on Amazon EBS, which can result in substantial savings over time.
+
+***Right Size Guide***
+
+The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
+
+***Fargate count***
+
+[Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of ECS tasks and EKS pods they have deployed on Fargate in a specific region of a specific account.
+
 
 ### Key AWS Services
 Cost optimization is supported by the following AWS services and features:
@@ -240,9 +295,14 @@ Documentation and Blogs
 +	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
 +   [Amazon EKS on AWS Fargate](https://aws.amazon.com/blogs/aws/amazon-eks-on-aws-fargate-now-generally-available/)
 +	[Amazon EKS pricing](https://aws.amazon.com/eks/pricing/)
++   [Saving Cloud Costs with Kubernetes on AWS](https://srcco.de/posts/saving-cloud-costs-kubernetes-aws.html) 
 
 Tools
 +	[AWS Organizations](https://aws.amazon.com/organizations/)
 +	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
-+   [Third party - Kube Cost](https://kubecost.com/)
++   [Kube Cost](https://kubecost.com/)
++   [Kube downscaler](https://github.com/hjacobs/kube-downscaler)
++  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
++  [Right size guide](https://github.com/mhausenblas/right-size-guide)
++ [Fargate count](https://github.com/mreferre/fargatecount)
 
