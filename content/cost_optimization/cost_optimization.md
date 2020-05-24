@@ -96,6 +96,7 @@ https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-m
 
 
 
+
 ### Expenditure awareness
 **Tagging of Resources**
 
@@ -123,6 +124,24 @@ AWS Trusted Advisor offers a rich set of best practice checks and recommendation
 Under Cost Optimization, it helps in eliminating unused and idle resources or making commitments to reserved capacity. The key action items that will help Amazon EKS with EC2 will be around low utilsed EC2 instances, unassociated Elastic IP addresses, Idle Load Balancers, underutilized EBS volumes among other things. The complete list of checks are provided at https://aws.amazon.com/premiumsupport/technology/trusted-advisor/best-practice-checklist/. 
 
 The Trusted Advisor also provides Savings Plan and Reserved Instances recommendations for EC2 instances and Fargate - which allows you to commit to a consistent usage amount in exchange for discounted rates.
+
+**Using Kubernetes dashboard and kubectl tools**
+
+***Kubernetes dashboard***
+Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes ckluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html). 
+
+Kubernetes Dashboard -
+![Kubernetes Cluster Auto Scaler logs](../images/kubernetes-dashboard.png)
+
+***kubectl top command**
+
+Viewing resource usage metrics with kubectl top and kubectl describe commands. kubectl top will show current CPU and memory usage for the pods or nodes across your cluster, or for a specific pod or node. The kubectl describe command will give more detailed information about a specific node or a pod.
+```
+$ kubectl top pods
+$ kubectl top nodes
+$ kubectl describe node <node>
+$ kubectl describe pod <pod>
+```
 
 **Using third party tools for expenditure awareness**
 
@@ -166,7 +185,7 @@ Kube Cost Dashboard -
 
 Right Sizing as per the AWS Well-Architected Framework, is using “… using the lowest cost resource that still meets the technical specifications of a specific workload”.
 
-In Kubernetes, this means setting the right CPU and Memory for Amazon EKS on AWS Fargate and selecting the right EC2 Instance type, for running containers on Pods.
+In Kubernetes, this means setting the right CPU and Memory for Amazon EKS on AWS Fargate and selecting the right EC2 Instance type, for running containers on Pods. The details of how Kubernetes manages resources for containers are given in the [documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
 
 ***Amazon EKS on AWS Fargate***
 When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod. 
