@@ -5,16 +5,16 @@ The cost optimization best practices includes the continual process of refinemen
 # Design Principles
 
 In the cloud, there are a number of principles that can help you achieve cost optimization of your microservices:
-+ Ensure that workloads running on Amazon EKS are independent of specific infrastructure types for running your containers. While using Amazon EKS with EC2, there can be exceptions when we have have workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or specific type of EC2 Instance types are required due to the nature of the workload.
-+ Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics. like CPU and memory, using services like [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) or third party tools. 
-+ Take advantage of the different purchasing options that are available in AWS, e.g. On-Demand, Spot and Savings Plan.
++ Ensure that workloads running on Amazon EKS are independent of specific infrastructure types for running your containers, this will give greater flexibility with regards to running them on the least expensive ones. While using Amazon EKS with EC2, there can be exceptions when we have workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or specific type of EC2 Instance types, due to the nature of the workload.
++ Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics like CPU and memory, using services like [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) or third party tools that are available in the Kubernetes ecosystem. 
++ Take advantage of the different purchasing options that are available in AWS for running EKS with EC2, e.g. On-Demand, Spot and Savings Plan.
 
 # Definition
 
 There are three general best practice areas for cost optimization in the cloud:
 
 + Cost-effective resources (Auto Scaling, Down Scaling and Purchasing Options)
-+ Expenditure awareness
++ Expenditure awareness (Using AWS and third part tools)
 + Optimizing over time (Right Sizing)
 
 As with the other best practices, there are trade-offs to consider. For example, do you want to optimize for speed to market or for cost? In some cases, it’s best to optimize for speed—going to market quickly, shipping new features, or simply meeting a deadline—rather than investing in upfront cost optimization. Design decisions are sometimes guided by haste as opposed to empirical data, as the temptation always exists to overcompensate “just in case” rather than spend time benchmarking for the most cost-optimal deployment. This often leads to drastically over-provisioned and under-optimized deployments. 
