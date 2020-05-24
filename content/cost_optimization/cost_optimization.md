@@ -5,7 +5,7 @@ The cost optimization best practices includes the continual process of refinemen
 # Design Principles
 
 In the cloud, there are a number of principles that can help you achieve cost optimization of your microservices:
-+ Ensure that workloads running on Amazon EKS are independent of specific infrastructure types for running your containers, this will give greater flexibility with regards to running them on the least expensive ones. While using Amazon EKS with EC2, there can be exceptions when we have workloads that [require a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or specific type of EC2 Instance types, due to the nature of the workload.
++ Ensure that workloads running on Amazon EKS are independent of specific infrastructure types for running your containers, this will give greater flexibility with regards to running them on the least expensive types of infrastructure. While using Amazon EKS with EC2, there can be exceptions when we have workloads that require specific type of EC2 Instance types like [requiring a GPU](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html) or  other instance types, due to the nature of the workload.
 + Select optimally profiled container instances — profile your production or pre-production environments and monitor critical metrics like CPU and memory, using services like [Amazon CloudWatch Container Insights for Amazon EKS](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) or third party tools that are available in the Kubernetes ecosystem. 
 + Take advantage of the different purchasing options that are available in AWS for running EKS with EC2, e.g. On-Demand, Spot and Savings Plan.
 
