@@ -84,10 +84,14 @@ The combination of Cluster Auto Scaler for the Kubernetes worker nodes and Horiz
 
 ***Autoscaling of Pods on Amazon EKS with Fargate***
 
-WIP - 
+Autoscaling EKS on Fargate can be done using the following mechanisms:
 
-https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html
-https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/
+1. Using the Kubernetes metrics server and configure auto-scaling based on CPU and/or memory usage.
+2. Configure autoscaling based on custom metrics like HTTP traffic using Prometheus and Prometheus metrics adapter
+3. Configure autoscaling based on App Mesh traffic
+
+The above scenarios are explained in a hands-on blog on ["Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
+
 
 **Down Scaling**
 
@@ -120,6 +124,72 @@ You can use the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.
 
 Amazon [EC2 Spot instances](https://aws.amazon.com/ec2/pricing/) allow you to request spare Amazon EC2 computing capacity for up to 90% off the On-Demand price.
 
+We can create multiple nodegroups with a mix of on-demand instance types and EC2 Spot instances to leverage the advantages of pricing between these two instance types.
+
+![On-Demand and Spot Node Groups](../images/spot_diagram.png)
+
+A sample yaml file for eksctl to create a nodegroup with EC2 spot instances is given below. During the creation of the Node Group, we have configured a node-label so that kubernetes knows what type of nodes we have provisioned. We set the lifecycle for the nodes as Ec2Spot. We are also tainting with PreferNoSchedule to prefer pods not be scheduled on Spot Instances. This is a “preference” or “soft” version of NoSchedule – the system will try to avoid placing a pod that does not tolerate the taint on the node, but it is not required.
+
+```
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: my-cluster-testscaling 
+  region: us-west-2
+nodeGroups:
+  - name: ng-spot
+    labels:
+      lifecycle: Ec2Spot
+    taints:
+      spotInstance: true:PreferNoSchedule
+    minSize: 2
+    maxSize: 5
+    instancesDistribution: # At least two instance types should be specified
+      instanceTypes:
+        - m4.large
+        - c4.large
+        - c5.large
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0 # all the instances will be spot instances
+      spotInstancePools: 2
+```
+Use the node-labels to identify the lifecycle of the nodes.
+```
+$ kubectl get nodes --label-columns=lifecycle --selector=lifecycle=Ec2Spot
+```
+
+We should also deploy the [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) on each Spot Instance. This will monitor the EC2 metadata service on the instance for an interruption notice. The termination handler consists of a ServiceAccount, ClusterRole, ClusterRoleBinding, and a DaemonSet.
+
+```
+$ kubectl --namespace=kube-system get daemonsets 
+NAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR       AGE
+aws-node                       4         4         4       4            4           <none>              6d11h
+aws-node-termination-handler   2         2         2       2            2           lifecycle=Ec2Spot   33m
+kube-proxy                     4         4         4       4            4           <none>              6d11h
+```
+
+We can design our services to be deployed on Spot Instances when they are available. We can use Node Affinity in our manifest file to configure this, to prefer Spot Instances, but not require them. This will allow the pods to be scheduled on On-Demand nodes if no spot instances were available or correctly labelled.
+
+```
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: lifecycle
+                operator: In
+                values:
+                - Ec2Spot
+      tolerations:
+      - key: "spotInstance"
+        operator: "Equal"
+        value: "true"
+        effect: "PreferNoSchedule"
+
+```
+
+You can do a complete hands-on workshop on EC2 spot instances at the [online AWS EKS Workshop](https://eksworkshop.com/beginner/150_spotworkers/).
 
 ****Savings Plan:****
 
@@ -183,7 +253,7 @@ Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch
 
 The installation of insights is given in the [documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html).
 
-**Using third party tools for expenditure awareness**
+**Using Kube Cost for expenditure awareness and guidance**
 
 There are third party tools like [kubecost](https://kubecost.com/), which can also be deployed on Amazon EKS to get visibility into spend of your Kubernetes cluster.
 
@@ -220,6 +290,25 @@ $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 80
 ```
 Kube Cost Dashboard -
 ![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
+**Other tools**
+
+***Kube janitor***
+
+[Kubernetes Janitor](https://github.com/hjacobs/kube-janitor) cleans up (deletes) Kubernetes resources on (1) a configured TTL (time to live) or (2) a configured expiry date (absolute timestamp). 
+The resources can also include unused Persistent Volume Claims (PVC) on Amazon EBS, which can result in substantial savings over time.
+
+***Right Size Guide***
+
+The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
+
+***Fargate count***
+
+[Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of ECS tasks and EKS pods they have deployed on Fargate in a specific region of a specific account.
+
+***Kubernetes Ops View***
+
+[Kube Ops View](https://github.com/hjacobs/kube-ops-view) is an useful tool, which provides a common operational picture visually for multiple Kubernetes clusters.
+
 
 ### Optimizing over time (Right Sizing)
 
@@ -249,24 +338,13 @@ $ echo "Visit http://127.0.0.1:8080 to use your application"
 $ kubectl port-forward $POD_NAME 8080:8080
 ```
 Screenshots from a sample reports from this tool:
+
 ![Home Page](../images/kube-resource-report1.png)
+
 ![Cluster level data](../images/kube-resource-report2.png)
+
 ![Pod level data](../images/kube-resource-report3.png)
 
-**Other tools**
-
-***Kube janitor***
-
-[Kubernetes Janitor](https://github.com/hjacobs/kube-janitor) cleans up (deletes) Kubernetes resources on (1) a configured TTL (time to live) or (2) a configured expiry date (absolute timestamp). 
-The resources can also include unused Persistent Volume Claims (PVC) on Amazon EBS, which can result in substantial savings over time.
-
-***Right Size Guide***
-
-The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
-
-***Fargate count***
-
-[Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of ECS tasks and EKS pods they have deployed on Fargate in a specific region of a specific account.
 
 
 ### Key AWS Services
@@ -290,7 +368,6 @@ Documentation and Blogs
 +	[Autoscaling with Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html) 
 +	[Setting Up Container Insights on Amazon EKS and Kubernetes ](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html)
 +	[Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
-+	[Amazon ECR Lifecycle Policies](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html)
 +	[Amazon EKS-Optimized AMI with GPU Support](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html)
 +	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
 +   [Amazon EKS on AWS Fargate](https://aws.amazon.com/blogs/aws/amazon-eks-on-aws-fargate-now-generally-available/)
@@ -298,7 +375,6 @@ Documentation and Blogs
 +   [Saving Cloud Costs with Kubernetes on AWS](https://srcco.de/posts/saving-cloud-costs-kubernetes-aws.html) 
 
 Tools
-+	[AWS Organizations](https://aws.amazon.com/organizations/)
 +	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
 +   [Kube Cost](https://kubecost.com/)
 +   [Kube downscaler](https://github.com/hjacobs/kube-downscaler)
