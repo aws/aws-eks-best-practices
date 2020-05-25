@@ -378,6 +378,13 @@ The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a si
 
 [Kube Ops View](https://github.com/hjacobs/kube-ops-view) is an useful tool, which provides a common operational picture visually for multiple Kubernetes clusters.
 
+```
+git clone https://github.com/hjacobs/kube-ops-view
+cd kube-ops-view
+kubectl apply -k deploy/
+```
+
+![Home Page](../images/kube-ops-report.png)
 
 ### 3. Optimizing over time (Right Sizing)
 
