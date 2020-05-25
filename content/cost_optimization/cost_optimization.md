@@ -118,7 +118,7 @@ Note that the default grace period of 15 minutes applies to the new nginx deploy
 
 ![Kube-down-scaler for nginx](../images/kube-down-scaler.png)
 
-More advanced downscaling deployment scenarios are avialble at the [kube-down-scaler github project](https://github.com/hjacobs/kube-downscaler).
+More advanced downscaling deployment scenarios are available at the [kube-down-scaler github project](https://github.com/hjacobs/kube-downscaler).
 
 **1.3 Policies using LimitRanges and Resource Quotas**
 
