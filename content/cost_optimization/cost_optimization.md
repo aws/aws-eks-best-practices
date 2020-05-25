@@ -104,6 +104,22 @@ cd kube-downscaler
 kubectl apply -k deploy/
 ```
 
+The example configuration uses the --dry-run as a safety flag to prevent downscaling --- remove it to enable the downscaler, e.g. by editing the deployment:
+```
+$ kubectl edit deploy kube-downscaler
+```
+
+Deploy an nginx pod and schedule it to be run in the time zone - Mon-Fri 09:00-17:00 Asia/Kolkata: 
+```
+$ kubectl run nginx1 --image=nginx
+$ kubectl annotate deploy nginx1 'downscaler/uptime=Mon-Fri 09:00-17:00 Asia/Kolkata'
+```
+Note that the default grace period of 15 minutes applies to the new nginx deployment, i.e. if the current time is not within Mon-Fri 9-17 (Asia/Kolkata timezone), it will downscale not immediately, but after 15 minutes. 
+
+![Kube-down-scaler for nginx](../images/kube-down-scaler.png)
+
+More advanced downscaling deployment scenarios are avialble at the [kube-down-scaler github project](https://github.com/hjacobs/kube-downscaler).
+
 **1.3 Policies using LimitRanges and Resource Quotas**
 
 From the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/limit-range/) - By default, containers run with unbounded compute resources on a Kubernetes cluster. With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace’s resource quota. There is a concern that one Pod or Container could monopolize all available resources. 
@@ -379,6 +395,20 @@ git clone https://github.com/hjacobs/kube-janitor
 cd kube-janitor
 kubectl apply -k deploy/
 ```
+
+The example configuration uses the --dry-run as a safety flag to prevent any deletion --- remove it to enable the janitor, e.g. by editing the deployment:
+```
+$ kubectl edit deploy kube-janitor
+```
+
+To see the janitor in action, deploy a simple nginx and annotate it accordingly:
+```
+$ kubectl run temp-nginx --image=nginx
+$ kubectl annotate deploy temp-nginx janitor/ttl=5m
+```
+You should see the temp-nginx deployment being deleted after 5 minutes.
+
+More advanced cleanup scenarios are described in the [kube-janitor github project](https://github.com/hjacobs/kube-janitor).
 
 ***Right Size Guide***
 
