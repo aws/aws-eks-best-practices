@@ -21,8 +21,8 @@ As with the other best practices, there are trade-offs to consider. For example,
 
 ## Best Practices
 
-### Cost-effective resources 
-**Auto Scaling - Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs.**
+### 1. Cost-effective resources 
+**1.1 Auto Scaling - Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs.**
 
 Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters. All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. Amazon EKS tags managed node group resources so that they are configured to use the Kubernetes Cluster Autoscaler. 
 
@@ -93,12 +93,12 @@ Autoscaling EKS on Fargate can be done using the following mechanisms:
 The above scenarios are explained in a hands-on blog on ["Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
 
 
-**Down Scaling**
+**1.2 Down Scaling**
 
 As part of controlling costs, apart from Auto-scaling of the Kubernetes cluster nodes and pods, Down-Scaling of resources when not in-use can also a huge impact on the overall costs. There are tools like [kube-downscaler](https://github.com/hjacobs/kube-downscaler), which can be used to Scale down Kubernetes deployments after work hours or during set periods of time. 
 
 
-**Use pricing models for effective utilization.**
+**1.3 Use pricing models for effective utilization.**
 
 The pricing details for Amazon EKS are given in the [pricing page](https://aws.amazon.com/eks/pricing/). There is a common control plane cost for both Amazon EKS on Fargate and EC2. 
 
@@ -201,8 +201,8 @@ The AWS Cost Explorer will help you to choose a Savings Plan, and will guide you
 
 ****Note, that the above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
 
-### Expenditure awareness
-**Tagging of Resources**
+### 2. Expenditure awareness
+**2.1Tagging of Resources**
 
 Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
 
@@ -221,7 +221,7 @@ $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluste
 ```
 After you activate cost allocation tags in the [AWS Cost Explorer](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html), AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.
 
-**Using AWS Trusted Advisor**
+**2.2 Using AWS Trusted Advisor**
 
 AWS Trusted Advisor offers a rich set of best practice checks and recommendations across five categories: cost optimization; security; fault tolerance; performance; and service limits.
 
@@ -229,7 +229,7 @@ Under Cost Optimization, it helps in eliminating unused and idle resources or ma
 
 The Trusted Advisor also provides Savings Plan and Reserved Instances recommendations for EC2 instances and Fargate - which allows you to commit to a consistent usage amount in exchange for discounted rates.
 
-**Using Kubernetes dashboard and kubectl tools**
+**2.3 Using Kubernetes dashboard and kubectl tools**
 
 ***Kubernetes dashboard***
 Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes ckluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html). 
@@ -247,13 +247,13 @@ $ kubectl top nodes
 $ kubectl describe node <node>
 $ kubectl describe pod <pod>
 ```
-**Using Container Insights on Amazon EKS and Kubernetess**
+**2.4 Using Container Insights on Amazon EKS and Kubernetess**
 
 Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Kubernetes Service on EC2, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network. 
 
 The installation of insights is given in the [documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html).
 
-**Using Kube Cost for expenditure awareness and guidance**
+**2.5 Using KubeCost for expenditure awareness and guidance**
 
 There are third party tools like [kubecost](https://kubecost.com/), which can also be deployed on Amazon EKS to get visibility into spend of your Kubernetes cluster.
 
@@ -290,7 +290,7 @@ $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 80
 ```
 Kube Cost Dashboard -
 ![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
-**Other tools**
+**2.6 Other tools**
 
 ***Kube janitor***
 
@@ -310,7 +310,7 @@ The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a si
 [Kube Ops View](https://github.com/hjacobs/kube-ops-view) is an useful tool, which provides a common operational picture visually for multiple Kubernetes clusters.
 
 
-### Optimizing over time (Right Sizing)
+### 3. Optimizing over time (Right Sizing)
 
 Right Sizing as per the AWS Well-Architected Framework, is using “… using the lowest cost resource that still meets the technical specifications of a specific workload”.
 
@@ -369,9 +369,9 @@ Documentation and Blogs
 +	[Setting Up Container Insights on Amazon EKS and Kubernetes ](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html)
 +	[Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
 +	[Amazon EKS-Optimized AMI with GPU Support](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html)
-+	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
-+   [Amazon EKS on AWS Fargate](https://aws.amazon.com/blogs/aws/amazon-eks-on-aws-fargate-now-generally-available/)
 +	[Amazon EKS pricing](https://aws.amazon.com/eks/pricing/)
++	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
++   [Savings Plan](https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html)
 +   [Saving Cloud Costs with Kubernetes on AWS](https://srcco.de/posts/saving-cloud-costs-kubernetes-aws.html) 
 
 Tools
