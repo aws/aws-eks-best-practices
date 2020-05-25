@@ -97,6 +97,13 @@ The above scenarios are explained in a hands-on blog on ["Autoscaling EKS on Far
 
 As part of controlling costs, apart from Auto-scaling of the Kubernetes cluster nodes and pods, Down-Scaling of resources when not in-use can also a huge impact on the overall costs. There are tools like [kube-downscaler](https://github.com/hjacobs/kube-downscaler), which can be used to Scale down Kubernetes deployments after work hours or during set periods of time. 
 
+Installation of kube-downscaler:
+```
+git clone https://github.com/hjacobs/kube-downscaler
+cd kube-downscaler
+kubectl apply -k deploy/
+```
+
 **1.3 Policies using LimitRanges and Resource Quotas**
 
 From the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/limit-range/) - By default, containers run with unbounded compute resources on a Kubernetes cluster. With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace’s resource quota. There is a concern that one Pod or Container could monopolize all available resources. 
@@ -366,13 +373,20 @@ More details can be found at [their website](https://www.yotascale.com/).
 [Kubernetes Janitor](https://github.com/hjacobs/kube-janitor) cleans up (deletes) Kubernetes resources on (1) a configured TTL (time to live) or (2) a configured expiry date (absolute timestamp). 
 The resources can also include unused Persistent Volume Claims (PVC) on Amazon EBS, which can result in substantial savings over time.
 
+Installation of kube-janitor:
+```
+git clone https://github.com/hjacobs/kube-janitor
+cd kube-janitor
+kubectl apply -k deploy/
+```
+
 ***Right Size Guide***
 
 The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
 
 ***Fargate count***
 
-[Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of ECS tasks and EKS pods they have deployed on Fargate in a specific region of a specific account.
+[Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of EKS pods that have been deployed on Fargate in a specific region of a specific account. This helps in keeping track of all the Fargate pods running across an EKS cluster.
 
 ***Kubernetes Ops View***
 
