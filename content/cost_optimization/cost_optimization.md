@@ -418,13 +418,13 @@ Screenshots from a sample reports from this tool:
 
 ### Key AWS Services
 Cost optimization is supported by the following AWS services and features:
-+ Cost-effective resources – Amazon EC2 provides multiple instance types, such as Reserved Instances and Spot Instances, at different prices.
-+ Matching supply and demand – Match user demand with Auto Scaling. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores for elasticity and durability of the application data.
-+ Expenditure awareness – The Billing and Cost Management console dashboard provides an overview of your AWS usage. Use AWS Organizations for granular billing details.
-+ Optimizing over time – Amazon CloudWatch Container Metrics provides metrics around usage of resources by the EKS cluster. In addition to the Kubernetes dashboard, there are several tools in the Kubernetes ecosystem that can be used to monitor Kubernetes clusters, such as Prometheus.
++ Cost-effective resources – Amazon EC2 provides multiple instance types, as well as Savibgs Plan (and Reserved Instances) and Spot Instances, at different prices.
++ Matching supply and demand – Match user demand with Auto Scaling along with Kubernetes native Auto Scaling policies. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores like EBS and EFS, for elasticity and durability of the application data.
++ Expenditure awareness – The Billing and Cost Management console dashboard  along with AWS Cost Explorer provides an overview of your AWS usage. Use AWS Organizations for granular billing details. Details of several third party tools have also been shared. 
++ Optimizing over time – Amazon CloudWatch Container Metrics provides metrics around usage of resources by the EKS cluster. In addition to the Kubernetes dashboard, there are several tools in the Kubernetes ecosystem that can be used to reduce wastage.
 
 ### Resources
-Refer to the following resources to learn more about AWS best practices for cost optimization.
+Refer to the following resources to learn more about best practices for cost optimization.
 
 Videos
 +	[AWS re:Invent 2019: Save up to 90% and run production workloads on Spot Instances (CMP331-R1)](https://www.youtube.com/watch?v=7q5AeoKsGJw)
