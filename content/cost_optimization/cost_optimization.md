@@ -80,7 +80,7 @@ You can then load test the app, and simulate pod autoscaling.
 The combination of Cluster Auto Scaler for the Kubernetes worker nodes and Horizontal Pod Autoscaler for the pods, will ensure that the provisioned resources will be as close to the actual utilization as possible.
 
 ![Kubernetes Cluster AutoScaler and HPA](../images/ClusterAS-HPA.png)
-(Image source: https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)
+***(Image source: https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)***
 
 ***Autoscaling of Pods on Amazon EKS with Fargate***
 
@@ -172,6 +172,8 @@ Amazon [EC2 Spot instances](https://aws.amazon.com/ec2/pricing/) allow you to re
 We can create multiple nodegroups with a mix of on-demand instance types and EC2 Spot instances to leverage the advantages of pricing between these two instance types.
 
 ![On-Demand and Spot Node Groups](../images/spot_diagram.png)
+***(Image source: https://eksworkshop.com/spot)***
+
 
 A sample yaml file for eksctl to create a nodegroup with EC2 spot instances is given below. During the creation of the Node Group, we have configured a node-label so that kubernetes knows what type of nodes we have provisioned. We set the lifecycle for the nodes as Ec2Spot. We are also tainting with PreferNoSchedule to prefer pods not be scheduled on Spot Instances. This is a “preference” or “soft” version of NoSchedule – the system will try to avoid placing a pod that does not tolerate the taint on the node, but it is not required.
 
