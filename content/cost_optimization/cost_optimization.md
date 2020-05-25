@@ -273,7 +273,7 @@ Note, that compute savings plans does not apply to EKS Fargate yet.
 ****Note, that the above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
 
 ### 2. Expenditure awareness
-**2.1Tagging of Resources**
+**2.1 Tagging of Resources**
 
 Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
 
@@ -374,7 +374,7 @@ Spotinst Ocean is an application scaling service. Similar to Amazon Elastic Comp
 
 This is available as an [AWS Quickstart](https://aws.amazon.com/quickstart/architecture/spotinst-ocean-eks/) developed by Spotinst, Inc. in collaboration with AWS. 
 
-The EKS workshop also has a module on [Optimized Worker Node on Amazon EKS Management](https://eksworkshop.com/beginner/190_ocean/) with Ocean by Spot.io which includes sections on cost aloocation, right sizing and scaling strategies.
+The EKS workshop also has a module on [Optimized Worker Node on Amazon EKS Management](https://eksworkshop.com/beginner/190_ocean/) with Ocean by Spot.io which includes sections on cost allocation, right sizing and scaling strategies.
 
 ***Yotascale***
 
