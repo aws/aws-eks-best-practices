@@ -22,9 +22,9 @@ Whether users and worker nodes connect to the API server using the public endpoi
 
 ## Monitor Control Plane Metrics
 
-Monitoring Kubernetes API response times (latencies) can help you understand how the control plane is performing. Poorly written controllers can overload the API servers and affect cluster performance. 
+Monitoring Kubernetes API metrics can give you insights into control plane performance and identify issues. Unhealthy control plane can compromise availability of the workloads running inside the cluster. For example, poorly written controllers can overload the API servers which can affect Pod autoscaling. 
 
-You can monitor the control plane using metrics exposed by Kubernetes `/metrics` endpoint. 
+Kubernetes exposes control plane metrics at the  `/metrics` endpoint. 
 
 You can view the metrics exposed using `kubectl`:
 
@@ -38,7 +38,33 @@ You can use Prometheus to collect and store these metrics. In May 2020, CloudWat
 
 The Kubernetes API server metrics can be found [here](https://github.com/kubernetes/apiserver/blob/master/pkg/endpoints/metrics/metrics.go). For example, `apiserver_request_duration_seconds` can indicate how long API requests are taking to run. 
 
-You can use [Grafana dashboard 12006](https://grafana.com/grafana/dashboards/12006) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics. 
+Consider monitoring these control plane metrics:
+
+### API Server
+
+| Metric | Description  |
+|:--|:--|
+|  `apiserver_request_total` | Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code. |
+| `apiserver_request_duration_seconds*`  | Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. |
+| `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
+| `apiserver_admission_controller_admission_duration_seconds` | Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). | 
+| `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
+| `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL.
+| `rest_client_requests_total`  | Number of HTTP requests, partitioned by status code, method, and host. | 
+
+### etcd
+
+| Metric | Description  |
+|:--|:--|
+| `etcd_request_duration_seconds` | Etcd request latency in seconds for each operation and object type. | 
+| `etcd_request_latencies_summary` | Etcd request latency summary in microseconds for each operation and object type. |
+| `etcd_helper_cache_entry_total` | Counter of etcd helper cache entries. | 
+| `etcd_helper_cache_hit_total` | Counter of etcd helper cache hits.| 
+| `etcd_helper_cache_miss_total` | Counter of etcd helper cache miss. | 
+| `etcd_request_cache_get_duration_seconds*` | Latency in seconds of getting an object from etcd cache. | 
+| `etcd_request_cache_add_duration_seconds*` | Latency in seconds of adding an object to etcd cache | 
+
+Consider using [Grafana dashboard 12006](https://grafana.com/grafana/dashboards/12006) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics. 
 
 ## Control Plane Scaling
 
