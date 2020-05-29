@@ -12,9 +12,9 @@ EKS architecture is designed to eliminate any single points of failure which may
 
 EKS control plane runs inside an EKS managed VPC. The EKS control plane comprises the Kubernetes master nodes, etcd cluster. Kubernetes master nodes that run components like the API server, scheduler, and `kube-controller-manager` run in an auto-scaling group. This auto-scaling group is spread across a minimum of three Availability Zones (AZs). Likewise, for durability the etcd server nodes also run in an auto-scaling group that is spread across three AZs. EKS runs a NAT Gateway in each AZ and master nodes and etcd servers run in a private subnet. This ensures that an event in a single AZ doesn’t affect the availability of the etcd cluster.  
 
-When you create a new cluster, Amazon EKS creates a highly-available endpoint for the managed Kubernetes API server that you use to communicate with your cluster (using tools like `kubectl`). The managed endpoint uses NLB to load balance Kubernetes API servers. EKS also provisions two ENIs in different AZs to facilitate communication to your worker nodes.
+When you create a new cluster, Amazon EKS creates a highly-available endpoint for the managed Kubernetes API server that you use to communicate with your cluster (using tools like `kubectl`). The managed endpoint uses NLB to load balance Kubernetes API servers. EKS also provisions two [ENI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html)s in different AZs to facilitate communication to your worker nodes.
 
-You can configure whether your Kubernetes cluster’s API server is reachable from the public internet (using the public endpoint) or through your VPC (using the EKS-managed ENIs) or both.  
+You can [configure whether your Kubernetes cluster’s API server](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html) is reachable from the public internet (using the public endpoint) or through your VPC (using the EKS-managed ENIs) or both.  
 
 Whether users and worker nodes connect to the API server using the public endpoint or the EKS-managed ENI, there are redundant paths for connection. 
 
@@ -69,6 +69,21 @@ Consider using [Grafana dashboard 12006](https://grafana.com/grafana/dashboards/
 ## Control Plane Scaling
 
 EKS clusters by default are sized to handle up to 200 nodes and 30 pods per node. If your cluster exceeds this size, you can request a scale up through a support ticket. The EKS team is working on automatically scaling the control plane, at which point this will not be required.
+
+## Limits and service quotas
+
+AWS sets service limits (an upper limit on the number of each resource your team can request) to protect you from accidentally over-provisioning resources. [Amazon EKS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html) lists the service limits. There are two types of limits, soft limits, that can be changed with proper justification via a support ticket. Hard limits cannot be changed. You should consider these values when architecting your applications. Consider reviewing these service limits periodically and incorporate them during in your application design. 
+
+> Besides the limits from orchestration engines, there are limits in other AWS services, such as Elastic Load Balancing (ELB) and Amazon VPC, that may affect your application performance.
+> More about EC2 limits here: [EC2 service limits](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html). 
+
+
+## Cluster Authentication
+
+WIP: how to ensure that AWS-auth.yaml file changes don’t lock users out?
+
+## Cluster Upgrade
+WIP: Kubernetes cluster upgrades can break API. Before upgrading cluster review the [Amazon EKS Kubernetes versions document](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html). 
 
 ## Additional Resources:
 
