@@ -289,3 +289,25 @@ The AWS Cost Explorer will help you to choose a Savings Plan, and will guide you
 Note, that compute savings plans does not apply to EKS Fargate yet.
 
 ****Note, that the above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
+
+### Resources
+Refer to the following resources to learn more about best practices for cost optimization.
+
+Videos
++	[AWS re:Invent 2019: Save up to 90% and run production workloads on Spot Instances (CMP331-R1)](https://www.youtube.com/watch?v=7q5AeoKsGJw)
+
+Documentation and Blogs
++	[Cost optimization for Kubernetes on AWS](https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)
++ [Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
++	[Using Spot Instances with EKS](https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks.html)
++   [Extending the EKS API: Managed Node Groups](https://aws.amazon.com/blogs/containers/eks-managed-node-groups/)
++	[Autoscaling with Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html) 
++	[Amazon EKS pricing](https://aws.amazon.com/eks/pricing/)
++	[AWS Fargate pricing](https://aws.amazon.com/fargate/pricing/)
++   [Savings Plan](https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html)
++   [Saving Cloud Costs with Kubernetes on AWS](https://srcco.de/posts/saving-cloud-costs-kubernetes-aws.html) 
+
+Tools
++   [Kube downscaler](https://github.com/hjacobs/kube-downscaler)
++  [Kubernetes Descheduler](https://github.com/kubernetes-sigs/descheduler)
+
