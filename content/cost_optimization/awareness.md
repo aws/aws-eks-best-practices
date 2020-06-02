@@ -189,3 +189,16 @@ kubectl apply -k deploy/
 ***Popeye - A Kubernetes Cluster Sanitizer***
 
 [Popeye - A Kubernetes Cluster Sanitizer](https://github.com/derailed/popeye) is a utility that scans live Kubernetes cluster and reports potential issues with deployed resources and configurations. It sanitizes your cluster based on what's deployed and not what's sitting on disk. By scanning your cluster, it detects misconfigurations and helps you to ensure that best practices are in place
+
+### Resources
+Refer to the following resources to learn more about best practices for cost optimization.
+
+Documentation and Blogs
++	[Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
+
+Tools
++	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
++   [Kube Cost](https://kubecost.com/)
++   [Kube Opsview](https://github.com/hjacobs/kube-ops-view)
++  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
+
