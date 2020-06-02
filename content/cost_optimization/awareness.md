@@ -1,7 +1,7 @@
 ### 2. Expenditure awareness
 **2.1 Tagging of Resources**
 
-Amazon EKS supports adding AWS tags to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
+Amazon EKS supports [adding AWS tags](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html) to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
 
 Adding and Listing tags to an EKS cluster:
 ```
@@ -18,6 +18,8 @@ $ aws eks list-tags-for-resource --resource-arn arn:aws:eks:us-west-2:xxx:cluste
 ```
 After you activate cost allocation tags in the [AWS Cost Explorer](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html), AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.
 
+Tags don't have any semantic meaning to Amazon EKS and are interpreted strictly as a string of characters. For example, you can define a set of tags for your Amazon EKS clusters to help you track each cluster's owner and stack level.
+
 **2.2 Using AWS Trusted Advisor**
 
 AWS Trusted Advisor offers a rich set of best practice checks and recommendations across five categories: cost optimization; security; fault tolerance; performance; and service limits.
@@ -29,26 +31,44 @@ The Trusted Advisor also provides Savings Plan and Reserved Instances recommenda
 **2.3 Using Kubernetes dashboard and kubectl tools**
 
 ***Kubernetes dashboard***
-Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes ckluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html). 
 
-Kubernetes Dashboard 
+Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes cluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html). 
 
-![Kubernetes Cluster Auto Scaler logs](../images/kubernetes-dashboard.png)
+Dashboard provides resource usage breakdowns for each node and pod, as well as detailed metadata about pods, services, Deployments, and other Kubernetes objects. 
 
-***kubectl top command***
+![Kubernetes Dashboard](../images/kubernetes-dashboard.png)
+
+***kubectl top and describe commands***
 
 Viewing resource usage metrics with kubectl top and kubectl describe commands. kubectl top will show current CPU and memory usage for the pods or nodes across your cluster, or for a specific pod or node. The kubectl describe command will give more detailed information about a specific node or a pod.
 ```
 $ kubectl top pods
 $ kubectl top nodes
+$ kubectl top pod pod-name --namespace mynamespace --containers
+```
+
+Using the top command, the output will displays the total amount of CPU (in cores) and memory (in MiB) that the node is using, and the percentages of the node’s allocatable capacity those numbers represent. You can then drill-down to the next level, container level within pods by adding a *--containers* flag. 
+
+
+```
 $ kubectl describe node <node>
 $ kubectl describe pod <pod>
 ```
+
+*kubectl describe* returns the percent of total available capacity that each resource request or limit represents. 
+
+kubectl top and describe, track the utilization and availability of critical resources such as CPU, memory, and storage across kubernetes pods, nodes and containers. This awareness will help in understanding resource usage and help in controlling costs. 
+
+
 **2.4 Using Container Insights on Amazon EKS and Kubernetess**
 
 Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Kubernetes Service on EC2, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network. 
 
 The installation of insights is given in the [documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html).
+
+CloudWatch creates aggregated metrics at the cluster, node, pod, task, and service level as CloudWatch metrics. This awareness will help in understanding resource usage and help in controlling costs.
+
+
 
 **2.5 Using KubeCost for expenditure awareness and guidance**
 
@@ -108,6 +128,15 @@ Yotascale helps with accurately allocating Kubernetes costs. Yotascale Kubernete
 
 More details can be found at [their website](https://www.yotascale.com/).
 
+
+***Alcide Advisor***
+
+Alcide is an AWS Partner Network (APN) Advanced Technology Partner. Alcide Advisor helps ensure your Amazon EKS cluster, nodes, and pods configuration are tuned to run according to security best practices and internal guidelines. Alcide Advisor is an agentless service for Kubernetes audit and compliance that’s built to ensure a frictionless and secured DevSecOps flow by hardening the development stage before moving to production.
+
+More details can be found in this [blog post](https://aws.amazon.com/blogs/apn/driving-continuous-security-and-configuration-checks-for-amazon-eks-with-alcide-advisor/).
+
+
+
 **2.7 Other tools**
 
 ***Kube janitor***
@@ -136,9 +165,9 @@ You should see the temp-nginx deployment being deleted after 5 minutes.
 
 More advanced cleanup scenarios are described in the [kube-janitor github project](https://github.com/hjacobs/kube-janitor).
 
-***Right Size Guide***
+***Kubernetes Garbage Collection***
 
-The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
+The role of the [Kubernetes garbage collector](https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/) is to delete certain objects that once had an owner, but no longer have an owner.
 
 ***Fargate count***
 
@@ -155,3 +184,21 @@ kubectl apply -k deploy/
 ```
 
 ![Home Page](../images/kube-ops-report.png)
+
+
+***Popeye - A Kubernetes Cluster Sanitizer***
+
+[Popeye - A Kubernetes Cluster Sanitizer](https://github.com/derailed/popeye) is a utility that scans live Kubernetes cluster and reports potential issues with deployed resources and configurations. It sanitizes your cluster based on what's deployed and not what's sitting on disk. By scanning your cluster, it detects misconfigurations and helps you to ensure that best practices are in place
+
+### Resources
+Refer to the following resources to learn more about best practices for cost optimization.
+
+Documentation and Blogs
++	[Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
+
+Tools
++	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
++   [Kube Cost](https://kubecost.com/)
++   [Kube Opsview](https://github.com/hjacobs/kube-ops-view)
++  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
+
