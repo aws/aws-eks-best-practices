@@ -68,3 +68,18 @@ Then open your browser to http://localhost:8080
 
 The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
 
+### Resources
+Refer to the following resources to learn more about best practices for cost optimization.
+
+
+Documentation and Blogs
++	[Amazon EKS-Optimized AMI with GPU Support](https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html)
+
+
+Tools
++  [Kube resource report](https://github.com/hjacobs/kube-resource-report)
++  [Right size guide](https://github.com/mhausenblas/right-size-guide)
++ [Fargate count](https://github.com/mreferre/fargatecount)
++ [FairwindsOps Goldilocks](https://github.com/FairwindsOps/goldilocks)
+
+
