@@ -33,3 +33,38 @@ Screenshots from a sample reports from this tool:
 
 ![Pod level data](../images/kube-resource-report3.png)
 
+***FairwindsOps Goldilocks***
+
+The [FairwindsOps Goldilocks](https://github.com/FairwindsOps/goldilocks) is a tool that creates a Vertical Pod Autoscaler (VPA) for each deployment in a namespace and then queries them for information. Once the VPAs are in place, we see recommendations appear in the Goldilocks dashboard.
+
+*Deployment:*
+
+Deploy the Vertical Pod Autoscaler as per the [documentation]( https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html).
+
+```
+$ helm repo add fairwinds-stable https://charts.fairwinds.com/stable
+$ kubectl create namespace goldilocks
+$ helm install goldilocks --namespace goldilocks fairwinds-stable/goldilocks
+```
+
+Enable Namespace - Pick an application namespace and label it like so in order to see some data, in the following example we are specifying the default namespace:
+
+```
+$ kubectl label ns default goldilocks.fairwinds.com/enabled=true
+```
+
+Viewing the Dashboard - The default installation creates a ClusterIP service for the dashboard. You can access via port forward:
+
+```
+$ kubectl -n goldilocks port-forward svc/goldilocks-dashboard 8080:80
+```
+
+Then open your browser to http://localhost:8080
+
+![Goldilocks recommendation Page](../images/Goldilocks.png)
+
+
+***Right Size Guide***
+
+The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
+
