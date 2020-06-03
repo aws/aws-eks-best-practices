@@ -25,6 +25,7 @@ Before using seccomp, consider whether adding/removing Linux capabilities gives 
 
 ### See whether you can accomplish your aims by using Pod Security Policies (PSPs)
 Pod Security Policies offer a lot of different ways to improve your security posture without introducing undue complexity. Explore the options available in PSPs before venturing into building seccomp and Apparmor profiles. 
+
 !!! warning 
     With the future propects of PSPs in doubt, you may want to look at implementing these controls using Pod security contexts or OPA/Gatekeeper. A collection of Gatekeeper constraints and constraint templates for implementing policies commonly found in PSPs can be pulled from the [Gatekeeper](https://github.com/open-policy-agent/gatekeeper/tree/master/library/pod-security-policy) repository on GitHub.  
 
