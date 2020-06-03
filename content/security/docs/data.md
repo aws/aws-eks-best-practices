@@ -36,7 +36,7 @@ parameters:
   kmsKeyId: <kms_arn>
 ``` 
 !!! attention
-    As of May 28,2020 all data written to the ephemeral volume in EKS Fargate pods is encrypted by default using an industry-standard AES-256 cryptographic algorithm. No modifications to your application are necessary as encryption and decryption is handled by the service. 
+    As of May 28, 2020 all data written to the ephemeral volume in EKS Fargate pods is encrypted by default using an industry-standard AES-256 cryptographic algorithm. No modifications to your application are necessary as encryption and decryption are handled seamlessly by the service. 
 
 ## Recommendations
 ### Encrypt data at rest
