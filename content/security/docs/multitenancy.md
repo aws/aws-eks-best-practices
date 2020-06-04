@@ -102,6 +102,8 @@ https://threadreaderapp.com/thread/1238496944684597248.html.
 
 [Gatekeeper](https://github.com/open-policy-agent/gatekeeper) is a Kubernetes admission controller that enforces policies created with [OPA](https://www.openpolicyagent.org/). With OPA you can create a policy that runs pods from tenants on separate instances or at a higher priority than other tenants. 
 
+There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredns/coredns-opa) that allows you to use OPA to filter/control the records returned by CoreDNS. 
+
 ## Hard multi-tenancy
 Hard multi-tenancy can be implemented by provisioning separate clusters for each tenant.  While this provides very strong isolation between tenants, it has several drawbacks.  
 
