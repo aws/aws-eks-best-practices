@@ -72,7 +72,7 @@ EKS currently supports two types of authentication: [bearer/service account toke
 
 The IAM user or role that creates the EKS Cluster automatically gets full access on the cluster. You can manage access to the EKS cluster by editing the [`aws-auth` configmap](https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html). 
 
-If you accidentally misconfigure the `aws-auth` configmap and lose access to the cluster, you can still use the cluster creator’s user or role to access the cluster. 
+If you misconfigure the `aws-auth` configmap and lose access to the cluster, you can still use the cluster creator’s user or role to access the cluster. 
 
 ## Handling Cluster Upgrades
 Kubernetes follows a quarterly release cycle; a new minor version (like 1.**16** or 1.**17**) is released approximately every three months. Each minor version is supported for approximately nine months after it is first released. Kubernetes supports compatibility between control plane and worker nodes for at least two minor versions.
@@ -107,8 +107,7 @@ AWS sets service limits (an upper limit on the number of each resource your team
 
 ## Additional Resources:
 
-[De-mystifying cluster networking for Amazon EKS worker nodes](https://aws.amazon.com/blogs/containers/de-mystifying-cluster-networking-for-amazon-eks-worker-nodes/)
-
-[Amazon EKS cluster endpoint access control](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)
-
-[AWS re:Invent 2019: Amazon EKS under the hood (CON421-R1)](https://www.youtube.com/watch?v=7vxDWDD2YnM)
+- [De-mystifying cluster networking for Amazon EKS worker nodes](https://aws.amazon.com/blogs/containers/de-mystifying-cluster-networking-for-amazon-eks-worker-nodes/)
+- [Amazon EKS cluster endpoint access control](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)
+- 
+- [AWS re:Invent 2019: Amazon EKS under the hood (CON421-R1)](https://www.youtube.com/watch?v=7vxDWDD2YnM)
