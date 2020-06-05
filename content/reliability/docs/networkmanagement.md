@@ -121,11 +121,8 @@ You can then pass the `max-pods` value in the worker nodes’ user-data script:
 Since the node’s primary ENI is no longer used to assign Pod IP addresses, there is a decline in the number of Pods you can run on a given EC2 instance type. 
  
 ## Alternate CNI plugins
-
-
+* https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html
 ---
 
 Things to add:
-* you need two subnets to for eks owned eni
 * Amazon EKS does not automatically upgrade the CNI plugin on your cluster when new versions are released. To get a newer version of the CNI plugin on existing clusters, you must manually upgrade the plugin.
-* https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html
