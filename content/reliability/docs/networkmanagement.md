@@ -16,9 +16,11 @@ If you deploy worker nodes in private subnets then these subnets should have a d
 
 
 ## Amazon VPC CNI
-Amazon EKS supports native VPC networking via the [Amazon VPC Container Network Interface (CNI)](https://github.com/aws/amazon-vpc-cni-k8s) plugin for Kubernetes. The CNI plugin allows Kubernetes Pods to have the same IP address inside the Pod as they do on the VPC network.The CNI plugin uses [Elastic Network Interface (ENI)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html) for Pod networking. The CNI allocates ENIs to each Kubernetes node and using the secondary IP range from each ENI for pods on the node. The CNI includes controls for pre-allocation of ENIs and IP addresses for fast pod startup time.
+Amazon EKS supports native VPC networking via the [Amazon VPC Container Network Interface (CNI)](https://github.com/aws/amazon-vpc-cni-k8s) plugin for Kubernetes. The CNI plugin allows Kubernetes Pods to have the same IP address inside the Pod as they do on the VPC network.The CNI plugin uses [Elastic Network Interface (ENI)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html) for Pod networking. The CNI allocates ENIs to each Kubernetes node and using the secondary IP range from each ENI for pods on the node. The CNI pre-allocates ENIs and IP addresses for fast pod startup time.
 
 The [maximum number of network interfaces, and the maximum number of private IPv4 addresses](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI) that you can use varies by the type of EC2 Instance. Since each Pod uses an IP address, the number of Pods you can run on a particular EC2 Instance depends on how many ENIs can be attached to it and how many IP addresses it supports.
+
+This [file](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) is contains the maximum number of pods you can run on an EC2 Instance. The limits in the file are invalid if you use CNI custom networking. 
 
 The CNI plugin has two componenets:
 
@@ -29,22 +31,47 @@ The CNI plugin has two componenets:
     
 The details can be found in [Proposal: CNI plugin for Kubernetes networking over AWS VPC](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/docs/cni-proposal.md).
 
-By default, the CNI assigns Pod’s IP address from the worker node's primary elastic network interface's (ENI) security groups and subnet. If you don’t have enough IP addresses in the worker node subnet or if you worker nodes and Pods in different subnets then you can use [CNI custom networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html).
+## Recommendations 
+- Size the subnets you will use for Pod networking for growth. If you have insufficient IP addresses available in the subnet that the CNI uses, your pods will not get an IP address. And the pods will remain in pending state until an IP address becomes available.
+- Consider using [CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html) to monitor IP addresses inventory. 
+- If you use public subnets, then they must have the automatic public IP address assignment setting enabled otherwise worker nodes will not be able to communicate with the cluster. 
+- Consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) (also called CNI custom networking) to avoid IP address allocation conflicts between Pods and other resources in the VPC. 
+- If your Pods with private IP address need to communicate with other private IP address spaces (for example, Direct Connect, VPC Peering or Transit VPC), then you need to [enable external SNAT](https://docs.aws.amazon.com/eks/latest/userguide/external-snat.html) in the CNI:
+
+	```
+	kubectl set env daemonset -n kube-system aws-node AWS_VPC_K8S_CNI_EXTERNALSNAT=true
+	```
+
+### Limit IP address pre-allocation
+
+The CNI pre-allocates and caches a certain number of IP addresses so that Kubernetes scheduler can schedule pods on these worker nodes. The IP addresses are available on the worker nodes whether you launch pods or not. 
+
+When a worker node is provisioned, the CNI allocates a pool of secondary IP addresses (called *warm pool*) from the node’s primary ENI. As the pool gets depleted, the CNI attaches another ENI to assign more IP addresses. This process continues until no more ENIs can be attached to the node. 
+
+If you need to constrain the IP addresses the CNI caches then you can use these CNI environment variables:
+
+- `WARM_IP_TARGET` -- Number of free IP addresses the CNI should keep available. Use this if your subnet is small and you want to reduce IP address usage. 
+- `MINIMUM_IP_TARGET` -- Number of minimum IP addresses the CNI should allocate at node startup. 
+
+To configure these options, you can download aws-k8s-cni.yaml compatible with your cluster and set environment variables. At the time of writing, the latest release is located [here](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.6/aws-k8s-cni.yaml).
+
+## Recommendations
+- Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. 
+- Avoid using `WARM_IP_TARGET` altogether or setting it too low  as it will cause additional calls to the EC2 API and that might cause throttling of the requests.
 
 ## CNI custom networking
 
-Creating a separate subnet for Pods can prevent any IP address conflicts with other resources in your VPC. 
+By default, the CNI assigns Pod’s IP address from the worker node's primary elastic network interface's (ENI) security groups and subnet. If you don’t have enough IP addresses in the worker node subnet or if you’d prefer that the worker nodes and Pods reside in separate subnets then you can use [CNI custom networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html). 
 
-> You can customize AWS VPC CNI behavior through [CNI configuration variables](https://docs.aws.amazon.com/eks/latest/userguide/cni-env-vars.html). 
- 
-If you want the CNI to assign IP addresses for Pods from a different subnet CIDR you can set `AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG` environment variable to `true`.
+Enabling a custom network effectively removes an available elastic network interface (and all of its available IP addresses for pods) from each worker node that uses it. The primary network interface for the worker node is not used for pod placement when a custom network is enabled.
+
+If you want the CNI to assign IP addresses for Pods from a different subnet you can set `AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG` environment variable to `true`.
 
 ```bash
 kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
 ```
 
-> EKS managed node groups currently don’t support custom networking option. 
-
+> 📝 EKS managed node groups currently don’t support custom networking option. 
 
 When `AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true`, the CNI will assign Pod IP address from a subnet defined in `ENIConfig`. The `ENIConfig` custom resource is used to define the subnet in which Pods will be scheduled. 
 
@@ -59,7 +86,9 @@ spec:
   subnet: subnet-011b111c1f11fdf11
 ```
 
-You will need to create an `ENIconfig` custom resource for each subnet you want to use for Pod networking. The `securityGroups` field should have the ID of the security group that is attached to the worker nodes. The `name` field should be the name of the Availability Zone in your VPC. If you name your ENIConfig custom resources after each Availability Zone in your VPC then you can enable Kubernetes to automatically apply the corresponding ENIConfig for the worker node's Availability Zone with the following command.
+You will need to create an `ENIconfig` custom resource for each subnet you want to use for Pod networking. 
+- The `securityGroups` field should have the ID of the security group that is attached to the worker nodes. 
+- The `name` field should be the name of the Availability Zone in your VPC. If you name your ENIConfig custom resources after each Availability Zone in your VPC then you can enable Kubernetes to automatically apply the corresponding ENIConfig for the worker node's Availability Zone with the following command.
 
 ```shell
 kubectl set env daemonset aws-node \
@@ -89,23 +118,8 @@ You can then pass the `max-pods` value in the worker nodes’ user-data script:
 --use-max-pods false --kubelet-extra-args '--max-pods=20'
 ```
 
-
-### Limit IP address and ENI allocation (WIP)
-
-> https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html
-
-The CNI caches a certain number of IP addresses so that Kubernetes scheduler can schedule pods on these worker nodes. The IP addresses are available on the worker nodes whether you launch pods or not. 
-
-If you need to constrain these IP addresses, you can customize them at the worker node level. The CNI supports customization of a number of configurations options, these options are set through environment variables. To configure these options, you can download aws-k8s-cni.yaml compatible with your cluster and set environment variables. At the time of writing, the latest release is located [here](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.6/aws-k8s-cni.yaml).
-
-## Recommendations
-- Size the subnets you will use for Pod networking for growth. If you have insufficient IP addresses available in the subnet that the CNI uses, your pods will not get an IP address. And the pods will remain in pending state until an IP address is available.
-- Consider using [CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html) to monitor the number of IP addresses. 
-- If your cluster has high pod churn rate, then consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) in each Availability Zone. Doing so will prevent IP address allocation conflicts with other resources in the VPC. 
-- If you need to constrain IPs then use `blah` variable. 
-
-## External SNAT (WIP)
-
+Since the node’s primary ENI is no longer used to assign Pod IP addresses, there is a decline in the number of Pods you can run on a given EC2 instance type. 
+ 
 ## Alternate CNI plugins
 
 
