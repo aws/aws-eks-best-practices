@@ -56,8 +56,8 @@ If you need to constrain the IP addresses the CNI caches then you can use these 
 To configure these options, you can download aws-k8s-cni.yaml compatible with your cluster and set environment variables. At the time of writing, the latest release is located [here](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.6/aws-k8s-cni.yaml).
 
 ## Recommendations
-- Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. 
-- Avoid using `WARM_IP_TARGET` altogether or setting it too low  as it will cause additional calls to the EC2 API and that might cause throttling of the requests.
+- Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. This will ensure that as Pods get created the CNI can assign IP addresses from the warm pool without calling the EC2 API. 
+- Avoid setting the value of `WARM_IP_TARGET` too low as it will cause additional calls to the EC2 API and that might cause throttling of the requests.
 
 ## CNI custom networking
 
@@ -120,8 +120,14 @@ You can then pass the `max-pods` value in the worker nodes’ user-data script:
 
 Since the node’s primary ENI is no longer used to assign Pod IP addresses, there is a decline in the number of Pods you can run on a given EC2 instance type. 
  
-## Alternate CNI plugins
-* https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html
+## Alternate CNI plugins 
+
+AWS VPC CNI plugin is the only officially supported [network plugin](https://kubernetes.io/docs/concepts/cluster-administration/networking/) on EKS. However, since EKS runs upstream Kubernetes and is certified Kubernetes conformant, you  can use alternate [CNI plugins](https://github.com/containernetworking/cni).
+
+A compelling reason to opt for an alternate CNI plugin is the ability to run Pods without using a VPC IP address per Pod. Although, using an alternate CNI plugin can come at the expense of network performance. 
+
+Refer to EKS documentation for the list [alternate compatible CNI plugins](https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html). Consider obtaining the CNI vendor’s commercial support if you plan on using an alternate CNI in production. 
+
 ---
 
 Things to add:
