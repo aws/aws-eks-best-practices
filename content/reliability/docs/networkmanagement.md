@@ -11,8 +11,9 @@ Refer to [Cluster VPC considerations](https://docs.aws.amazon.com/eks/latest/use
 If you deploy worker nodes in private subnets then these subnets should have a default route to a [NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html). 
 
 ## Recommendations
-- A VPC with public and private subnets is recommended so that Kubernetes can create load balancers in public subnets and the worker nodes can run in private subnets.
-- If you deploy worker nodes in private subnets then consider creating a NAT Gateway in each Availability Zone to ensure zone-independent architecture. Each NAT gateway is created in a specific Availability Zone and implemented with redundancy in that zone.
+
+### Deploy NAT Gateways in each Availability Zone
+If you deploy worker nodes in private subnets then consider creating a NAT Gateway in each Availability Zone to ensure zone-independent architecture. Each NAT gateway is created in a specific Availability Zone and implemented with redundancy in that zone.
 
 
 ## Amazon VPC CNI
@@ -32,15 +33,27 @@ The CNI plugin has two componenets:
 The details can be found in [Proposal: CNI plugin for Kubernetes networking over AWS VPC](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/docs/cni-proposal.md).
 
 ## Recommendations 
-- Size the subnets you will use for Pod networking for growth. If you have insufficient IP addresses available in the subnet that the CNI uses, your pods will not get an IP address. And the pods will remain in pending state until an IP address becomes available.
-- Consider using [CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html) to monitor IP addresses inventory. 
-- If you use public subnets, then they must have the automatic public IP address assignment setting enabled otherwise worker nodes will not be able to communicate with the cluster. 
-- Consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) (also called CNI custom networking) to avoid IP address allocation conflicts between Pods and other resources in the VPC. 
-- If your Pods with private IP address need to communicate with other private IP address spaces (for example, Direct Connect, VPC Peering or Transit VPC), then you need to [enable external SNAT](https://docs.aws.amazon.com/eks/latest/userguide/external-snat.html) in the CNI:
 
-	```
-	kubectl set env daemonset -n kube-system aws-node AWS_VPC_K8S_CNI_EXTERNALSNAT=true
-	```
+### Plan for growth
+
+Size the subnets you will use for Pod networking for growth. If you have insufficient IP addresses available in the subnet that the CNI uses, your pods will not get an IP address. And the pods will remain in pending state until an IP address becomes available. This may impact application autoscaling and compromise its availability. 
+
+### Monitor IP address inventory
+
+You can monitor the the IP addresses inventory of subnets  using [CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html). You can also set [CloudWatch alarms](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to get notified if a subnet is running out of IP addresses.  
+
+### Using public subnets for worker nodes
+If you use public subnets, then they must have the automatic public IP address assignment setting enabled otherwise worker nodes will not be able to communicate with the cluster. 
+
+### Run worker nodes and pods in different subnets
+Consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) (also called **CNI custom networking**) to avoid IP address allocation conflicts between Pods and other resources in the VPC. 
+
+### SNAT
+If your Pods with private IP address need to communicate with other private IP address spaces (for example, Direct Connect, VPC Peering or Transit VPC), then you need to [enable external SNAT](https://docs.aws.amazon.com/eks/latest/userguide/external-snat.html) in the CNI:
+
+```bash
+kubectl set env daemonset -n kube-system aws-node AWS_VPC_K8S_CNI_EXTERNALSNAT=true
+```
 
 ### Limit IP address pre-allocation
 
@@ -55,9 +68,9 @@ If you need to constrain the IP addresses the CNI caches then you can use these 
 
 To configure these options, you can download aws-k8s-cni.yaml compatible with your cluster and set environment variables. At the time of writing, the latest release is located [here](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.6/aws-k8s-cni.yaml).
 
-## Recommendations
-- Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. This will ensure that as Pods get created the CNI can assign IP addresses from the warm pool without calling the EC2 API. 
-- Avoid setting the value of `WARM_IP_TARGET` too low as it will cause additional calls to the EC2 API and that might cause throttling of the requests.
+!!! info Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. This will ensure that as Pods get created the CNI can assign IP addresses from the warm pool without calling the EC2 API. 
+
+!!! warning Avoid setting the value of `WARM_IP_TARGET` too low as it will cause additional calls to the EC2 API and that might cause throttling of the requests.
 
 ## CNI custom networking
 
@@ -120,7 +133,7 @@ You can then pass the `max-pods` value in the worker nodes’ user-data script:
 
 Since the node’s primary ENI is no longer used to assign Pod IP addresses, there is a decline in the number of Pods you can run on a given EC2 instance type. 
  
-## Alternate CNI plugins 
+## Using alternate CNI plugins 
 
 AWS VPC CNI plugin is the only officially supported [network plugin](https://kubernetes.io/docs/concepts/cluster-administration/networking/) on EKS. However, since EKS runs upstream Kubernetes and is certified Kubernetes conformant, you  can use alternate [CNI plugins](https://github.com/containernetworking/cni).
 
@@ -128,7 +141,3 @@ A compelling reason to opt for an alternate CNI plugin is the ability to run Pod
 
 Refer to EKS documentation for the list [alternate compatible CNI plugins](https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html). Consider obtaining the CNI vendor’s commercial support if you plan on using an alternate CNI in production. 
 
----
-
-Things to add:
-* Amazon EKS does not automatically upgrade the CNI plugin on your cluster when new versions are released. To get a newer version of the CNI plugin on existing clusters, you must manually upgrade the plugin.

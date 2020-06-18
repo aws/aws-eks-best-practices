@@ -94,11 +94,11 @@ New Kubernetes versions introduce significant changes and you cannot downgrade a
 - EKS control plane upgrade doesn’t include upgrading worker nodes. You are responsible for updating EKS worker nodes. Consider using [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) to automate the process of upgrading worker nodes. 
 - If required, you can use `kubectl convert` to [convert Kubernetes manifests files between different API versions](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#convert).
 
-## Control Plane Scaling
+## Running large clusters
 
 EKS clusters by default are sized to handle up to 200 nodes and 30 pods per node. If your cluster exceeds this size, you can request a scale up through a support ticket. The EKS team is working on automatically scaling the control plane, at which point this will not be required.
 
-## Limits and service quotas
+## Know limits and service quotas
 
 AWS sets service limits (an upper limit on the number of each resource your team can request) to protect you from accidentally over-provisioning resources. [Amazon EKS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html) lists the service limits. There are two types of limits, soft limits, that can be changed with proper justification via a support ticket. Hard limits cannot be changed. You should consider these values when architecting your applications. Consider reviewing these service limits periodically and incorporate them during in your application design. 
 
@@ -110,5 +110,4 @@ AWS sets service limits (an upper limit on the number of each resource your team
 
 - [De-mystifying cluster networking for Amazon EKS worker nodes](https://aws.amazon.com/blogs/containers/de-mystifying-cluster-networking-for-amazon-eks-worker-nodes/)
 - [Amazon EKS cluster endpoint access control](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)
-- 
 - [AWS re:Invent 2019: Amazon EKS under the hood (CON421-R1)](https://www.youtube.com/watch?v=7vxDWDD2YnM)
