@@ -24,10 +24,10 @@ None of these controls, however, prevent pods from different tenants from sharin
   + **Account Limits** to ensure quality of service and fairness when sharing a cluster
   + **Namespace Templates** for secure tenant isolation and self-service namespace initialization
   
-[Loft](https://loft.sh) is a commerical offering from the maintainers of Kiosk that adds the following capabilities: 
+[Loft](https://loft.sh) is a commerical offering from the maintainers of Kiosk and [DevSpace](https://github.com/devspace-cloud/devspace) that adds the following capabilities: 
 
-  + **Configure mutli-cluster access** to grant access to spaces in multiple clusters 
-  + **Sleep mode** scales down deployments in a space during period of inactivity
+  + **Mutli-cluster access** for granting access to spaces in different clusters 
+  + **Sleep mode** scales down deployments in a space during periods of inactivity
   + **Single sign-on** with OIDC authentication providers like GitHub
 
 There are three primary use cases that can be addressed by soft multi-tenancy.
