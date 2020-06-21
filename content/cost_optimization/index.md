@@ -23,7 +23,7 @@ As with the other best practices, there are trade-offs to consider. For example,
 
 This guide is meant for devops teams who are responsible for implementing and managing the EKS clusters and the workloads they support. The guide is organized into different best practice areas for easier consumption. Each topic has a list of recommendations, tools to use and best practices for cost optimization of your EKS clusters. The topics do not need to read in a particular order.
 
-### Key AWS Services
+### Key AWS Services and Kubernetes features
 Cost optimization is supported by the following AWS services and features:
 + Cost-effective resources – Amazon EC2 provides multiple instance types, as well as Savibgs Plan (and Reserved Instances) and Spot Instances, at different prices.
 + Matching supply and demand – Match user demand with Auto Scaling along with Kubernetes native Auto Scaling policies. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores like EBS and EFS, for elasticity and durability of the application data.
