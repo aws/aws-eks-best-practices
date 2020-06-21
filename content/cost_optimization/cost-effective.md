@@ -1,7 +1,14 @@
-### 1. Cost-effective resources 
-**1.1 Auto Scaling - Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs.**
+# Cost-effective resources 
+Cost Effective resources means using the appropriate services, resources, and configurations for your workloads running on a Kubernetes cluster, which will result in cost savings.
+
+
+
+## Recommendations
+### Ensure that the infrastructure used to deploy the containerized service matches the application profile and scaling needs
 
 There are several types of Kubernetes autoscaling supported in Amazon EKS - [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html), [Horizontal Pod Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html) and [Vertical Pod Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html). This section covers two of them, Cluster Auto Scaler and Horizontal Pod Autoscaler.
+
+#### Use Cluster Autoscaler - to adjust the size of a Kubernetes cluster to meet the current needs
 
 The [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) automatically adjusts the number of nodes in the EKS cluster when pods fail to launch due to lack of resources or when nodes in the cluster are underutilized and their pods can be rescheduled onto other nodes in the cluster. The Cluster Autoscaler on AWS scales worker nodes within any specified Auto Scaling group and runs as a deployment in your cluster.
 
@@ -10,7 +17,7 @@ Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle 
 The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. 
 
 
-***Deploy the Cluster Autoscaler for EC2 based Worker Nodes:***
+**Deploy the Cluster Autoscaler for EC2 based Worker Nodes:**
 ```
 $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
 
@@ -25,7 +32,31 @@ $ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 *Cluster Autoscaler logs -*
 ![Kubernetes Cluster Auto Scaler logs](../images/cluster-auto-scaler.png)
 
-***Deploy Horizontal Pod Autoscaling***
+When a pod cannot be scheduled due to lack of available resources, Cluster Autoscaler determines that the cluster must scale out and increases the size of the node group. When multiple node groups are used, Cluster Autoscaler chooses one based on the Expander configuration. Currently, the following strategies are supported in EKS: 
++ **random** - default expander, selects the instance group randomly
++ **most-pods** - selects the instance group that schedules the most amount of pods.
++ **least-waste** - selects the node group that will have the least idle CPU (if tied, unused memory) after scale-up. This is useful when you have different classes of nodes, for example, high CPU or high memory nodes, and only want to expand those when there are pending pods that need a lot of those resources.
++ **priority** - selects the node group that has the highest priority assigned by the user
+
+From the [documention](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) to specify **least-waste** as the expander type for the Cluster Autoscaling configuration:
+
+
+```
+    spec:
+      containers:
+      - command:
+        - ./cluster-autoscaler
+        - --v=4
+        - --stderrthreshold=info
+        - --cloud-provider=aws
+        - --skip-nodes-with-local-storage=false
+        - --expander=least-waste
+        - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/<YOUR CLUSTER NAME>
+        - --balance-similar-node-groups
+        - --skip-nodes-with-system-pods=false
+```
+
+#### Deploy Horizontal Pod Autoscaling - to automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization
 
 The [Kubernetes Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization. This can help your applications scale out to meet increased demand or scale in when resources are not needed, thus freeing up your worker nodes for other applications. When you set a target CPU utilization percentage, the Horizontal Pod Autoscaler scales your application in or out to try to meet that target. 
 
@@ -67,8 +98,9 @@ Autoscaling EKS on Fargate can be done using the following mechanisms:
 
 The above scenarios are explained in a hands-on blog on ["Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
 
+## Recommendations
 
-**1.2 Down Scaling**
+### Use Down Scaling - Scale down Kubernetes Deployments, StatefulSets, and/or HorizontalPodAutoscalers during non-work hours.
 
 As part of controlling costs, apart from Auto-scaling of the Kubernetes cluster nodes and pods, Down-Scaling of resources when not in-use can also have an huge impact on the overall costs. There are tools like [kube-downscaler](https://github.com/hjacobs/kube-downscaler) and [Descheduler for Kubernetes](https://github.com/kubernetes-sigs/descheduler). 
 
@@ -136,7 +168,7 @@ strategies:
 ```
 
 
-**1.3 Policies using LimitRanges and Resource Quotas**
+### Use LimitRanges and Resource Quotas - to help manage costs by constraining the amount of resources allocated at an Namespace level
 
 From the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/limit-range/) - By default, containers run with unbounded compute resources on a Kubernetes cluster. With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace’s resource quota. There is a concern that one Pod or Container could monopolize all available resources. 
 
@@ -185,7 +217,7 @@ spec:
 
 More examples are available in the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/).
 
-**1.4 Use pricing models for effective utilization.**
+### Recommendation - Use pricing models for effective utilization
 
 The pricing details for Amazon EKS are given in the [pricing page](https://aws.amazon.com/eks/pricing/). There is a common control plane cost for both Amazon EKS on Fargate and EC2. 
 
@@ -201,13 +233,16 @@ One of the key decision parameters apart from number of cpus, memory, processor 
 
 With [On-Demand instances](https://aws.amazon.com/ec2/pricing/), you pay for compute capacity by the hour or the second depending on which instances you run. No longer-term commitments or upfront payments are needed. 
 
-Amazon EC2 A1 instances deliver significant cost savings and are ideally suited for scale-out and ARM-based workloads that are supported by the extensive Arm ecosystem. You can now use Amazon Elastic Container Service for Kubernetes (EKS) to run containers on Amazon EC2 A1 Instances as part of a [public developer preview](https://github.com/aws/containers-roadmap/tree/master/preview-programs/eks-arm-preview). Amazon ECR now supports [multi-architecture container images](https://aws.amazon.com/blogs/containers/introducing-multi-architecture-container-images-for-amazon-ecr/), which makes it simpler to deploy container images for different architectures and operating systems from the same image repository. *Please note that for container builds with compiled languages such as C++, there are OS- or architecture-specific build steps.*
+Amazon EC2 A1 instances deliver significant cost savings and are ideally suited for scale-out and ARM-based workloads that are supported by the extensive Arm ecosystem. You can now use Amazon Elastic Container Service for Kubernetes (EKS) to run containers on Amazon EC2 A1 Instances as part of a [public developer preview](https://github.com/aws/containers-roadmap/tree/master/preview-programs/eks-arm-preview). Amazon ECR now supports [multi-architecture container images](https://aws.amazon.com/blogs/containers/introducing-multi-architecture-container-images-for-amazon-ecr/), which makes it simpler to deploy container images for different architectures and operating systems from the same image repository. 
 
-You can use the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.com/index.html) or the new [pricing calculator](https://calculator.aws/) to get pricing for the On-Demand Ec2 instances for the EKS workder nodes.
 
-****Spot EC2 Instances:****
+You can use the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.com/index.html) or the new [pricing calculator](https://calculator.aws/) to get pricing for the On-Demand EC2 instances for the EKS workder nodes.
 
-Amazon [EC2 Spot instances](https://aws.amazon.com/ec2/pricing/) allow you to request spare Amazon EC2 computing capacity for up to 90% off the On-Demand price.
+### Recommendation - Use Spot EC2 Instances:
+
+Amazon [EC2 Spot instances](https://aws.amazon.com/ec2/pricing/) allow you to request spare Amazon EC2 computing capacity for up to 90% off the On-Demand price. 
+
+Spot Instances are a great fit for your stateless containerized workloads running on your Kubernetes clusters because the approach to containers and Spot Instances are similar – ephemeral and autoscaled capacity. This means they both can be added and removed while adhering to SLAs and without impacting performance or availability of your applications.
 
 We can create multiple nodegroups with a mix of on-demand instance types and EC2 Spot instances to leverage the advantages of pricing between these two instance types.
 
@@ -279,25 +314,28 @@ effect: "PreferNoSchedule"
 
 You can do a complete hands-on workshop on EC2 spot instances at the [online AWS EKS Workshop](https://eksworkshop.com/beginner/150_spotworkers/).
 
-****Compute Savings Plan:****
+### Recommendation - Use Compute Savings Plan
 
 Compute Savings Plans, a new and flexible discount model that provides you with the same discounts as Reserved Instances, in exchange for a commitment to use a specific amount (measured in dollars per hour) of compute power over a one or three year period. The details are covered in the [Savings Plan launch page](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/).The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EKS clusters. For example, you can shift from C4 to C5 instances, move a workload from Dublin to London benefiting from Savings Plan prices along the way, without having to do anything.
 
 The AWS Cost Explorer will help you to choose a Savings Plan, and will guide you through the purchase process.
 ![Compute Savings Plan](../images/Compute-savings-plan.png)
 
-Note, that compute savings plans does not apply to EKS Fargate yet.
+!!! note
+    That compute savings plans does not apply to EKS Fargate yet.
 
-****Note, that the above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
+!!! note
+    The above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
 
-### Resources
+## Resources
 Refer to the following resources to learn more about best practices for cost optimization.
 
-Videos
+### Videos
 +	[AWS re:Invent 2019: Save up to 90% and run production workloads on Spot Instances (CMP331-R1)](https://www.youtube.com/watch?v=7q5AeoKsGJw)
 
-Documentation and Blogs
+### Documentation and Blogs
 +	[Cost optimization for Kubernetes on AWS](https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)
++	[Building for Cost optimization and Resilience for EKS with Spot Instances](https://aws.amazon.com/blogs/compute/cost-optimization-and-resilience-eks-with-spot-instances/)
 + [Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
 +	[Using Spot Instances with EKS](https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks.html)
 +   [Extending the EKS API: Managed Node Groups](https://aws.amazon.com/blogs/containers/eks-managed-node-groups/)
@@ -307,7 +345,7 @@ Documentation and Blogs
 +   [Savings Plan](https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html)
 +   [Saving Cloud Costs with Kubernetes on AWS](https://srcco.de/posts/saving-cloud-costs-kubernetes-aws.html) 
 
-Tools
-+   [Kube downscaler](https://github.com/hjacobs/kube-downscaler)
+### Tools
++  [Kube downscaler](https://github.com/hjacobs/kube-downscaler)
 +  [Kubernetes Descheduler](https://github.com/kubernetes-sigs/descheduler)
 
