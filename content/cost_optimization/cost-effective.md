@@ -38,7 +38,7 @@ When a pod cannot be scheduled due to lack of available resources, Cluster Autos
 + **least-waste** - selects the node group that will have the least idle CPU (if tied, unused memory) after scale-up. This is useful when you have different classes of nodes, for example, high CPU or high memory nodes, and only want to expand those when there are pending pods that need a lot of those resources.
 + **priority** - selects the node group that has the highest priority assigned by the user
 
-From the [documention](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) to specify **least-waste** as the expander type for the Cluster Autoscaling configuration:
+From the [documentation](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) to specify **least-waste** as the expander type for the Cluster Autoscaling configuration:
 
 
 ```
@@ -55,6 +55,7 @@ From the [documention](https://docs.aws.amazon.com/eks/latest/userguide/cluster-
         - --balance-similar-node-groups
         - --skip-nodes-with-system-pods=false
 ```
+
 
 #### Deploy Horizontal Pod Autoscaling - to automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization
 
