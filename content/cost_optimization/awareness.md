@@ -26,7 +26,7 @@ After you activate cost allocation tags in the [AWS Cost Explorer](https://docs.
 Tags don't have any semantic meaning to Amazon EKS and are interpreted strictly as a string of characters. For example, you can define a set of tags for your Amazon EKS clusters to help you track each cluster's owner and stack level.
 
 ## Recommendations
-### 2.2 Use AWS Trusted Advisor
+### Use AWS Trusted Advisor
 
 AWS Trusted Advisor offers a rich set of best practice checks and recommendations across five categories: cost optimization; security; fault tolerance; performance; and service limits.
 
