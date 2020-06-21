@@ -1,5 +1,10 @@
-### 2. Expenditure awareness
-**2.1 Tagging of Resources**
+# Expenditure awareness
+
+Expenditure awareness is understanding who, where and what is spending causing expenditure in your EKS cluster. Getting a clear idea of this data will help in awareness and to remediate wasteful costs.
+
+
+## Recommendations
+### Tagging of Resources
 
 Amazon EKS supports [adding AWS tags](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html) to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
 
@@ -20,21 +25,24 @@ After you activate cost allocation tags in the [AWS Cost Explorer](https://docs.
 
 Tags don't have any semantic meaning to Amazon EKS and are interpreted strictly as a string of characters. For example, you can define a set of tags for your Amazon EKS clusters to help you track each cluster's owner and stack level.
 
-**2.2 Using AWS Trusted Advisor**
+## Recommendations
+### 2.2 Use AWS Trusted Advisor
 
 AWS Trusted Advisor offers a rich set of best practice checks and recommendations across five categories: cost optimization; security; fault tolerance; performance; and service limits.
 
 Under Cost Optimization, it helps in eliminating unused and idle resources or making commitments to reserved capacity. The key action items that will help Amazon EKS with EC2 will be around low utilsed EC2 instances, unassociated Elastic IP addresses, Idle Load Balancers, underutilized EBS volumes among other things. The complete list of checks are provided at https://aws.amazon.com/premiumsupport/technology/trusted-advisor/best-practice-checklist/. 
 
-The Trusted Advisor also provides Savings Plan and Reserved Instances recommendations for EC2 instances and Fargate - which allows you to commit to a consistent usage amount in exchange for discounted rates.
+The Trusted Advisor also provides Savings Plan and Reserved Instances recommendations for EC2 instances and Fargate - which allows you to commit to a consistent usage amount in exchange for discounted rates. Please note, that the recommendations from Trusted Advisor are generic recommendations and not specific to EKS. 
 
-**2.3 Using Kubernetes dashboard and kubectl tools**
+## Recommendations
+
+### Use the Kubernetes dashboard 
 
 ***Kubernetes dashboard***
 
 Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes cluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html). 
 
-Dashboard provides resource usage breakdowns for each node and pod, as well as detailed metadata about pods, services, Deployments, and other Kubernetes objects. 
+Dashboard provides resource usage breakdowns for each node and pod, as well as detailed metadata about pods, services, Deployments, and other Kubernetes objects. This consolidated information provides visibility into your Kubernetes environment.
 
 ![Kubernetes Dashboard](../images/kubernetes-dashboard.png)
 
@@ -60,17 +68,39 @@ $ kubectl describe pod <pod>
 kubectl top and describe, track the utilization and availability of critical resources such as CPU, memory, and storage across kubernetes pods, nodes and containers. This awareness will help in understanding resource usage and help in controlling costs. 
 
 
-**2.4 Using Container Insights on Amazon EKS and Kubernetess**
+### Using Container Insights on Amazon EKS and Kubernetess
 
 Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Kubernetes Service on EC2, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network. 
 
 The installation of insights is given in the [documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html).
 
-CloudWatch creates aggregated metrics at the cluster, node, pod, task, and service level as CloudWatch metrics. This awareness will help in understanding resource usage and help in controlling costs.
+CloudWatch creates aggregated metrics at the cluster, node, pod, task, and service level as CloudWatch metrics. 
+
+**The following query shows a list of nodes, sorted by average node CPU utilization**
+```
+STATS avg(node_cpu_utilization) as avg_node_cpu_utilization by NodeName
+| SORT avg_node_cpu_utilization DESC 
+```
+
+**CPU usage by Container name**
+```
+stats pct(container_cpu_usage_total, 50) as CPUPercMedian by kubernetes.container_name 
+| filter Type="Container"
+```
+**Disk usage by Container name**
+```
+stats floor(avg(container_filesystem_usage/1024)) as container_filesystem_usage_avg_kb by InstanceId, kubernetes.container_name, device 
+| filter Type="ContainerFS" 
+| sort container_filesystem_usage_avg_kb desc
+```
+
+More sample queries are given in the [Container Insights documention](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-view-metrics.html)
+
+This awareness will help in understanding resource usage and help in controlling costs.
 
 
 
-**2.5 Using KubeCost for expenditure awareness and guidance**
+### Using KubeCost for expenditure awareness and guidance
 
 There are third party tools like [kubecost](https://kubecost.com/), which can also be deployed on Amazon EKS to get visibility into spend of your Kubernetes cluster.
 
@@ -108,13 +138,13 @@ $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 80
 Kube Cost Dashboard -
 ![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
 
-**2.6 Partner products**
+## Recommendations - Use Partner products/solutions
 
-***Magalix Kubeadvisor***
+#### Magalix Kubeadvisor
 
 [KubeAdvisor](https://www.magalix.com/kubeadvisor) continuously scans your Kubernetes clusters and reports how you can fix issues, apply best practices, and optimize your cluster (with recommendations of resources like CPU/Memory around cost-efficiency).
 
-***Spot.io, previously called Spotinst***
+#### Spot.io, previously called Spotinst
 
 Spotinst Ocean is an application scaling service. Similar to Amazon Elastic Compute Cloud (Amazon EC2) Auto Scaling groups, Spotinst Ocean is designed to optimize performance and costs by leveraging Spot Instances combined with On-Demand and Reserved Instances. Using a combination of automated Spot Instance management and the variety of instance sizes, the Ocean cluster autoscaler scales according to the pod resource requirements. Spotinst Ocean also includes a prediction algorithm to predict Spot Instance interruption 15 minutes ahead of time and spin up a new node in a different Spot capacity pool.
 
@@ -122,24 +152,23 @@ This is available as an [AWS Quickstart](https://aws.amazon.com/quickstart/archi
 
 The EKS workshop also has a module on [Optimized Worker Node on Amazon EKS Management](https://eksworkshop.com/beginner/190_ocean/) with Ocean by Spot.io which includes sections on cost allocation, right sizing and scaling strategies.
 
-***Yotascale***
+#### Yotascale
 
 Yotascale helps with accurately allocating Kubernetes costs. Yotascale Kubernetes Cost Allocation feature utilizes actual cost data, which is inclusive of Reserved Instance discounts and spot instance pricing instead of generic market-rate estimations, to inform the total Kubernetes cost footprint
 
 More details can be found at [their website](https://www.yotascale.com/).
 
 
-***Alcide Advisor***
+#### Alcide Advisor
 
 Alcide is an AWS Partner Network (APN) Advanced Technology Partner. Alcide Advisor helps ensure your Amazon EKS cluster, nodes, and pods configuration are tuned to run according to security best practices and internal guidelines. Alcide Advisor is an agentless service for Kubernetes audit and compliance that’s built to ensure a frictionless and secured DevSecOps flow by hardening the development stage before moving to production.
 
 More details can be found in this [blog post](https://aws.amazon.com/blogs/apn/driving-continuous-security-and-configuration-checks-for-amazon-eks-with-alcide-advisor/).
 
 
+## Other tools
 
-**2.7 Other tools**
-
-***Kube janitor***
+### Kube janitor
 
 [Kubernetes Janitor](https://github.com/hjacobs/kube-janitor) cleans up (deletes) Kubernetes resources on (1) a configured TTL (time to live) or (2) a configured expiry date (absolute timestamp). 
 The resources can also include unused Persistent Volume Claims (PVC) on Amazon EBS, which can result in substantial savings over time.
@@ -165,15 +194,15 @@ You should see the temp-nginx deployment being deleted after 5 minutes.
 
 More advanced cleanup scenarios are described in the [kube-janitor github project](https://github.com/hjacobs/kube-janitor).
 
-***Kubernetes Garbage Collection***
+### Kubernetes Garbage Collection
 
 The role of the [Kubernetes garbage collector](https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/) is to delete certain objects that once had an owner, but no longer have an owner.
 
-***Fargate count***
+### Fargate count
 
 [Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of EKS pods that have been deployed on Fargate in a specific region of a specific account. This helps in keeping track of all the Fargate pods running across an EKS cluster.
 
-***Kubernetes Ops View***
+### Kubernetes Ops View
 
 [Kube Ops View](https://github.com/hjacobs/kube-ops-view) is an useful tool, which provides a common operational picture visually for multiple Kubernetes clusters.
 
@@ -186,7 +215,7 @@ kubectl apply -k deploy/
 ![Home Page](../images/kube-ops-report.png)
 
 
-***Popeye - A Kubernetes Cluster Sanitizer***
+### Popeye - A Kubernetes Cluster Sanitizer
 
 [Popeye - A Kubernetes Cluster Sanitizer](https://github.com/derailed/popeye) is a utility that scans live Kubernetes cluster and reports potential issues with deployed resources and configurations. It sanitizes your cluster based on what's deployed and not what's sitting on disk. By scanning your cluster, it detects misconfigurations and helps you to ensure that best practices are in place
 
@@ -198,6 +227,7 @@ Documentation and Blogs
 
 Tools
 +	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
++	[Amazon CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html)
 +   [Kube Cost](https://kubecost.com/)
 +   [Kube Opsview](https://github.com/hjacobs/kube-ops-view)
 +  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
