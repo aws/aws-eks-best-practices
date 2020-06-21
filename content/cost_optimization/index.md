@@ -25,7 +25,7 @@ This guide is meant for devops teams who are responsible for implementing and ma
 
 ### Key AWS Services and Kubernetes features
 Cost optimization is supported by the following AWS services and features:
-+ Cost-effective resources – Amazon EC2 provides multiple instance types, as well as Savibgs Plan (and Reserved Instances) and Spot Instances, at different prices.
++ Cost-effective resources – Amazon EC2 provides multiple instance types, as well as Savings Plan (and Reserved Instances) and Spot Instances, at different prices.
 + Matching supply and demand – Match user demand with Auto Scaling along with Kubernetes native Auto Scaling policies. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores like EBS and EFS, for elasticity and durability of the application data.
 + Expenditure awareness – The Billing and Cost Management console dashboard  along with AWS Cost Explorer provides an overview of your AWS usage. Use AWS Organizations for granular billing details. Details of several third party tools have also been shared. 
 + Optimizing over time – Amazon CloudWatch Container Metrics provides metrics around usage of resources by the EKS cluster. In addition to the Kubernetes dashboard, there are several tools in the Kubernetes ecosystem that can be used to reduce wastage.
