@@ -34,7 +34,7 @@ kubectl get --raw /metrics
 
 These metrics are represented in a [Prometheus text format](https://github.com/prometheus/docs/blob/master/content/docs/instrumenting/exposition_formats.md). 
 
-You can use Prometheus to collect and store these metrics. In May 2020, CloudWatch added support for monitoring Prometheus metrics in CloudWatch Container Insights. So you can also use Amazon CloudWatch to monitor the EKS control plane. 
+You can use Prometheus to collect and store these metrics. In May 2020, CloudWatch added support for monitoring Prometheus metrics in CloudWatch Container Insights. So you can also use Amazon CloudWatch to monitor the EKS control plane. You can use [Tutorial for Adding a New Prometheus Scrape Target: Prometheus KPI Server Metrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-Setup-configure.html#ContainerInsights-Prometheus-Setup-new-exporters) to collect metrics and create CloudWatch dashboard to monitor your cluster’s control plane.
 
 The Kubernetes API server metrics can be found [here](https://github.com/kubernetes/apiserver/blob/master/pkg/endpoints/metrics/metrics.go). For example, `apiserver_request_duration_seconds` can indicate how long API requests are taking to run. 
 
@@ -74,6 +74,80 @@ The IAM user or role that creates the EKS Cluster automatically gets full access
 
 If you misconfigure the `aws-auth` configmap and lose access to the cluster, you can still use the cluster creator’s user or role to access the cluster. 
 
+In the unlikely event that you cannot use IAM service in the AWS region, you can also use Kubernetes service account’s bearer token to manage cluster. 
+
+Create a “super-admin” account that is permitted to perform all actions in the cluster:
+
+```
+kubectl -n kube-system create serviceaccount super-admin
+```
+
+Create a role binding that gives super-admin cluster-admin role:
+
+```
+kubectl create clusterrolebinding super-admin-rb --clusterrole=cluster-admin --serviceaccount=kube-system:super-admin
+```
+
+Get service account’s secret:
+
+```
+SECRET_NAME=`kubectl -n kube-system get serviceaccount/super-admin -o jsonpath='{.secrets[0].name}'`
+```
+
+Get token associated with the secret:
+
+```
+TOKEN=`kubectl -n kube-system get secret $SECRET_NAME -o jsonpath='{.data.token}'| base64 --decode`
+```
+
+Add service account and token to `kubeconfig`:
+
+```
+kubectl config set-credentials super-admin --token=$TOKEN
+```
+
+Set the current-context in `kubeconfig` to use super-admin account:
+
+```
+kubectl config set-context --current --user=super-admin
+```
+
+Final `kubeconfig` should look like this:
+
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data:<REDACTED>
+    server: https://<CLUSTER>.gr7.us-west-2.eks.amazonaws.com
+  name: arn:aws:eks:us-west-2:<account number>:cluster/<cluster name>
+contexts:
+- context:
+    cluster: arn:aws:eks:us-west-2:<account number>:cluster/<cluster name>
+    user: super-admin
+  name: arn:aws:eks:us-west-2:<account number>:cluster/<cluster name>
+current-context: arn:aws:eks:us-west-2:<account number>:cluster/<cluster name>
+kind: Config
+preferences: {}
+users:
+#- name: arn:aws:eks:us-west-2:<account number>:cluster/<cluster name>
+#  user:
+#    exec:
+#      apiVersion: client.authentication.k8s.io/v1alpha1
+#      args:
+#      - --region
+#      - us-west-2
+#      - eks
+#      - get-token
+#      - --cluster-name
+#      - <<cluster name>>
+#      command: aws
+#      env: null
+- name: super-admin
+  user:
+    token: <<super-admin sa’s secret>>
+```
+
 ## Handling Cluster Upgrades
 Kubernetes follows a quarterly release cycle; a new minor version (like 1.**16** or 1.**17**) is released approximately every three months. Each minor version is supported for approximately nine months after it is first released. Kubernetes supports compatibility between control plane and worker nodes for at least two minor versions.
 
@@ -83,7 +157,7 @@ EKS will announce the deprecation of a given Kubernetes minor version at least 6
 
 EKS performs in-place cluster upgrades for both [Kubernetes](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) and [EKS platform versions](https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html). This simplifies cluster operations and lets you take advantage of the latest Kubernetes features and apply security patches, without any downtime.
 
-New Kubernetes versions introduce significant changes and you cannot downgrade a cluster once upgraded. So having a well documented process for handling cluster upgrades is necessary for a smooth transition to newer Kubernetes versions. 
+New Kubernetes versions introduce significant changes and you cannot downgrade a cluster once upgraded. So having a well documented process for handling cluster upgrades is necessary for a smooth transition to newer Kubernetes versions. You may consider migrating to new clusters when upgrading to newer Kubernetes versions instead of performing in-place cluster upgrades. Cluster backup and restore tools like [VMware’s Velero](https://github.com/vmware-tanzu/velero) can help you migrate to new cluster.  
 
 - You should familiarize yourself with the [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) as newer versions may deprecate APIs and features that may break existing applications. 
 - Before upgrading the cluster you should review the [Kubernetes change log](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) and [Amazon EKS Kubernetes versions](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) to understand any negative impact to your workloads. 
