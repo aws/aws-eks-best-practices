@@ -141,3 +141,21 @@ A compelling reason to opt for an alternate CNI plugin is the ability to run Pod
 
 Refer to EKS documentation for the list [alternate compatible CNI plugins](https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html). Consider obtaining the CNI vendor’s commercial support if you plan on using an alternate CNI in production. 
 
+## CoreDNS
+
+CoreDNS fulfills name resolution and service discovery functions in Kubernetes. It is installed by default on EKS clusters. For interoperability, the Kubernetes service for CoreDNS is still named [kube-dns](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/). CoreDNS runs as a deployment in kube-system namespaces, and by default it runs two replicas with declared requests and limits. 
+
+## Recommendations
+### Monitor CoreDNS metrics
+CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_response_rcode_count_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption. 
+
+For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
+
+`for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done`
+
+### Use NodeLocal DNSCacehe
+You can improve the Cluster DNS performance by running [NodeLocal DNSCache](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/). This feature runs a DNS caching agent on cluster nodes as a DaemonSet. All the pods use the DNS caching agent running on the node for name resolution instead of using `kube-dns` service. 
+
+
+
+
