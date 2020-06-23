@@ -17,19 +17,7 @@ Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle 
 The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. 
 
 
-**Deploy the Cluster Autoscaler for EC2 based Worker Nodes:**
-```
-$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
-
-$ kubectl -n kube-system annotate deployment.apps/cluster-autoscaler cluster-autoscaler.kubernetes.io/safe-to-evict="false"
-
-$ kubectl -n kube-system edit deployment.apps/cluster-autoscaler
-
-$ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.16.5
-
-$ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
-```
-*Cluster Autoscaler logs -*
+*Cluster Autoscaler logs for EC2 based Worker Nodes -*
 ![Kubernetes Cluster Auto Scaler logs](../images/cluster-auto-scaler.png)
 
 When a pod cannot be scheduled due to lack of available resources, Cluster Autoscaler determines that the cluster must scale out and increases the size of the node group. When multiple node groups are used, Cluster Autoscaler chooses one based on the Expander configuration. Currently, the following strategies are supported in EKS: 
@@ -166,6 +154,25 @@ strategies:
        podsHavingTooManyRestarts:
          podRestartThresholds: 100
          includingInitContainers: true
+```
+
+**Cluster Turndown**
+
+[Cluster Turndown](https://github.com/kubecost/cluster-turndown) is an automated scaledown and scaleup of a Kubernetes cluster's backing nodes based on a custom schedule and turndown criteria. This feature can be used to reduce spend during down hours and/or reduce surface area for security reasons. The most common use case is to scale non-prod environments (e.g. dev clusters) to zero during off hours. Cluster Turndown is currently in ALPHA release.
+
+Cluster Turndown uses a Kubernetes Custom Resource Definition to create schedules. The following schedule will create a schedule that starts by turning down at the designated start date-time and turning back up at the designated end date-time (times should be in RFC3339 format, i.e. times based on offsets to UTC).
+
+```yaml
+apiVersion: kubecost.k8s.io/v1alpha1
+kind: TurndownSchedule
+metadata:
+  name: example-schedule
+  finalizers:
+  - "finalizer.kubecost.k8s.io"
+spec:
+  start: 2020-03-12T00:00:00Z
+  end: 2020-03-12T12:00:00Z
+  repeat: daily
 ```
 
 
@@ -349,4 +356,5 @@ Refer to the following resources to learn more about best practices for cost opt
 ### Tools
 +  [Kube downscaler](https://github.com/hjacobs/kube-downscaler)
 +  [Kubernetes Descheduler](https://github.com/kubernetes-sigs/descheduler)
++  [Cluster TurnDown](https://github.com/kubecost/cluster-turndown)
 
