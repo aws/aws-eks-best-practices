@@ -4,7 +4,21 @@ Expenditure awareness is understanding who, where and what is spending causing e
 
 
 ## Recommendations
-### Tagging of Resources
+### Use Cost Explorer
+
+[AWS Cost Explorer](https://aws.amazon.com/aws-cost-management/aws-cost-explorer/) has an easy-to-use interface that lets you visualize, understand, and manage your AWS costs and usage over time. You can analyze cost and usage data, at various levels using the filters available in Cost Explorer.
+
+#### EKS Control Plane and EKS Fargate costs
+
+Using the filters, we can query the costs incurred for the EKS costs at the Control Plane and Fargate Pod as shown in the diagram below:
+
+![Cost Explorer - EKS Control Plane](../images/eks-controlplane-costexplorer.png)
+
+Using the filters, we can query the aggregate costs incurred for the Fargate Pods across regions in EKS - which includes both vCPU-Hours per CPU and GB Hrs as shown in the diagram below:
+
+![Cost Explorer - EKS Fargate](../images/eks-fargate-costexplorer.png)
+
+#### Tagging of Resources
 
 Amazon EKS supports [adding AWS tags](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html) to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or Load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
 
@@ -138,7 +152,13 @@ $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 80
 Kube Cost Dashboard -
 ![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
 
-## Recommendations - Use Partner products/solutions
+### Using Kubernetes Cost Allocation and Capacity Planning Analytics Tool
+
+[Kubernetes Opex Analytics](https://github.com/rchakode/kube-opex-analytics) is a tool to help organizations track the resources being consumed by their Kubernetes clusters to prevent overpaying. To do so it generates, short- (7 days), mid- (14 days) and long-term (12 months) usage reports showing relevant insights on what amount of resources each project is spending over time. 
+
+![Kubernetes Opex Analytics](../images/kube-opex-analytics.png)
+
+## Recommendation - Use Partner products/solutions
 
 #### Magalix Kubeadvisor
 
@@ -231,4 +251,5 @@ Tools
 +   [Kube Cost](https://kubecost.com/)
 +   [Kube Opsview](https://github.com/hjacobs/kube-ops-view)
 +  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
++  [Kubernetes Opex Analytics](https://github.com/rchakode/kube-opex-analytics)
 
