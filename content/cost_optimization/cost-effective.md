@@ -77,7 +77,9 @@ The combination of Cluster Auto Scaler for the Kubernetes worker nodes and Horiz
 ![Kubernetes Cluster AutoScaler and HPA](../images/ClusterAS-HPA.png)
 ***(Image source: https://aws.amazon.com/blogs/containers/cost-optimization-for-kubernetes-on-aws/)***
 
-***Autoscaling of Pods on Amazon EKS with Fargate***
+***Amazon EKS with Fargate***
+
+****Horizontal Pod Autoscaling of Pods****
 
 Autoscaling EKS on Fargate can be done using the following mechanisms:
 
@@ -86,6 +88,11 @@ Autoscaling EKS on Fargate can be done using the following mechanisms:
 3. Configure autoscaling based on App Mesh traffic
 
 The above scenarios are explained in a hands-on blog on ["Autoscaling EKS on Fargate with custom metrics](https://aws.amazon.com/blogs/containers/autoscaling-eks-on-fargate-with-custom-metrics/)
+
+****Vertical Pod Autoscaling****
+
+Recommend using the [Vertical Pod Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) with pods running on Fargate to optimize the CPU and memory used for your applications. However, because changing the resource allocation for a pod requires the pod to be restarted, you must set the pod update policy to either Auto or Recreate to ensure correct functionality. 
+
 
 ## Recommendations
 
