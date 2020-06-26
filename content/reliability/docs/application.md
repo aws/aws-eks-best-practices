@@ -1,8 +1,8 @@
 ## Running Highly available applications
 
-Your customers appreciate system availability. Even while you are continuously improving the system. Architecting your application well makes your users happy and your system running without disruptions. You can improve the availability of your application by replicating and making it resilient to failures in individual components. 
+Your customers expect your application to be always available. Even during the times when you are deploying new updates to improve the system. Architecting your application well makes your users happy and your applications and services running without disruptions. You can improve the availability of your application by eliminating single points of failure and making it resilient to failures in individual components. 
 
-You can use kubernetes to operate your applications and run them in highly-available and resilient fashion. Kubernetes is designed to run distributed applications. It’s declarative system ensures that once you’ve setup the application, the control loops will continue to work until the current state matches the desired state. 
+You can use Kubernetes to operate your applications and run them in highly-available and resilient fashion. Kubernetes is designed to run distributed applications. It’s declarative system ensures that once you’ve set up the application, the Kubernetes control loops will continuously try to match the current state with the desired state. 
 
 ## Recommendations
 
@@ -16,7 +16,7 @@ Running multiple replicas of your application will make it highly-available. You
 
 ### Schedule replicas across nodes
 
-Running multiple replicas will be not be very useful if all the replicas are running on the same node and the node becomes unavailable. Consider using pod anti-affinity to spread replicas of a deployment across multiple worker nodes. 
+Running multiple replicas won’t be very useful if all the replicas are running on the same node and the node becomes unavailable. Consider using pod anti-affinity to spread replicas of a deployment across multiple worker nodes. 
 
 You can further improve application’s reliability by running it across multiple AZs. 
 
@@ -149,6 +149,7 @@ Kubernetes supports three types of [health-checks](https://kubernetes.io/docs/ta
 
 [Kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/) is responsible for running all the above-mentioned checks. Kubelet can check the health of the Pods in three ways, it can either run a shell command inside its container, send a HTTP GET request to its container or open a TCP socket on a specified port. 
 
+## Recommendations
 ### Use Liveness Probe to remove unhealthy pods
 You can use the Liveness probe to detect failure in a running service. For example, if you are running a web service that listens on port 80, you can configure a Liveness probe to send a HTTP GET request on Pod’s port 80. Kubelet will periodically send a GET request to the Pod and expect a response, if the Pod responds between 200-399 then kubelet considers that Pod as healthy, otherwise the Pod will be considered unhealthy. If a Pod fails health-checks continously, kubelet will terminate it. 
 
@@ -159,5 +160,66 @@ When your service needs additional time to startup, you can use the Startup Prob
 
 ### Use Readiness Probe to detect partial unavailability 
 While Liveness probe is used to detect failure in an application that can only be remediated by terminating the Pod, Readiness Probe can be used to detect situations where the service may be _temporarily_ unavailable. Some services have external dependencies or need to perform actions such as opening a database connection, loading a large file, etc. And, they may need to do this not just during startup. In these situations the service may become temporarily unresponsive however once this operation completes, it is expected to be healthy again. You can use the Readiness Probe to detect this behavior and stop sending requests to the Pod until it becomes healthy again. Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic from Kubernetes Service. When the Liveness Probe succeeds, Pod will resume receiving traffic from Service.
+
+## Disruptions
+
+A Pod will run indefinitely unless a user stops it or the worker node it runs on fails. Outside of failed health-checks and autoscaling there aren’t many situations where a pod needs to be terminated. Performing Kubernetes cluster upgrades is one such event. When you  upgrade your Kubernetes cluster, after upgrading the control plane, you will upgrade the worker nodes.
+
+The preferred way to upgrade worker node is terminating old worker nodes and creating new ones. Before terminating a worker nodes, you should `drain` it. When a worker node is drained, all its pods are *safely* evicted. Safely is a key word here, when pods on a worker are evicted, they are not sent a `SIGKILL` signal. Instead a `SIGTERM` signal is sent to the main process of each container in the Pods being evicted. After the `SIGTERM` signal is sent, Kubernetes will give the process some time (grace period) before a `SIGKILL` signal is sent. This grace period is 30 seconds by default, you can override the default by using `grace-period` flag in kubectl. 
+
+`kubectl delete pod <pod name> —grace-period=<seconds>`
+
+Draining also respects `PodDisruptionBudgets`
+
+## Recommendations
+
+### Protect critical workload with Pod Disruption Budgets
+
+Pod Disruption Budget or PDB can temporarily halt the eviction process if the number of replicas of an application fall below the declared threshold. The eviction process will continue once the number of available replicas is over the threshold. You can use PDB to declare the `minAvailable` and `maxUnavailable` number of replicas. For example, if you want at least three copies of your service to be available, you can create a PDB. 
+
+```
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: my-svc-pdb
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: my-svc
+```
+
+This tells Kubernetes to halt the eviction process until three or more replicas are available. 
+
+### Practice chaos engineering 
+> Chaos Engineering is discipline of experimenting on a distributed system in order to build confidence in the system’s capability to withstand turbulent conditions in production.
+
+Dominik Tornow in his blog post explains that [Kubernetes is declarative system](https://medium.com/@dominik.tornow/the-mechanics-of-kubernetes-ac8112eaa302) where “*the user supplies a representation of the desired state of the system to the system. Then, the system considers the current state and the desired state to determine the sequence of commands to transition from current state to desired state.*” This means Kubernetes always knows the *desired state* and if the system deviates, Kubernetes can (or at least attempt to) restore the state. For example, if a worker node becomes unavailable, Kubernetes will schedule the Pods on another worker node. Similarly, if a `replica` crashes, the [Deployment Contoller](https://kubernetes.io/docs/concepts/architecture/controller/#design) will create a new `replica`. In this way, Kubernetes controllers automatically fix failures. 
+
+Consider testing the resiliency of your cluster by using a Chaos testing tool like [Gremlin](https://www.gremlin.com) that *breaks things on purpose* to detect failures. 
+
+## Use a Service Mesh
+
+**add more reliability related things**
+
+Service meshes enable service-to-service communication in a secure and reliable fashion, and increase observability of your microservices network. Most service mesh products work by having a small network proxy run alongside each service that intercepts and inspects application’s network traffic.You can place your application in a mesh without modifying your application. You can also use service proxy to generate network statistics, create access logs and add HTTP headers to outbound requests for distributed tracing.
+
+You can make your microservices more resilient by useing service mesh features like automatic retries, timeouts, circuit-breaking, and rate limiting.
+
+A service mesh can also span multiple clusters, which makes connecting 
+
+**Add a note about multi-cluster service meshes for better reliability**
+
+### Service Meshes
++ [AWS App Mesh](https://aws.amazon.com/app-mesh/)
++ [Istio](https://istio.io)
++ [LinkerD](http://linkerd.io)
++ [Consul](https://www.consul.io)
+
+
+
+
+
+
 
 
