@@ -1,4 +1,4 @@
-## Running Highly available applications
+## Running highly-available applications
 
 Your customers expect your application to be always available. Even during the times when you are deploying new updates to improve the system. Architecting your application well makes your users happy and your applications and services running without disruptions. You can improve the availability of your application by eliminating single points of failure and making it resilient to failures in individual components. 
 
