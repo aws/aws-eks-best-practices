@@ -1,16 +1,20 @@
+===========================
+###### tags: `reliability`
+===========================
+
 # EKS Control Plane
 
-Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service that makes it easy for you to run Kubernetes on AWS without needing to install, operate, and maintain your own Kubernetes control plane. It runs upstream Kubernetes and is certified Kubernetes conformant. This conformance ensures that EKS supports the Kubernetes APIs, just like the open source community version that you can install on EC2 or on-premises. Existing applications running on upstream Kubernetes are compatible with Amazon EKS.
+Amazon Elastic Kubernetes Service (EKS) is a managed Kubernetes service that makes it easy for you to run Kubernetes on AWS without needing to install, operate, and maintain your own Kubernetes control plane. It runs upstream Kubernetes and is certified Kubernetes conformant. This conformance ensures that EKS supports the Kubernetes APIs, just like the open-source community version that you can install on EC2 or on-premises. Existing applications running on upstream Kubernetes are compatible with Amazon EKS.
 
-EKS automatically manages the availability and scalability of the Kubernetes control plane nodes and it automatically replaces unhealthy control plane nodes.
+EKS automatically manages the availability and scalability of the Kubernetes control plane nodes, and it automatically replaces unhealthy control plane nodes.
 
 ## EKS Architecture 
 
-EKS architecture is designed to eliminate any single points of failure which may compromise the availability and durability of the Kubernetes control plane.
+EKS architecture is designed to eliminate any single points of failure that may compromise the availability and durability of the Kubernetes control plane.
 
 > Insert EKS architecture diagram here
 
-EKS control plane runs inside an EKS managed VPC. The EKS control plane comprises the Kubernetes master nodes, etcd cluster. Kubernetes master nodes that run components like the API server, scheduler, and `kube-controller-manager` run in an auto-scaling group. This auto-scaling group is spread across a minimum of three Availability Zones (AZs). Likewise, for durability the etcd server nodes also run in an auto-scaling group that is spread across three AZs. EKS runs a NAT Gateway in each AZ and master nodes and etcd servers run in a private subnet. This ensures that an event in a single AZ doesn’t affect the availability of the etcd cluster.  
+EKS control plane runs inside an EKS managed VPC. The EKS control plane comprises the Kubernetes master nodes, etcd cluster. Kubernetes master nodes that run components like the API server, scheduler, and `kube-controller-manager` run in an auto-scaling group. EKS runs a minimum of two master nodes in distinct Availability Zones (AZs) within in AWS region. Likewise, for durability, the etcd server nodes also run in an auto-scaling group that spans three AZs. EKS runs a NAT Gateway in each AZ, and master nodes and etcd servers run in a private subnet. This architecture ensures that an event in a single AZ doesn’t affect the EKS cluster's availability.  
 
 When you create a new cluster, Amazon EKS creates a highly-available endpoint for the managed Kubernetes API server that you use to communicate with your cluster (using tools like `kubectl`). The managed endpoint uses NLB to load balance Kubernetes API servers. EKS also provisions two [ENI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html)s in different AZs to facilitate communication to your worker nodes.
 
@@ -22,7 +26,7 @@ Whether users and worker nodes connect to the API server using the public endpoi
 
 ## Monitor Control Plane Metrics
 
-Monitoring Kubernetes API metrics can give you insights into control plane performance and identify issues. Unhealthy control plane can compromise availability of the workloads running inside the cluster. For example, poorly written controllers can overload the API servers which can affect Pod autoscaling. 
+Monitoring Kubernetes API metrics can give you insights into control plane performance and identify issues. An unhealthy control plane can compromise the availability of the workloads running inside the cluster. For example, poorly written controllers can overload the API servers, affecting your application's availability. 
 
 Kubernetes exposes control plane metrics at the  `/metrics` endpoint. 
 
@@ -36,7 +40,7 @@ These metrics are represented in a [Prometheus text format](https://github.com/p
 
 You can use Prometheus to collect and store these metrics. In May 2020, CloudWatch added support for monitoring Prometheus metrics in CloudWatch Container Insights. So you can also use Amazon CloudWatch to monitor the EKS control plane. You can use [Tutorial for Adding a New Prometheus Scrape Target: Prometheus KPI Server Metrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-Setup-configure.html#ContainerInsights-Prometheus-Setup-new-exporters) to collect metrics and create CloudWatch dashboard to monitor your cluster’s control plane.
 
-The Kubernetes API server metrics can be found [here](https://github.com/kubernetes/apiserver/blob/master/pkg/endpoints/metrics/metrics.go). For example, `apiserver_request_duration_seconds` can indicate how long API requests are taking to run. 
+You can find Kubernetes API server metrics  [here](https://github.com/kubernetes/apiserver/blob/master/pkg/endpoints/metrics/metrics.go). For example, `apiserver_request_duration_seconds` can indicate how long API requests are taking to run. 
 
 Consider monitoring these control plane metrics:
 
@@ -45,7 +49,7 @@ Consider monitoring these control plane metrics:
 | Metric | Description  |
 |:--|:--|
 |  `apiserver_request_total` | Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code. |
-| `apiserver_request_duration_seconds*`  | Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. |
+| `apiserver_request_duration_seconds*`  | Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope, and component. |
 | `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
 | `apiserver_admission_controller_admission_duration_seconds` | Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). | 
 | `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
@@ -70,11 +74,11 @@ Consider using [Grafana dashboard 12006](https://grafana.com/grafana/dashboards/
 
 EKS currently supports two types of authentication: [bearer/service account tokens](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#service-account-tokens) and IAM authentication which uses [webhook token authentication](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#webhook-token-authentication). When users call the Kubernetes API, a webhook passes an authentication token included in the request to IAM. The token, a base 64 signed URL, is generated by the AWS Command Line Interface ([AWS CLI](https://aws.amazon.com/cli/)). 
 
-The IAM user or role that creates the EKS Cluster automatically gets full access on the cluster. You can manage access to the EKS cluster by editing the [`aws-auth` configmap](https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html). 
+The IAM user or role that creates the EKS Cluster automatically gets full access to the cluster. You can manage access to the EKS cluster by editing the [`aws-auth` configmap](https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html). 
 
-If you misconfigure the `aws-auth` configmap and lose access to the cluster, you can still use the cluster creator’s user or role to access the cluster. 
+If you misconfigure the `aws-auth` configmap and lose access to the cluster, you can still use the cluster creator’s user or role to access your EKS cluster. 
 
-In the unlikely event that you cannot use IAM service in the AWS region, you can also use Kubernetes service account’s bearer token to manage cluster. 
+In the unlikely event that you cannot use the IAM service in the AWS region, you can also use the Kubernetes service account’s bearer token to manage the cluster. 
 
 Create a “super-admin” account that is permitted to perform all actions in the cluster:
 
@@ -149,7 +153,7 @@ users:
 ```
 
 ## Handling Cluster Upgrades
-Kubernetes follows a quarterly release cycle; a new minor version (like 1.**16** or 1.**17**) is released approximately every three months. Each minor version is supported for approximately nine months after it is first released. Kubernetes supports compatibility between control plane and worker nodes for at least two minor versions.
+Kubernetes follows a quarterly release cycle; a new minor version (like 1.**16** or 1.**17**) is released approximately every three months. Each minor version is supported for approximately nine months after it is first released. Kubernetes supports compatibility between the control plane and worker nodes for at least two minor versions.
 
 In line with the Kubernetes community support for Kubernetes versions, EKS provides at least three production-ready versions of Kubernetes at any given time, with a fourth version in deprecation.
 
@@ -157,20 +161,25 @@ EKS will announce the deprecation of a given Kubernetes minor version at least 6
 
 EKS performs in-place cluster upgrades for both [Kubernetes](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) and [EKS platform versions](https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html). This simplifies cluster operations and lets you take advantage of the latest Kubernetes features and apply security patches, without any downtime.
 
-New Kubernetes versions introduce significant changes and you cannot downgrade a cluster once upgraded. So having a well documented process for handling cluster upgrades is necessary for a smooth transition to newer Kubernetes versions. You may consider migrating to new clusters when upgrading to newer Kubernetes versions instead of performing in-place cluster upgrades. Cluster backup and restore tools like [VMware’s Velero](https://github.com/vmware-tanzu/velero) can help you migrate to new cluster.  
+New Kubernetes versions introduce significant changes, and you cannot downgrade a cluster once upgraded. Having a well-documented process for handling cluster upgrades is necessary for a smooth transition to newer Kubernetes versions. You may consider migrating to new clusters when upgrading to newer Kubernetes versions instead of performing in-place cluster upgrades. Cluster backup and restore tools like [VMware’s Velero](https://github.com/vmware-tanzu/velero) can help you migrate to a new cluster.  
 
 - You should familiarize yourself with the [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) as newer versions may deprecate APIs and features that may break existing applications. 
-- Before upgrading the cluster you should review the [Kubernetes change log](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) and [Amazon EKS Kubernetes versions](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) to understand any negative impact to your workloads. 
-- Consider testing the cluster upgrade in non-production environment and identify any impacts to current workloads and controllers. You can automate the testing by building a continuous integration workflow to test compatibility of your applications, controllers, and custom integrations before moving to a new Kubernetes version.
+- Before upgrading the cluster, you should review the [Kubernetes change log](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) and [Amazon EKS Kubernetes versions](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) to understand any negative impact to your workloads. 
+- Consider testing the cluster upgrade in a non-production environment and identify any impacts to current workloads and controllers. You can automate the testing by building a continuous integration workflow to test the compatibility of your applications, controllers, and custom integrations before moving to a new Kubernetes version.
 - You may also need to upgrade Kubernetes add-ons after upgrading the cluster. Review [Updating an Amazon EKS cluster Kubernetes version](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html) to validate the compatibility of cluster add-ons with the cluster version. 
 - Consider turning on [control plane logging](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html) and review the logs for any errors. 
-- Consider using `eksctl` to manage EKS cluster. You can use `eksctl` to [update the control plane, add-ons and worker nodes](https://eksctl.io/usage/cluster-upgrade/). 
+- Consider using `eksctl` to manage EKS cluster. You can use `eksctl` to [update the control plane, add-ons, and worker nodes](https://eksctl.io/usage/cluster-upgrade/). 
 - EKS control plane upgrade doesn’t include upgrading worker nodes. You are responsible for updating EKS worker nodes. Consider using [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) to automate the process of upgrading worker nodes. 
 - If required, you can use `kubectl convert` to [convert Kubernetes manifests files between different API versions](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#convert).
 
 ## Running large clusters
 
-EKS clusters by default are sized to handle up to 200 nodes and 30 pods per node. If your cluster exceeds this size, you can request a scale up through a support ticket. The EKS team is working on automatically scaling the control plane, at which point this will not be required.
+EKS clusters by default are sized to handle up to 200 nodes and 30 pods per node. If your cluster exceeds this size, you can request a scale-up through a support ticket. The EKS team is working on automatically scaling the control plane, at which point this will not be required.
+
+If you run larger clusters, you should account for potential performance issues and limits within Kubernetes and quotas in AWS services.
+
+- Clusters with more than 1000 services may experience network latency with using `kube-proxy` in `iptables` mode according to the [tests performed by the ProjectCalico team](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/). The solution is to switch to running `kube-proxy` in `ipvs` mode, which is not supported on EKS yet. 
+- You may also experience [EC2 API request throttling](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html) if the CNI needs to request IP addresses for Pods or if you need to create new EC2 instances frequently. You can reduce calls EC2 API by configuring the CNI to cache IP addresses. You can use larger EC2 instance types to reduce EC2 scaling events. 
 
 ## Know limits and service quotas
 
