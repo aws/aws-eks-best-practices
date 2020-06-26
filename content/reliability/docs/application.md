@@ -1,18 +1,18 @@
 ## Running highly-available applications
 
-Your customers expect your application to be always available. Even during the times when you are deploying new updates to improve the system. Architecting your application well makes your users happy and your applications and services running without disruptions. You can improve the availability of your application by eliminating single points of failure and making it resilient to failures in individual components. 
+Your customers expect your application to be always available, even during the times when you are deploying new updates to improve the system. Architecting your application well makes your users happy, and your applications and services running without disruptions. You can improve the availability of your application by eliminating single points of failure and making it resilient to failures in individual components. 
 
-You can use Kubernetes to operate your applications and run them in highly-available and resilient fashion. Kubernetes is designed to run distributed applications. It’s declarative system ensures that once you’ve set up the application, the Kubernetes control loops will continuously try to match the current state with the desired state. 
+You can use Kubernetes to operate your applications and run them in a highly-available and resilient fashion. Kubernetes is designed to run distributed applications. Its declarative system ensures that once you’ve set up the application, the Kubernetes control loops will continuously try to match the current state with the desired state. 
 
 ## Recommendations
 
-### Avoid running singleton pods
+### Avoid running singleton Pods
 
-If you run your applications in a single pod, then your application will be unavailable if that pod gets terminated. You can use Kubernetes to automatically compensate for the termination of a pod. Instead of deploying applications in individual pods, prefer creating [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). If a pod becomes extinct, then deployment controller will create a new pod.
+If you run your applications in a single Pod, then your application will be unavailable if that Pod gets terminated. You can use Kubernetes to compensate for the termination of a pod automatically. Instead of deploying applications in individual pods, prefer creating [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). If a Pod becomes defunct, then the Deployment controller will create a new pod.
 
 ### Run multiple replicas 
 
-Running multiple replicas of your application will make it highly-available. You can use the horizontal pod autoscaler **link here** to automatically scale replicas based on workload. 
+Running multiple replicas of your application will make it highly-available. If one replica of your application fails, your application will still function, albeit at reduced capacity until Kubernetes creates another Pod to make up for the loss. Furthermore, you can use the [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) to scale replicas automatically based on workload demand. 
 
 ### Schedule replicas across nodes
 
@@ -161,6 +161,8 @@ When your service needs additional time to startup, you can use the Startup Prob
 ### Use Readiness Probe to detect partial unavailability 
 While Liveness probe is used to detect failure in an application that can only be remediated by terminating the Pod, Readiness Probe can be used to detect situations where the service may be _temporarily_ unavailable. Some services have external dependencies or need to perform actions such as opening a database connection, loading a large file, etc. And, they may need to do this not just during startup. In these situations the service may become temporarily unresponsive however once this operation completes, it is expected to be healthy again. You can use the Readiness Probe to detect this behavior and stop sending requests to the Pod until it becomes healthy again. Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic from Kubernetes Service. When the Liveness Probe succeeds, Pod will resume receiving traffic from Service.
 
+---
+
 ## Disruptions
 
 A Pod will run indefinitely unless a user stops it or the worker node it runs on fails. Outside of failed health-checks and autoscaling there aren’t many situations where a pod needs to be terminated. Performing Kubernetes cluster upgrades is one such event. When you  upgrade your Kubernetes cluster, after upgrading the control plane, you will upgrade the worker nodes.
@@ -198,17 +200,13 @@ Dominik Tornow in his blog post explains that [Kubernetes is declarative system]
 
 Consider testing the resiliency of your cluster by using a Chaos testing tool like [Gremlin](https://www.gremlin.com) that *breaks things on purpose* to detect failures. 
 
-## Use a Service Mesh
+### Use a Service Mesh
 
-**add more reliability related things**
+You can use a service mesh to improve your application’s resiliency. Service meshes enable service-to-service communication and increase the observability of your microservices network. Most service mesh products work by having a small network proxy run alongside each service that intercepts and inspects the application’s network traffic. You can place your application in a mesh without modifying your application. Using service proxy’s built-in features, you can have it generate network statistics, create access logs, and add HTTP headers to outbound requests for distributed tracing.
 
-Service meshes enable service-to-service communication in a secure and reliable fashion, and increase observability of your microservices network. Most service mesh products work by having a small network proxy run alongside each service that intercepts and inspects application’s network traffic.You can place your application in a mesh without modifying your application. You can also use service proxy to generate network statistics, create access logs and add HTTP headers to outbound requests for distributed tracing.
+A service mesh can help you make your microservices more resilient with features like automatic request retries, timeouts, circuit-breaking, and rate-limiting.
 
-You can make your microservices more resilient by useing service mesh features like automatic retries, timeouts, circuit-breaking, and rate limiting.
-
-A service mesh can also span multiple clusters, which makes connecting 
-
-**Add a note about multi-cluster service meshes for better reliability**
+If you operate multiple clusters, you can use a service mesh to enable cross-cluster service-to-service communication.
 
 ### Service Meshes
 + [AWS App Mesh](https://aws.amazon.com/app-mesh/)
@@ -216,10 +214,43 @@ A service mesh can also span multiple clusters, which makes connecting
 + [LinkerD](http://linkerd.io)
 + [Consul](https://www.consul.io)
 
+---
 
+## Observability 
 
+Observability is an umbrella term that includes monitoring, logging, and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in microservices architecture, each component needs to be monitored individually as well as cohesively as one application. You can use cluster-level monitoring, logging, and distributed tracing systems to identify issues in your cluster before they disrupt your customers.
 
+Kubernetes tools for troubleshooting and monitoring are limited. The metrics-server collects resource metrics and stores them in memory but doesn’t persist them. You can view the logs of a Pod using kubectl, but Kubernetes doesn't automatically retain logs. And the implementation of distributed tracing is done either at application code level or using services meshes. 
 
+Kubernetes extensibility shines here, Kubernetes allows you to bring your own preferred centralized monitoring, logging, and tracing solution. 
 
+## Recommendations
+
+### Monitor your applications
+
+The number of metrics you need to monitor in modern applications is growing continuously. It helps if you have an automated way to track your applications so you can focus on solving your customer’s challenges. Cluster-wide monitoring tools like [Prometheus](https://prometheus.io) or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) can be the vigilantes of your cluster and workload and provide you signals when, or preferably, before things go wrong. 
+
+Monitoring tools allow you to create alerts that your operations team can subscribe to. Consider rules to activate alarms for events that can, when exacerbated, lead to an outage or impact application performance. 
+
+Sysdig’s post [Best practices for alerting on Kubernetes](https://sysdig.com/blog/alerting-kubernetes/) includes a comprehensive list of components that can impact the availability of your applications.
+
+### Use Prometheus client library to expose application metrics
+
+In addition to monitoring the state of the application and aggregating standard metrics, you can also use the Prometheus client library to expose application-specific custom metrics to improve the application's observability.
+
+### Use a distributed tracing system to identify bottlenecks
+
+A typical modern application has components distributed over the network and its reliability depends on proper functioning of each of the components that make up the application. You can use a distributed tracing solution to understand how requests flows and how systems communicate. 
+Traces can show you where bottlenecks exist in your application network and prevent problems that can cause cascading failures. 
+
+You have two options to implement tracing in your applications: you can either implement distributed tracing at the code level by using shared libraries or you can use a service mesh. 
+
+Implementing tracing at the code level can be disadvantageous. In this method, you have to make changes to your code. This is further complicated if you have polyglot applications. You’re also responsible to maintaining yet another library, across your services. 
+
+Service Meshes like [LinkerD](http://linkerd.io), [Istio](http://istio.io), and [AWS App Mesh](https://aws.amazon.com/app-mesh/) can be used to implement distributed tracing in your application. 
+
+Tracing tools like [AWS X-Ray](https://aws.amazon.com/xray/), [Jaeger](https://www.jaegertracing.io) support both shared library and service mesh implementations. 
+
+Consider using a tracing tool that supports both implementations so you will not have to switch tools if you adopt service mesh. 
 
 
