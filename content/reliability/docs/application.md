@@ -1,14 +1,17 @@
+---
+tags: reliability
+---
 ## Running highly-available applications
 
 Your customers expect your application to be always available, even during the times when you are deploying new updates to improve the system. Architecting your application well makes your users happy, and your applications and services running without disruptions. You can improve the availability of your application by eliminating single points of failure and making it resilient to failures in individual components. 
 
-You can use Kubernetes to operate your applications and run them in a highly-available and resilient fashion. Kubernetes is designed to run distributed applications. Its declarative system ensures that once you’ve set up the application, the Kubernetes control loops will continuously try to match the current state with the desired state. 
+You can use Kubernetes to operate your applications and run them in a highly-available and resilient fashion. Kubernetes is designed to run distributed applications. Its declarative system ensures that once you’ve set up the application, Kubernetes will continuously try to [match the current state with the desired state](https://kubernetes.io/docs/concepts/architecture/controller/#desired-vs-current).
 
 ## Recommendations
 
 ### Avoid running singleton Pods
 
-If you run your applications in a single Pod, then your application will be unavailable if that Pod gets terminated. You can use Kubernetes to compensate for the termination of a pod automatically. Instead of deploying applications in individual pods, prefer creating [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). If a Pod becomes defunct, then the Deployment controller will create a new pod.
+If you run your applications in a single Pod, then your application will be unavailable if that Pod gets terminated. You can make Kubernetes compensate for the termination of a pod by re-creating Pod automatically. Instead of deploying applications in individual pods, prefer creating [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). If a Pod fails or gets terminated, the Deployment controller will create a new pod.
 
 ### Run multiple replicas 
 
@@ -67,9 +70,11 @@ spec:
         image: nginx:1.16-alpine
 ```
 
+Kubernetes 1.18 introduces [pod topology spread constraints](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/) to allow you to spread Pods across AZs automatically. 
+
 ### Run Kubernetes Metrics Server
 
-If you want to scale your applications then install Kubernetes [metrics server](https://github.com/kubernetes-sigs/metrics-server). Kubernetes autoscaler add-ons like HPA and VPA need to track metrics of applications to scale them. The metrics-server is responsible for collecting resource metrics from kubelets and serving them in [Metrics API format](https://github.com/kubernetes/metrics). 
+If you want to scale your applications then install Kubernetes [metrics server](https://github.com/kubernetes-sigs/metrics-server). Kubernetes autoscaler add-ons like [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) and [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) need to track metrics of applications to scale them. The metrics-server is responsible for collecting resource metrics from kubelets and serving them in [Metrics API format](https://github.com/kubernetes/metrics). 
 
 The metrics server doesn’t retain any data and its not a monitoring solution. It’s purpose is to expose CPU and memory usage metrics to other systems. If you want to track the state of your application over a period of time then you need a monitoring like Prometheus or Amazon CloudWatch. 
 
@@ -129,6 +134,8 @@ The `--record` argument record the changes to the deployment and helps you if yo
 
 By default when you update a deployment that requires a recreation of pods, deployment will do a [rolling upgrade](https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/). This means it will only update a portion of the running pods and not all at once. You can control how deployment performs rolling upgrades through `RollingUpdateStrategy` property. 
 
+When performing a *rolling update* of a Deployment you can use the [`Max Unavailable`](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#max-unavailable) property to specify maximum number of Pods that can be unavailable during the update. The `Max Surge` property of Deployment allows you to set the maximum number of Pods that can be created over the desired number of Pods.
+
 ### Use Canary deployments
 
 You can make deployments significantly safer by performing canary deployments where changes are made to a small percent of application and monitored. If monitoring shows positive results then new version progressively receives more traffic while the traffic to the old version declines. 
@@ -159,7 +166,11 @@ You can use `initialDelaySeconds` to delay the first probe.
 When your service needs additional time to startup, you can use the Startup Probe to delay the Liveness Probe. Once the Startup Probe succeeds, the Liveness Probe takes over. You can define maximum time Kubernetes should wait for application startup. If after the maximum configured time, the Pod still fails Startup Probes, it will be terminated and a new Pod will be created. 
 
 ### Use Readiness Probe to detect partial unavailability 
-While Liveness probe is used to detect failure in an application that can only be remediated by terminating the Pod, Readiness Probe can be used to detect situations where the service may be _temporarily_ unavailable. Some services have external dependencies or need to perform actions such as opening a database connection, loading a large file, etc. And, they may need to do this not just during startup. In these situations the service may become temporarily unresponsive however once this operation completes, it is expected to be healthy again. You can use the Readiness Probe to detect this behavior and stop sending requests to the Pod until it becomes healthy again. Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic from Kubernetes Service. When the Liveness Probe succeeds, Pod will resume receiving traffic from Service.
+While Liveness probe is used to detect failure in an application that can only be remediated by terminating the Pod, Readiness Probe can be used to detect situations where the service may be _temporarily_ unavailable. In these situations the service may become temporarily unresponsive however once this operation completes, it is expected to be healthy again.  
+
+For example, an application shouldn't crash because a dependency such as a database isn't ready or available. Instead, the application should keep retrying to connect to the database until it succeeds. When you make sure that your application can reconnect to a dependency such as a database, you can deliver a more robust and resilient service.
+
+You can use the Readiness Probe to detect such behavior and stop sending requests to the Pod until it becomes functional again. *Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic from Kubernetes Service*. When the Liveness Probe succeeds, Pod will resume receiving traffic from Service.
 
 ---
 
