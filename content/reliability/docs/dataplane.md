@@ -22,7 +22,12 @@ It is a best practice to create worker nodes using EC2 Auto Scaling groups inste
 
 Cluster Autoscaler adjusts the size of the data plane when there are pods that cannot be run because the cluster has insufficient resources, and adding another worker node would help. Although Cluster Autoscaler is a reactive process, it waits until pods are in *Pending* state due to insufficient capacity in the cluster. When such an event occurs, it adds EC2 instances to the cluster. Whenever the cluster runs out of capacity, new replicas - or new pods - will be unavailable (*in Pending state*) until worker nodes are added. This delay may impact your applications' reliability if the data plane cannot scale fast enough to meet the demands of the workload. If a worker node is consistently underutilized and all of its pods can be scheduled on other worker nodes, Cluster Autoscaler terminates it.
 
-Consider inflating the `replica` count to account for the delay in data plane scaling, especially when using smaller EC2 instances that take longer to join the cluster.
+### Configure over-provisioning with Cluster Autoscaler
+
+Cluster Autoscaler triggers a scale-up of the data-plane when Pods in the cluster are already *Pending*. Hence, there may be a delay between the time your application needs more replicas, and when it, in fact, gets more replicas. An option to account for this possible delay is through adding more than required replicas, inflating the number of replicas for the application. 
+
+Another pattern that Cluster Autoscaler recommends uses [*pause* Pods and the Priority Preemption feature](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler). The *pause Pod* does nothing but acts as a placeholder for compute capacity that can be used by other Pods in your cluster. Because it runs with a *very low assigned priority*, the pause Pod gets evicted from the node when another Pod needs to be created, and the cluster doesn’t have available capacity. The Kubernetes Scheduler notices the eviction of the pause Pod and tries to reschedule it. But since the cluster is running at capacity, the pause Pod remains *Pending*, to which the Cluster Autoscaler reacts by adding nodes. 
+
 
 ### Using Cluster Autoscaler with multiple Auto Scaling Groups
 
@@ -174,7 +179,3 @@ Consider configuring quotas for each namespace. Consider using `LimitRanges` to 
 Resource Quotas help limit the amount of resources a namespace can use. The [`LimitRange` object](https://kubernetes.io/docs/concepts/policy/limit-range/) can help you implement minimum and maximum resources a container can request. Using `LimitRange` you can set a default request and limits for containers, which is helpful if setting compute resource limits is not a standard practice in your organization. As the name suggests, `LimitRange` can enforce minimum and maximum compute resources usage per Pod or Container in a namespace. As well as, enforce minimum and maximum storage request per PersistentVolumeClaim in a namespace.
 
 Consider using `LimitRange` in conjunction with `ResourceQuota` to enforce limits at a container as well as namespace level. Setting these limits will ensure that a container or a namespace does not usurp upon resources used by other tenants in the cluster. 
-
-
-
-
