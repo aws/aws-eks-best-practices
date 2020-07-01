@@ -53,7 +53,6 @@ Consider monitoring these control plane metrics:
 | `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
 | `apiserver_admission_controller_admission_duration_seconds` | Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). | 
 | `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
-| `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL.
 | `rest_client_requests_total`  | Number of HTTP requests, partitioned by status code, method, and host. | 
 
 ### etcd
