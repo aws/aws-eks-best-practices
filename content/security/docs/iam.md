@@ -40,6 +40,8 @@ A service account token is a long-lived, static credential. If it is compromised
 ### Employ least privileged access to AWS Resources
 An IAM User does not need to be assigned privileges to AWS resources to access the Kubernetes API. If you need to grant an IAM user access to an EKS cluster, create an entry in the `aws-auth` ConfigMap for that user that maps to a specific Kubernetes RBAC group. 
 
+[Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you implement [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources.  
+
 ### Use IAM Roles when multiple users need identical access to the cluster
 Rather than creating an entry for each individual IAM User in the `aws-auth` ConfigMap, allow those users to assume an IAM Role and map that role to a Kubernetes RBAC group.  This will be easier to maintain, especially as the number of users that require access grows.
 
