@@ -40,8 +40,6 @@ A service account token is a long-lived, static credential. If it is compromised
 ### Employ least privileged access to AWS Resources
 An IAM User does not need to be assigned privileges to AWS resources to access the Kubernetes API. If you need to grant an IAM user access to an EKS cluster, create an entry in the `aws-auth` ConfigMap for that user that maps to a specific Kubernetes RBAC group. 
 
-[Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you implement [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources.  
-
 ### Use IAM Roles when multiple users need identical access to the cluster
 Rather than creating an entry for each individual IAM User in the `aws-auth` ConfigMap, allow those users to assume an IAM Role and map that role to a Kubernetes RBAC group.  This will be easier to maintain, especially as the number of users that require access grows.
 
@@ -207,6 +205,9 @@ spec:
 
 ### Scope the IAM Role trust policy for IRSA to the service account name
 The trust policy can be scoped to a Namespace or a specific service account within a Namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other Pods within the same Namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See https://eksctl.io/usage/iamserviceaccounts/ for further information. 
+
+### Grant least privileged access to applications
+[Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function properly.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you gradually limit the scope of IAM roles assigned to applications. Consult the documentation on granting [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources for further information.
 
 ### Alternative approaches
 While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html. If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA. 
