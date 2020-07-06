@@ -22,6 +22,7 @@ Using multi-stage builds is a way to create minimal images. Oftentimes, multi-st
 Like their virtual machine counterparts, container images can contain binaries and application libraries with vulnerabilities or develop vulnerabilities over time. The best way to safeguard against exploits is by regularly scanning your images with an image scanner.  Images that are stored in Amazon ECR can be scanned on push or on-demand (once during a 24 hour period). ECR currently leverages [Clair](https://github.com/quay/clair) an open source image scanning solution.  After an image is scanned, the results are logged to the event stream for ECR in EventBridge. You can also see the results of a scan from within the ECR console.  Images with a HIGH or CRITICAL vulnerability should be deleted or rebuilt.  If an image that has been deployed develops a vulnerability, it should be replaced as soon as possible. 
 
 Knowing where images with vulnerabilities have been deployed is essential to keeping your environment secure.  While you could conceivably build an image tracking solution yourself, there are already several commercial offerings that provide this and other advanced capabilities out of the box, including:
+
 + [Anchore](https://docs.anchore.com/current/)
 + [Twistlock](https://www.twistlock.com/)
 + [Aqua](https://www.aquasec.com/)
