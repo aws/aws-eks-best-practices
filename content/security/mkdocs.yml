@@ -16,6 +16,7 @@ nav:
     - Infrastructure Security: 'hosts.md'
     - Regulatory Compliance: 'compliance.md'
     - Incident Response and Forensics: 'incidents.md'
+    - Image Security: 'image.md'
 markdown_extensions:
     - toc:
         permalink: true
