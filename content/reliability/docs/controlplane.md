@@ -177,7 +177,7 @@ EKS clusters by default are sized to handle up to 200 nodes and 30 pods per node
 
 If you run larger clusters, you should account for potential performance issues and limits within Kubernetes and quotas in AWS services.
 
-- Clusters with more than 1000 services may experience network latency with using `kube-proxy` in `iptables` mode according to the [tests performed by the ProjectCalico team](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/). The solution is to switch to running `kube-proxy` in `ipvs` mode, which is not supported on EKS yet. 
+- Clusters with more than 1000 services may experience network latency with using `kube-proxy` in `iptables` mode according to the [tests performed by the ProjectCalico team](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/). The solution is to switch to running `kube-proxy` in `ipvs` mode.  
 - You may also experience [EC2 API request throttling](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html) if the CNI needs to request IP addresses for Pods or if you need to create new EC2 instances frequently. You can reduce calls EC2 API by configuring the CNI to cache IP addresses. You can use larger EC2 instance types to reduce EC2 scaling events. 
 
 ## Know limits and service quotas
