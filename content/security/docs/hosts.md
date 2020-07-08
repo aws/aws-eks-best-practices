@@ -108,7 +108,7 @@ securityContext:
 
 In this example `s0:c144:c154` corresponds to an MCS label assigned to a file that the container is allowed to access.
 
-On EKS you could create policies that allow for privileged containers to run, like FluentD and create an SELinux policy to allow it to read from /var/log on the host without the need to relabel the host directory. Pods with the same label will be able to access the same host volumes.
+On EKS you could create policies that allow for privileged containers to run, like FluentD and create an SELinux policy to allow it to read from /var/log on the host without needing to relabel the host directory. Pods with the same label will be able to access the same host volumes.
 
 We have implemented [sample AMIs for Amazon EKS](https://github.com/aws-samples/amazon-eks-custom-amis) that have SELinux configured on CentOS 7 and RHEL 7. These AMIs were developed to demonstrate sample implementations that meet requirements of highly regulated customers, such as STIG, CJIS, and C2S.
 
