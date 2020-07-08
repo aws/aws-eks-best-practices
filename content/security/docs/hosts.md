@@ -46,7 +46,11 @@ By deploying workers onto private subnets, you minimize their exposure to the In
 
 SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts access to specific resources on the operation based on a set of labels.  On EKS it can be used to prevent containers from accessing each other's resources.
 
-Container SELinux policies are defined in the [`container-selinux`](https://github.com/containers/container-selinux) package. This package is installed automatically by Docker Community Edition on RHEL and CentOS based systems. These policies will prevent containers from accessing certain features of the host. The following SELinux Booleans can be enabled or disabled based on your needs:
+Container SELinux policies are defined in the [container-selinux](https://github.com/containers/container-selinux) package.  Docker CE requires this package (along with its dependencies) so that the processes and files created by Docker are able to run with limited system access. Containers leverage the `container_t` label which is an alias to `svirt_lxc_net_t` and `container_file_t` (There are many other types included in the container-selinux package). These policies will prevent containers from accessing certain features of the host.
+
+When you configure SELinux for Docker, Docker automatically labels workloads `container_t` as a type and gives each container a unique MCS level. This will isolate container from one another. If you need to give it more privileged access to a container, you can create your own profile in SElinux which grants it permissions to specific areas of the file system.  This is similiar to PSPs in that you can create different profiles for different containers/pods.  For example, you can have a profile for general workloads with a set of restrictive controls and another for things that require privileged access.
+
+SELinux for Containers has a set of options that can be configured to modify the default restrictions. The following SELinux Booleans can be enabled or disabled based on your needs:
 
 | Boolean | Default | Description|
 |---|:--:|---|
@@ -54,9 +58,44 @@ Container SELinux policies are defined in the [`container-selinux`](https://gith
 | `container_manage_cgroup` | `off` | Allow containers to manage cgroup configuration. For example, a container running systemd will need this to be enabled. |
 | `container_use_cephfs` | `off` | Allow containers to use a ceph file system. |
 
-SELinux has a module called `container_t` which general module used for running containers.  When you configure SELinux for Docker, Docker automatically labels workloads `container_t` as a type and gives each container a unique MCS level.  This alone will effectively isolate containers from each another.  If you need to give it more privileged access to a container, you can create your own profile in SElinux which grants it permissions to specific areas of the file system.  This is similiar to PSPs in that you can create different profiles for different containers/pods.  For example, you can have a profile for general workloads with a set of restrictive controls and another for things that require privileged access.
+By default, containers are run with the label `container_t` and are allowed to read/execute under `/usr` and read most content from `/etc`. The files under `/var/lib/docker` and `/var/lib/containers` have the label `container_var_lib_t`. To view a full list of default, labels see the [container.fc](https://github.com/containers/container-selinux/blob/master/container.fc) file.
 
-You can assign SELinux labels using pods or container security context as in the following `podSec` excerpt:
+```bash
+docker container run -it \
+  -v /var/lib/docker/image/overlay2/repositories.json:/host/repositories.json \
+  centos:7 cat /host/repositories.json
+# cat: /host/repositories.json: Permission denied
+
+docker container run -it \
+  -v /etc/passwd:/host/etc/passwd \
+  centos:7 cat /host/etc/passwd
+# cat: /host/etc/passwd: Permission denied
+```
+
+Files labeled with `container_file_t` are the only files that are writable by containers. If you want a volume mount to be writeable, you will needed to specify `:z` or `:Z` at the end.
+
+- `:z` will re-label the files so that the container can read/write
+- `:Z` will re-label the files so that **only** the container can read/write
+
+```bash
+ls -Z /var/lib/misc
+# -rw-r--r--. root root system_u:object_r:var_lib_t:s0   postfix.aliasesdb-stamp
+
+docker container run -it \
+  -v /var/lib/misc:/host/var/lib/misc:z \
+  centos:7 echo "Relabeled!"
+
+ls -Z /var/lib/misc
+#-rw-r--r--. root root system_u:object_r:container_file_t:s0 postfix.aliasesdb-stamp
+```
+
+```bash
+docker container run -it \
+  -v /var/log:/host/var/log:Z \
+  fluentbit:latest
+```
+
+In Kubernetes, relabeling is slightly different. Rather than having Docker automatically relabel the files, you can specify a custom MCS label to run the pod. Volumes that support relabeling will automatically be relabeled so that they are accessible. Pods with the same MCS label will be able to access the volume. If you need isolation, set a different MCS label for each pod.
 
 ```yaml
 securityContext:
@@ -68,7 +107,7 @@ securityContext:
 ```
 In this example `s0:c144:c154` corresponds to an MCS label assigned to a file that the container is allowed to access.
 
-On EKS you could create policies that allow for privileged containers to run, like FluentD and create an SELinux policy to allow it to read from /var/log on the host.
+On EKS you could create policies that allow for privileged containers to run, like FluentD and create an SELinux policy to allow it to read from /var/log on the host without the need to relabel the host directory. Pods with the same label will be able to access the same host volumes.
 
 !!! caution
     SELinux will ignore containers where the type is unconfined.
