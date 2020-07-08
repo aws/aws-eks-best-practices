@@ -46,7 +46,7 @@ By deploying workers onto private subnets, you minimize their exposure to the In
 
 SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts access to specific resources on the operation based on a set of labels.  On EKS it can be used to prevent containers from accessing each other's resources.
 
-Container SELinux policies are defined in the [container-selinux](https://github.com/containers/container-selinux) package.  Docker CE requires this package (along with its dependencies) so that the processes and files created by Docker are able to run with limited system access. Containers leverage the `container_t` label which is an alias to `svirt_lxc_net_t` and `container_file_t` (There are many other types included in the container-selinux package). These policies will prevent containers from accessing certain features of the host.
+Container SELinux policies are defined in the [container-selinux](https://github.com/containers/container-selinux) package.  Docker CE requires this package (along with its dependencies) so that the processes and files created by Docker (or other container runtimes) are able to run with limited system access. Containers leverage the `container_t` label which is an alias to `svirt_lxc_net_t`. These policies will prevent containers from accessing certain features of the host.
 
 When you configure SELinux for Docker, Docker automatically labels workloads `container_t` as a type and gives each container a unique MCS level. This will isolate container from one another. If you need to give it more privileged access to a container, you can create your own profile in SElinux which grants it permissions to specific areas of the file system.  This is similiar to PSPs in that you can create different profiles for different containers/pods.  For example, you can have a profile for general workloads with a set of restrictive controls and another for things that require privileged access.
 
@@ -105,9 +105,12 @@ securityContext:
     # enforcement based on type and level (svert)
     level: s0:c144:c154
 ```
+
 In this example `s0:c144:c154` corresponds to an MCS label assigned to a file that the container is allowed to access.
 
 On EKS you could create policies that allow for privileged containers to run, like FluentD and create an SELinux policy to allow it to read from /var/log on the host without the need to relabel the host directory. Pods with the same label will be able to access the same host volumes.
+
+We have implemented [sample AMIs for Amazon EKS](https://github.com/aws-samples/amazon-eks-custom-amis) that have SELinux configured on CentOS 7 and RHEL 7. These AMIs were developed to demonstrate sample implementations that meet requirements of highly regulated customers, such as STIG, CJIS, and C2S.
 
 !!! caution
     SELinux will ignore containers where the type is unconfined.
