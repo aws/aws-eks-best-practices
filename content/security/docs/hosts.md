@@ -4,7 +4,7 @@ Inasmuch as it's important to secure your container images, it's equally importa
 ## Recommendations
 
 ### Use an OS optimized for running containers
-Conside using Flatcar Linux, Project Atomic, RancherOS, and [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/) (currently in preview), a special purpose OS from AWS designed for running Linux containers.  It includes a reduced attack surface, a disk image that is verified on boot, and enforced permission boundaries using SELinux.
+Consider using Flatcar Linux, Project Atomic, RancherOS, and [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/) (currently in preview), a special purpose OS from AWS designed for running Linux containers.  It includes a reduced attack surface, a disk image that is verified on boot, and enforced permission boundaries using SELinux.
 
 ### Treat your infrastructure as immutable and automate the replacement of your worker nodes
 Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentially cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) uses the second approach and will present an option to upgrade workers when a new AMI becomes available. `eksctl` also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is strongly recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded.
@@ -32,7 +32,7 @@ By deploying workers onto private subnets, you minimize their exposure to the In
 [Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using a set of rules to assess alignment with best practices.
 
 !!! tip
-    At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.
+    At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.  The method described earlier for installing the SSM Agent onto managed nodes can be repurposed to install the Inspector agent. 
 
 !!! attention
     Inspector cannot be run on the infrastructure used to run Fargate pods.
@@ -44,11 +44,11 @@ By deploying workers onto private subnets, you minimize their exposure to the In
 !!! info
     Available on Red Hat Enterprise Linux (RHEL), CentOS, and CoreOS
 
-SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts access to specific resources on the operation based on a set of labels.  On EKS it can be used to prevent containers from accessing each other's resources.
+SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts the operations that can be performed against to specific resources based on a set of labels.  On EKS, SELinux can be used to prevent containers from accessing each other's resources.
 
-Container SELinux policies are defined in the [container-selinux](https://github.com/containers/container-selinux) package.  Docker CE requires this package (along with its dependencies) so that the processes and files created by Docker (or other container runtimes) are able to run with limited system access. Containers leverage the `container_t` label which is an alias to `svirt_lxc_net_t`. These policies will prevent containers from accessing certain features of the host.
+Container SELinux policies are defined in the [container-selinux](https://github.com/containers/container-selinux) package.  Docker CE requires this package (along with its dependencies) so that the processes and files created by Docker (or other container runtimes) run with limited system access. Containers leverage the `container_t` label which is an alias to `svirt_lxc_net_t`. These policies effectively prevent containers from accessing certain features of the host.
 
-When you configure SELinux for Docker, Docker automatically labels workloads `container_t` as a type and gives each container a unique MCS level. This will isolate container from one another. If you need to give it more privileged access to a container, you can create your own profile in SElinux which grants it permissions to specific areas of the file system.  This is similiar to PSPs in that you can create different profiles for different containers/pods.  For example, you can have a profile for general workloads with a set of restrictive controls and another for things that require privileged access.
+When you configure SELinux for Docker, Docker automatically labels workloads `container_t` as a type and gives each container a unique MCS level. This will isolate containers from one another. If you need looser restrictions, you can create your own profile in SElinux which grants a container permissions to specific areas of the file system.  This is similiar to PSPs in that you can create different profiles for different containers/pods.  For example, you can have a profile for general workloads with a set of restrictive controls and another for things that require privileged access.
 
 SELinux for Containers has a set of options that can be configured to modify the default restrictions. The following SELinux Booleans can be enabled or disabled based on your needs:
 
@@ -58,7 +58,7 @@ SELinux for Containers has a set of options that can be configured to modify the
 | `container_manage_cgroup` | `off` | Allow containers to manage cgroup configuration. For example, a container running systemd will need this to be enabled. |
 | `container_use_cephfs` | `off` | Allow containers to use a ceph file system. |
 
-By default, containers are run with the label `container_t` and are allowed to read/execute under `/usr` and read most content from `/etc`. The files under `/var/lib/docker` and `/var/lib/containers` have the label `container_var_lib_t`. To view a full list of default, labels see the [container.fc](https://github.com/containers/container-selinux/blob/master/container.fc) file.
+By default, containers are allowed to read/execute under `/usr` and read most content from `/etc`. The files under `/var/lib/docker` and `/var/lib/containers` have the label `container_var_lib_t`. To view a full list of default, labels see the [container.fc](https://github.com/containers/container-selinux/blob/master/container.fc) file.
 
 ```bash
 docker container run -it \
@@ -95,7 +95,7 @@ docker container run -it \
   fluentbit:latest
 ```
 
-In Kubernetes, relabeling is slightly different. Rather than having Docker automatically relabel the files, you can specify a custom MCS label to run the pod. Volumes that support relabeling will automatically be relabeled so that they are accessible. Pods with the same MCS label will be able to access the volume. If you need isolation, set a different MCS label for each pod.
+In Kubernetes, relabeling is slightly different. Rather than having Docker automatically relabel the files, you can specify a custom MCS label to run the pod. Volumes that support relabeling will automatically be relabeled so that they are accessible. Pods with a matching MCS label will be able to access the volume. If you need strict isolation, set a different MCS label for each pod.
 
 ```yaml
 securityContext:
