@@ -31,7 +31,8 @@ There are several security best practice areas that are pertinent when using a m
 + Infrastructure Security
 + Data Encryption and Secrets Management
 + Regulatory Compliance
-+ Incident Response
++ Incident Response and Forensics
++ Image Security
 
 As part of designing any system, you need to think about its security implications and the practices that can affect your security posture. For example, you need to control who can perform actions against a set of resources. You also need the ability to quickly identify security incidents, protect your systems and services from unauthorized access, and maintain the confidentiality and integrity of data through data protection. Having a well-defined and rehearsed set of processes for responding to security incidents will improve your security posture too. These tools and techniques are important because they support objectives such as preventing financial loss or complying with regulatory obligations.
 
