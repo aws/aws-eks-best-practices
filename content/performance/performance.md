@@ -4,19 +4,15 @@ The performance efficiency pillar focuses on the efficient use of computing reso
 
 ## Definition
 
-Performance efficiency in the cloud is composed of four areas: 
+To ensure the efficient use of EKS container services, you should gather data on all aspects of the architecture, from the high-level design to the selection of EKS resource types. By reviewing your choices on a regular basis, you ensure that you are taking advantage of the continually evolving Amazon EKS and Container services. Monitoring will ensure that you are aware of any deviance from expected performance so you can take action on it.
 
--	Selection 
--	Review Resources and Scalability 
--	Monitoring 
--	Trade offs  
+Performance efficiency for EKS containers is composed of three areas:
 
-Take a data-driven approach to building a high-performance architecture. Gather data on all aspects of the architecture,from the high-level design to the
-selection and configuration of resource types. By reviewing your choices on a
-regular basis, you ensure that you are taking advantage of the continually
-evolving Amazon EKS and Container services. Monitoring will ensure that you are aware of any deviance from expected performance so you can take action on it. Finally, you can make tradeoffs in your architecture to improve performance, such as using different deployment strategies, Serice Mesh. 
+- Optimize your container
 
-Before architecting any system, You need to think about performance and its implications which will have an impact on your overall application.
+- Resource Management
+
+- Scalability Management
 
 ## Best Practices
 
