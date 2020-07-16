@@ -40,7 +40,7 @@ As mentioned, containers that run as privileged inherit all of the Linux capabil
 When you provision an EKS cluster, a pod security policy called `eks.privileged` is automatically created.  The manifest for that policy appears below: 
 
 ```yaml
-apiVersion: extensions/v1beta1
+apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
   annotations:
@@ -127,10 +127,10 @@ kind: PodSecurityPolicy
 metadata:
     name: restricted
     annotations:
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
-    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
-    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'runtime/default'
-    apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+        seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default,runtime/default'
+        apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+        seccomp.security.alpha.kubernetes.io/defaultProfileName:  'runtime/default'
+        apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
 spec:
     privileged: false
     # Required to prevent escalations to root.
@@ -152,23 +152,23 @@ spec:
     hostIPC: false
     hostPID: false
     runAsUser:
-    # Require the container to run without root privileges.
-    rule: 'MustRunAsNonRoot'
+        # Require the container to run without root privileges.
+        rule: 'MustRunAsNonRoot'
     seLinux:
-    # This policy assumes the nodes are using AppArmor rather than SELinux.
-    rule: 'RunAsAny'
+        # This policy assumes the nodes are using AppArmor rather than SELinux.
+        rule: 'RunAsAny'
     supplementalGroups:
-    rule: 'MustRunAs'
-    ranges:
+        rule: 'MustRunAs'
+        ranges:
         # Forbid adding the root group.
         - min: 1
-        max: 65535
+          max: 65535
     fsGroup:
-    rule: 'MustRunAs'
-    ranges:
+        rule: 'MustRunAs'
+        ranges:
         # Forbid adding the root group.
         - min: 1
-        max: 65535
+          max: 65535
     readOnlyRootFilesystem: false
 ```
 
