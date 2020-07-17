@@ -11,11 +11,12 @@ With Kubernetes you can operate your applications and run them in a highly-avail
 
 ### Avoid running singleton Pods
 
-If you run your applications in a single Pod, then your application will be unavailable if that Pod gets terminated. You can make Kubernetes compensate for the termination of a pod by re-creating Pod automatically. Instead of deploying applications in individual pods, prefer creating [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). If a Pod fails or gets terminated, the Deployment [controller](https://kubernetes.io/docs/concepts/architecture/controller/) will create a new pod.
+If you run your applications in a single Pod, then your application will be unavailable if that Pod gets terminated. 
+Instead of deploying applications in individual pods, create [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). If a Pod that is created by a Deployment fails or gets terminated, the Deployment [controller](https://kubernetes.io/docs/concepts/architecture/controller/) will create a new pod to compensate for the failed or terminated pod. 
 
 ### Run multiple replicas 
 
-Running multiple replicas of your application will make it highly-available. If one replica of your application fails, your application will still function, albeit at reduced capacity until Kubernetes creates another Pod to make up for the loss. Furthermore, you can use the [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) to scale replicas automatically based on workload demand. 
+Running multiple replicas of your application using a Deployment will make it highly-available. If one replica of your application fails, your application will still function, albeit at reduced capacity until Kubernetes creates another Pod to make up for the loss. Furthermore, you can use the [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) to scale replicas automatically based on workload demand. 
 
 ### Schedule replicas across nodes
 
@@ -82,7 +83,7 @@ Follow the [EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/
 
 ## Horizontal Pod Autoscaler (HPA)
 
-You can avoid impact to your customers during periods of high volume traffic by automatically scaling your application. The HPA allows you to track metrics for applications and scale them. HPA reads metrics from Kubernetes metrics API servers and can use a metric to scale applications. 
+You can avoid impacting your customers during periods of high volume traffic by automatically scaling your application. The HPA allows you to track metrics for applications and scale them. HPA reads metrics from Kubernetes metrics API servers and can use a metric to scale applications. 
 
 The HPA is implemented as a control loop in Kubernetes, it periodically queries metrics from APIs that provide resource metrics.
 
@@ -126,23 +127,27 @@ Recent innovations in information technology and the advent of cloud, mobile, so
 
 Let’s look at some best practices that give your application development process agility without sacrificing on availability. 
 
-### Record changes to deployments when performing in-place upgrades
+### Have a mechanism to perform rollbacks
 
-You can use deployments to update a running application. This is typically done by updating the container image. You can use `kubectl` to update a deployment like this:
+Having an undo button can evade disasters. It is a best practice to test deployments in a lower environment (test or development environment) before updating the production cluster. Using a CI/CD pipeline can help you automate and test deployments. With a continuous deployment pipeline, you can rerun the deployment of the older version if the upgrade happens to be defective.  
+
+You can use Deployments to update a running application. This is typically done by updating the container image. You can use `kubectl` to update a Deployment like this:
 
 ```bash
 kubectl --record deployment.apps/nginx-deployment set image nginx-deployment nginx=nginx:1.16.1
 ```
 
-The `--record` argument record the changes to the deployment and helps you if you need to perform a rollback. `kubectl rollout history deployment` shows you the recorded changes to deployments in your cluster. You can rollback a change using `kubectl rollout undo deployment <DEPLOYMENT_NAME>`.
+The `--record` argument record the changes to the Deployment and helps you if you need to perform a rollback. `kubectl rollout history deployment` shows you the recorded changes to Deployments in your cluster. You can rollback a change using `kubectl rollout undo deployment <DEPLOYMENT_NAME>`.
 
-By default when you update a deployment that requires a recreation of pods, deployment will do a [rolling upgrade](https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/). This means it will only update a portion of the running pods and not all at once. You can control how deployment performs rolling upgrades through `RollingUpdateStrategy` property. 
+By default, when you update a Deployment that requires a recreation of pods, deployment will do a [rolling upgrade](https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/). This means it will only update a portion of the running pods and not all at once. You can control how deployment performs rolling upgrades through `RollingUpdateStrategy` property. 
 
 When performing a *rolling update* of a Deployment you can use the [`Max Unavailable`](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#max-unavailable) property to specify maximum number of Pods that can be unavailable during the update. The `Max Surge` property of Deployment allows you to set the maximum number of Pods that can be created over the desired number of Pods.
 
+Consider adjusting `max unavailable` to ensure that a rollout doesn’t disrupt your customers. For example, Kubernetes sets 25% `max unavailable` by default, which means if you have 4 Pods, during a rollout, you may have only 3 Pods actively working. If your application needs a minimum of 4 Pods, this rollout can be disruptive. 
+
 ### Use blue/green deployments
 
-Changes are inherently risky, but changes that cannot be undone are fearsome. Change procedures that help you effectively turn back time through a *rollback* make enhancements and experimentation safer. Blue/green deployments give you a method in which you can undo the changes if things go wrong. In this deployment strategy, you create an environment for the new version. This environment is identical to the current version of the application being updated. Once the new environment is provisioned, traffic is routed to the new environment. If the new version produces the desired results without generating errors, the old environment is terminated. Otherwise, traffic is restored to the old version. 
+Changes are inherently risky, but changes that cannot be undone are catastrophic. Change procedures that help you effectively turn back time through a *rollback* make enhancements and experimentation safer. Blue/green deployments give you a method in which you can undo the changes if things go wrong. In this deployment strategy, you create an environment for the new version. This environment is identical to the current version of the application being updated. Once the new environment is provisioned, traffic is routed to the new environment. If the new version produces the desired results without generating errors, the old environment is terminated. Otherwise, traffic is restored to the old version. 
 
 You can perform blue/green deployments in Kubernetes by creating a new Deployment that is identical to the existing version’s Deployment. Once you verify that the Pods in the new Deployment are running without errors, you can start sending traffic to the new deployment by changing the `selector` spec in the Service that routes traffic to your application’s Pods.
 
@@ -159,7 +164,7 @@ Although Kubernetes offers no native way to perform canary deployments, you can 
 
 It’s a truism that no software is bug-free but you can use Kubernetes to minimize the impact of software failures and avoid impacting your customers. 
 
-In the past, if an application crashed, someone had to manually remediate the situation by restarting the application. Kubernetes gives you the ability to detect software failures in your applications and automatically heal them. With Kubernetes you can monitor the health of your applications and automatically replace unhealthy instances.  
+In the past, if an application crashed, someone had to manually remediate the situation by restarting the application. Kubernetes gives you the ability to detect software failures in your Pods and automatically replace them with new replicas. With Kubernetes you can monitor the health of your applications and automatically replace unhealthy instances.  
 
 Kubernetes supports three types of [health-checks](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/):
 
@@ -173,16 +178,18 @@ If you choose an `exec`-based probe, which runs a shell script inside a containe
 
 ## Recommendations
 ### Use Liveness Probe to remove unhealthy pods
-You can use the Liveness probe to detect *unexpected* failures in a running service. For example, if you are running a web service that listens on port 80, you can configure a Liveness probe to send an HTTP GET request on Pod’s port 80. Kubelet will periodically send a GET request to the Pod and expect a response; if the Pod responds between 200-399 then the kubelet considers that Pod as healthy, otherwise the Pod will be regarded as unhealthy. If a Pod fails health-checks continuously, the kubelet will terminate it. 
+You can use the Liveness probe to detect *deadlock* conditions where the process continues to run, but the application becomes unresponsive. For example, if you are running a web service that listens on port 80, you can configure a Liveness probe to send an HTTP GET request on Pod’s port 80. Kubelet will periodically send a GET request to the Pod and expect a response; if the Pod responds between 200-399 then the kubelet considers that Pod as healthy, otherwise the Pod will be regarded as unhealthy. If a Pod fails health-checks continuously, the kubelet will terminate it. 
 
 You can use `initialDelaySeconds` to delay the first probe.
 
-When using the Liveness Probe, ensure that your application doesn’t run into a situation in which all Pods simultaneously fail the Liveness Probe because Kubernetes will try to replace all your Pods, which will render your application offline. Furthermore, Kubernetes will continue to create new Pods that will also fail Liveness Probes, putting unnecessary strain on the control plane. 
+When using the Liveness Probe, ensure that your application doesn’t run into a situation in which all Pods simultaneously fail the Liveness Probe because Kubernetes will try to replace all your Pods, which will render your application offline. Furthermore, Kubernetes will continue to create new Pods that will also fail Liveness Probes, putting unnecessary strain on the control plane. Avoid configuring the Liveness Probe to depend on an a factor that is external to your Pod, for example a database. In other words, a non-responsive external-to-your-Pod database shouldn’t make your Pods fail their Liveness Probes.
 
 Sandor Szücs’s post [LIVENESS PROBES ARE DANGEROUS](https://srcco.de/posts/kubernetes-liveness-probes-are-dangerous.html) describes problems that can be caused by misconfigured probes.
 
 ### Use Startup Probe for applications that take longer to start
-When your service needs additional time to startup, you can use the Startup Probe to delay the Liveness Probe. Once the Startup Probe succeeds, the Liveness Probe takes over. You can define maximum time Kubernetes should wait for application startup. If after the maximum configured time, the Pod still fails Startup Probes, it will be terminated and a new Pod will be created. 
+When your service needs additional time to startup, you can use the Startup Probe to delay the Liveness and Readiness Probe. Until the Startup Probe succeeds, all the other Probes are disabled. You can define maximum time Kubernetes should wait for application startup. If, after the maximum configured time, the Pod still fails Startup Probes, it will be terminated, and a new Pod will be created. 
+
+The Startup Probe is similar to the Liveness Probe -- if they fail, the Pod is recreated. As Ricardo A. explains in his post [Fantastic Probes And How To Configure Them](https://medium.com/swlh/fantastic-probes-and-how-to-configure-them-fef7e030bd2f), Startup Probes should be used when the startup time of an application is unpredictable. If you know your application needs roughly 10 seconds to start, use should use Liveness/Readiness Probe with `initialDelaySeconds` instead.
 
 ### Use Readiness Probe to detect partial unavailability 
 While Liveness probe is used to detect failure in an application that can only be remediated by terminating the Pod, Readiness Probe can be used to detect situations where the service may be _temporarily_ unavailable. In these situations the service may become temporarily unresponsive however once this operation completes, it is expected to be healthy again.  
@@ -265,7 +272,7 @@ If you operate multiple clusters, you can use a service mesh to enable cross-clu
 
 ## Observability 
 
-Observability is an umbrella term that includes monitoring, logging, and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in microservices architecture, each component needs to be monitored individually as well as cohesively as one application. You can use cluster-level monitoring, logging, and distributed tracing systems to identify issues in your cluster before they disrupt your customers.
+Observability is an umbrella term that includes monitoring, logging, and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in a distributed application architecture, you need to monitor each component’s performance. You can use cluster-level monitoring, logging, and distributed tracing systems to identify issues in your cluster before they disrupt your customers. 
 
 Kubernetes tools for troubleshooting and monitoring are limited. The metrics-server collects resource metrics and stores them in memory but doesn’t persist them. You can view the logs of a Pod using kubectl, but Kubernetes doesn't automatically retain logs. And the implementation of distributed tracing is done either at application code level or using services meshes. 
 
