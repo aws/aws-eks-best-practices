@@ -196,7 +196,7 @@ While Liveness probe is used to detect failure in an application that can only b
 
 For example, an application shouldn't crash because a dependency such as a database isn't ready or available. Instead, the application should keep retrying to connect to the database until it succeeds. When you make sure that your application can reconnect to a dependency such as a database, you can deliver a more robust and resilient service.
 
-You can use the Readiness Probe to detect such behavior and stop sending requests to the Pod until it becomes functional again. *Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic from Kubernetes Service*. When the Liveness Probe succeeds, Pod will resume receiving traffic from Service. Just like the Liveness Probe, you should avoid a situation where all Pods fail the Readiness Probe simultaneously. 
+You can use the Readiness Probe to detect such behavior and stop sending requests to the Pod until it becomes functional again. *Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic from Kubernetes Service*. When the Readiness Probe succeeds, Pod will resume receiving traffic from Service. Just like the Liveness Probe, you should avoid a situation where all Pods fail the Readiness Probe simultaneously. 
 
 Readiness Probes can increase the time it takes to update Deployments. New replicas will not receive traffic unless Readiness Probes are successful, until then, old replicas will continue to receive traffic. 
 
