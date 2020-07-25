@@ -1,3 +1,7 @@
+---
+tags: cost_optimization
+---
+
 # Cost-effective resources 
 Cost Effective resources means using the appropriate services, resources, and configurations for your workloads running on a Kubernetes cluster, which will result in cost savings.
 
@@ -8,13 +12,13 @@ Cost Effective resources means using the appropriate services, resources, and co
 
 There are several types of Kubernetes autoscaling supported in Amazon EKS - [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html), [Horizontal Pod Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html) and [Vertical Pod Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html). This section covers two of them, Cluster Auto Scaler and Horizontal Pod Autoscaler.
 
-#### Use Cluster Autoscaler - to adjust the size of a Kubernetes cluster to meet the current needs
+### Use Cluster Autoscaler to adjust the size of a Kubernetes cluster to meet the current needs
 
-The [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) automatically adjusts the number of nodes in the EKS cluster when pods fail to launch due to lack of resources or when nodes in the cluster are underutilized and their pods can be rescheduled onto other nodes in the cluster. The Cluster Autoscaler on AWS scales worker nodes within any specified Auto Scaling group and runs as a deployment in your cluster.
+The [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) automatically adjusts the number of nodes in the EKS cluster when pods fail to launch due to lack of resources or when nodes in the cluster are underutilized and their pods can be rescheduled onto other nodes in the cluster. The Cluster Autoscaler scales worker nodes within any specified Auto Scaling group and runs as a deployment in your EKS cluster.
 
-Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters. All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. Amazon EKS tags managed node group resources so that they are configured to use the Kubernetes Cluster Autoscaler. 
+Amazon EKS with EC2 managed node groups automate the provisioning and lifecycle management of nodes (Amazon EC2 instances) for Amazon EKS Kubernetes clusters. All managed nodes are provisioned as part of an Amazon EC2 Auto Scaling group that is managed for you by Amazon EKS and all resources including Amazon EC2 instances and Auto Scaling groups run within your AWS account. Amazon EKS tags managed node group resources so that they can be discovered the Kubernetes Cluster Autoscaler. 
 
-The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. 
+The documentation at https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html provides detailed guidance on setting up a Managed Node Group and then deploying Kubernetes Cluster Auto Scaler. If you are running a stateful application across multiple Availability Zones that is backed by Amazon EBS volumes and using the Kubernetes Cluster Autoscaler, you should configure multiple node groups, each scoped to a single Availability Zone.
 
 
 *Cluster Autoscaler logs for EC2 based Worker Nodes -*
@@ -25,6 +29,12 @@ When a pod cannot be scheduled due to lack of available resources, Cluster Autos
 + **most-pods** - selects the instance group that schedules the most amount of pods.
 + **least-waste** - selects the node group that will have the least idle CPU (if tied, unused memory) after scale-up. This is useful when you have different classes of nodes, for example, high CPU or high memory nodes, and only want to expand those when there are pending pods that need a lot of those resources.
 + **priority** - selects the node group that has the highest priority assigned by the user
+
+You can use the **random** placement strategy for the Expander in Cluster Autoscaler, if EC2 Spot instances are being used as worker nodes. This is the default expander, and arbitrarily chooses a node-group when the cluster must scale out. The random expander maximizes your ability to leverage multiple Spot capacity pools. 
+
+[**Priority**](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/expander/priority/readme.md) based expander selects an expansion option based on priorities assigned by a user to scaling groups. Sample priorities can be to let Autoscaler first try to scale out a spot instance node group and then, if it cannot, falls back to scaling out an on-demand node group. 
+
+**most-pods** based expander is useful when you are using nodeSelector to make sure certain pods land on certain nodes. 
 
 From the [documentation](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) to specify **least-waste** as the expander type for the Cluster Autoscaling configuration:
 
@@ -45,32 +55,62 @@ From the [documentation](https://docs.aws.amazon.com/eks/latest/userguide/cluste
 ```
 
 
-#### Deploy Horizontal Pod Autoscaling - to automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization
+### Deploy Horizontal Pod Autoscaling to automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization or other application related metrics
 
-The [Kubernetes Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) automatically scales the number of pods in a deployment, replication controller, or replica set based on that resource's CPU utilization. This can help your applications scale out to meet increased demand or scale in when resources are not needed, thus freeing up your worker nodes for other applications. When you set a target CPU utilization percentage, the Horizontal Pod Autoscaler scales your application in or out to try to meet that target. 
+The [Kubernetes Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) automatically scales the number of pods in a deployment, replication controller, or replica set based on resource metrics like CPU utilization or with custom metrics support, on some other application-provided metrics. This can help your applications scale out to meet increased demand or scale in when resources are not needed, thus freeing up your worker nodes for other applications. When you set a target metric utilization percentage, the Horizontal Pod Autoscaler scales your application in or out to try to meet that target. 
 
-*Setup Metrics server:*
+The [k8s-cloudwatch-adapter](https://github.com/awslabs/k8s-cloudwatch-adapter) is an implementation of the Kubernetes Custom Metrics API and External Metrics API with integration for CloudWatch metrics. It allows you to scale your Kubernetes deployment using the Horizontal Pod Autoscaler (HPA) with CloudWatch metrics.
+
+For an example of scaling using a resource metric like CPU, follow https://eksworkshop.com/beginner/080_scaling/test_hpa/ to deploy a sample app, perform a simple load test to test the autoscaling of pod and simulate pod autoscaling. 
+
+Refer to this [blog](https://aws.amazon.com/blogs/compute/scaling-kubernetes-deployments-with-amazon-cloudwatch-metrics/) for an example of a custom metric for an application to scale according to the number of messages in the Amazon SQS (Simple Queue Service) queue.
+
+An example of an external metric from Amazon SQS from the blog:
+
+```yaml
+apiVersion: metrics.aws/v1alpha1
+kind: ExternalMetric:
+  metadata:
+    name: hello-queue-length
+  spec:
+    name: hello-queue-length
+    resource:
+      resource: "deployment"
+    queries:
+      - id: sqs_helloworld
+        metricStat:
+          metric:
+            namespace: "AWS/SQS"
+            metricName: "ApproximateNumberOfMessagesVisible"
+            dimensions:
+              - name: QueueName
+                value: "helloworld"
+          period: 300
+          stat: Average
+          unit: Count
+        returnData: true
 ```
 
-$ kubectl create namespace metrics
-$ helm install metrics-server \
-    stable/metrics-server \
-    --version 2.9.0 \
-    --namespace metrics
+An example of an HPA utilizing this external metric: 
 
-$ kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes"
-$ kubectl get apiservice v1beta1.metrics.k8s.io -o yaml
+``` yaml 
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta1
+metadata:
+  name: sqs-consumer-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: sqs-consumer
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: External
+    external:
+      metricName: hello-queue-length
+      targetAverageValue: 30
 ```
-Now you can deploy apps which can leverage HPA. Follow https://eksworkshop.com/beginner/080_scaling/test_hpa/ to deploy a sample app, perform a simple load test to test the autoscaling of pods.
-```
-kubectl run php-apache --image=us.gcr.io/k8s-artifacts-prod/hpa-example --requests=cpu=200m --expose --port=80
-```
-HPA scales up when CPU exceeds 50% of the allocated container resource, with a minimum of one pod and a maximum of ten pods.
-```
-kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
-kubectl get hpa
-```
-You can then load test the app, and simulate pod autoscaling. 
 
 The combination of Cluster Auto Scaler for the Kubernetes worker nodes and Horizontal Pod Autoscaler for the pods, will ensure that the provisioned resources will be as close to the actual utilization as possible.
 
@@ -91,18 +131,18 @@ The above scenarios are explained in a hands-on blog on ["Autoscaling EKS on Far
 
 ****Vertical Pod Autoscaling****
 
-Recommend using the [Vertical Pod Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) with pods running on Fargate to optimize the CPU and memory used for your applications. However, because changing the resource allocation for a pod requires the pod to be restarted, you must set the pod update policy to either Auto or Recreate to ensure correct functionality. 
+Use the [Vertical Pod Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) with pods running on Fargate to optimize the CPU and memory used for your applications. However, because changing the resource allocation for a pod requires the pod to be restarted, you must set the pod update policy to either Auto or Recreate to ensure correct functionality. 
 
 
 ## Recommendations
 
-### Use Down Scaling - Scale down Kubernetes Deployments, StatefulSets, and/or HorizontalPodAutoscalers during non-work hours.
+### Use Down Scaling to scale down Kubernetes Deployments, StatefulSets, and/or HorizontalPodAutoscalers during non-work hours.
 
-As part of controlling costs, apart from Auto-scaling of the Kubernetes cluster nodes and pods, Down-Scaling of resources when not in-use can also have an huge impact on the overall costs. There are tools like [kube-downscaler](https://github.com/hjacobs/kube-downscaler) and [Descheduler for Kubernetes](https://github.com/kubernetes-sigs/descheduler). 
+As part of controlling costs Down-Scaling resources that are not in-use can also have an huge impact on the overall costs. There are tools like [kube-downscaler](https://github.com/hjacobs/kube-downscaler) and [Descheduler for Kubernetes](https://github.com/kubernetes-sigs/descheduler). 
 
 **Kube-descaler**, can be used to Scale down Kubernetes deployments after work hours or during set periods of time. 
 
-**Descheduler for Kubernetes**, based on its policy, can finds pods that can be moved and evicts them.  In its current implementation, the kubernetes descheduler does not schedule replacement of evicted pods but relies on the default scheduler for that
+**Descheduler for Kubernetes**, based on its policy, can find pods that can be moved and evicts them.  In its current implementation, the kubernetes descheduler does not reschedule evicted pods but relies on the default scheduler for that
 
 **Kube-descaler**
 
@@ -123,7 +163,8 @@ Deploy an nginx pod and schedule it to be run in the time zone - Mon-Fri 09:00-1
 $ kubectl run nginx1 --image=nginx
 $ kubectl annotate deploy nginx1 'downscaler/uptime=Mon-Fri 09:00-17:00 Asia/Kolkata'
 ```
-Note that the default grace period of 15 minutes applies to the new nginx deployment, i.e. if the current time is not within Mon-Fri 9-17 (Asia/Kolkata timezone), it will downscale not immediately, but after 15 minutes. 
+!!! note 
+    The default grace period of 15 minutes applies to the new nginx deployment, i.e. if the current time is not within Mon-Fri 9-17 (Asia/Kolkata timezone), it will downscale not immediately, but after 15 minutes. 
 
 ![Kube-down-scaler for nginx](../images/kube-down-scaler.png)
 
@@ -133,7 +174,7 @@ More advanced downscaling deployment scenarios are available at the [kube-down-s
 
 The descheduler can be run as a Job or CronJob inside of a k8s cluster. Descheduler's policy is configurable and includes strategies that can be enabled or disabled. Seven strategies *RemoveDuplicates*, *LowNodeUtilization*, *RemovePodsViolatingInterPodAntiAffinity*, *RemovePodsViolatingNodeAffinity*, *RemovePodsViolatingNodeTaints*, *RemovePodsHavingTooManyRestarts*, and *PodLifeTime* are currently implemented. More details can be found in their [documentation](https://github.com/kubernetes-sigs/descheduler).
 
-A sample policy, which has the descheduler is enabled enabled for lowcpuutilization of nodes (where it coveres scenario for both underutilized and overutilized), removing pods for too many restarts and others :
+A sample policy, which has the descheduler enabled for lowcpuutilization of nodes (where it covers the scenarios for both underutilized and overutilized), removing pods for too many restarts and others :
 
 ``` yaml
 apiVersion: "descheduler/v1alpha1"
@@ -183,9 +224,9 @@ spec:
 ```
 
 
-### Use LimitRanges and Resource Quotas - to help manage costs by constraining the amount of resources allocated at an Namespace level
+### Use LimitRanges and Resource Quotas to help manage costs by constraining the amount of resources allocated at an Namespace level
 
-From the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/limit-range/) - By default, containers run with unbounded compute resources on a Kubernetes cluster. With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace’s resource quota. There is a concern that one Pod or Container could monopolize all available resources. 
+By default, containers run with unbounded compute resources on a Kubernetes cluster. With resource quotas, cluster administrators can restrict resource consumption and creation on a namespace basis. Within a namespace, a Pod or Container can consume as much CPU and memory as defined by the namespace’s resource quota. There is a concern that one Pod or Container could monopolize all available resources. 
 
 Kubernetes controls the allocation of resources such as CPU, memory, PersistentVolumeClaims and others using Resource Quotas and Limit Ranges. ResourceQuota is at the Namespace level, while a LimitRange applies at an container level. 
 
@@ -232,7 +273,7 @@ spec:
 
 More examples are available in the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/).
 
-### Recommendation - Use pricing models for effective utilization
+### Use pricing models for effective utilization
 
 The pricing details for Amazon EKS are given in the [pricing page](https://aws.amazon.com/eks/pricing/). There is a common control plane cost for both Amazon EKS on Fargate and EC2. 
 
@@ -242,7 +283,7 @@ If you are using AWS Fargate, pricing is calculated based on the vCPU and memory
 
 Amazon EC2 provides a wide selection of [instance types](https://aws.amazon.com/ec2/instance-types/) optimized to fit different use cases. Instance types comprise varying combinations of CPU, memory, storage, and networking capacity and give you the flexibility to choose the appropriate mix of resources for your applications. Each instance type includes one or more instance sizes, allowing you to scale your resources to the requirements of your target workload.
 
-One of the key decision parameters apart from number of cpus, memory, processor family type related to the instance type is the [number of Elastic network interfaces(ENI's)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html), which in-turn has a bearing on the maximum number of pods on that EC2 Instance. The list of [max pods per EC2 Instance type](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) is maintained in a github.
+One of the key decision parameters apart from number of CPUs, memory, processor family type related to the instance type is the [number of Elastic network interfaces(ENI's)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html), which in-turn has a bearing on the maximum number of pods you can run on that EC2 Instance. The list of [max pods per EC2 Instance type](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) is maintained in a github.
 
 ****On-Demand EC2 Instances:****
 
@@ -250,22 +291,21 @@ With [On-Demand instances](https://aws.amazon.com/ec2/pricing/), you pay for com
 
 Amazon EC2 A1 instances deliver significant cost savings and are ideally suited for scale-out and ARM-based workloads that are supported by the extensive Arm ecosystem. You can now use Amazon Elastic Container Service for Kubernetes (EKS) to run containers on Amazon EC2 A1 Instances as part of a [public developer preview](https://github.com/aws/containers-roadmap/tree/master/preview-programs/eks-arm-preview). Amazon ECR now supports [multi-architecture container images](https://aws.amazon.com/blogs/containers/introducing-multi-architecture-container-images-for-amazon-ecr/), which makes it simpler to deploy container images for different architectures and operating systems from the same image repository. 
 
-
 You can use the [AWS Simple Monthly Calculator](https://calculator.s3.amazonaws.com/index.html) or the new [pricing calculator](https://calculator.aws/) to get pricing for the On-Demand EC2 instances for the EKS workder nodes.
 
-### Recommendation - Use Spot EC2 Instances:
+### Use Spot EC2 Instances:
 
 Amazon [EC2 Spot instances](https://aws.amazon.com/ec2/pricing/) allow you to request spare Amazon EC2 computing capacity for up to 90% off the On-Demand price. 
 
-Spot Instances are a great fit for your stateless containerized workloads running on your Kubernetes clusters because the approach to containers and Spot Instances are similar – ephemeral and autoscaled capacity. This means they both can be added and removed while adhering to SLAs and without impacting performance or availability of your applications.
+Spot Instances are often a great fit for stateless containerized workloads because the approach to containers and Spot Instances are similar; ephemeral and autoscaled capacity. This means they both can be added and removed while adhering to SLAs and without impacting the performance or availability of your applications.
 
-We can create multiple nodegroups with a mix of on-demand instance types and EC2 Spot instances to leverage the advantages of pricing between these two instance types.
+You can create multiple nodegroups with a mix of on-demand instance types and EC2 Spot instances to leverage the advantages of pricing between these two instance types.
 
 ![On-Demand and Spot Node Groups](../images/spot_diagram.png)
-***(Image source: https://eksworkshop.com/spot)***
+***(Image source: https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks/spotworkers/workers_eksctl.html)***
 
 
-A sample yaml file for eksctl to create a nodegroup with EC2 spot instances is given below. During the creation of the Node Group, we have configured a node-label so that kubernetes knows what type of nodes we have provisioned. We set the lifecycle for the nodes as Ec2Spot. We are also tainting with PreferNoSchedule to prefer pods not be scheduled on Spot Instances. This is a “preference” or “soft” version of NoSchedule – the system will try to avoid placing a pod that does not tolerate the taint on the node, but it is not required.
+A sample yaml file for eksctl to create a nodegroup with EC2 spot instances is given below. During the creation of the Node Group, we have configured a node-label so that kubernetes knows what type of nodes we have provisioned. We set the lifecycle for the nodes as Ec2Spot. We are also tainting with PreferNoSchedule to prefer pods not be scheduled on Spot Instances. This is a “preference” or “soft” version of NoSchedule, i.e. the system will try to avoid placing a pod that does not tolerate the taint on the node, but it is not required. We are using this technique to make sure that only the right type of workloads are scheduled on Spot Instances.
 
 ``` yaml
 apiVersion: eksctl.io/v1alpha5
@@ -295,17 +335,10 @@ Use the node-labels to identify the lifecycle of the nodes.
 $ kubectl get nodes --label-columns=lifecycle --selector=lifecycle=Ec2Spot
 ```
 
-We should also deploy the [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) on each Spot Instance. This will monitor the EC2 metadata service on the instance for an interruption notice. The termination handler consists of a ServiceAccount, ClusterRole, ClusterRoleBinding, and a DaemonSet.
+We should also deploy the [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) on each Spot Instance. This will monitor the EC2 metadata service on the instance for an interruption notice. The termination handler consists of a ServiceAccount, ClusterRole, ClusterRoleBinding, and a DaemonSet. AWS Node Termination Handler is not only for Spot Instances, it can also catch general EC2 maintenance events, so it can be used across all the worker nodes in the cluster.
 
-```
-$ kubectl --namespace=kube-system get daemonsets 
-NAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR       AGE
-aws-node                       4         4         4       4            4           <none>              6d11h
-aws-node-termination-handler   2         2         2       2            2           lifecycle=Ec2Spot   33m
-kube-proxy                     4         4         4       4            4           <none>              6d11h
-```
 
-We can design our services to be deployed on Spot Instances when they are available. We can use Node Affinity in our manifest file to configure this, to prefer Spot Instances, but not require them. This will allow the pods to be scheduled on On-Demand nodes if no spot instances were available or correctly labelled.
+If a customer is well diversified and uses the capacity-optimized allocation strategy, Spot Instances will be available. You can use Node Affinity in your manifest file to configure this, to prefer Spot Instances, but not require them. This would allow the pods to be scheduled on On-Demand nodes if no spot instances were available or correctly labelled.
 
 ``` yaml
 
@@ -327,20 +360,18 @@ effect: "PreferNoSchedule"
 
 ```
 
-You can do a complete hands-on workshop on EC2 spot instances at the [online AWS EKS Workshop](https://eksworkshop.com/beginner/150_spotworkers/).
+You can do a complete workshop with EC2 spot instances at the [online EC2 Spot Workshop](https://ec2spotworkshops.com/using_ec2_spot_instances_with_eks.html).
 
-### Recommendation - Use Compute Savings Plan
+### Use Compute Savings Plan 
 
-Compute Savings Plans, a new and flexible discount model that provides you with the same discounts as Reserved Instances, in exchange for a commitment to use a specific amount (measured in dollars per hour) of compute power over a one or three year period. The details are covered in the [Savings Plan launch page](https://aws.amazon.com/blogs/aws/new-savings-plans-for-aws-compute-services/).The plans automatically apply to any EC2 instance regardless of region, instance family, operating system, or tenancy, including those that are part of EKS clusters. For example, you can shift from C4 to C5 instances, move a workload from Dublin to London benefiting from Savings Plan prices along the way, without having to do anything.
+Compute Savings Plans, a flexible discount model that provides you with the same discounts as Reserved Instances, in exchange for a commitment to use a specific amount (measured in dollars per hour) of compute power over a one or three year period. The details are covered in the [Savings Plan launch FAQ](https://aws.amazon.com/savingsplans/faq/).The plans automatically apply to any EC2 worker node regardless of region, instance family, operating system, or tenancy, including those that are part of EKS clusters. For example, you can shift from C4 to C5 instances, move a workload from Dublin to London benefiting from Savings Plan prices along the way, without having to do anything.
 
 The AWS Cost Explorer will help you to choose a Savings Plan, and will guide you through the purchase process.
 ![Compute Savings Plan](../images/Compute-savings-plan.png)
 
-!!! note
-    That compute savings plans does not apply to EKS Fargate yet.
+Note - The compute savings plans does not apply to EKS Fargate yet.
 
-!!! note
-    The above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.****
+Note - The above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.
 
 ## Resources
 Refer to the following resources to learn more about best practices for cost optimization.
