@@ -1,19 +1,21 @@
+---
+tags: cost_optimization
+---
 # Optimizing over time (Right Sizing)
 
 Right Sizing as per the AWS Well-Architected Framework, is “… using the lowest cost resource that still meets the technical specifications of a specific workload”.
 
-When you specify the resource request for Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on. When you specify a resource limit for a Container, the kubelet enforces those limits so that the running container is not allowed to use more of that resource than the limit you set. The details of how Kubernetes manages resources for containers are given in the [documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
+When you specify the resource `requests` for the Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on. When you specify a resource `limits` for a Container, the kubelet enforces those limits so that the running container is not allowed to use more of that resource than the limit you set. The details of how Kubernetes manages resources for containers are given in the [documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
 
-In Kubernetes, this means setting the right CPU and Memory for Amazon EKS on AWS Fargate and selecting the right EC2 Instance type, for running containers on Pods. 
+In Kubernetes, this means setting the right compute resources ([CPU and memory are collectively referred to as compute resources](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)) - setting the resource `requests` that align as close as possible to the actual utilization. The tools for getting the actual resource usags of Pods are given in the section on Rexommendations below.
 
 **Amazon EKS on AWS Fargate**: When pods are scheduled on Fargate, the vCPU and memory reservations within the pod specification determine how much CPU and memory to provision for the pod.  If you do not specify a vCPU and memory combination, then the smallest available combination is used (.25 vCPU and 0.5 GB memory). The list of vCPU and memory combinations that are available for pods running on Fargate are listed in the [Amazon EKS User Guide](https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html). 
 
 
-
-**Amazon EKS on EC2**: When we create a Pod, we can specify how much of each resource like CPU and Memory, a Container needs. It is important we do not over-provision or under-provision the resources allocated to the containers. 
+**Amazon EKS on EC2**: When you create a Pod, you can specify how much of each resource like CPU and Memory, a Container needs. It is important we do not over-provision (which will lead to wastage) or under-provision (will lead to throttling) the resources allocated to the containers. 
 
 ## Recommendations
-### Recommendation: Use tools to help you allocate resources based on observed data
+### Use tools to help you allocate resources based on observed data
 There are tools like [kube resource report](https://github.com/hjacobs/kube-resource-report) which can help with right sizing of pods deployed on Amazon EKS with EC2 nodes.
 
 Deployment steps for kube resource report:
@@ -56,18 +58,16 @@ Then open your browser to http://localhost:8080
 
 ![Goldilocks recommendation Page](../images/Goldilocks.png)
 
-### Recommendation: Use Application Profiling tools like CloudWatch Container Insights and Prometheus Metrics in Amazon CloudWatch
+### Use Application Profiling tools like CloudWatch Container Insights and Prometheus Metrics in Amazon CloudWatch
 
-Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) to see how you can use native CloudWatch features to monitor your EKS Cluster performance. You can use CloudWatch Container Insights to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices running on Amazon Elastic Kubernetes Service. The metrics include utilization for resources such as CPU, memory, disk, and network - which can help in right sizing of Pods and save costs. 
+Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) to see how you can use native CloudWatch features to monitor your EKS Cluster performance. You can use CloudWatch Container Insights to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices running on Amazon Elastic Kubernetes Service. The metrics include utilization for resources such as CPU, memory, disk, and network - which can help with right-sizing Pods and save costs. 
 
-[Container Insights Prometheus Metrics Monitoring](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-metrics.html) - Support for Prometheus metrics is in beta. CloudWatch Container Insights monitoring for Prometheus automates the discovery of Prometheus metrics from containerized systems and workloads. Prometheus is an open-source systems monitoring and alerting toolkit. All Prometheus metrics are collected in the ContainerInsights/Prometheus namespace. 
+[Container Insights Prometheus Metrics Monitoring](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-metrics.html) At present, support for Prometheus metrics is still in beta. CloudWatch Container Insights monitoring for Prometheus automates the discovery of Prometheus metrics from containerized systems and workloads. Prometheus is an open-source systems monitoring and alerting toolkit. All Prometheus metrics are collected in the ContainerInsights/Prometheus namespace. 
 
 
-**Right Size Guide**: The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernesta and easyto deploy. 
+**Right Size Guide**: The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernetes and easy to deploy. 
 
-**Using tools like CloudWatch Container Insights, Kube Resource Report, Goldilocks and others - applications running in the Kubernetes cluster can be right sized to lower the CPU and memory requests and potentially save costs.** 
-
-**When going through this process of right sizing Pod Resources for all applications in a Kubernetes cluster, you can achieve overall savings.**
+By using tools like CloudWatch Container Insights, Kube Resource Report, Goldilocks and others, applications running in the Kubernetes cluster can be right sized and potentially lower your costs.
 
 
 ## Resources
