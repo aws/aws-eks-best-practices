@@ -88,6 +88,28 @@ The Cluster Autoscaler can be configured to operate on a specific set of Node Gr
 
 The Cluster Autoscaler was not originally designed for this configuration, so there are some side effects. Since the shards do not communicate, it’s possible for multiple autoscalers to attempt to schedule an unschedulable pod. This can result in unnecessary scale out of multiple Node Groups. These extra nodes will scale back in after the scale-down-delay.
 
+```
+metadata:
+  name: cluster-autoscaler
+  namespace: cluster-autoscaler-1
+
+...
+
+--nodes=1:10:k8s-worker-asg-1
+--nodes=1:10:k8s-worker-asg-2
+
+---
+
+metadata:
+  name: cluster-autoscaler
+  namespace: cluster-autoscaler-2
+
+...
+
+--nodes=1:10:k8s-worker-asg-3
+--nodes=1:10:k8s-worker-asg-4
+```
+
 Ensure that:
 
 * Each shard is configured to point to a unique set of EC2 Auto Scaling Groups
