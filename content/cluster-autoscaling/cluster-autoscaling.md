@@ -41,7 +41,6 @@ Effective autoscaling starts with correctly configuring a set of Node Groups for
 
 Ensure that:
 
-* Node Groups are architected with [EKS best practices](todo) in mind.
 * Each Node in a Node Group has identical scheduling properties, such as Labels, Taints, and Resources.
     * For MixedInstancePolicies, the Instance Types must be of the same shape for CPU, Memory, and GPU
     * The first Instance Type specified in the policy will be used to simulate scheduling.
@@ -75,7 +74,6 @@ Ensure that:
     * Pod ResourceRequests and ResourceLimits are properly set to avoid resource contention.
     * Larger instance types will result in more optimal bin packing and reduced system pod overhead.
 * NodeTaints or NodeSelectors should be used to schedule pods as the exception, not as the rule.
-* Spot Instances and On-Demand capacity are configured in the same EC2 Auto Scaling Group using [Base and Percentages](https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-purchase-options.html#asg-instances-distribution).
 * Regional resources are defined as a single EC2 Auto Scaling Group with multiple Availability Zones.
 
 ### Reducing the Scan Interval
@@ -90,6 +88,28 @@ The Cluster Autoscaler can be configured to operate on a specific set of Node Gr
 
 The Cluster Autoscaler was not originally designed for this configuration, so there are some side effects. Since the shards do not communicate, it’s possible for multiple autoscalers to attempt to schedule an unschedulable pod. This can result in unnecessary scale out of multiple Node Groups. These extra nodes will scale back in after the scale-down-delay.
 
+```
+metadata:
+  name: cluster-autoscaler
+  namespace: cluster-autoscaler-1
+
+...
+
+--nodes=1:10:k8s-worker-asg-1
+--nodes=1:10:k8s-worker-asg-2
+
+---
+
+metadata:
+  name: cluster-autoscaler
+  namespace: cluster-autoscaler-2
+
+...
+
+--nodes=1:10:k8s-worker-asg-3
+--nodes=1:10:k8s-worker-asg-4
+```
+
 Ensure that:
 
 * Each shard is configured to point to a unique set of EC2 Auto Scaling Groups
@@ -99,15 +119,15 @@ Ensure that:
 
 ### Spot Instances
 
-Spot Instances can significantly reduce your infrastructure costs, but capacity is limited and can be taken away at any time. Insufficient Capacity Errors will occur when your ASG cannot scale up due to lack of available capacity. Maximizing diversity by selecting many instance families can help combat availability limitations and interruptions. Mixed Instance Policies are a great way to increase diversity without increasing the number of node groups. Keep in mind, if you need guaranteed resources, use On-Demand Instances instead of Spot Instances.
-
-![](./spot_mix_instance_policy.jpg)
+Spot Instances can significantly reduce your infrastructure costs, but capacity is limited and can be taken away at any time. Insufficient Capacity Errors will occur when your EC2 Auto Scaling Group cannot scale up due to lack of available capacity. Maximizing diversity by selecting many instance families can help combat availability limitations and interruptions. Mixed Instance Policies with Spot Instances are a great way to increase diversity without increasing the number of node groups. Keep in mind, if you need guaranteed resources, use On-Demand Instances instead of Spot Instances.
 
 It’s critical that all Instance Types have similar resource capacity when configuring Mixed Instance Policies. The autoscaler’s scheduling simulator uses the first Instance Type in the MixedInstancePolicy. If subsequent Instance Types are larger, resources may be wasted after a scale up. If smaller, your pods may fail to schedule on the new instances due to insufficient capacity. For example, M4, M5, M5a, and M5n instances all have similar amounts of CPU and Memory and are great candidates for a MixedInstancePolicy. The [EC2 Instance Selector](https://github.com/aws/amazon-ec2-instance-selector) tool can help you identify similar instance types.
 
-Mixed Instance Policies also support a combination of On-Demand and Spot instances with a guaranteed base capacity of On-Demand instances. This configuration ensures that if your Spot capacity is preempted your Node Group will still continue to operate at reduced capacity.
+![](./spot_mix_instance_policy.jpg)
 
-You may also isolate On-Demand and Spot capacity into separate EC2 Auto Scaling Groups. This can be advantageous if the base capacity strategy mentioned above doesn’t meet your requirements. By separating On-Demand and Spot, you can configure priority based autoscaling. The Cluster Autoscaler has a concept of [Expanders](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-expanders), which provide different strategies for selecting which Node Group to scale. However, only one expander strategy can be configured at a time. The strategy --expander=least-waste is a good general purpose default, but may not be the best option when heavily using Spot Instances. The strategy `--expander=priority` enables your cluster to fall back to an On-Demand EC2 Auto Scaling Group when your Spot EC2 Auto Scaling Group runs out of capacity. For example:
+It's recommended to isolate On-Demand and Spot capacity into separate EC2 Auto Scaling Groups. This is preferred over using a [base capacity strategy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-purchase-options.html#asg-instances-distribution) because the scheduling properties are fundamentally different. Since Spot capacity can be preempted at any time, users will often taint their preemptable nodes, requiring an explicit pod toleration to the preemption behavior. These taints result in different scheduling properties for the nodes, so they should be separated into multiple EC2 Auto Scaling Groups.
+
+You may also configure priority based autoscaling. The Cluster Autoscaler has a concept of [Expanders](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-expanders), which provide different strategies for selecting which Node Group to scale. However, only one expander strategy can be configured at a time. The strategy --expander=least-waste is a good general purpose default, but may not be the best option when heavily using Spot Instances. The strategy `--expander=priority` enables your cluster to prioritize a Spot EC2 Auto Scaling Group and fall back to On-Demand EC2 Auto Scaling Group when the former runs out of capacity. For example:
 
 ```
 apiVersion: v1
@@ -132,7 +152,7 @@ The Cluster Autoscaler minimizes costs by ensuring that nodes are only added to 
 
 This can be mitigated using [overprovisioning](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler), which trades cost for scheduling latency. Overprovisioning is implemented using temporary pods with negative priority, which occupy space in the cluster. When newly created pods are unschedulable and have higher priority, the temporary pods will be preempted to make room. The temporary pods then become unschedulable, triggering the Cluster Autoscaler to scale out new overprovisioned nodes.
 
-There are other less obvious benefits to overprovisioning. One of the side effects of a highly utilized cluster is that pods will make less optimal scheduling decisions using the `preferredDuringSchedulingIgnoredDuringExecution` rule of Pod or Node Affinity. A common use case for this is to separate pods for a highly available application across availability zones using AntiAffinity. Overprovisioning can significantly increase the chance that a node of the correct zone is available.
+There are other less obvious benefits to overprovisioning. Without overprovisioning, one of the side effects of a highly utilized cluster is that pods will make less optimal scheduling decisions using the `preferredDuringSchedulingIgnoredDuringExecution` rule of Pod or Node Affinity. A common use case for this is to separate pods for a highly available application across availability zones using AntiAffinity. Overprovisioning can significantly increase the chance that a node of the correct zone is available.
 
 The amount of overprovisioned capacity is a careful business decision for your organization. At its core, it’s a tradeoff between performance and cost. One way to make this decision is to determine your average scale up frequency and divide it by the amount of time it takes to scale up a new node. For example, if on average you require a new node every 30 seconds and EC2 takes 30 seconds to provision a new node, a single node of overprovisioning will ensure that there’s always an extra node available, reducing scheduling latency by 30 seconds at the cost of a single additional EC2 Instance. To improve zonal scheduling decisions, overprovision a number of nodes equal to the number of availability zones in your EC2 Auto Scaling Group to ensure that the scheduler can select the best zone for incoming pods.
 
@@ -182,7 +202,7 @@ Ensure that:
 
 ### Scaling from 0
 
-Cluster Autoscaler is capable of scaling Node Groups to and from zero, which can yield significant cost savings. It detects the CPU, memory, and GPU resources of an Auto Scaling Group by inspecting the instance type specified in its Launch Configuration or Launch Template. Some pods require additional resources like `WindowsENI` or `PrivateIPv4Address` or specific NodeSelectors or Taints which cannot be discovered from the Launch Configuration. The Cluster Autoscaler can account for these factors by discovering them from labels on the EC2 Auto Scaling Group. For example:
+Cluster Autoscaler is capable of scaling Node Groups to and from zero, which can yield significant cost savings. It detects the CPU, memory, and GPU resources of an Auto Scaling Group by inspecting the instance type specified in its Launch Configuration or Launch Template. Some pods require additional resources like `WindowsENI` or `PrivateIPv4Address` or specific NodeSelectors or Taints which cannot be discovered from the Launch Configuration. The Cluster Autoscaler can account for these factors by discovering them from tags on the EC2 Auto Scaling Group. For example:
 
 ```
 Key: k8s.io/cluster-autoscaler/node-template/resources/$RESOURCE_NAME
