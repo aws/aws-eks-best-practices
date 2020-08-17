@@ -235,6 +235,14 @@ A complete list of parameters is available on [Github](https://github.com/kubern
 | scale-down-candidates-pool-ratio | A ratio of nodes that are considered as additional non empty candidates for scale down when some candidates from previous iteration are no longer valid. Lower value means better CA responsiveness but possible slower scale down latency. Higher value can affect CA performance with big clusters (hundreds of nodes). Set to 1.0 to turn this heuristics off - CA will take all nodes as additional candidates. | 0.1 |
 | scale-down-candidates-pool-min-count | Minimum number of nodes that are considered as additional non empty candidates for scale down when some candidates from previous iteration are no longer valid. When calculating the pool size for additional candidates we take `max(#nodes * scale-down-candidates-pool-ratio, scale-down-candidates-pool-min-count)` | 50 |
 
+## Additional Resources
+
+This page contains a list of Cluster Autoscaler presentations and demos. If you'd like to add a presentation or demo here, please send a pull request.
+
+| Presentation/Demo | Presenters |
+| ------------ | ------- |
+| [Autoscaling and Cost Optimization on Kubernetes: From 0 to 100](https://sched.co/Zemi) | Guy Templeton, Skyscanner & Jiaxin Shan, Amazon |
+
 ## References
 
 * https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md
