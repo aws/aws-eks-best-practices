@@ -4,8 +4,8 @@ repo_url: "https://github.com/aws/aws-eks-best-practices"
 edit_uri: edit/master/content/security/docs
 theme: 
   name: material
-    features: 
-      - tabs
+  features: 
+    - tabs
 nav:
   - Tab 1:
     - Home: 'index.md'
