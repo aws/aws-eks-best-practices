@@ -7,7 +7,7 @@ theme:
   features: 
     - tabs
 nav:
-  - Tab 1:
+  - Security:
     - Home: 'index.md'
     - Identity and Access Management: 'iam.md'
     - Pod Security: 'pods.md'
@@ -20,8 +20,8 @@ nav:
     - Regulatory Compliance: 'compliance.md'
     - Incident Response and Forensics: 'incidents.md'
     - Image Security: 'image.md'
-  - Tab 2: 
-    - Cluster Autoscaling: '../cluster-autoscaling/cluster-autoscaling.md'
+  - Cluster Autoscaling: 
+    - Home: '../../cluster-autoscaling/cluster-autoscaling.md'
 markdown_extensions:
     - toc:
         permalink: true
