@@ -21,7 +21,7 @@ nav:
     - Incident Response and Forensics: 'incidents.md'
     - Image Security: 'image.md'
   - Cluster Autoscaling: 
-    - Home: '../../cluster-autoscaling/cluster-autoscaling.md'
+    - Home: 'cluster-autoscaling.md'
 markdown_extensions:
     - toc:
         permalink: true
