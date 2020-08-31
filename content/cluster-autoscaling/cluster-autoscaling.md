@@ -119,15 +119,19 @@ Ensure that:
 
 ### Spot Instances
 
-Spot Instances can significantly reduce your infrastructure costs, but capacity is limited and can be taken away at any time. Insufficient Capacity Errors will occur when your EC2 Auto Scaling Group cannot scale up due to lack of available capacity. Maximizing diversity by selecting many instance families can help combat availability limitations and interruptions. Mixed Instance Policies with Spot Instances are a great way to increase diversity without increasing the number of node groups. Keep in mind, if you need guaranteed resources, use On-Demand Instances instead of Spot Instances.
+You can use Spot Instances in your node groups and save up to 90% off the on-demand price, with the trade-off the Spot Instances can be interrupted at any time when EC2 needs the capacity back. Insufficient Capacity Errors will occur when your EC2 Auto Scaling group cannot scale up due to lack of available capacity. Maximizing diversity by selecting many instance families can increase your chance of achieving your desired scale by tapping into many Spot capacity pools, and decrease the impact of Spot Instance interruptions on your cluster availability. Mixed Instance Policies with Spot Instances are a great way to increase diversity without increasing the number of node groups. Keep in mind, if you need guaranteed resources, use On-Demand Instances instead of Spot Instances.
 
 It’s critical that all Instance Types have similar resource capacity when configuring Mixed Instance Policies. The autoscaler’s scheduling simulator uses the first InstanceType in the MixedInstancePolicy. If subsequent Instance Types are larger, resources may be wasted after a scale up. If smaller, your pods may fail to schedule on the new instances due to insufficient capacity. For example, M4, M5, M5a, and M5n instances all have similar amounts of CPU and Memory and are great candidates for a MixedInstancePolicy. The [EC2 Instance Selector](https://github.com/aws/amazon-ec2-instance-selector) tool can help you identify similar instance types.
 
 ![](./spot_mix_instance_policy.jpg)
 
-It's recommended to isolate On-Demand and Spot capacity into separate EC2 Auto Scaling Groups. This is preferred over using a [base capacity strategy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-purchase-options.html#asg-instances-distribution) because the scheduling properties are fundamentally different. Since Spot capacity can be preempted at any time, users will often taint their preemptable nodes, requiring an explicit pod toleration to the preemption behavior. These taints result in different scheduling properties for the nodes, so they should be separated into multiple EC2 Auto Scaling Groups.
+It's recommended to isolate On-Demand and Spot capacity into separate EC2 Auto Scaling groups. This is preferred over using a [base capacity strategy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-purchase-options.html#asg-instances-distribution) because the scheduling properties are fundamentally different. Since Spot Instances be interrupted at any time (when EC2 needs the capacity back), users will often taint their preemptable nodes, requiring an explicit pod toleration to the preemption behavior. These taints result in different scheduling properties for the nodes, so they should be separated into multiple EC2 Auto Scaling Groups.
 
-You may also configure priority based autoscaling. The Cluster Autoscaler has a concept of [Expanders](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-expanders), which provide different strategies for selecting which Node Group to scale. However, only one expander strategy can be configured at a time. The strategy `--expander=least-waste` is a good general purpose default, but may not be the best option when heavily using Spot Instances. The strategy `--expander=priority` enables your cluster to prioritize a Spot EC2 Auto Scaling Group and fall back to On-Demand EC2 Auto Scaling Group when the former runs out of capacity. For example:
+The Cluster Autoscaler has a concept of [Expanders](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-expanders), which provide different strategies for selecting which Node Group to scale. The strategy `--expander=least-waste` is a good general purpose default, and if you're going to use multiple node groups for Spot Instance diversification (as described in the image above), it could help further cost-optimize the node groups by scaling the group which would be best utilized after the scaling activity.
+
+### Prioritizing a node group / ASG
+
+You may also configure priority based autoscaling by using the Priority expander. `--expander=priority` enables your cluster to prioritize a node group / ASG, and if it is unable to scale for any reason, it will choose the next node group in the prioritized list. This is useful in situations where, for example, you want to use P3 instance types because their GPU provides optimal performance for your workload, but as a second option you can also use P2 instance types.
 
 ```
 apiVersion: v1
@@ -138,13 +142,13 @@ metadata:
 data:
   priority: |-
     10:
-      - .*high-cost-ondemand-instances.*
+      - .*p2-node-group.*
     50:
-      - .*low-cost-spot-instances.*
+      - .*p3-node-group.*
 ```
 
-Cluster Autoscaler will try to scale up the EC2 Auto Scaling Group matching the name low-cost-spot-instances. If this operation does not succeed within `--max-node-provision-time`, it will attempt to scale an EC2 Auto Scaling Group matching the name high-cost-on-demand-instances.
-This value defaults to 15 minutes and can be reduced for more responsive fallbacks, though if the value is too low, it can cause unnecessary scale outs.
+Cluster Autoscaler will try to scale up the EC2 Auto Scaling group matching the name *p2-node-group*. If this operation does not succeed within `--max-node-provision-time`, it will attempt to scale an EC2 Auto Scaling group matching the name *p3-node-group*.
+This value defaults to 15 minutes and can be reduced for more responsive node group selection, though if the value is too low, it can cause unnecessary scale outs.
 
 ### Overprovisioning
 
