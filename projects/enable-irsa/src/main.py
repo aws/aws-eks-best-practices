@@ -48,6 +48,9 @@ def create_odic_provider(OidcUrl: str, Thumbprint: str):
     try:
         iam.create_open_id_connect_provider(
             Url=OidcUrl,
+            ClientIDList=[
+                'sts.amazonaws.com'
+            ],
             ThumbprintList=[
                 Thumbprint,
             ]
