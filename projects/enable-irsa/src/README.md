@@ -1,6 +1,8 @@
+You can find a copy of the binary in the /bin directory (MacOS only)
+
 To run the script install the prerequisites: 
 
-- Created with Python 3.8.5 (may work with other versions)
+- Python 3.7.5 or higher
 - Create venv (optional)
 
 `python3 -m venv /path/to/new/virtual/environment`
