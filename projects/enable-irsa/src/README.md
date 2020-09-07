@@ -9,7 +9,7 @@ Is a commandline utility that does the following:
 
 Running this utility effectively replaces the IAM role currently assigned to the EC2 instance that the aws-node Daemonset is running on with IRSA which allows you to assign an IAM role to a pod.   
 
-| Note: The binary for this utility can be found in the /bin directory (MacOS only)
+> Note: The binary for this utility can be found in the /bin directory (MacOS only)
 
 ## Installation
 
