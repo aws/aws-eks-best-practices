@@ -242,7 +242,7 @@ You can control which pods are assigned to a security group by creating a Securi
 If you use SGs for pods you **must** create a SGs that allow port 53 outbound to the to the cluster security group.  Similarly, you **must** update the cluster security group to accept port 53 inbound traffic from the pod security group.
 
 !!! important
-The [limits for security groups](https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups) apply when using security groups for pods. 
+The [limits for security groups](https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups) still apply when using security groups for pods so use them judiciously. 
 
 !!! important
 You **must** create rules for inbound traffic from the cluster security group (kubelet) for all of the probes configured for pod.
