@@ -236,7 +236,7 @@ If you need to control communication between services that run within the cluste
 !!! warning
     If you reference a security group that does not exist prior to the creation of the pods, the pods will not get scheduled. 
 
-You can control which pods are assigned to a security group by creating a SecurityGroupPolicy object and specifying a PodSelector or a ServiceAccountSelector. Setting the selectors to `{}` will assign the SGs referenced in the SecurityGroupPolicy to all pods in a namespace or all Service Accounts in a namespace. Be sure you've familiarized youself with all the [considerations](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations) before implementing security groups for pods.  
+You can control which pods are assigned to a security group by creating a `SecurityGroupPolicy` object and specifying a `PodSelector` or a `ServiceAccountSelector`. Setting the selectors to `{}` will assign the SGs referenced in the `SecurityGroupPolicy` to all pods in a namespace or all Service Accounts in a namespace. Be sure you've familiarized youself with all the [considerations](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations) before implementing security groups for pods.  
 
 !!! important
     If you use SGs for pods you **must** create a SGs that allow port 53 outbound to the to the cluster security group.  Similarly, you **must** update the cluster security group to accept port 53 inbound traffic from the pod security group.
