@@ -42,4 +42,4 @@ To run as a Docker container, complete the following steps:
 
 - Run the Docker container
 
-`docker run [repo]/[image]:[tag] --cluster-name [cluster_name(required)] --role-name [role_name(required)]  --region [aws_region(optional)] --account [aws_account_no(optional)]`
+`docker run -it -v ~/.aws/:/root/.aws/ [repo]/[image]:[tag] --cluster-name [cluster_name(required)] --role-name [role_name(required)]  --region [aws_region(optional)] --account [aws_account_no(optional)]`
