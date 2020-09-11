@@ -181,7 +181,21 @@ Each application should have its own dedicated service account.  This applies to
     If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster. 
 
 ### Restrict access to the instance profile assigned to the worker node
-When you use IRSA, the Pod no longer inherits the rights of the instance profile assigned to the worker node. Nonetheless, as an added precaution, you may want to block a process's ability to access [instance metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html). This will effectively prevent pods that do not use IRSA from inheriting the role assigned to the worker node. Be aware that when you block access to instance metadata on a worker node, it may prevent certain pods from functioning properly. For additional information about how to block access to instance metadata, see https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html.
+When you use IRSA, it updates the credential chain of the pod to use the IRSA token, however, the pod _can still inherit the rights of the instance profile assigned to the worker node_. When using IRSA, it is **strongly** recommended that you block access [instance metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) to minimize the blast radius of a breach. 
+
+!!! caution
+    Blocking access to instance metadata will prevent pods that do not use IRSA from inheriting the role assigned to the worker node. 
+
+You can block access to instance metadata by requiring the instance to use IMDSv2 only and updating the hop count to 1 as in the example below. You can also include these settings in the node group's launch template. Do **not** disable instance metadata as this will prevent components like the node termination handler and other things that rely on instance metadata from working properly.  
+
+```
+aws ec2 modify-instance-metadata-options --instance-id <value> --http-tokens required --http-put-response-hop-limit 1
+```
+
+You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html.
+
+### Update the aws-node daemonset to use IRSA
+At present, the aws-node daemonset is configured to use a role assigned to the EC2 instances to assign IPs to pods.  This role includes several AWS managed policies, e.g. AmazonEKS_CNI_Policy and EC2ContainerRegistryReadOnly that effectly allow **all** pods running on a node to attach/detach ENIs, assign/unassign IP addresses, or pull images from ECR. Since this presents a risk to your cluster, it is recommended that you update the aws-node daemonset to use IRSA. A script for doing this can be found in the [repository](https://github.com/aws/aws-eks-best-practices/tree/master/projects/enable-irsa/src) for this guide.
 
 ### Increase the hop limit on EC2 instances to 2 if you use the IAM Metadata Service v2 (IMDSv2)
 [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) requires you use a PUT request to get a session token.  The initial PUT request has to include a TTL for the session token.  Newer versions of the AWS SDKs will handle this and the renewal of said token automatically. It's also important to be aware that the default hop limit on EC2 instances is intentionally set to 1 to prevent IP forwarding. As a consequence, Pods that request a session token that are run on EC2 instances may eventually time out and fallback to using the IMDSv1 data flow. EKS adds support IMDSv2 by _enabling_ both v1 and v2 and changing the hop limit to 2 on nodes provisioned by eksctl or with the official CloudFormation templates. 
@@ -205,6 +219,16 @@ spec:
     image: busybox
     command: [ "sh", "-c", "sleep 1h" ]
 ```
+
+When you run a container as a non-root user, it prevents the container from reading the IRSA service account token because the token is assigned 0600 [root] permissions by default. If you update the securityContext for your container to include fsgroup=65534 [Nobody] it will allow the container to read the token.
+
+```
+spec:
+  securityContext:
+    fsGroup: 65534
+```
+
+This is supposed to get fixed in an future release of k8s, [kubernetes/enhancements#1598](https://github.com/kubernetes/enhancements/pull/1598).
 
 ### Scope the IAM Role trust policy for IRSA to the service account name
 The trust policy can be scoped to a Namespace or a specific service account within a Namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other Pods within the same Namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See https://eksctl.io/usage/iamserviceaccounts/ for further information. 
