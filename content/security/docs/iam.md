@@ -168,17 +168,8 @@ The kubelet will automatically rotate the projected token when it is older than 
 
 ## Recommendations
 
-### Disable auto-mounting of service account tokens
-If your application doesn't need to call the Kubernetes API set the `automountServiceAccountToken` attribute to `false` in the PodSpec for your application or patch the default service account in each namespace so that it's no longer mounted to pods automatically. For example: 
-```bash 
-kubectl patch serviceaccount default -p $'automountServiceAccountToken: false'
-```
-
-### Use dedicated service accounts for each application
-Each application should have its own dedicated service account.  This applies to service accounts for the Kubernetes API as well as IRSA. 
-
-!!! attention
-    If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster. 
+### Update the aws-node daemonset to use IRSA
+At present, the aws-node daemonset is configured to use a role assigned to the EC2 instances to assign IPs to pods.  This role includes several AWS managed policies, e.g. AmazonEKS_CNI_Policy and EC2ContainerRegistryReadOnly that effectly allow **all** pods running on a node to attach/detach ENIs, assign/unassign IP addresses, or pull images from ECR. Since this presents a risk to your cluster, it is recommended that you update the aws-node daemonset to use IRSA. A script for doing this can be found in the [repository](https://github.com/aws/aws-eks-best-practices/tree/master/projects/enable-irsa/src) for this guide.
 
 ### Restrict access to the instance profile assigned to the worker node
 When you use IRSA, it updates the credential chain of the pod to use the IRSA token, however, the pod _can still inherit the rights of the instance profile assigned to the worker node_. When using IRSA, it is **strongly** recommended that you block access [instance metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) to minimize the blast radius of a breach. 
@@ -194,11 +185,23 @@ aws ec2 modify-instance-metadata-options --instance-id <value> --http-tokens req
 
 You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html.
 
-### Update the aws-node daemonset to use IRSA
-At present, the aws-node daemonset is configured to use a role assigned to the EC2 instances to assign IPs to pods.  This role includes several AWS managed policies, e.g. AmazonEKS_CNI_Policy and EC2ContainerRegistryReadOnly that effectly allow **all** pods running on a node to attach/detach ENIs, assign/unassign IP addresses, or pull images from ECR. Since this presents a risk to your cluster, it is recommended that you update the aws-node daemonset to use IRSA. A script for doing this can be found in the [repository](https://github.com/aws/aws-eks-best-practices/tree/master/projects/enable-irsa/src) for this guide.
+### Scope the IAM Role trust policy for IRSA to the service account name
+The trust policy can be scoped to a Namespace or a specific service account within a Namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other Pods within the same Namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See https://eksctl.io/usage/iamserviceaccounts/ for further information. 
 
-### Increase the hop limit on EC2 instances to 2 if you use the IAM Metadata Service v2 (IMDSv2)
+### When your application needs access to IDMS, use IMDSv2 and increase the hop limit on EC2 instances to 2
 [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) requires you use a PUT request to get a session token.  The initial PUT request has to include a TTL for the session token.  Newer versions of the AWS SDKs will handle this and the renewal of said token automatically. It's also important to be aware that the default hop limit on EC2 instances is intentionally set to 1 to prevent IP forwarding. As a consequence, Pods that request a session token that are run on EC2 instances may eventually time out and fallback to using the IMDSv1 data flow. EKS adds support IMDSv2 by _enabling_ both v1 and v2 and changing the hop limit to 2 on nodes provisioned by eksctl or with the official CloudFormation templates. 
+
+### Disable auto-mounting of service account tokens
+If your application doesn't need to call the Kubernetes API set the `automountServiceAccountToken` attribute to `false` in the PodSpec for your application or patch the default service account in each namespace so that it's no longer mounted to pods automatically. For example: 
+```bash 
+kubectl patch serviceaccount default -p $'automountServiceAccountToken: false'
+```
+
+### Use dedicated service accounts for each application
+Each application should have its own dedicated service account.  This applies to service accounts for the Kubernetes API as well as IRSA. 
+
+!!! attention
+    If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster. 
 
 ### Run the application as a non-root user
 Containers run as root by default. While this allows them to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.runAsUser` attribute to the PodSpec.  The value of `runAsUser` is abritrary value.
@@ -229,9 +232,6 @@ spec:
 ```
 
 This is supposed to get fixed in an future release of k8s, [kubernetes/enhancements#1598](https://github.com/kubernetes/enhancements/pull/1598).
-
-### Scope the IAM Role trust policy for IRSA to the service account name
-The trust policy can be scoped to a Namespace or a specific service account within a Namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other Pods within the same Namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See https://eksctl.io/usage/iamserviceaccounts/ for further information. 
 
 ### Grant least privileged access to applications
 [Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function properly.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you gradually limit the scope of IAM roles assigned to applications. Consult the documentation on granting [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources for further information.
