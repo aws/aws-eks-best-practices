@@ -1,7 +1,22 @@
 # Runtime security 
-Runtime security provides active protection for your containers while they're running.  The idea is to detect and/or prevent malicious activity from occuring inside the container. With secure computing (seccomp) you can prevent a containerized application from making certain syscalls to the underlying host operating system's kernel. While the Linux operating system has a few hundred system calls, the lion's share of them are not necessary for running containers. By restricting what syscalls can be made by a container, you can effectively decrease your application's attack surface. To get started with seccomp, analyze the results of a stack trace to see which calls your application is making or use a tool such as [syscall2seccomp](https://github.com/antitree/syscall2seccomp).
+Runtime security provides active protection for your containers while they're running.  The idea is to detect and/or prevent malicious activity from occuring inside the container. With secure computing (seccomp) you can prevent a containerized application from making certain syscalls to the underlying host operating system's kernel. While the Linux operating system has a few hundred system calls, the lion's share of them are not necessary for running containers. By restricting what syscalls can be made by a container, you can effectively decrease your application's attack surface. To get started with seccomp, use [`strace`](https://man7.org/linux/man-pages/man1/strace.1.html) to generate a stack trace to see which system calls your application is making, then use a tool such as [syscall2seccomp](https://github.com/antitree/syscall2seccomp) to create a seccomp profile from the data gathered from the trace.
 
-Unlike SELinux, seccomp was not designed to isolate containers from each other, however, it will protect the host kernel from unauthorized syscalls. It works by intercepting syscalls and only allowing those that have been whitelisted to pass through. Docker has a [default](https://github.com/moby/moby/blob/master/profiles/seccomp/default.json) seccomp profile which is suitable for a majority of general purpose workloads. You can also create own profiles for things that require additional privileges.
+Unlike SELinux, seccomp was not designed to isolate containers from each other, however, it will protect the host kernel from unauthorized syscalls. It works by intercepting syscalls and only allowing those that have been whitelisted to pass through. Docker has a [default](https://github.com/moby/moby/blob/master/profiles/seccomp/default.json) seccomp profile which is suitable for a majority of general purpose workloads. You can configure your container or Pod to use this profile by adding the following annotation to your container's or Pod's spec (pre-1.19):
+
+```
+annotations:
+  seccomp.security.alpha.kubernetes.io/pod: "runtime/default"
+```
+
+1.19 and later: 
+
+```
+securityContext:
+  seccompProfile:
+    type: RuntimeDefault
+```
+
+It's also possible to create your own profiles for things that require additional privileges.  
 
 !!! caution
     seccomp profiles are a Kubelet alpha feature.  You'll need to add the `--seccomp-profile-root` flag to the Kubelet arguments to make use of this feature. 
@@ -33,6 +48,8 @@ Pod Security Policies offer a lot of different ways to improve your security pos
 + [7 things you should know before you start](https://itnext.io/seccomp-in-kubernetes-part-i-7-things-you-should-know-before-you-even-start-97502ad6b6d6)
 + [AppArmor Loader](https://github.com/kubernetes/kubernetes/tree/master/test/images/apparmor-loader)
 + [Setting up nodes with profiles](https://kubernetes.io/docs/tutorials/clusters/apparmor/#setting-up-nodes-with-profiles)
++ [zaz](https://github.com/pjbgf/zaz) A command-line tool to assist on assessing container security requirements and generating seccomp profiles
++ [seccomp-operator](https://github.com/kubernetes-sigs/seccomp-operator) Is similar to the AppArmor Loader, only instead of AppArmor profiles, it creates a seccomp profiles on each host 
 
 ## Tools
 + [Aqua](https://www.aquasec.com/products/aqua-cloud-native-security-platform/)
