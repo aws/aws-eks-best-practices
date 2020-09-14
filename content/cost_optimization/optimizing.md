@@ -64,6 +64,7 @@ Use [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch
 
 [Container Insights Prometheus Metrics Monitoring](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-metrics.html) At present, support for Prometheus metrics is still in beta. CloudWatch Container Insights monitoring for Prometheus automates the discovery of Prometheus metrics from containerized systems and workloads. Prometheus is an open-source systems monitoring and alerting toolkit. All Prometheus metrics are collected in the ContainerInsights/Prometheus namespace. 
 
+The Metrics provided by cAdvisor and kube-state-metrics can be used for monitoring pods on Amazon EKS on AWS Fargate using Prometheus and Grafana, which can then be used to implement **requests** in your containers. Please refer to [this blog](https://aws.amazon.com/blogs/containers/monitoring-amazon-eks-on-aws-fargate-using-prometheus-and-grafana/) for more details. 
 
 **Right Size Guide**: The [right size guide (rsg)](https://mhausenblas.info/right-size-guide/) is a simple CLI tool that provides you with memory and CPU recommendations for your application. This tool works across container orchestrators, including Kubernetes and easy to deploy. 
 
@@ -77,6 +78,7 @@ Refer to the following resources to learn more about best practices for cost opt
 ### Documentation and Blogs
 +	[Amazon EKS Workshop - Setting up EKS CloudWatch Container Insights ](https://www.eksworkshop.com/intermediate/250_cloudwatch_container_insights/)
 +	[Using Prometheus Metrics in Amazon CloudWatch](https://aws.amazon.com/blogs/containers/using-prometheus-metrics-in-amazon-cloudwatch/)
++ [Monitoring Amazon EKS on AWS Fargate using Prometheus and Grafana](https://aws.amazon.com/blogs/containers/monitoring-amazon-eks-on-aws-fargate-using-prometheus-and-grafana/)
 
 
 ### Tools
