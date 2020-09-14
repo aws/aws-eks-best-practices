@@ -369,7 +369,7 @@ Compute Savings Plans, a flexible discount model that provides you with the same
 The AWS Cost Explorer will help you to choose a Savings Plan, and will guide you through the purchase process.
 ![Compute Savings Plan](../images/Compute-savings-plan.png)
 
-Note - The compute savings plans does not apply to EKS Fargate yet.
+Note - The compute savings plans now also applies to [AWS Fargate for AWS Elastic Kubernetes Service (EKS)](https://aws.amazon.com/about-aws/whats-new/2020/08/amazon-fargate-aws-eks-included-compute-savings-plan/). 
 
 Note - The above pricing does not include the other AWS services like Data transfer charges, CloudWatch, Elastic Load Balancer and other AWS services that may be used by the Kubernetes applications.
 
