@@ -121,7 +121,7 @@ This awareness will help in understanding resource usage and help in controlling
 
 ### Using KubeCost for expenditure awareness and guidance
 
-Third party tools like [kubecost](https://kubecost.com/) can also be deployed on Amazon EKS to get visibility into cost of running your Kubernetes cluster.
+Third party tools like [kubecost](https://kubecost.com/) can also be deployed on Amazon EKS to get visibility into cost of running your Kubernetes cluster. Please refer to this [AWS blog](https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/) for tracking costs using Kubecost
 
 Deploying kubecost using Helm 3:
 ```
@@ -227,6 +227,7 @@ Documentation and Blogs
 Tools
 +	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
 +	[Amazon CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html)
++   [How to track costs in multi-tenant Amazon EKS clusters using Kubecost](https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/) 
 +   [Kube Cost](https://kubecost.com/)
 +   [Kube Opsview](https://github.com/hjacobs/kube-ops-view)
 +  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
