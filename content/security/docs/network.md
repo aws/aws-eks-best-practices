@@ -247,7 +247,7 @@ You can control which pods are assigned to a security group by creating a `Secur
 !!! important
     You **must** create rules for inbound traffic from the cluster security group (kubelet) for all of the probes configured for pod.
     
-!!! important
+!!! warning
     There is a [bug](https://github.com/aws/amazon-vpc-cni-k8s/pull/1212) that currently prevents the kublet from communicating with pods that are assigned to SGs. The current workaround involves running `sudo sysctl net.ipv4.tcp_early_demux=0` on the affected worker nodes.  
     
 !!! important
