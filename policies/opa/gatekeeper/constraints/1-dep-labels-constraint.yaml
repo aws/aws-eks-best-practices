@@ -1,0 +1,16 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: deployment-labels
+spec:
+  match:
+    kinds:
+      - apiGroups: ["*"]
+        kinds: ["Deployment"]
+    namespaces:
+      - "opa-test"
+  parameters:
+    allowedOps: ["CREATE","UPDATE"]
+    labels: ["app","owner"]
+    specTemplateLabels: ["app","env","owner"]
+    errMsg: "INVALID_DEPLOYMENT_LABELS"

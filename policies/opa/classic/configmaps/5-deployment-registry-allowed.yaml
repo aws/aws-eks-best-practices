@@ -1,0 +1,36 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: deployment-registry-allowed
+  namespace: opa
+  labels:
+    app: opa
+    owner: jimmy
+    openpolicyagent.org/policy: rego
+data:
+  main: |
+    package kubernetes.admission
+
+    import data.lib.k8s.helpers as helpers
+
+    deny[msg] {
+      helpers.request_kind = "Deployment"
+      helpers.allowed_operations[helpers.request_operation]
+      image = helpers.deployment_containers[_].image
+      not reg_matches_any(image,valid_deployment_registries_v2)
+      msg = sprintf("%q: %q image is not sourced from an authorized registry. Resource ID (ns/name/kind): %q", [helpers.deployment_error,image,helpers.request_id])
+    }
+
+    valid_deployment_registries_v2 = {registry |
+      allowed = "GOOD_REGISTRY,VERY_GOOD_REGISTRY"
+      registries = split(allowed, ",")
+      registry = registries[_]
+    }
+
+    reg_matches_any(str, patterns) {
+      reg_matches(str, patterns[_])
+    }
+
+    reg_matches(str, pattern) {
+      contains(str, pattern)
+    }
