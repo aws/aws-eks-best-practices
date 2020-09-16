@@ -92,6 +92,7 @@ The following open source projects can be used to assess your cluster's alignmen
 + [kubeaudit](https://github.com/Shopify/kubeaudit)
 + [MKIT](https://github.com/darkbitio/mkit)
 + [kube-scan](https://github.com/octarinesec/kube-scan) Assigns a risk score to the workloads running in your cluster in accordance with the Kubernetes Common Configuration Scoring System framework
++ [amicontained](https://github.com/genuinetools/amicontained) Reveals which Capabilities are allowed and syscalls that are blocked by the container runtime
 + [kubesec.io](https://kubesec.io/)
 + [polaris](https://github.com/FairwindsOps/polaris)
 + [Starboard](https://github.com/aquasecurity/starboard)
