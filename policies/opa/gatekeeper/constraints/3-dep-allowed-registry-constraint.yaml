@@ -1,0 +1,15 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDepRegistry
+metadata:
+  name: deployment-allowed-registry
+spec:
+  match:
+    kinds:
+      - apiGroups: ["*"]
+        kinds: ["Deployment"]
+    namespaces:
+      - "opa-test"
+  parameters:
+    allowedOps: ["CREATE","UPDATE"]
+    allowedRegistries: ["GOOD_REGISTRY","VERY_GOOD_REGISTRY"]
+    errMsg: "INVALID_DEPLOYMENT_REGISTRY"

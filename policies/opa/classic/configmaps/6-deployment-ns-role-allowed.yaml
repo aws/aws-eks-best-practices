@@ -1,0 +1,34 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: deployment-allowed-role-ns
+  namespace: opa
+  labels:
+    app: opa
+    owner: jimmy
+    openpolicyagent.org/policy: rego
+data:
+  main: |
+    package kubernetes.admission
+
+    import data.lib.k8s.helpers as helpers
+
+    deny[msg] {
+      helpers.request_kind = "Deployment"
+      helpers.allowed_operations[helpers.request_operation]
+      role := helpers.deployment_role
+      namespace := helpers.request_namespace
+      not ns_roles_allowed(namespace,role)
+      msg := sprintf("%q: %q role is not allowed for the %q namespace. Resource ID (ns/name/kind): %q", [helpers.deployment_error,role,namespace,helpers.request_id])
+    }
+
+    ns_roles_allowed(n,r) {
+    	# a dictionary mapping each namespace to a set of permitted roles for that namespace
+        allowed := {
+          "prod": {"arn:aws:iam::123456789012:role/prod"},
+        	"dev": {"arn:aws:iam::123456789012:role/dev","arn:aws:iam::123456789012:role/test"},
+          "opa-test": {"arn:aws:iam::123456789012:role/test"},
+        }
+        allowed[n][r]
+    }
+    
