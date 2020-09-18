@@ -64,6 +64,9 @@ While IAM is the preferred way to authenticate users who need access to an EKS c
 
 You can also use [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html) to federate AWS with an external identity provider, e.g. Azure AD. If you decide to use this, the AWS CLI v2.0 includes an option to create a named profile that makes it easy to associate an SSO session with your current CLI session and assume an IAM role. Know that you must assume a role _prior_ to running `kubectl` as the IAM role is used to determine the user's Kubernetes RBAC group.
 
+### Additional Resources
+[rbac.dev](https://github.com/mhausenblas/rbac.dev) A list of additional resources, including blogs and tools, for Kubernetes RBAC
+
 ## Pods Identities
 Certain applications that run within a Kubernetes cluster need permission to call the Kubernetes API to function properly. For example, the [ALB Ingress Controller](https://kubernetes-sigs.github.io/aws-alb-ingress-controller/) needs to be able to list a Service's Endpoints. The controller also needs to be able to invoke AWS APIs to provision and configure an ALB.  In this section we will explore the best practices for assigning rights and privileges to Pods. 
 
