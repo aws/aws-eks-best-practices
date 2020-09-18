@@ -15,7 +15,7 @@ None of these controls, however, prevent pods from different tenants from sharin
     Soft multi-tenancy implemented with Namespaces does not allow you to provide tenants with a filtered list of Namespaces because Namespaces are a globaly scoped Type. If a tenant has the ability to view a particular Namespace, it can view all Namespaces within the cluster. 
 
 !!! warning
-    With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. If you need to restrict access to records, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy. 
+    With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. An attacker could exploit this by running dig SRV *.*.svc.cluster.local from any pod in the cluster.  If you need to restrict access to DNS records of services that run within your clusters, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy. 
 
 [Kiosk](https://github.com/kiosk-sh/kiosk) is an open source project that can aid in the implementation of soft multi-tenancy.  It is implemented as a series of CRDs and controllers that provide the following capabilities: 
 
