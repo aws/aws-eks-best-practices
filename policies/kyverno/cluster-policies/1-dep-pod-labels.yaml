@@ -1,0 +1,40 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: deployment-require-labels
+  labels:
+    app: kyverno
+    owner: jimmy
+  annotations:
+    policies.kyverno.io/category: Compliance
+    policies.kyverno.io/description: Rules to enforce labels on Deployment and Pod resources
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: deployment-labels
+    match:
+      resources:
+        kinds:
+        - Deployment
+    validate:
+      message: "labels app, owner, env are required"
+      pattern:
+        metadata:
+          labels:
+            app: "?*"
+            owner: "?*"
+            env: "?*"
+  - name: pod-labels
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "labels app, owner, env are required"
+      pattern:
+        metadata:
+          labels:
+            app: "?*"
+            owner: "?*"
+            env: "?*"
+

@@ -1,0 +1,37 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: deployment-valid-role
+  labels:
+    app: kyverno
+    owner: jimmy
+  annotations:
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/description: Rules to enforce valid roles, based on namespace-role dictionary
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: validate-role-annotation
+    context:
+      - name: ns-roles-dictionary
+        configMap:
+          name: ns-roles-dictionary
+          namespace: kyverno
+    match:
+      resources:
+        kinds:
+        - Deployment
+    preconditions:
+    - key: "{{ request.object.metadata.namespace }}"
+      operator: In
+      value: ["prod", "dev", "kyverno-test"]
+    - key: "{{ request.object.spec.template.metadata.annotations.\"iam.amazonaws.com/role\" }}"
+      operator: NotEqual
+      value: ""
+    validate:
+      message: "Annotation iam.amazonaws.com/role \"{{ request.object.spec.template.metadata.annotations.\"iam.amazonaws.com/role\" }}\" is not allowed for the \"{{ request.object.metadata.namespace }}\" namespace."
+      deny:
+        conditions:
+        - key: "{{ request.object.spec.template.metadata.annotations.\"iam.amazonaws.com/role\" }}"
+          operator: NotIn
+          value:  "{{ \"ns-roles-dictionary\".data.\"{{ request.object.metadata.namespace }}\" }}"
