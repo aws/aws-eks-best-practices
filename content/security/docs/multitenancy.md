@@ -114,7 +114,7 @@ There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredn
 
 [Kyverno](https://kyverno.io) is a Kubernetes native policy engine that can validate, mutate, and generate configurations with policies as Kubernetes resources. Kyverno uses Kustomize-style overlays for validation, supports JSON Patch and strategic merge patch for mutation, and can clone resources across namespaces based on flexible triggers.
 
-You can use Kyverno to isolate namespaces, enforce pos security, and generate default configurations such as network policies.
+You can use Kyverno to isolate namespaces, enforce pod security and other best practices, and generate default configurations such as network policies.
 
 ### Tools
 
