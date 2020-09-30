@@ -110,6 +110,12 @@ https://threadreaderapp.com/thread/1238496944684597248.html.
 
 There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredns/coredns-opa) that allows you to use OPA to filter/control the records returned by CoreDNS. 
 
+### Kyverno
+
+[Kyverno](https://kyverno.io) is a Kubernetes native policy engine that can validate, mutate, and generate configurations with policies as Kubernetes resources. Kyverno uses Kustomize-style overlays for validation, supports JSON Patch and strategic merge patch for mutation, and can clone resources across namespaces based on flexible triggers.
+
+You can use Kyverno to isolate namespaces, enforce pos security, and generate default configurations such as network policies.
+
 ### Tools
 
 + [k-rail](https://github.com/cruise-automation/k-rail) Designed to help you secure a multi-tenant environment through the enforcement of certain policies. 
@@ -131,10 +137,14 @@ The HNC proposal (KEP) describes a way to create parent-child relationships betw
 
 The Virtual Cluster proposal describes a mechanism for creating separate instances of the control plane services, including the API server, the controller manager, and scheduler, for each tenant within the cluster (also known as "Kubernetes on Kubernetes").
 
+The [Multi-Tenancy Benchmarks](https://github.com/kubernetes-sigs/multi-tenancy/blob/master/benchmarks/README.md) proposal provides guidelines for sharing clusters using namespaces for isolation and segmentation, and a command line tool [kubectl-mtb](https://github.com/kubernetes-sigs/multi-tenancy/blob/master/benchmarks/kubectl-mtb/README.md) to validate conformance to the guidelines.
+
 ## Multi-cluster management resources
-+ [Rancher](https://rancher.com/products/rancher/)
-+ [Kommander](https://d2iq.com/solutions/ksphere/kommander)
-+ [Weave Flux](https://www.weave.works/oss/flux/)
+
 + [Banzai Cloud](https://banzaicloud.com/)
-+ [Rafay](https://rafay.co/)
++ [Kommander](https://d2iq.com/solutions/ksphere/kommander)
 + [Lens](https://github.com/lensapp/lens)
++ [Nirmata](https://nirmata.com)
++ [Rafay](https://rafay.co/)
++ [Rancher](https://rancher.com/products/rancher/)
++ [Weave Flux](https://www.weave.works/oss/flux/)
