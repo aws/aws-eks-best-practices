@@ -68,4 +68,4 @@ Periodically attacking your own cluster can help you discover vulnerabilities an
 + [kube-hunter](https://github.com/aquasecurity/kube-hunter), a penetration testing tool for Kubernetes. 
 + [Gremlin](https://www.gremlin.com/product/#kubernetes), a chaos engineering toolkit that you can use to simulate attacks against your applications and infrastructure. 
 + [kube-forensics](https://github.com/keikoproj/kube-forensics), a Kubernetes controller that triggers a job that collects the state of a running pod and dumps it in an S3 bucket. 
-+ [Attacking and Defending Kubernetes Installations](https://github.com/kubernetes/community/blob/master/wg-security-audit/findings/AtredisPartners_Attacking_Kubernetes-v1.0.pdf)
++ [Attacking and Defending Kubernetes Installations](https://github.com/kubernetes/community/blob/master/sig-security/security-audit-2019/findings/AtredisPartners_Attacking_Kubernetes-v1.0.pdf)
