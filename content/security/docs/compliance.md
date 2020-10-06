@@ -15,15 +15,15 @@ The following table shows the compliance programs with which the different conta
 | ISO 27017:2015 |	1 |	1 |	1 |	1 |
 | ISO 27018:2019 |	1 |	1 |	1 |	1 |
 | IRAP | 1 | 0 | 1 | 1 |
-| FedRAMP Moderate (East/West) | 1 | 3PAO Assessment | 0 | 1 |
-| FedRAMP High (GovCloud) | 1 | 0 | 0 | 1 |
-| DOD CC SRG | 1 |	Undergoing assessment |	0 |	1 |
+| FedRAMP Moderate (East/West) | 1 | JAB Review | 0 | 1 |
+| FedRAMP High (GovCloud) | 1 | JAB Review | 0 | 1 |
+| DOD CC SRG | 1 |	JAB Review |	0 |	1 |
 | HIPAA BAA | 1 | 1 | 1 | 1 |
 | MTCS | 1 | 1 | 0 | 1 |
 | C5 | 1 | 1 | 0 | 1 |
 | K-ISMS | 1 | 1 | 0 | 1 |
 | ENS High | 1 | 1 | 0 | 1 |
-| OSPAR | 1 | 0 | 0 | 1 | 
+| OSPAR | 1 | 1 | 0 | 1 | 
 | HITRUSST CSF | 1 | 1 | 1 | 1 |
 
 Compliance status changes over time. For the latest status, always refer to https://aws.amazon.com/compliance/services-in-scope/. 
