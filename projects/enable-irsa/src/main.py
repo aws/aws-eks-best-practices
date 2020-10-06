@@ -37,7 +37,7 @@ def describe_cluster(ClusterName: str):
     print('Obtaining OIDC URL and thumbprint.')
     try:
         api_response = eks.describe_cluster(name=ClusterName)
-    except eks.excpetions.ResourceNotFoundException as e:
+    except eks.exceptions.ResourceNotFoundException as e:
         print('Cluster {} does not exist.').format(ClusterName)
 
     cluster = Cluster(**api_response['cluster'])
