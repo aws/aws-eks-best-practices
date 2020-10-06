@@ -4,7 +4,7 @@
 
 [The Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) is a popular Cluster Autoscaling solution maintained by [SIG Autoscaling](https://github.com/kubernetes/community/tree/master/sig-autoscaling). It is responsible for ensuring that your cluster has enough nodes to schedule your pods without wasting resources. It watches for pods that fail to schedule and for nodes that are underutilized. It then simulates the addition or removal of nodes before applying the change to your cluster. The AWS Cloud Provider implementation within Cluster Autoscaler controls the `.DesiredReplicas` field of your EC2 Auto Scaling Groups.
 
-![](./images/architecture.png)
+![architecture](images/architecture.png)
 
 This guide will provide a mental model for configuring the Cluster Autoscaler and choosing the best set of tradeoffs to meet your organization’s requirements. While there is no single best configuration, there are a set of configuration options that enable you to trade off performance, scalability, cost, and availability. Additionally, this guide will provide tips and best practices for optimizing your configuration for AWS.
 
@@ -123,7 +123,7 @@ You can use Spot Instances in your node groups and save up to 90% off the on-dem
 
 It’s critical that all Instance Types have similar resource capacity when configuring Mixed Instance Policies. The autoscaler’s scheduling simulator uses the first InstanceType in the MixedInstancePolicy. If subsequent Instance Types are larger, resources may be wasted after a scale up. If smaller, your pods may fail to schedule on the new instances due to insufficient capacity. For example, M4, M5, M5a, and M5n instances all have similar amounts of CPU and Memory and are great candidates for a MixedInstancePolicy. The [EC2 Instance Selector](https://github.com/aws/amazon-ec2-instance-selector) tool can help you identify similar instance types.
 
-![](./images/spot_mix_instance_policy.jpg)
+![spot_mix_instance_policy](images/spot_mix_instance_policy.jpg)
 
 It's recommended to isolate On-Demand and Spot capacity into separate EC2 Auto Scaling groups. This is preferred over using a [base capacity strategy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-purchase-options.html#asg-instances-distribution) because the scheduling properties are fundamentally different. Since Spot Instances be interrupted at any time (when EC2 needs the capacity back), users will often taint their preemptable nodes, requiring an explicit pod toleration to the preemption behavior. These taints result in different scheduling properties for the nodes, so they should be separated into multiple EC2 Auto Scaling Groups.
 
