@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno-test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno-test1

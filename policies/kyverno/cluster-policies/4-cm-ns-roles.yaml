@@ -1,0 +1,12 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ns-roles-dictionary
+  namespace: kyverno
+  labels:
+    app: kyverno
+    owner: jimmy
+data:
+  prod: "arn:aws:iam::123456789012:role/prod"
+  dev: "arn:aws:iam::123456789012:role/dev"
+  kyverno-test: "[\"arn:aws:iam::123456789012:role/test\", \"arn:aws:iam::123456789012:role/dev\"]"

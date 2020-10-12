@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+  namespace: kyverno-test
+  labels:
+    app: test
+    owner: jimmy
+    env: dev
+spec:
+  selector:
+    matchLabels:
+      app: test
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 5
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: test
+        owner: jimmy
+        env: dev
+      annotations:
+        iam.amazonaws.com/role: arn:aws:iam::123456789012:role/test
+    spec: 
+      containers:
+      - name: test
+        image: GOOD_REGISTRY/read-only-container:v0.0.1
+        imagePullPolicy: Always
+        securityContext:  
+          allowPrivilegeEscalation: false  
+          runAsUser: 1000  
+        #   readOnlyRootFilesystem: true  
+        ports:
+        - containerPort: 8080
+        resources:  
+          limits:  
+            cpu: 200m  
+            memory: 20Mi  
+          requests:  
+            cpu: 100m  
+            memory: 10Mi  
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+

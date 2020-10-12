@@ -1,0 +1,115 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: deployment-pod-security-context
+  labels:
+    app: kyverno
+    owner: jimmy
+  annotations:
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/description: Rules to enforce correct securityContext element
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: pod-validate-privileged
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "Privileged mode is not allowed. Set privileged to false"
+      pattern:
+        spec:
+          containers:
+          - =(securityContext):
+              =(privileged): false
+  - name: pod-validate-allowPrivilegeEscalation
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "Privileged mode is not allowed. Set allowPrivilegeEscalation to false"
+      pattern:
+        spec:
+          containers:
+          - securityContext:
+              allowPrivilegeEscalation: false
+  rules:
+  - name: dep-validate-privileged
+    match:
+      resources:
+        kinds:
+        - Deployment
+    validate:
+      message: "Privileged mode is not allowed. Set privileged to false"
+      pattern:
+        spec:
+          template:
+            spec:
+              containers:
+              - =(securityContext):
+                  =(privileged): false
+  - name: dep-validate-allowPrivilegeEscalation
+    match:
+      resources:
+        kinds:
+        - Deployment
+    validate:
+      message: "Privileged mode is not allowed. Set allowPrivilegeEscalation to false"
+      pattern:
+        spec:
+          template:
+            spec:
+              containers:
+              - securityContext:
+                  allowPrivilegeEscalation: false
+  - name: pod-validate-runAsNonRoot
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "Running as root is not allowed. Set runAsNonRoot to true, or use runAsUser"
+      anyPattern:
+      - spec:
+          securityContext:
+            runAsNonRoot: true
+      - spec:
+          securityContext:
+            runAsUser: ">0"
+      - spec:
+          containers:
+          - securityContext:
+              runAsNonRoot: true
+      - spec:
+          containers:
+          - securityContext:
+              runAsUser: ">0"
+  - name: dep-validate-readOnlyRootFilesystem
+    match:
+      resources:
+        kinds:
+        - Deployment
+    validate:
+      message: "Root filesystem must be read-only"
+      pattern:
+        spec:
+          template:
+            spec:
+              containers:
+              - securityContext:
+                  readOnlyRootFilesystem: true
+  - name: pod-validate-readOnlyRootFilesystem
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "Root filesystem must be read-only"
+      pattern:
+        spec:
+          containers:
+          - securityContext:
+              readOnlyRootFilesystem: true
+
