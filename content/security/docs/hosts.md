@@ -20,19 +20,13 @@ When running [kube-bench](https://github.com/aquasecurity/kube-bench) against an
 ### Minimize access to worker nodes
 Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.
 
-At present, you cannot use custom AMIs with Managed Node Groups or modify the EC2 launch template for managed workers.  This presents a "chicken and egg problem", i.e. how can you use the SSM agent to remotely access these instances without using SSH to install the SSM agent first? As a temporary stop-gap you can run a privileged [DaemonSet](https://github.com/jicowan/ssm-agent-daemonset) to run a shell script that installs the SSM agent.
-
-!!! caution
-    Since the DaemonSet is runs as a privileged pod, you should consider deleting it once the SSM agent is installed on your worker nodes. This workaround will no longer be necessary once Managed Node Groups adds support for custom AMIs and EC2 launch templates.
+As of August 19th, 2020 Managed Node Groups support custom AMIs and EC2 Launch Templates.  This allows you to embed the SSM agent into the AMI or install it as the worker node is being bootstrapped.  
 
 ### Deploy workers onto private subnets
 By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  Beginning April 22, 2020, the assignment of public IP addresses to nodes in a managed node groups will be controlled by the subnet they are deployed onto.  Prior to this, nodes in a Managed Node Group were automatically assigned a public IP. If you choose to deploy your worker nodes on to public subnets, implement restrictive AWS security group rules to limit their exposure.
 
 ### Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices
-[Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using a set of rules to assess alignment with best practices.
-
-!!! tip
-    At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.  The method described earlier for installing the SSM Agent onto managed nodes can be repurposed to install the Inspector agent. 
+[Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using a set of rules to assess alignment with best practices. 
 
 !!! attention
     Inspector cannot be run on the infrastructure used to run Fargate pods.
