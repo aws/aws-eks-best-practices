@@ -185,7 +185,7 @@ Machine learning distributed training jobs benefit significantly from the minimi
 
 Ensure that:
 
-* Node group balancing is enabled by setting `balance-similar-node-groups=false`
+* Node group balancing is enabled by setting `balance-similar-node-groups=true`
 * [Node Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) and/or [Pod Preemption](https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/) is used when clusters include both Regional and Zonal Node Groups.
     * Use [Node Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) to force or encourage regional pods to avoid zonal Node Groups, and vice versa.
     * If zonal pods schedule onto regional node groups, this will result in imbalanced capacity for your regional pods.
