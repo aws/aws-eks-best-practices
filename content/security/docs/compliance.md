@@ -24,7 +24,7 @@ The following table shows the compliance programs with which the different conta
 | K-ISMS | 1 | 1 | 0 | 1 |
 | ENS High | 1 | 1 | 0 | 1 |
 | OSPAR | 1 | 1 | 0 | 1 | 
-| HITRUSST CSF | 1 | 1 | 1 | 1 |
+| HITRUST CSF | 1 | 1 | 1 | 1 |
 
 Compliance status changes over time. For the latest status, always refer to https://aws.amazon.com/compliance/services-in-scope/. 
 
@@ -40,7 +40,7 @@ Policy can be thought of as a set of rules for governing behaviors, i.e. behavio
 
 ### Use Open Policy Agent (OPA) or Alcide's sKan to detect policy violations before deployment
 
-[OPA](https://www.openpolicyagent.org/) is open source policy engine that's part of CNCF. It's used for making policy decisions and can be run a variety of different ways, e.g. as a language library or a service. OPA policies are written in a Domain Specific Language (DSL) called Rego. While it is often run as part of a Kubernetes Dynamic Admission Controller, OPA can also be incorporated into your CI/CD pipeline. This allows developers to get feedback about their configuration earlier in the release cycle which can subsequently help them resolve issues before they get to production.  
+[OPA](https://www.openpolicyagent.org/) is open source policy engine that's part of CNCF. It's used for making policy decisions and can be run a variety of different ways, e.g. as a language library or a service. OPA policies are written in a Domain Specific Language (DSL) called Rego. While it is often run as part of a Kubernetes Dynamic Admission Controller, OPA can also be incorporated into your CI/CD pipeline. This allows developers to get feedback about their configuration earlier in the release cycle which can subsequently help them resolve issues before they get to production. A collection of common OPA policies can be found in the GitHub [repository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa) for this project.
 
 + [Conftest](https://github.com/open-policy-agent/conftest) is built on top of OPA and it provides a developer focused experience for testing Kubernetes configuration. 
 + [sKan](https://github.com/alcideio/skan) is powered by OPA and is "tailor made" to check whether their Kubernetes configuration files are compliant with security and operational best practices. 
