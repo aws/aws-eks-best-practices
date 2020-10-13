@@ -106,7 +106,7 @@ https://threadreaderapp.com/thread/1238496944684597248.html.
 
 ### Open Policy Agent (OPA) & Gatekeeper
 
-[Gatekeeper](https://github.com/open-policy-agent/gatekeeper) is a Kubernetes admission controller that enforces policies created with [OPA](https://www.openpolicyagent.org/). With OPA you can create a policy that runs pods from tenants on separate instances or at a higher priority than other tenants. 
+[Gatekeeper](https://github.com/open-policy-agent/gatekeeper) is a Kubernetes admission controller that enforces policies created with [OPA](https://www.openpolicyagent.org/). With OPA you can create a policy that runs pods from tenants on separate instances or at a higher priority than other tenants. A collection of common OPA policies can be found in the GitHub [repository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa) for this project. 
 
 There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredns/coredns-opa) that allows you to use OPA to filter/control the records returned by CoreDNS. 
 
@@ -114,7 +114,7 @@ There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredn
 
 [Kyverno](https://kyverno.io) is a Kubernetes native policy engine that can validate, mutate, and generate configurations with policies as Kubernetes resources. Kyverno uses Kustomize-style overlays for validation, supports JSON Patch and strategic merge patch for mutation, and can clone resources across namespaces based on flexible triggers.
 
-You can use Kyverno to isolate namespaces, enforce pod security and other best practices, and generate default configurations such as network policies.
+You can use Kyverno to isolate namespaces, enforce pod security and other best practices, and generate default configurations such as network policies.  Several examples are included in the GitHub [respository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/kyverno) for this project.  
 
 ### Tools
 
