@@ -7,7 +7,7 @@ Pods have a variety of different settings that can strengthen or weaken your ove
 !!! info 
     EC2 and Fargate pods are assigned the aforementioned capabilites by default. Additionally, Linux capabilities can only be dropped from Fargate pods. 
 
-Pods that are run as privileged, inherit _all_ of the Linux capabilities associated with root on the host and should be avoided if possible.
+Pods that are run as privileged, inherit _all_ of the Linux capabilities associated with root on the host and should be avoided if possible. For all pragmatic reasons, `CAP_SYS_ADMIN` is equally privileged and should be avoided as well.
 
 Second, all Kubernetes worker nodes use an authorization mode called the node authorizer.  The node authorizer authorizes all API requests that originate from the kubelet and allows nodes to perform the following actions: 
 
