@@ -6,12 +6,12 @@ You should consider the container image as your first line of defense against an
 ### Create minimal images
 Start by removing all extraneous binaries from the container image.  If you’re using an unfamiliar image from Dockerhub, inspect the image using an application like [Dive](https://github.com/wagoodman/dive) which can show you the contents of each of the container’s layers.  Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
 ```bash
-find / -perm +6000 -type f -exec ls -ld {} \;
+find / -perm /6000 -type f -exec ls -ld {} \;
 ```
     
 To remove the special permissions from these files, add the following directive to your container image:
 ```dockerfile
-RUN find / -xdev -perm +6000 -type f -exec chmod a-s {} \; || true
+RUN find / -xdev -perm /6000 -type f -exec chmod a-s {} \; || true
 ```
 Colloquially, this is known as de-fanging your image. 
   
