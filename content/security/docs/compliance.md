@@ -26,7 +26,7 @@ The following table shows the compliance programs with which the different conta
 | OSPAR | 1 | 1 | 0 | 1 | 
 | HITRUST CSF | 1 | 1 | 1 | 1 |
 
-Compliance status changes over time. For the latest status, always refer to https://aws.amazon.com/compliance/services-in-scope/. 
+Compliance status changes over time. For the latest status, always refer to [https://aws.amazon.com/compliance/services-in-scope/](https://aws.amazon.com/compliance/services-in-scope/). 
 
 For futher information about cloud accreditation models and best practices, see the AWS whitepaper, [Acceditation Models for Secure Cloud Adoption](https://d1.awsstatic.com/whitepapers/accreditation-models-for-secure-cloud-adoption.pdf) 
 
