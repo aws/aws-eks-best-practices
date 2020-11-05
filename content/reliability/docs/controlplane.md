@@ -12,11 +12,11 @@ EKS automatically manages the availability and scalability of the Kubernetes con
 
 EKS architecture is designed to eliminate any single points of failure that may compromise the availability and durability of the Kubernetes control plane.
 
-![EKS Data plane network connectivity](./images/eks-data-plane-connectivity.jpeg)
-
 The Kubernetes control plane managed by EKS runs inside an EKS managed VPC. The EKS control plane comprises the Kubernetes API server nodes, etcd cluster. Kubernetes API server nodes that run components like the API server, scheduler, and `kube-controller-manager` run in an auto-scaling group. EKS runs a minimum of two API server nodes in distinct Availability Zones (AZs) within in AWS region. Likewise, for durability, the etcd server nodes also run in an auto-scaling group that spans three AZs. EKS runs a NAT Gateway in each AZ, and API servers and etcd servers run in a private subnet. This architecture ensures that an event in a single AZ doesn’t affect the EKS cluster's availability.  
 
 When you create a new cluster, Amazon EKS creates a highly-available endpoint for the managed Kubernetes API server that you use to communicate with your cluster (using tools like `kubectl`). The managed endpoint uses NLB to load balance Kubernetes API servers. EKS also provisions two [ENI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html)s in different AZs to facilitate communication to your worker nodes.
+
+![EKS Data plane network connectivity](./images/eks-data-plane-connectivity.jpeg)
 
 You can [configure whether your Kubernetes cluster’s API server](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html) is reachable from the public internet (using the public endpoint) or through your VPC (using the EKS-managed ENIs) or both.  
 
