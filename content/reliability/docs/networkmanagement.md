@@ -149,7 +149,7 @@ Refer to EKS documentation for the list [alternate compatible CNI plugins](https
 
 ## CoreDNS
 
-CoreDNS fulfills name resolution and service discovery functions in Kubernetes. It is installed by default on EKS clusters. For interoperability, the Kubernetes Service for CoreDNS is still named [kube-dns](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/). CoreDNS Pods runs as part of a Deployment in `kube-system` namespace, and in EKS, by default, it runs two replicas with declared requests and limits. DNS queries are sent to the `kube-dns` Service that runs in the `kube-system` Namespace. 
+CoreDNS fulfills name resolution and service discovery functions in Kubernetes. It is installed by default on EKS clusters. For interoperability, the Kubernetes Service for CoreDNS is still named [kube-dns](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/). CoreDNS Pods run as part of a Deployment in `kube-system` namespace, and in EKS, by default, it runs two replicas with declared requests and limits. DNS queries are sent to the `kube-dns` Service that runs in the `kube-system` Namespace. 
 
 ## Recommendations
 ### Monitor CoreDNS metrics
