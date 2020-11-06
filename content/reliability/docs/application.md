@@ -1,7 +1,7 @@
 ---
 tags: reliability
 ---
-## Running highly-available applications
+# Running highly-available applications
 
 Your customers expect your application to be always available, including when you're making changes and especially during spikes in traffic. A scalable and resilient architecture keeps your applications and services running without disruptions, which keeps your users happy. A scalable infrastructure grows and shrinks based on the needs of the business. Eliminating single points of failure is a critical step towards improving an application’s availability and making it resilient.
 
