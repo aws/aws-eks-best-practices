@@ -12,7 +12,7 @@ Rather than performing in-place upgrades, replace your workers when a new patch 
 With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your pod to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod.
 
 ### Periodically run kube-bench to verify compliance with [CIS benchmarks for Kubernetes](https://www.cisecurity.org/benchmark/kubernetes/)
-When running [kube-bench](https://github.com/aquasecurity/kube-bench) against an EKS cluster, follow these instructions from Aqua Security, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster.
+When running [kube-bench](https://github.com/aquasecurity/kube-bench) against an EKS cluster, follow these instructions from Aqua Security, [https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster](https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster).
 
 !!! caution
     False positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on [GitHub](https://github.com/aquasecurity/kube-bench/issues/571).

@@ -15,7 +15,7 @@ None of these controls, however, prevent pods from different tenants from sharin
     Soft multi-tenancy implemented with Namespaces does not allow you to provide tenants with a filtered list of Namespaces because Namespaces are a globaly scoped Type. If a tenant has the ability to view a particular Namespace, it can view all Namespaces within the cluster. 
 
 !!! warning
-    With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. An attacker could exploit this by running dig SRV *.*.svc.cluster.local from any pod in the cluster.  If you need to restrict access to DNS records of services that run within your clusters, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy. 
+    With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. An attacker could exploit this by running dig SRV *.*.svc.cluster.local from any pod in the cluster.  If you need to restrict access to DNS records of services that run within your clusters, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see [https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy](https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy). 
 
 [Kiosk](https://github.com/kiosk-sh/kiosk) is an open source project that can aid in the implementation of soft multi-tenancy.  It is implemented as a series of CRDs and controllers that provide the following capabilities: 
 
@@ -102,7 +102,7 @@ Sandboxing is a technique by which each container is run in its own isolated vir
 If you are building your own self-managed Kubernetes cluster on AWS, you may be able to configure alternate container runtimes such as [Kata Containers](https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support).
 
 For additional information about the effort to make Firecracker a supported runtime for EKS, see
-https://threadreaderapp.com/thread/1238496944684597248.html. 
+[https://threadreaderapp.com/thread/1238496944684597248.html](https://threadreaderapp.com/thread/1238496944684597248.html). 
 
 ### Open Policy Agent (OPA) & Gatekeeper
 
