@@ -1,197 +1,910 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-<title>Infrastructure Security - EKS Security Best Practices</title>
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-<meta name="generator" content="mkdocs-1.1, mkdocs-gitbook-1.0.7">
-
-<link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
-<meta name="HandheldFriendly" content="true"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta rel="next" href="" />
-<link href="../css/style.min.css" rel="stylesheet"> 
-</head>
-
-<body>
-<div class="book">
-<div class="book-summary">
-<div id="book-search-input" role="search">
-<input type="text" placeholder="Type to search" />
-</div> <!-- end of book-search-input -->
-
-<nav role="navigation">
-<ul class="summary">
-<li>
-<a href=".." target="_blank" class="custom-link">EKS Security Best Practices</a>
-</li>
-<li class="divider"></li>
-<li class="chapter" data-path="">
-<a href="..">Home</a>
-<li class="chapter" data-path="iam/">
-<a href="../iam/">Identity and Access Management</a>
-<li class="chapter" data-path="pods/">
-<a href="../pods/">Pod Security</a>
-<li class="chapter" data-path="multitenancy/">
-<a href="../multitenancy/">Multi-tenancy</a>
-<li class="chapter" data-path="detective/">
-<a href="../detective/">Detective Controls</a>
-<li class="chapter" data-path="network/">
-<a href="../network/">Network Security</a>
-<li class="chapter" data-path="data/">
-<a href="../data/">Data Encryption and Secrets Management</a>
-<li class="chapter" data-path="runtime/">
-<a href="../runtime/">Runtime Security</a>
-<li class="chapter active" data-path="hosts/">
-<a href="./">Infrastructure Security</a>
-<li class="chapter" data-path="compliance/">
-<a href="../compliance/">Regulatory Compliance</a>
-<li class="chapter" data-path="incidents/">
-<a href="../incidents/">Incident Response and Forensics</a>
-<li class="divider"></li>
 
 
 
-<li><a href="http://www.mkdocs.org">
-Published with MkDocs
-</a></li>
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.5.7">
+    
+    
+      
+        <title>Infrastructure Security - EKS Best Practices Guides</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b8ac9624.min.css">
+      
+      
+    
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#protecting-the-infrastructure-hosts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href=".." title="EKS Best Practices Guides" class="md-header-nav__button md-logo" aria-label="EKS Best Practices Guides">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
 
-<li><a href="https://github.com/GitbookIO/theme-default">
-Theme by GitBook
-</a></li>
-</ul>
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            EKS Best Practices Guides
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Infrastructure Security
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/aws/aws-eks-best-practices/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+        
+      
+      
+        
+          
 
+  
+
+<nav class="md-tabs md-tabs--active" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href=".." class="md-tabs__link md-tabs__link--active">
+          Security
+        </a>
+      
+    </li>
+  
+
+      
+        
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../cluster-autoscaling/" class="md-tabs__link">
+          Cluster Autoscaling
+        </a>
+      
+    </li>
+  
+
+      
+    </ul>
+  </div>
 </nav>
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="EKS Best Practices Guides" class="md-nav__button md-logo" aria-label="EKS Best Practices Guides">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
 
-</div> <!-- end of book-summary -->
+    </a>
+    EKS Best Practices Guides
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/aws/aws-eks-best-practices/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
 
-<div class="book-body">
-<div class="body-inner">
-<div class="book-header" role="navigation">
-
-<!-- Title -->
-<h1>
-<i class="fa fa-circle-o-notch fa-spin"></i>
-<a href="." ></a>
-</h1>
-
-</div> <!-- end of book-header -->
-
-<div class="page-wrapper" tabindex="-1" role="main">
-<div class="page-inner">
-<div id="book-search-results">
-<div class="search-noresults">
-
-<section class="normal markdown-section">
+  
 
 
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1" checked>
+    
+    <label class="md-nav__link" for="nav-1">
+      Security
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Security" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        Security
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
 
-<h1 id="protecting-the-infrastructure-hosts">Protecting the infrastructure (hosts)<a class="headerlink" href="#protecting-the-infrastructure-hosts" title="Permanent link">&para;</a></h1>
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../iam/" title="Identity and Access Management" class="md-nav__link">
+      Identity and Access Management
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../pods/" title="Pod Security" class="md-nav__link">
+      Pod Security
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../multitenancy/" title="Multi-tenancy" class="md-nav__link">
+      Multi-tenancy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../detective/" title="Detective Controls" class="md-nav__link">
+      Detective Controls
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../network/" title="Network Security" class="md-nav__link">
+      Network Security
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../data/" title="Data Encryption and Secrets Management" class="md-nav__link">
+      Data Encryption and Secrets Management
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../runtime/" title="Runtime Security" class="md-nav__link">
+      Runtime Security
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Infrastructure Security
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"/></svg>
+        </span>
+      </label>
+    
+    <a href="./" title="Infrastructure Security" class="md-nav__link md-nav__link--active">
+      Infrastructure Security
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#recommendations" class="md-nav__link">
+    Recommendations
+  </a>
+  
+    <nav class="md-nav" aria-label="Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-an-os-optimized-for-running-containers" class="md-nav__link">
+    Use an OS optimized for running containers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#treat-your-infrastructure-as-immutable-and-automate-the-replacement-of-your-worker-nodes" class="md-nav__link">
+    Treat your infrastructure as immutable and automate the replacement of your worker nodes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#periodically-run-kube-bench-to-verify-compliance-with-cis-benchmarks-for-kubernetes" class="md-nav__link">
+    Periodically run kube-bench to verify compliance with CIS benchmarks for Kubernetes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimize-access-to-worker-nodes" class="md-nav__link">
+    Minimize access to worker nodes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-workers-onto-private-subnets" class="md-nav__link">
+    Deploy workers onto private subnets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-amazon-inspector-to-assess-hosts-for-exposure-vulnerabilities-and-deviations-from-best-practices" class="md-nav__link">
+    Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives" class="md-nav__link">
+    Alternatives
+  </a>
+  
+    <nav class="md-nav" aria-label="Alternatives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-selinux" class="md-nav__link">
+    Run SELinux
+  </a>
+  
+    <nav class="md-nav" aria-label="Run SELinux">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    Additional resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools" class="md-nav__link">
+    Tools
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../compliance/" title="Regulatory Compliance" class="md-nav__link">
+      Regulatory Compliance
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../incidents/" title="Incident Response and Forensics" class="md-nav__link">
+      Incident Response and Forensics
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../image/" title="Image Security" class="md-nav__link">
+      Image Security
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Cluster Autoscaling
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Cluster Autoscaling" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        Cluster Autoscaling
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cluster-autoscaling/" title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#recommendations" class="md-nav__link">
+    Recommendations
+  </a>
+  
+    <nav class="md-nav" aria-label="Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-an-os-optimized-for-running-containers" class="md-nav__link">
+    Use an OS optimized for running containers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#treat-your-infrastructure-as-immutable-and-automate-the-replacement-of-your-worker-nodes" class="md-nav__link">
+    Treat your infrastructure as immutable and automate the replacement of your worker nodes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#periodically-run-kube-bench-to-verify-compliance-with-cis-benchmarks-for-kubernetes" class="md-nav__link">
+    Periodically run kube-bench to verify compliance with CIS benchmarks for Kubernetes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimize-access-to-worker-nodes" class="md-nav__link">
+    Minimize access to worker nodes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-workers-onto-private-subnets" class="md-nav__link">
+    Deploy workers onto private subnets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-amazon-inspector-to-assess-hosts-for-exposure-vulnerabilities-and-deviations-from-best-practices" class="md-nav__link">
+    Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives" class="md-nav__link">
+    Alternatives
+  </a>
+  
+    <nav class="md-nav" aria-label="Alternatives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-selinux" class="md-nav__link">
+    Run SELinux
+  </a>
+  
+    <nav class="md-nav" aria-label="Run SELinux">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    Additional resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools" class="md-nav__link">
+    Tools
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/aws/aws-eks-best-practices/edit/master/content/security/docs/hosts.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  
+                
+                
+                <h1 id="protecting-the-infrastructure-hosts">Protecting the infrastructure (hosts)<a class="headerlink" href="#protecting-the-infrastructure-hosts" title="Permanent link">&para;</a></h1>
+<p>Inasmuch as it's important to secure your container images, it's equally important to safeguard the infrastructure that runs them. This section explores different ways to mitigate risks from attacks launched directly against the host.  These guidelines should be used in conjunction with those outlined in the <a href="../runtime/">Runtime Security</a> section.</p>
+<h2 id="recommendations">Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="use-an-os-optimized-for-running-containers">Use an OS optimized for running containers<a class="headerlink" href="#use-an-os-optimized-for-running-containers" title="Permanent link">&para;</a></h3>
+<p>Consider using Flatcar Linux, Project Atomic, RancherOS, and <a href="https://github.com/bottlerocket-os/bottlerocket/">Bottlerocket</a>, a special purpose OS from AWS designed for running Linux containers.  It includes a reduced attack surface, a disk image that is verified on boot, and enforced permission boundaries using SELinux.</p>
+<h3 id="treat-your-infrastructure-as-immutable-and-automate-the-replacement-of-your-worker-nodes">Treat your infrastructure as immutable and automate the replacement of your worker nodes<a class="headerlink" href="#treat-your-infrastructure-as-immutable-and-automate-the-replacement-of-your-worker-nodes" title="Permanent link">&para;</a></h3>
+<p>Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentially cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">managed node groups</a> uses the second approach and will present an option to upgrade workers when a new AMI becomes available. <code>eksctl</code> also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is strongly recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded.</p>
+<p>With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your pod to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod.</p>
+<h3 id="periodically-run-kube-bench-to-verify-compliance-with-cis-benchmarks-for-kubernetes">Periodically run kube-bench to verify compliance with <a href="https://www.cisecurity.org/benchmark/kubernetes/">CIS benchmarks for Kubernetes</a><a class="headerlink" href="#periodically-run-kube-bench-to-verify-compliance-with-cis-benchmarks-for-kubernetes" title="Permanent link">&para;</a></h3>
+<p>When running <a href="https://github.com/aquasecurity/kube-bench">kube-bench</a> against an EKS cluster, follow these instructions from Aqua Security, <a href="https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster">https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster</a>.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>False positives may appear in the report because of the way the EKS optimized AMI configures the kubelet.  The issue is currently being tracked on <a href="https://github.com/aquasecurity/kube-bench/issues/571">GitHub</a>.</p>
+</div>
+<h3 id="minimize-access-to-worker-nodes">Minimize access to worker nodes<a class="headerlink" href="#minimize-access-to-worker-nodes" title="Permanent link">&para;</a></h3>
+<p>Instead of enabling SSH access, use <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html">SSM Session Manager</a> when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.</p>
+<p>As of August 19th, 2020 Managed Node Groups support custom AMIs and EC2 Launch Templates.  This allows you to embed the SSM agent into the AMI or install it as the worker node is being bootstrapped.  </p>
+<h3 id="deploy-workers-onto-private-subnets">Deploy workers onto private subnets<a class="headerlink" href="#deploy-workers-onto-private-subnets" title="Permanent link">&para;</a></h3>
+<p>By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  Beginning April 22, 2020, the assignment of public IP addresses to nodes in a managed node groups will be controlled by the subnet they are deployed onto.  Prior to this, nodes in a Managed Node Group were automatically assigned a public IP. If you choose to deploy your worker nodes on to public subnets, implement restrictive AWS security group rules to limit their exposure.</p>
+<h3 id="run-amazon-inspector-to-assess-hosts-for-exposure-vulnerabilities-and-deviations-from-best-practices">Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices<a class="headerlink" href="#run-amazon-inspector-to-assess-hosts-for-exposure-vulnerabilities-and-deviations-from-best-practices" title="Permanent link">&para;</a></h3>
+<p><a href="https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html">Inspector</a> requires the deployment of an agent that continually monitors activity on the instance while using a set of rules to assess alignment with best practices. </p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Inspector cannot be run on the infrastructure used to run Fargate pods.</p>
+</div>
+<h2 id="alternatives">Alternatives<a class="headerlink" href="#alternatives" title="Permanent link">&para;</a></h2>
+<h3 id="run-selinux">Run SELinux<a class="headerlink" href="#run-selinux" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Available on Red Hat Enterprise Linux (RHEL), CentOS, and CoreOS</p>
+</div>
+<p>SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts the operations that can be performed against to specific resources based on a set of labels.  On EKS, SELinux can be used to prevent containers from accessing each other's resources.</p>
+<p>Container SELinux policies are defined in the <a href="https://github.com/containers/container-selinux">container-selinux</a> package.  Docker CE requires this package (along with its dependencies) so that the processes and files created by Docker (or other container runtimes) run with limited system access. Containers leverage the <code>container_t</code> label which is an alias to <code>svirt_lxc_net_t</code>. These policies effectively prevent containers from accessing certain features of the host.</p>
+<p>When you configure SELinux for Docker, Docker automatically labels workloads <code>container_t</code> as a type and gives each container a unique MCS level. This will isolate containers from one another. If you need looser restrictions, you can create your own profile in SElinux which grants a container permissions to specific areas of the file system.  This is similiar to PSPs in that you can create different profiles for different containers/pods.  For example, you can have a profile for general workloads with a set of restrictive controls and another for things that require privileged access.</p>
+<p>SELinux for Containers has a set of options that can be configured to modify the default restrictions. The following SELinux Booleans can be enabled or disabled based on your needs:</p>
+<table>
+<thead>
+<tr>
+<th>Boolean</th>
+<th align="center">Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>container_connect_any</code></td>
+<td align="center"><code>off</code></td>
+<td>Allow containers to access privileged ports on the host. For example, if you have a container that needs to map ports to 443 or 80 on the host.</td>
+</tr>
+<tr>
+<td><code>container_manage_cgroup</code></td>
+<td align="center"><code>off</code></td>
+<td>Allow containers to manage cgroup configuration. For example, a container running systemd will need this to be enabled.</td>
+</tr>
+<tr>
+<td><code>container_use_cephfs</code></td>
+<td align="center"><code>off</code></td>
+<td>Allow containers to use a ceph file system.</td>
+</tr>
+</tbody>
+</table>
+<p>By default, containers are allowed to read/execute under <code>/usr</code> and read most content from <code>/etc</code>. The files under <code>/var/lib/docker</code> and <code>/var/lib/containers</code> have the label <code>container_var_lib_t</code>. To view a full list of default, labels see the <a href="https://github.com/containers/container-selinux/blob/master/container.fc">container.fc</a> file.</p>
+<div class="codehilite"><pre><span></span><code>docker container run -it <span class="se">\</span>
+  -v /var/lib/docker/image/overlay2/repositories.json:/host/repositories.json <span class="se">\</span>
+  centos:7 cat /host/repositories.json
+<span class="c1"># cat: /host/repositories.json: Permission denied</span>
+
+docker container run -it <span class="se">\</span>
+  -v /etc/passwd:/host/etc/passwd <span class="se">\</span>
+  centos:7 cat /host/etc/passwd
+<span class="c1"># cat: /host/etc/passwd: Permission denied</span>
+</code></pre></div>
+
+
+<p>Files labeled with <code>container_file_t</code> are the only files that are writable by containers. If you want a volume mount to be writeable, you will needed to specify <code>:z</code> or <code>:Z</code> at the end.</p>
 <ul>
-<li><strong>Run SELinux</strong>. SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.
-Use a OS optimized for running containers, e.g. Flatcar Linux, Project Atomic, RancherOS, and <a href="https://github.com/bottlerocket-os/bottlerocket/">Bottlerocket</a>, a new OS from AWS that has a read only root file system and uses partition flips for fast and reliable system updates.  A majority of these operating systems, like Bottlerocket, have been substantially paired down and optimized to run containers. </li>
+<li><code>:z</code> will re-label the files so that the container can read/write</li>
+<li><code>:Z</code> will re-label the files so that <strong>only</strong> the container can read/write</li>
 </ul>
-<p><strong>Additional resources</strong></p>
-<ul>
-<li>https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/</li>
-<li>
-<p>https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html </p>
-</li>
-<li>
-<p><strong>Treat your infrastructure as immutable</strong>.  Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentally cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">managed node groups</a> utilizes the second approach and will present an option to upgrade workers when a new AMI becomes available. <code>eksctl</code> also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded. 
-With EKS Fargate, AWS will automatically update the underlying infrastructure as updates become available.  Oftentimes this can be done seamlessly, but there may be times when an update will cause your task to be rescheduled.  Hence, we recommend that you create deployments with multiple replicas when running your application as a Fargate pod. </p>
-</li>
-<li>
-<p><strong>Periodically run <a href="https://github.com/aquasecurity/kube-bench">kube-bench</a> to verify compliance with <a href="https://www.cisecurity.org/benchmark/kubernetes/">CIS benchmarks for Kubernetes</a></strong>. When running kube-bench against an EKS cluster, follow these instructions, https://github.com/aquasecurity/kube-bench#running-in-an-eks-cluster. Be aware that false positives may appear in the report because of the way the he EKS optimized AMI configures the kubelet.  See https://github.com/aquasecurity/kube-bench/issues/571 for further information. </p>
-</li>
-<li>
-<p><strong>Minimize access to worker nodes</strong>. Instead of enabling SSH access, use <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html">SSM Session Manager</a> when you need to remote into a host.  Unlike SSH keys which can be lost, copied, or shared, Session Manager allows you to control access to EC2 instances using IAM.  Moreover, it provides an audit trail and log of the commands that were run on the instance.  If you've lost access to the host through SSH or Session Manager, you can try running a node-shell, a privileged pod that gives you shell access on the node. An example appears below: </p>
-</li>
-</ul>
-<pre><code class="yaml">kind: Pod
-apiVersion: v1
-metadata:
-  name: node-shell
-  namespace: kube-system
-  annotations:
-    kubernetes.io/psp: eks.privileged
-spec:
-  containers:
-    - name: shell
-      image: 'docker.io/alpine:3.9'
-      command:
-        - nsenter
-      args:
-        - '-t'
-        - '1'
-        - '-m'
-        - '-u'
-        - '-i'
-        - '-n'
-        - sleep
-        - '14000'
-      securityContext:
-        privileged: true
-  restartPolicy: Never
-  nodeSelector:
-    kubernetes.io/hostname: ip-192-168-49-62.us-west-2.compute.internal
-  nodeName: ip-192-168-49-62.us-west-2.compute.internal
-  hostNetwork: true
-  hostPID: true
-  hostIPC: true
-  enableServiceLinks: true
-</code></pre>
+<div class="codehilite"><pre><span></span><code>ls -Z /var/lib/misc
+<span class="c1"># -rw-r--r--. root root system_u:object_r:var_lib_t:s0   postfix.aliasesdb-stamp</span>
 
+docker container run -it <span class="se">\</span>
+  -v /var/lib/misc:/host/var/lib/misc:z <span class="se">\</span>
+  centos:7 <span class="nb">echo</span> <span class="s2">&quot;Relabeled!&quot;</span>
+
+ls -Z /var/lib/misc
+<span class="c1">#-rw-r--r--. root root system_u:object_r:container_file_t:s0 postfix.aliasesdb-stamp</span>
+</code></pre></div>
+
+
+<div class="codehilite"><pre><span></span><code>docker container run -it <span class="se">\</span>
+  -v /var/log:/host/var/log:Z <span class="se">\</span>
+  fluentbit:latest
+</code></pre></div>
+
+
+<p>In Kubernetes, relabeling is slightly different. Rather than having Docker automatically relabel the files, you can specify a custom MCS label to run the pod. Volumes that support relabeling will automatically be relabeled so that they are accessible. Pods with a matching MCS label will be able to access the volume. If you need strict isolation, set a different MCS label for each pod.</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">securityContext</span><span class="p">:</span>
+  <span class="nt">seLinuxOptions</span><span class="p">:</span>
+    <span class="c1"># Provide a unique MCS label per container</span>
+    <span class="c1"># You can specify user, role, and type also</span>
+    <span class="c1"># enforcement based on type and level (svert)</span>
+    <span class="nt">level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s0:c144:c154</span>
+</code></pre></div>
+
+
+<p>In this example <code>s0:c144:c154</code> corresponds to an MCS label assigned to a file that the container is allowed to access.</p>
+<p>On EKS you could create policies that allow for privileged containers to run, like FluentD and create an SELinux policy to allow it to read from /var/log on the host without needing to relabel the host directory. Pods with the same label will be able to access the same host volumes.</p>
+<p>We have implemented <a href="https://github.com/aws-samples/amazon-eks-custom-amis">sample AMIs for Amazon EKS</a> that have SELinux configured on CentOS 7 and RHEL 7. These AMIs were developed to demonstrate sample implementations that meet requirements of highly regulated customers, such as STIG, CJIS, and C2S.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>SELinux will ignore containers where the type is unconfined.</p>
+</div>
+<h4 id="additional-resources">Additional resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h4>
 <ul>
-<li>
-<p><strong>Deploy workers onto private subnets</strong>. By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  At present, worker nodes that are part of a managed node group are are automatically assigned a public IP. If you plan to use managed node groups use AWS security groups to restrict or deny inbound access from the Internet (0.0.0.0/0). Risk to workers that are deployed onto public subnets can also be mitigated by implementing restrictive security group rules. </p>
-</li>
-<li>
-<p><strong>Run <a href="https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html">Amazon Inspector</a> to assesses applications for exposure, vulnerabilities, and deviations from best practices</strong>.  It requires the deployment of an agent that continually monitors activity on the instance while using set of rules to assess alignment with best practices. 
-  At present, managed node groups do not allow you to supply user metadata or your own AMI.  If you want to run Inspector on managed workers, you will need to install the agent after the node has been bootstrapped.<br />
-  Inspector cannot be run on the infrastructure used to run Fargate pods. </p>
-</li>
+<li><a href="https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/">SELinux Kubernetes RBAC and Shipping Security Policies for On-prem Applications</a></li>
+<li><a href="https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html">Iterative Hardening of Kubernetes</a></li>
+<li><a href="https://linux.die.net/man/1/audit2allow">Audit2Allow</a></li>
+<li><a href="https://linux.die.net/man/8/sealert">SEAlert</a></li>
+<li><a href="https://www.redhat.com/en/blog/generate-selinux-policies-containers-with-udica">Generate SELinux policies for containers with Udica</a> describes a tool that looks at container spec files for Linux capabilities, ports, and mount points, and generates a set of SELinux rules that allow the container to run properly</li>
+<li><a href="https://github.com/aws-samples/amazon-eks-custom-amis#hardening">AMI Hardening</a> playbooks for hardening the OS to meet different regulatory requirements</li>
 </ul>
-<p><strong>Alternatives</strong></p>
-<ul>
-<li><a href="https://sysdig.com/products/kubernetes-security/">Sysdig Secure</a></li>
-</ul>
-<h3 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h3>
+<h2 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://github.com/keikoproj/keiko">Keiko</a></li>
+<li><a href="https://sysdig.com/products/kubernetes-security/">Sysdig Secure</a></li>
+<li><a href="https://eksctl.io/">eksctl</a></li>
 </ul>
+                
+              
+              
+                
 
 
-</section>
-</div> <!-- end of search-noresults -->
-<div class="search-results">
-<div class="has-results">
-
-<h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
-<ul class="search-results-list"></ul>
-
-</div> <!-- end of has-results -->
-<div class="no-results">
-
-<h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
-
-</div> <!-- end of no-results -->
-</div> <!-- end of search-results -->
-</div> <!-- end of book-search-results -->
-
-</div> <!-- end of page-inner -->
-</div> <!-- end of page-wrapper -->
-
-</div> <!-- end of body-inner -->
-
-</div> <!-- end of book-body -->
-<script src="../js/main.js"></script>
-<script src="../search/main.js"></script>
-<script src="../js/gitbook.min.js"></script>
-<script src="../js/theme.min.js"></script>
-</body>
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../runtime/" title="Runtime Security" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Runtime Security
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../compliance/" title="Regulatory Compliance" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Regulatory Compliance
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.d1f5a259.min.js"></script>
+      <script src="../assets/javascripts/bundle.d5fec882.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: ["tabs"],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.fae956e7.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
 </html>

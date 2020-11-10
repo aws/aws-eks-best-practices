@@ -1,0 +1,35 @@
+site_name: EKS Best Practices Guides
+repo_name: "aws/aws-eks-best-practices"
+repo_url: "https://github.com/aws/aws-eks-best-practices"
+docs_dir: "content"
+theme: 
+  name: material
+  features: 
+    - tabs
+nav:
+  - Security:
+    - Home: 'security/docs/index.md'
+    - Identity and Access Management: 'security/docs/iam.md'
+    - Pod Security: 'security/docs/pods.md'
+    - Multi-tenancy: 'security/docs/multitenancy.md'
+    - Detective Controls: 'security/docs/detective.md'
+    - Network Security: 'security/docs/network.md'
+    - Data Encryption and Secrets Management: 'security/docs/data.md'
+    - Runtime Security: 'security/docs/runtime.md'
+    - Infrastructure Security: 'security/docs/hosts.md'
+    - Regulatory Compliance: 'security/docs/compliance.md'
+    - Incident Response and Forensics: 'security/docs/incidents.md'
+    - Image Security: 'security/docs/image.md'
+  - Cluster Autoscaling: 
+    - Home: 'cluster-autoscaling/cluster-autoscaling.md'
+  - Reliability:
+    - Home: 'reliability/docs/index.md'
+    - Applications: 'reliability/docs/application.md'
+    - Control Plane: 'reliability/docs/controlplane.md'
+    - Data Plane: 'reliability/docs/dataplane.md'
+    - Network: 'reliability/docs/networkmanagement.md'
+markdown_extensions:
+    - toc:
+        permalink: true
+    - admonition
+    - codehilite
