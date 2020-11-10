@@ -7,6 +7,8 @@ theme:
   features: 
     - tabs
 nav:
+  - Guides: 
+    - Introduction: 'index.md'
   - Security:
     - Home: 'security/docs/index.md'
     - Identity and Access Management: 'security/docs/iam.md'
