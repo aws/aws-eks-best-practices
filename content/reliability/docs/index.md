@@ -10,6 +10,7 @@ This guide is meant for developers and architects who want to develop and operat
 ## Introduction
 
 The reliability best practices for EKS have been grouped under the following topics:
+
 * Control Plane 
 * Network Management
 * Data Plane Management
