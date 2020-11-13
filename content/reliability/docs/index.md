@@ -11,13 +11,10 @@ This guide is meant for developers and architects who want to develop and operat
 
 The reliability best practices for EKS have been grouped under the following topics:
 
+* Applications
 * Control Plane 
-* Network Management
-* Data Plane Management
-* Automated Scaling
-* Automated Recovery
-* Observability
-* Resource Management
+* Data Plane
+* Network
 
 What makes a system reliable? If a system is able to function consistently and meet demands inspite of changes in its environment over a period of time, then it can be called reliable. To get to this state, the system has to detect failures, automatically heal itself and have the ability to scale based on demand. 
 
