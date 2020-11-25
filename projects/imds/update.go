@@ -8,35 +8,35 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-var	REGION string
+var region string
 
-func updateLaunchTemplates(lt string){
+func updateLaunchTemplates(lt string) {
 	sess, _ := session.NewSession(&aws.Config{
-		Region: aws.String(REGION)},
+		Region: aws.String(region)},
 	)
 	client := ec2.New(sess)
 	opts := &ec2.LaunchTemplateInstanceMetadataOptionsRequest{
 		HttpPutResponseHopLimit: aws.Int64(1),
-		HttpTokens: aws.String("required"),
+		HttpTokens:              aws.String("required"),
 	}
-	ltd := &ec2.RequestLaunchTemplateData{
-		MetadataOptions: opts,
-	}
-	ltvi := &ec2.CreateLaunchTemplateVersionInput{
-		LaunchTemplateId: aws.String(lt),
-		SourceVersion: aws.String("$Default"),
-		LaunchTemplateData: ltd,
-		VersionDescription: aws.String("Hop count 1"),
-	}
-	ltvo, err := client.CreateLaunchTemplateVersion(ltvi)
+	ltvo, err := client.CreateLaunchTemplateVersion(
+		&ec2.CreateLaunchTemplateVersionInput{
+			LaunchTemplateId:   aws.String(lt),
+			SourceVersion:      aws.String("$Default"),
+			LaunchTemplateData: &ec2.RequestLaunchTemplateData{MetadataOptions: opts},
+			VersionDescription: aws.String("Hop count 1"),
+		},
+	)
 	if err != nil {
 		fmt.Println(err)
 	}
-	lti := &ec2.ModifyLaunchTemplateInput{
-		DefaultVersion:   aws.String(fmt.Sprint(*ltvo.LaunchTemplateVersion.VersionNumber)),
-		LaunchTemplateId: aws.String(lt),
-	}
-	_, err = client.ModifyLaunchTemplate(lti)
+
+	_, err = client.ModifyLaunchTemplate(
+		&ec2.ModifyLaunchTemplateInput{
+			DefaultVersion:   aws.String(fmt.Sprint(*ltvo.LaunchTemplateVersion.VersionNumber)),
+			LaunchTemplateId: aws.String(lt),
+		},
+	)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -44,7 +44,7 @@ func updateLaunchTemplates(lt string){
 }
 func main() {
 	var lt string
-	flag.StringVar(&REGION, "region", "us-east-1", "AWS region")
+	flag.StringVar(&region, "region", "us-east-1", "AWS region")
 	flag.StringVar(&lt, "launch-template", "", "Launch template Id")
 	flag.Parse()
 	updateLaunchTemplates(lt)
