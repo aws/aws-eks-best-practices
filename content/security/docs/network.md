@@ -17,7 +17,7 @@ Within a Kubernetes cluster, all Pod to Pod communication is allowed by default.
 
 Calico policies can be scoped to Namespaces, Pods, service accounts, or globally.  When policies are scoped to a service account, it associates a set of ingress/egress rules with that service account.  With the proper RBAC rules in place, you can prevent teams from overriding these rules, allowing IT security professionals to safely delegate administration of namespaces.
 
-You can find a list of common Kubernetes network policies at [https://github.com/ahmetb/kubernetes-network-policy-recipes](https://github.com/aws/amazon-vpc-cni-k8s/tree/master/config).  A similar set of rules for Calico are available at [https://docs.projectcalico.org/security/calico-network-policy](https://github.com/aws/amazon-vpc-cni-k8s/tree/master/config). 
+You can find a list of common Kubernetes network policies at [https://github.com/ahmetb/kubernetes-network-policy-recipes](https://github.com/ahmetb/kubernetes-network-policy-recipes).  A similar set of rules for Calico are available at [https://docs.projectcalico.org/security/calico-network-policy](https://docs.projectcalico.org/security/calico-network-policy). 
 
 ## Recommendations
 
