@@ -16,7 +16,7 @@ The reliability best practices for EKS have been grouped under the following top
 * Data Plane
 * Network
 
-—-
+---
 
 What makes a system reliable? If a system can function consistently and meet demands in spite of changes in its environment over a period of time, it can be called reliable. To achieve this, the system has to detect failures, automatically heal itself, and have the ability to scale based on demand. 
 
