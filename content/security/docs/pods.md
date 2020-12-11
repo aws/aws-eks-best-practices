@@ -2,7 +2,7 @@
 
 Pods have a variety of different settings that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that’s running in a container from escaping the isolation boundaries of Docker and gaining access to the underlying host.  The reason for this is twofold.  First, the processes that run within a container run under the context of the \[Linux\] root user by default.  Although the actions of root within a container are partially constrained by the set of Linux capabilities that Docker assigns to the containers, these default privileges could allow an attacker to escalate their privileges and/or gain access to sensitive information bound to the host, including Secrets and ConfigMaps.  Below is a list of the default capabilities assigned to Docker containers.  For additional information about each capability, see [http://man7.org/linux/man-pages/man7/capabilities.7.html](http://man7.org/linux/man-pages/man7/capabilities.7.html).
 
-`CAP_CHOWN, CAP_DAC_OVERERIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_SETGID, CAP_SETUID, CAP_SETPCAP, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SYS_CHROOT, CAP_MKNOD, CAP_AUDIT_WRITE, CAP_SETFCAP`
+`CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_SETGID, CAP_SETUID, CAP_SETPCAP, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SYS_CHROOT, CAP_MKNOD, CAP_AUDIT_WRITE, CAP_SETFCAP`
 
 !!! info 
     EC2 and Fargate pods are assigned the aforementioned capabilites by default. Additionally, Linux capabilities can only be dropped from Fargate pods. 
