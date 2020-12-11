@@ -1,0 +1,19 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sSvcClusterIpExternalIpsAllow
+metadata:
+  name: svc-clusterip-ext-ips-allow
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Service"]
+    namespaces:
+      - "opa-test"
+  parameters:
+    allowedOps: ["CREATE","UPDATE"]
+    allowedIps:
+      - 1.1.1.1
+      - 2.2.2.2
+      - 3.3.3.3
+      - 4.4.4.4
+    errMsg: "INVALID_SERVICE_EXTERNAL_IPS"
