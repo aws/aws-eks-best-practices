@@ -28,7 +28,7 @@ The audit logs are part of the EKS managed Kubernetes control plane logs that ar
 ### Utilize audit metadata
 Kubernetes audit logs include two annotations that indicate whether or not a request was authorized `authorization.k8s.io/decision` and the reason for the decision `authorization.k8s.io/reason`.  Use these attributes to ascertain why a particular API call was allowed. 
    
-### Create alarms for suspicous events
+### Create alarms for suspicious events
 Create an alarm to automatically alert you where there is an increase in 403 Forbidden and 401 Unauthorized responses, and then use attributes like `host`, `sourceIPs`, and `k8s_user.username` to find out where those requests are coming from.
   
 ### Analyze logs with Log Insights
