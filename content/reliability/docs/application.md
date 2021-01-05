@@ -20,7 +20,7 @@ Running multiple replicas won’t be very useful if all the replicas are running
 
 You can further improve a typical application’s reliability by running it across multiple AZs. 
 
-The manifest below tells Kubernetes scheduler to *prefer* to place pods on separate nodes and AZs. It doesn’t require distinct nodes or AZ because if it did, then Kubernetes will not be able to schedule any pods once there is a pod running in each AZ. If your application requires just three replicas, you can use `requiredDuringSchedulingIgnoredDuringExecution` for `topologyKey: failure-domain.beta.kubernetes.io/zone`, and Kubernetes scheduler will not schedule two pods in the same AZ.
+The manifest below tells Kubernetes scheduler to *prefer* to place pods on separate nodes and AZs. It doesn’t require distinct nodes or AZ because if it did, then Kubernetes will not be able to schedule any pods once there is a pod running in each AZ. If your application requires just three replicas, you can use `requiredDuringSchedulingIgnoredDuringExecution` for `topologyKey: topology.kubernetes.io/zone`, and Kubernetes scheduler will not schedule two pods in the same AZ.
 
 ```
 piVersion: apps/v1
@@ -49,10 +49,8 @@ spec:
                   operator: In
                   values:
                   - web-server
-              topologyKey: failure-domain.beta.kubernetes.io/zone
+              topologyKey: topology.kubernetes.io/zone
             weight: 100
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
                 matchExpressions:
