@@ -56,12 +56,6 @@ Consider monitoring these control plane metrics:
 | Metric | Description  |
 |:--|:--|
 | `etcd_request_duration_seconds` | Etcd request latency in seconds for each operation and object type. | 
-| `etcd_request_latencies_summary` | Etcd request latency summary in microseconds for each operation and object type. |
-| `etcd_helper_cache_entry_total` | Counter of etcd helper cache entries. | 
-| `etcd_helper_cache_hit_total` | Counter of etcd helper cache hits.| 
-| `etcd_helper_cache_miss_total` | Counter of etcd helper cache miss. | 
-| `etcd_request_cache_get_duration_seconds*` | Latency in seconds of getting an object from etcd cache. | 
-| `etcd_request_cache_add_duration_seconds*` | Latency in seconds of adding an object to etcd cache | 
 
 Consider using [Grafana dashboard 12006](https://grafana.com/grafana/dashboards/12006) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics. 
 
