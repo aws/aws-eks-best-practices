@@ -156,7 +156,7 @@ For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
 
 `for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done`
 
-### Use NodeLocal DNSCacehe
+### Use NodeLocal DNSCache
 You can improve the Cluster DNS performance by running [NodeLocal DNSCache](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/). This feature runs a DNS caching agent on cluster nodes as a DaemonSet. All the pods use the DNS caching agent running on the node for name resolution instead of using `kube-dns` Service. 
 
 ### Configure cluster-proportional-scaler for CoreDNS
