@@ -8,7 +8,7 @@ Worker nodes connect to the EKS control plane through the EKS public endpoint or
 
 Refer to [Cluster VPC considerations](https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html) when architecting a VPC to be used with EKS.
 
-If you deploy worker nodes in private subnets then these subnets, then should have a default route to a [NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html). 
+If you deploy worker nodes in private subnets then these subnets should have a default route to a [NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html). 
 
 ## Recommendations
 
