@@ -24,12 +24,12 @@ Like their virtual machine counterparts, container images can contain binaries a
 Knowing where images with vulnerabilities have been deployed is essential to keeping your environment secure.  While you could conceivably build an image tracking solution yourself, there are already several commercial offerings that provide this and other advanced capabilities out of the box, including:
 
 + [Anchore](https://docs.anchore.com/current/)
-+ [Twistlock](https://www.twistlock.com/)
++ [Palo Alto - Prisma Cloud (twistcli)](https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/tools/twistcli_scan_images)
 + [Aqua](https://www.aquasec.com/)
 + [Kubei](https://github.com/Portshift/kubei)
 + [Trivy](https://github.com/aquasecurity/trivy)
     
-A Kubernetes validation webhook could also be used to validate that images are free of critical vulnerabilities.  Validation webhooks are invoked prior to the Kubernetes API.  They are typically used to reject requests that don't comply with the validation criteria defined in the webhook.  [This](https://aws.amazon.com/blogs/containers/building-serverless-admission-webhooks-for-kubernetes-with-aws-sam/) is an example of a serverless webhook that calls the ECR describeImageScanFindings API to deteremine whether a pod is pulling an image with critical vulnerabilities.  If vulnerabilities are found, the pod is rejected and a message with list of CVEs is returned as an Event.
+A Kubernetes validation webhook could also be used to validate that images are free of critical vulnerabilities.  Validation webhooks are invoked prior to the Kubernetes API.  They are typically used to reject requests that don't comply with the validation criteria defined in the webhook.  [This](https://aws.amazon.com/blogs/containers/building-serverless-admission-webhooks-for-kubernetes-with-aws-sam/) is an example of a serverless webhook that calls the ECR describeImageScanFindings API to determine whether a pod is pulling an image with critical vulnerabilities.  If vulnerabilities are found, the pod is rejected and a message with list of CVEs is returned as an Event.
 
 ### Create IAM policies for ECR repositories
 Nowadays, it is not uncommon for an organization to have multiple development teams operating independently within a shared AWS account.  If these teams don't need to share assets, you may want to create a set of IAM policies that restrict access to the repositories each team can interact with.  A good way to implement this is by using ECR [namespaces](https://docs.aws.amazon.com/AmazonECR/latest/userguide/Repositories.html#repository-concepts). Namespaces are a way to group similar repositories together.  For example, all of the registries for team A can be prefaced with the team-a/ while those for team B can use the team-b/ prefix. The policy to restrict access might look like the following: 
