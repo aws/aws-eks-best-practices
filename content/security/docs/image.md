@@ -24,7 +24,8 @@ Like their virtual machine counterparts, container images can contain binaries a
 Knowing where images with vulnerabilities have been deployed is essential to keeping your environment secure.  While you could conceivably build an image tracking solution yourself, there are already several commercial offerings that provide this and other advanced capabilities out of the box, including:
 
 + [Anchore](https://docs.anchore.com/current/)
-+ [Twistlock](https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/tools/twistcli_scan_images)
++ [Palo Alto - Prisma Cloud (twistcli)](https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/tools/twistcli_scan_images)
++ [Aqua](https://www.aquasec.com/)
 + [Kubei](https://github.com/Portshift/kubei)
 + [Trivy](https://github.com/aquasecurity/trivy)
     
