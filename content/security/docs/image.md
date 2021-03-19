@@ -130,7 +130,7 @@ This creates a container image that consists of your application and nothing els
 ### Sign your images
 When Docker was first introduced, there was no cryptographic model for verifying container images.  With v2, Docker added digests to the image manifest. This allowed an image’s configuration to be hashed and for the hash to be used to generate an ID for the image.  When image signing is enabled, the \[Docker\] engine verifies the manifest’s signature, ensuring that the content was produced from a trusted source and no tampering has occurred. After each layer is downloaded, the engine verifies the digest of the layer, ensuring that the content matches the content specified in the manifest.  Image signing  effectively allows you to create a secure supply chain, through the verification of digital signatures associated with the image. 
 
-In a Kubernetes environment, you can use an dynamic admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
+In a Kubernetes environment, you can use a dynamic admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
 
 ## Tools
 + [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
