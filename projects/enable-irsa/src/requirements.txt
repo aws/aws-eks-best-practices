@@ -23,7 +23,7 @@ pyinstaller==4.0
 pyinstaller-hooks-contrib==2020.7
 pyOpenSSL==19.1.0
 python-dateutil==2.8.1
-PyYAML==5.3.1
+PyYAML==5.4
 reader==1.5
 requests==2.24.0
 requests-oauthlib==1.3.0
