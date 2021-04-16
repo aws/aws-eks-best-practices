@@ -210,7 +210,7 @@ Each application should have its own dedicated service account.  This applies to
     If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster. 
 
 ### Run the application as a non-root user
-Containers run as root by default. While this allows them to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.runAsUser` attribute to the PodSpec.  The value of `runAsUser` is abritrary value.
+Containers run as root by default. While this allows them to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.runAsUser` attribute to the PodSpec.  The value of `runAsUser` is arbitrary value.
 
 In the following example, all processes within the Pod will run under the user ID specified in the `runAsUser` field. 
 
