@@ -191,6 +191,48 @@ aws ec2 modify-instance-metadata-options --instance-id <value> --http-tokens req
 
 You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html](https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html).
 
+If you have an application that is using an older version of the AWS SDK that doesn't support IRSA, consider using Kubernetes network policies to selectively allow access EC2 metadata.
+
+Start with a policy that blocks access to the metadata service from all Pods:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-metadata-access
+  namespace: example
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+        - 169.254.169.254/32
+```
+
+Then allow access from select pods by adding following policy, modifying the `PodSelector` as appropriate.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-metadata-access
+  namespace: example
+spec:
+  podSelector:
+    matchLabels:
+      app: myapp  
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 169.254.169.254/32
+```
+
 ### Scope the IAM Role trust policy for IRSA to the service account name
 The trust policy can be scoped to a Namespace or a specific service account within a Namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other Pods within the same Namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See [https://eksctl.io/usage/iamserviceaccounts/](https://eksctl.io/usage/iamserviceaccounts/) for further information. 
 
