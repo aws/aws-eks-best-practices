@@ -237,7 +237,7 @@ spec:
     fsGroup: 65534
 ```
 
-This is supposed to get fixed in an future release of k8s, [kubernetes/enhancements#1598](https://github.com/kubernetes/enhancements/pull/1598).
+In Kubernetes 1.19 and above, this change is no longer required.
 
 ### Grant least privileged access to applications
 [Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function properly.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you gradually limit the scope of IAM roles assigned to applications. Consult the documentation on granting [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources for further information.
