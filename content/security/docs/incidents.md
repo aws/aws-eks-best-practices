@@ -61,7 +61,7 @@ While this section gives a brief overview along with a few  recommendations for 
 ### Practice security game days
 Divide your security practitioners into 2 teams: red and blue.  The red team will be focused on probing different systems for vulnerabilities while the blue team will be responsible for defending against them.  If you don't have enough security practitioners to create separate teams, consider hiring an outside entity that has knowledge of Kubernetes exploits. 
 
-[Kubesploit](https://github.com/cyberark/kubesploit) is a penetration testing framework from CyberArk that you can use to conduct game days. Unlike other tools which scan your cluster for vulnerabilities, kubesploit simulates a real-world attack. This gives your blue team an opportunity to practice its response to an attack and gauge its effectiveness. Before running kubesploit against your EKS cluster, please review the [AWS penetration testing policies](https://aws.amazon.com/security/penetration-testing/).
+[Kubesploit](https://github.com/cyberark/kubesploit) is a penetration testing framework from CyberArk that you can use to conduct game days. Unlike other tools which scan your cluster for vulnerabilities, kubesploit simulates a real-world attack. This gives your blue team an opportunity to practice its response to an attack and gauge its effectiveness.
 
 ### Run penetration tests against your cluster
 Periodically attacking your own cluster can help you discover vulnerabilities and misconfigurations.  Before getting started, follow the [penetration test guidelines](https://aws.amazon.com/security/penetration-testing/) before conducting a test against your cluster. 
