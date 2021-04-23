@@ -1,5 +1,5 @@
 # Incident response and forensics
-Your ability to react quickly to an incident can help minimize damage caused from a breach. Having a reliable alerting system that can warn you of suspicious behavior is the first step in a good incident response plan. When an incident does arise, you have to quickly decide whether to destroy and replace the container, or isolate and inspect the container. If you choose to isolate the container for forensic investigation and root cause analysis, then the following set of activities should be followed:
+Your ability to react quickly to an incident can help minimize damage caused from a breach. Having a reliable alerting system that can warn you of suspicious behavior is the first step in a good incident response plan. When an incident does arise, you have to quickly decide whether to destroy and replace the effected container, or isolate and inspect the container. If you choose to isolate the container as part of a forensic investigation and root cause analysis, then the following set of activities should be followed:
 
 ## Sample incident response plan
 
@@ -61,6 +61,8 @@ While this section gives a brief overview along with a few  recommendations for 
 ### Practice security game days
 Divide your security practitioners into 2 teams: red and blue.  The red team will be focused on probing different systems for vulnerabilities while the blue team will be responsible for defending against them.  If you don't have enough security practitioners to create separate teams, consider hiring an outside entity that has knowledge of Kubernetes exploits. 
 
+[Kubesploit](https://github.com/cyberark/kubesploit) is a penetration testing framework from CyberArk that you can use to conduct game days. Unlike other tools which scan your cluster for vulnerabilities, kubesploit simulates a real-world attack. This gives your blue team an opportunity to practice its response to an attack and gauge its effectiveness. Before running kubesploit against your EKS cluster, please review the [AWS penetration testing policies](https://aws.amazon.com/security/penetration-testing/).
+
 ### Run penetration tests against your cluster
 Periodically attacking your own cluster can help you discover vulnerabilities and misconfigurations.  Before getting started, follow the [penetration test guidelines](https://aws.amazon.com/security/penetration-testing/) before conducting a test against your cluster. 
 
@@ -69,3 +71,4 @@ Periodically attacking your own cluster can help you discover vulnerabilities an
 + [Gremlin](https://www.gremlin.com/product/#kubernetes), a chaos engineering toolkit that you can use to simulate attacks against your applications and infrastructure. 
 + [kube-forensics](https://github.com/keikoproj/kube-forensics), a Kubernetes controller that triggers a job that collects the state of a running pod and dumps it in an S3 bucket. 
 + [Attacking and Defending Kubernetes Installations](https://github.com/kubernetes/community/blob/master/sig-security/security-audit-2019/findings/AtredisPartners_Attacking_Kubernetes-v1.0.pdf)
++ [kubesploit](https://www.cyberark.com/resources/threat-research-blog/kubesploit-a-new-offensive-tool-for-testing-containerized-environments)
