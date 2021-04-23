@@ -48,6 +48,9 @@ Configure KMS to automatically rotate you CMKs.  This will rotate your keys once
 ### Use EFS access points to simplify access to shared datasets
 If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see [https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html](https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html). Today, if you want to use an access point (AP) you'll need to reference the AP in the PV's `volumeHandle` parameter.
 
+!!! attention
+    As of March 23, 2021 the EFS CSI driver supports dynamic provisioning of EFS Access Points. Access points are application-specific entry points into an EFS file system that make it easier to share a file system between multiple pods. Each EFS file system can have up to 120 PVs. See [Introducing Amazon EFS CSI dynamic provisioning](https://aws.amazon.com/blogs/containers/introducing-efs-csi-dynamic-provisioning/) for additional information. 
+
 # Secrets management
 Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the `podSpec`.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see [https://kubernetes.io/docs/concepts/configuration/secret/](https://kubernetes.io/docs/concepts/configuration/secret/). 
 
