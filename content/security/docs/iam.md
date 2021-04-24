@@ -65,6 +65,18 @@ An IAM User does not need to be assigned privileges to AWS resources to access t
 ### Use IAM Roles when multiple users need identical access to the cluster
 Rather than creating an entry for each individual IAM User in the `aws-auth` ConfigMap, allow those users to assume an IAM Role and map that role to a Kubernetes RBAC group.  This will be easier to maintain, especially as the number of users that require access grows.
 
+!!! attention
+    When accessing the EKS cluster with the IAM entity mapped by aws-auth ConfigMap, the username described in aws-auth ConfigMap is recorded in the user field of the Kubernetes audit log. If you're using an IAM role, the actual users who assume that role aren't recorded and can't be audited.
+
+When assigning K8s RBAC permissions to an IAM role using mapRoles in aws-auth ConfigMap, you should include {{SessionName}} in your username. That way, the audit log will record the session name so you can track who the actual user assume this role along with the CloudTrail log.
+
+```yaml
+- rolearn: arn:aws:iam::XXXXXXXXXXXX:role/testRole
+  username: testRole:{{SessionName}}
+  groups:
+    - system:masters
+```
+
 ### Employ least privileged access when creating RoleBindings and ClusterRoleBindings
 Like the earlier point about granting access to AWS Resources, RoleBindings and ClusterRoleBindings should only include the set of permissions necessary to perform a specific function. Avoid using `["*"]` in your Roles and ClusterRoles unless it's absolutely necessary. If you're unsure what permissions to assign, consider using a tool like [audit2rbac](https://github.com/liggitt/audit2rbac) to automatically generate Roles and binding based on the observed API calls in the Kubernetes Audit Log.
 
