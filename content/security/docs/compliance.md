@@ -1,5 +1,5 @@
 # Compliance
-Compliance is a shared responsibility between AWS and the consumers of its services. Generally speaking, AWS is responsible for “security of the cloud” whereas its users are responsible for “security in the cloud.” The line that delineates what AWS and its users are responsible for, will vary depending on the service. For example, with Fargate, AWS is responsible for managing the physical security of its data centers, the hardware, the virtual infrastructure (Amazon EC2), and the container runtime (Docker). Users of Fargate are responsible for securing the container image and their application. Knowing who is responsible for what is an important consideration when running workloads that must adhere to compliance standards.
+Compliance is a shared responsibility between AWS and the consumers of its services. Generally speaking, AWS is responsible for “security of the cloud” whereas its users are responsible for “security in the cloud.” The line that delineates what AWS and its users are responsible for will vary depending on the service. For example, with Fargate, AWS is responsible for managing the physical security of its data centers, the hardware, the virtual infrastructure (Amazon EC2), and the container runtime (Docker). Users of Fargate are responsible for securing the container image and their application. Knowing who is responsible for what is an important consideration when running workloads that must adhere to compliance standards.
 
 The following table shows the compliance programs with which the different container services conform.
 
@@ -14,10 +14,10 @@ The following table shows the compliance programs with which the different conta
 | ISO 9001:2015 | 1 | 1 | 1 | 1 |
 | ISO 27017:2015 |	1 |	1 |	1 |	1 |
 | ISO 27018:2019 |	1 |	1 |	1 |	1 |
-| IRAP | 1 | 0 | 1 | 1 |
-| FedRAMP Moderate (East/West) | 1 | JAB Review | 0 | 1 |
-| FedRAMP High (GovCloud) | 1 | JAB Review | 0 | 1 |
-| DOD CC SRG | 1 |	JAB Review |	0 |	1 |
+| IRAP | 1 | 1 | 1 | 1 |
+| FedRAMP Moderate (East/West) | 1 | 1 | 0 | 1 |
+| FedRAMP High (GovCloud) | 1 | 1 | 0 | 1 |
+| DOD CC SRG | 1 |	DISA Review (IL5) |	0 |	1 |
 | HIPAA BAA | 1 | 1 | 1 | 1 |
 | MTCS | 1 | 1 | 0 | 1 |
 | C5 | 1 | 1 | 0 | 1 |
@@ -43,7 +43,7 @@ Policy can be thought of as a set of rules for governing behaviors, i.e. behavio
 [OPA](https://www.openpolicyagent.org/) is open source policy engine that's part of CNCF. It's used for making policy decisions and can be run a variety of different ways, e.g. as a language library or a service. OPA policies are written in a Domain Specific Language (DSL) called Rego. While it is often run as part of a Kubernetes Dynamic Admission Controller, OPA can also be incorporated into your CI/CD pipeline. This allows developers to get feedback about their configuration earlier in the release cycle which can subsequently help them resolve issues before they get to production. A collection of common OPA policies can be found in the GitHub [repository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa) for this project.
 
 + [Conftest](https://github.com/open-policy-agent/conftest) is built on top of OPA and it provides a developer focused experience for testing Kubernetes configuration. 
-+ [sKan](https://github.com/alcideio/skan) is powered by OPA and is "tailor made" to check whether their Kubernetes configuration files are compliant with security and operational best practices. 
++ [sKan](https://github.com/alcideio/skan) is powered by OPA and is "tailor made" to check whether their Kubernetes configuration files are compliant with security and operational best practices.
 
 ## Tools and resources
 + [kube-bench](https://github.com/aquasecurity/kube-bench)
