@@ -23,7 +23,7 @@ The audit logs are part of the EKS managed Kubernetes control plane logs that ar
     When you enable control plane logging, you will incur [costs](https://aws.amazon.com/cloudwatch/pricing/) for storing the logs in CloudWatch. This raises a broader issue about the ongoing cost of security. Ultimately you will have to weigh those costs against the cost of a security breach, e.g. financial loss, damage to your reputation, etc. You may find that you can adequately secure your environment by implementing only some of the recommendations in this guide. 
 
 !!! warning
-    The maximum size for a CWL entry is 256KB whereas the maximum Kubernetes API request size is 1.5MiB.
+    The maximum size for a CWL entry is 256KB whereas the maximum Kubernetes API request size is 1.5MiB. This is important know because an attacker could theoretically obfuscate their activity by creating a request that is too large for CWL to handle. This can be done by padding the annotations field of a request with a large amount of junk data, which hides all data after the annotation.
 
 ### Utilize audit metadata
 Kubernetes audit logs include two annotations that indicate whether or not a request was authorized `authorization.k8s.io/decision` and the reason for the decision `authorization.k8s.io/reason`.  Use these attributes to ascertain why a particular API call was allowed. 
@@ -81,6 +81,9 @@ fields @timestamp, @message, sourceIPs.0
 ### Audit your CloudTrail logs
 AWS APIs called by pods that are utilizing IAM Roles for Service Accounts (IRSA) are automatically logged to CloudTrail along with the name of the service account. If the name of a service account that wasn't explicitly authorized to call an API appears in the log, it may be an indication that the IAM role's trust policy was misconfigured. Generally speaking, Cloudtrail is a great way to ascribe AWS API calls to specific IAM principals. 
 
+### Use CloudTrail Insights to unearth suspicious activity
+CloudTrail insights automaticatlly analyzes write management events from CloudTrail trails and alerts you of unusual activity. This can help you identify when there's an increase in call volume on write APIs in your AWS account, including from pods that use IRSA to assume an IAM role. See [Announcing CloudTrail Insights: Identify and Response to Unusual API Activity](https://aws.amazon.com/blogs/aws/announcing-cloudtrail-insights-identify-and-respond-to-unusual-api-activity/) for further information.
+
 ### Additional resources
 As the volume of logs increases, parsing and filtering them with Log Insights or another log analysis tool may become ineffective.  As an alternative, you might want to consider running [Sysdig Falco](https://github.com/falcosecurity/falco) and [ekscloudwatch](https://github.com/sysdiglabs/ekscloudwatch). Falco analyzes audit logs and flags anomalies or abuse over an extended period of time. The ekscloudwatch project forwards audit log events from CloudWatch to Falco for analysis. Falco provides a set of [default audit rules](https://github.com/falcosecurity/falco/blob/master/rules/k8s_audit_rules.yaml) along with the ability to add your own. 
 
@@ -97,3 +100,8 @@ The following open source projects can be used to assess your cluster's alignmen
 + [polaris](https://github.com/FairwindsOps/polaris)
 + [Starboard](https://github.com/aquasecurity/starboard)
 + [kAudit](https://www.alcide.io/kaudit-K8s-forensics/)
+
+## Videos
++ [Advanced Persistent Threats](https://www.youtube.com/watch?v=CH7S5rE3j8w)
++ [Kubernetes Practical Attack and Defense](https://www.youtube.com/watch?v=LtCx3zZpOfs)
++ [Compromising Kubernetes Cluster by Exploiting RBAC Permissions](https://www.youtube.com/watch?v=1LMo0CftVC4)
