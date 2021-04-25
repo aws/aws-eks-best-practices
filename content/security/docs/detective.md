@@ -34,6 +34,22 @@ Create an alarm to automatically alert you where there is an increase in 403 For
 ### Analyze logs with Log Insights
 Use CloudWatch Log Insights to monitor changes to RBAC objects, e.g. Roles, RoleBindings, ClusterRoles, and ClusterRoleBindings.  A few sample queries appear below: 
 
+Lists updates to the `aws-auth` ConfigMap:
+```
+fields @timestamp, @message
+| filter @logStream like "kube-apiserver-audit"
+| filter verb in ["update", "patch"]
+| filter objectRef.resource = "configmaps" and objectRef.name = "aws-auth" and objectRef.namespace = "kube-system"
+| sort @timestamp desc
+```
+Lists creation of new or changes to validation webhooks:
+```
+fields @timestamp, @message
+| filter @logStream like "kube-apiserver-audit"
+| filter verb in ["create", "update", "patch"] and responseStatus.code = 201
+| filter objectRef.resource = "validatingwebhookconfigurations"
+| sort @timestamp desc
+```
 Lists create, update, delete operations to Roles:
 ```
 fields @timestamp, @message
