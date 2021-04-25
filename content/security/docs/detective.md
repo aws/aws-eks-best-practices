@@ -90,7 +90,7 @@ As the volume of logs increases, parsing and filtering them with Log Insights or
 Yet another option might be to store the audit logs in S3 and use the SageMaker [Random Cut Forest](https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html) algorithm to anomalous behaviors that warrant further investigation.
 
 ## Tooling
-The following open source projects can be used to assess your cluster's alignment with established best practices:
+The following commercial and open source projects can be used to assess your cluster's alignment with established best practices:
 
 + [kubeaudit](https://github.com/Shopify/kubeaudit)
 + [MKIT](https://github.com/darkbitio/mkit)
@@ -100,3 +100,4 @@ The following open source projects can be used to assess your cluster's alignmen
 + [polaris](https://github.com/FairwindsOps/polaris)
 + [Starboard](https://github.com/aquasecurity/starboard)
 + [kAudit](https://www.alcide.io/kaudit-K8s-forensics/)
++ [Snyk](https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview)
