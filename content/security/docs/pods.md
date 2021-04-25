@@ -37,6 +37,9 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 ### Restrict the containers that can run as privileged
 As mentioned, containers that run as privileged inherit all of the Linux capabilities assigned to root on the host.  Seldom do containers need these types of privileges to function properly.  You can reject pods with containers configured to run as privileged by creating a [pod security policy](https://kubernetes.io/docs/concepts/policy/pod-security-policy/).  You can think of a pod security policy as a set of requirements that pods have to meet before they can be created.  If you elect to use pod security policies, you will need to create a role binding that allows service accounts to read your pod security policies. 
 
+!!! attention
+    PSP are deprecated in Kubernetes version 1.21. You will have until version 1.25 or roughly 2 years to transition to an alternative. SIG-Security has proposed a replacement aptly called PSP Replacement which you can read about [here](https://docs.google.com/document/d/1dpfDF3Dk4HhbQe74AyCpzUYMjp4ZhiEgGXSMpVWLlqQ/edit). The community ultimately decided it would be eaiser to build a replacement for PSPs than to retrofit the current offering. The replacement will include features such as auditing, warn but allow, version pinning, and dry-run where you can see the impact of a policy before it is enforced. 
+
 When you provision an EKS cluster, a pod security policy called `eks.privileged` is automatically created.  The manifest for that policy appears below: 
 
 ```yaml
@@ -174,7 +177,7 @@ spec:
 
 This policy prevents pods from running as privileged or escalating privileges.  It also restricts the types of volumes that can be mounted and the root supplemental groups that can be added. 
 
-Another, albeit similar, approach is to start with policy that locks everything down and incrementally add exceptions for applications that need looser restrictions such as logging agents which need the ability to mount a host path.  You can learn more about this in a recent post on the [Square engineering blog](https://developer.squareup.com/blog/kubernetes-pod-security-policies/).
+Another, albeit similar, approach is to start with policy that locks everything down and incrementally add exceptions for applications that need looser restrictions such as logging agents which need the ability to mount a host path.  You can learn more about this in a post on the [Square engineering blog](https://developer.squareup.com/blog/kubernetes-pod-security-policies/).
 
 !!! attention 
     Fargate is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or configure your pod to use hostNetwork or hostPort.
@@ -233,7 +236,18 @@ For additional information about resource QoS, please refer to the [Kubernetes d
 You can force the use of requests and limits by setting a [resource quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range](https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it’s applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. By contrast, limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.
 
 ### Do not allow privileged escalation
-Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this as are binaries with the SUID or SGID bit.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from using privileged escalation by implementing a pod security policy that sets `allowPriviledgedEscalation` to `false` or by setting `securityContext.allowPrivilegedEscalation` in the `podSpec`.  
+Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this as are binaries with the SUID or SGID bit.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from using privileged escalation by implementing a pod security policy that sets `allowPriviledgedEscalation` to `false` or by setting `securityContext.allowPrivilegedEscalation` in the `podSpec`.
 
-## Tools
+## Pod Security Standards
+[Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/) (PSSs) are part of the proposal to replace PSPs. They are an attempt to provide a set of standards for pod security that is independent of the enforcement mechanism. The standards define three policy types: 
+
++ Privileged: is the absence of a policy. This is good for applications such as logging agents, CNIs, storage drivers, and other system wide applications that need privileged access. 
++ Baseline: is a minimal set of restrictions to prevent privileged escalations. The baseline policy prohibits use of hostNetwork, hostPID, hostIPC, hostPath, hostPort, the inability to add Linux capabilities, along with several other restrictions. 
++ Restricted: inherits from the baseline and adds further restrictions such as the inability to run as root or a root-group. Restricted policies may impact an application's ability to function. They are primarily targeted at running security critical applications. 
+
+## Tools and Resources
 + [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor) is a tool that makes it easier to create K8s Pod Security Policies (PSPs) from either a live K8s environment or from a single .yaml file containing a pod specification (Deployment, DaemonSet, Pod, etc).
++ [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitue for PSPs.
++ A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
++ [Policy based countermeasures: part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
++ [Policy based countermeasures: part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
