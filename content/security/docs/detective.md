@@ -100,8 +100,3 @@ The following open source projects can be used to assess your cluster's alignmen
 + [polaris](https://github.com/FairwindsOps/polaris)
 + [Starboard](https://github.com/aquasecurity/starboard)
 + [kAudit](https://www.alcide.io/kaudit-K8s-forensics/)
-
-## Videos
-+ [Advanced Persistent Threats](https://www.youtube.com/watch?v=CH7S5rE3j8w)
-+ [Kubernetes Practical Attack and Defense](https://www.youtube.com/watch?v=LtCx3zZpOfs)
-+ [Compromising Kubernetes Cluster by Exploiting RBAC Permissions](https://www.youtube.com/watch?v=1LMo0CftVC4)
