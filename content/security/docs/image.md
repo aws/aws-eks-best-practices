@@ -128,10 +128,16 @@ ENTRYPOINT ["/go/bin/hello"]
 ```
 This creates a container image that consists of your application and nothing else, making it extremely secure.
 
+### Use immutable tags with ECR
+[Immutable tags](https://aws.amazon.com/about-aws/whats-new/2019/07/amazon-ecr-now-supports-immutable-image-tags/) force you to update the image tag on each push to the image repository. This can thwart an attacker from overwriting an image with a malicious version without changing the image's tags. Additionally, it gives you a way to easily and uniquely identify an image.  
+
 ### Sign your images
 When Docker was first introduced, there was no cryptographic model for verifying container images.  With v2, Docker added digests to the image manifest. This allowed an image’s configuration to be hashed and for the hash to be used to generate an ID for the image.  When image signing is enabled, the \[Docker\] engine verifies the manifest’s signature, ensuring that the content was produced from a trusted source and no tampering has occurred. After each layer is downloaded, the engine verifies the digest of the layer, ensuring that the content matches the content specified in the manifest.  Image signing  effectively allows you to create a secure supply chain, through the verification of digital signatures associated with the image. 
 
 In a Kubernetes environment, you can use a dynamic admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
+
+!!! note
+    ECR intends to support image signing in the future.  The [issue](https://github.com/aws/containers-roadmap/issues/43) is being tracked on the container roadmap.
 
 ### Update the packages in your container images
 You should include RUN `apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security udpates.
@@ -140,6 +146,7 @@ You should include RUN `apt-get upgrade` in your Dockerfiles to upgrade the pack
 + [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
 + [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images
 + [dockerfile-lint](https://github.com/projectatomic/dockerfile_lint) Rule based linter for Dockerfiles
++ [hadolint](https://github.com/hadolint/hadolint) A smart dockerfile linter
 + [Gatekeeper and OPA](https://github.com/open-policy-agent/gatekeeper) A policy based admission controller
 + [in-toto](https://in-toto.io/) Allows the user to verify if a step in the supply chain was intended to be performed, and if the step was performed by the right actor
 + [Notary](https://github.com/theupdateframework/notary) A project for signing container images
