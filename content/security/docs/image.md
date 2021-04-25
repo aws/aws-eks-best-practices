@@ -142,6 +142,16 @@ In a Kubernetes environment, you can use a dynamic admission controller to verif
 ### Update the packages in your container images
 You should include RUN `apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security udpates.
 
+### Configure your images with read-only root file system
+Configuring your images with a read-only root file system prevents an attacker from overwriting a binary on the file system that your application uses. If your application has to write to the file system, consider writing to a temporary directory or attach and mount a volume. You can enforce this by setting the a pod's SecurityContext as follows:
+
+```yaml
+...
+securityContext:
+  readOnlyRootFilesystem: true
+...
+```
+
 ## Tools
 + [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
 + [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images
