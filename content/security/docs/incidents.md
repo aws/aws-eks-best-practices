@@ -72,3 +72,9 @@ Periodically attacking your own cluster can help you discover vulnerabilities an
 + [kube-forensics](https://github.com/keikoproj/kube-forensics), a Kubernetes controller that triggers a job that collects the state of a running pod and dumps it in an S3 bucket. 
 + [Attacking and Defending Kubernetes Installations](https://github.com/kubernetes/community/blob/master/sig-security/security-audit-2019/findings/AtredisPartners_Attacking_Kubernetes-v1.0.pdf)
 + [kubesploit](https://www.cyberark.com/resources/threat-research-blog/kubesploit-a-new-offensive-tool-for-testing-containerized-environments)
+
+## Videos
++ [Advanced Persistent Threats](https://www.youtube.com/watch?v=CH7S5rE3j8w)
++ [Kubernetes Practical Attack and Defense](https://www.youtube.com/watch?v=LtCx3zZpOfs)
++ [Compromising Kubernetes Cluster by Exploiting RBAC Permissions](https://www.youtube.com/watch?v=1LMo0CftVC4)
+
