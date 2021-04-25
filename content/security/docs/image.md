@@ -133,6 +133,9 @@ When Docker was first introduced, there was no cryptographic model for verifying
 
 In a Kubernetes environment, you can use a dynamic admission controller to verify that an image has been signed, as in these examples: https://github.com/IBM/portieris and https://github.com/kelseyhightower/grafeas-tutorial. By signing your images, you're verifying the publisher (source) ensuring that the image hasn't been tampered with (integrity).
 
+### Update the packages in your container images
+You should include RUN `apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security udpates.
+
 ## Tools
 + [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
 + [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images
