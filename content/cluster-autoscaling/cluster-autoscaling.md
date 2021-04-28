@@ -140,7 +140,7 @@ metadata:
   name: cluster-autoscaler-priority-expander
   namespace: kube-system
 data:
-  priority: |-
+  priorities: |-
     10:
       - .*p2-node-group.*
     50:
