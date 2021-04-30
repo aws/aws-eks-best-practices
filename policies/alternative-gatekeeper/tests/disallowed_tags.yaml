@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-tags-disallowed
+  labels:
+    app: nginx-tags-disallowed
+spec:
+  securityContext:
+    supplementalGroups:
+      - 101
+    fsGroup: 101
+  containers:
+    - name: nginx
+      image: nginxinc/nginx-unprivileged:latest
+      resources:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 1
+          memory: 1Gi
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      securityContext:
+        runAsUser: 101
+        runAsGroup: 101
+        capabilities:
+          drop:
+            - ALL
+      readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /index.html
+            port: 8080
+      livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /index.html
+            port: 8080
