@@ -1,4 +1,4 @@
-# Assigning PODs to Nodes Best practices[@momarcio]
+# Assigning PODs to Nodes Best practices
 
 In order to keep Linux and Windows workloads on their respective OS-specific nodes, you need to use some combination of node selectors and taints/tolerations. The main goal of scheduling workloads in a heterogeneous environment is to avoid breaking compatibility for existing Linux workloads.
 
@@ -17,7 +17,7 @@ For example: `--register-with-taints='os=windows:NoSchedule'`
 
 If you are using EKS, eksctl offers ways to apply taints through clusterConfig:
 
-```
+```yaml
 NodeGroups:
   - name: windows-ng
     amiFamily: WindowsServer2019FullContainer
@@ -89,7 +89,7 @@ You can also make use of RuntimeClass to simplify the process of using taints an
 
 Create a RuntimeClass by running the following manifest:
 
-```
+```yaml
 apiVersion: node.k8s.io/v1beta1
 kind: RuntimeClass
 metadata:
@@ -109,7 +109,7 @@ scheduling:
 
 Once the Runtimeclass is created, assign it using as a Spec on the Pod manifest:
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
