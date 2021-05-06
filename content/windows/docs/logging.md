@@ -1,4 +1,4 @@
-# Logging [@smmallu]
+# Logging
 
 Containerized applications typically direct application logs to stdout. The container runtime traps these logs and does something with them - typically writes to a file. Where it writes logs depends on the container runtime. 
 
@@ -17,22 +17,22 @@ The general best practices around  logging are no different when operating Windo
 * Keep **log verbosity** down except when debugging. Verbosity places a lot of stress on the logging infrastructure and significant events can be lost in the noise.
 * Always log the **application information** along with **transaction/request id** for traceability. Kubernetes objects do-not carry the application name, so for example a pod name `windows-twryrqyw` may not carry any meaning when debugging logs. This helps with traceability and troubleshooting applications with your aggregated logs.
 
-    >How you generate these transaction/correlation id's depends on the programming construct. But a very common pattern is to use a logging Aspect/Interceptor, which can use [MDC](https://https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/MDC.html)(Mapped diagnostic context) to inject a unique transaction/correlation id to every incoming request, like so: 
+    > How you generate these transaction/correlation id's depends on the programming construct. But a very common pattern is to use a logging Aspect/Interceptor, which can use [MDC](https://https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/MDC.html)(Mapped diagnostic context) to inject a unique transaction/correlation id to every incoming request, like so: 
 
-```java   
-    import org.slf4j.MDC;
-    import java.util.UUID;
-    Class LoggingAspect { //interceptor
+    ```java   
+        import org.slf4j.MDC;
+        import java.util.UUID;
+        Class LoggingAspect { //interceptor
 
-        @Before(value = "execution(* *.*(..))")
-        func before(...) {
-            transactionId = generateTransactionId();
-            MDC.put(CORRELATION_ID, transactionId);
+            @Before(value = "execution(* *.*(..))")
+            func before(...) {
+                transactionId = generateTransactionId();
+                MDC.put(CORRELATION_ID, transactionId);
+            }
+
+            func generateTransactionId() {
+                return UUID.randomUUID().toString();
+            }
         }
-
-        func generateTransactionId() {
-            return UUID.randomUUID().toString();
-        }
-    }
-```    
+    ```    
 
