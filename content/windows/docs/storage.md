@@ -1,4 +1,4 @@
-# Persistent storage options[@momarcio]
+# Persistent storage options
 
 ## What is an in-tree vs. out-of-tree volume plugin?
 
@@ -94,7 +94,6 @@ kubectl apply -f persistent-volume-claim.yaml
 
 The following manifest creates a Windows Pod, setup the VolumeMount as `C:\Data` and uses the PVC as the attached storage on `C:\Data`. 
 
-
 ```yaml 
 apiVersion: apps/v1
 kind: Deployment
@@ -169,7 +168,6 @@ The **data directory** is provided by the EBS volume.
 Code associated with CSI plugins ship as out-of-tree scripts and binaries that are typically distributed as container images and deployed using standard Kubernetes constructs like DaemonSets and StatefulSets. CSI plugins handle a wide range of volume management actions in Kubernetes. CSI plugins typically consist of node plugins (that run on each node as a DaemonSet) and controller plugins.
 
 CSI node plugins (especially those associated with persistent volumes exposed as either block devices or over a shared file-system) need to perform various privileged operations like scanning of disk devices, mounting of file systems, etc. These operations differ for each host operating system. For Linux worker nodes, containerized CSI node plugins are typically deployed as privileged containers. For Windows worker nodes, privileged operations for containerized CSI node plugins is supported using [csi-proxy](https://github.com/kubernetes-csi/csi-proxy), a community-managed, stand-alone binary that needs to be pre-installed on each Windows node. **The Amazon EKS Optimized Windows AMI does not contain the CSI-Proxy executable by default.**
-
 
 ## Amazon FSx for Windows File Server
 An option is to use Amazon FSx for Windows File Server through a SMB feature called [SMB Global Mapping](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/persistent-storage) which makes it possible to mount a SMB share on the host, then pass directories on that share into a container. The container doesn't need to be configured with a specific server, share, username or password - that's all handled on the host instead. The container will work the same as if it had local storage.
