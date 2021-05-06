@@ -1,12 +1,11 @@
-# Monitoring [@smmallu]
+# Monitoring
 
 Prometheus, a [graduated CNCF project](https://www.cncf.io/projects/) is by far the most popular monitoring system with native integration into kubernetes. Prometheus collects metrics around containers, pods, nodes, and clusters. Additionally, Prometheus leverages AlertsManager which lets you program alerts to warn you if something in your cluster is going wrong. Prometheus stores the metric data as a time series data identified by metric name and key/value pairs. Prometheus includes away to query using a language called PromQL, which is short for Prometheus Query Language. 
 
 The high level architecture of prometheus metrics collection is shown below:
 
 
-![Prometheus Metrics collection](https://hackmd.io/_uploads/BJiIyB5U_.png)
-
+![Prometheus Metrics collection](./images/prom.png)
 
 
 Prometheus uses a pull mechanism and scrapes metrics from targets using exporters and from the kubernetes API using the [kube state metrics](https://github.com/kubernetes/kube-state-metrics).This means the applications and services must expose a HTTP(S) endpoint containing Prometheus formatted metrics. Prometheus will then, as per its configuration, periodically scrape metrics from these HTTP(S) endpoints.
@@ -26,18 +25,17 @@ The windows_exporter will expose all metrics from enabled collectors by default.
 
 The default install steps for windows include downloading and starting the exporter as a service during the bootstrapping process with arguments, such as the collectors you want to filter.
 
-```bash 
+```powershell 
 > Powershell Invoke-WebRequest https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-amd64.msi -OutFile <DOWNLOADPATH> 
 
 > msiexec /i <DOWNLOADPATH> ENABLED_COLLECTORS="cpu,cs,logical_disk,net,os,system,container,memory"
-
 ```
 
 
 By default, the metrics can be scraped at the /metrics endpoint on port 9182.
 At this point, prometheus can consume the metrics by adding the following scrape_config to the prometheus configuration 
 
-```bash 
+```yaml 
 scrape_configs:
     - job_name: "prometheus"
       static_configs: 
@@ -64,7 +62,7 @@ The ServiceMonitor, which declaratively specifies how groups of Kubernetes servi
 
 In order to leverage the ServiceMonitor, create an Endpoint object pointing to specific windows targets, a headless service and a ServiceMontor for the windows nodes
 
-```bash 
+```yaml
 apiVersion: v1
 kind: Endpoints
 metadata:
