@@ -1,4 +1,4 @@
-# Hardening the Windows worker node [@momarcio]
+# Hardening the Windows worker node
 
 Windows Server hardening involves identifying and remediating security vulnerabilities before they are exploited. 
 
@@ -80,7 +80,7 @@ https://inspector-agent.amazonaws.com/windows/installer/latest/AWSAgentInstall.e
 
 Below is the ouput after the first run. As you can see, it generated findings based on the [CVE](https://cve.mitre.org/) database. You can use this to harden your Worker nodes or create an AMI based on the hardened configurations.
 
-![](https://hackmd.io/_uploads/ByYoyikEd.png)
+![](./images/inspector-agent.png)
 
 For more information on how to use Amazon Inspector, watch the [Improving the security and compliance of Windows Workloads with Amazon Inspector](https://www.youtube.com/watch?v=nIcwiJ85EKU) video to learn how to install Amazon Inspector agents, set up the CIS Benchmark assessment, and generate reports.
 
@@ -92,4 +92,4 @@ By using Amazon GuardDuty you can have visilitiby on malicious actitivy against 
 Watch the [Threat Detection for Windows Workloads using Amazon GuardDuty](https://www.youtube.com/watch?v=ozEML585apQ) video to learn how to implement and run CIS Benchmarks on Optimized EKS Windows AMI
 
 ## Security in Amazon EC2
-Follow the [Security in Amazon EC2 best practices](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-security.html) security best practices to implement security boundaries on every layer
+Follow the [Security in Amazon EC2 best practices](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-security.html) security best practices to implement security controls an every layer.
