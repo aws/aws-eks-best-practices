@@ -1,4 +1,4 @@
-> # Configure gMSA for Windows Pods and containers [@momarcio]
+# Configure gMSA for Windows Pods and containers
 
 ## What is a gMSA account
 
@@ -21,7 +21,7 @@ The following steps will set up IIS for Windows Authentication:
 3. Disable `anonymousAuthentication` which is enabled by default
 4. Enable Windows Authentication
 
-```bash 
+```dockerfile
 RUN Install-WindowsFeature -Name Web-Windows-Auth -IncludeAllSubFeature
 RUN Import-Module WebAdministration; Set-ItemProperty 'IIS:\AppPools\SiteName' -name processModel.identityType -value 2
 RUN Import-Module WebAdministration; Set-WebConfigurationProperty -Filter '/system.webServer/security/authentication/anonymousAuthentication' -Name Enabled -Value False -PSPath 'IIS:\' -Location 'SiteName'
