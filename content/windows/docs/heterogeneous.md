@@ -1,4 +1,4 @@
-# Running Heterogeneous workloads [@smmallu]
+# Running Heterogeneous workloads
 
 Kubernetes has support for heterogeneous clusters where you a have mixture of Linux and Windows nodes in the same cluster. Within that cluster, you can have mixture of Pods that run on Linux and Pods that run on Windows. You can even run multiple versions of Windows in the same cluster. However, there are several factors that will need to be accounted for when making this decision.
 
