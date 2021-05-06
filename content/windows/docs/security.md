@@ -1,4 +1,4 @@
-# Pod Security Contexts [smmallu@]
+# Pod Security Contexts
 
 
 **Pod Security policies(PSP)** and **Pod Security Standards(PSS)** are two main ways of enforcing security in Kubernetes. Note that PodSecurityPolicy is deprecated as of Kubernetes v1.21, and will be removed in v1.25 and Pod Security Standard(PSS) is the Kubernetes recommended approach for enforcing security going forward.
@@ -19,8 +19,6 @@ Security context settings allow one to give privileges to select processes, use 
 Windows pods in Kubernetes have some limitations and differentiators from standard Linux-based workloads when it comes to security contexts. 
 
 Windows uses a Job object per container with a system namespace filter to contain all processes in a container and provide logical isolation from the host. There is no way to run a Windows container without the namespace filtering in place. This means that system privileges cannot be asserted in the context of the host, and thus privileged containers are not available on Windows. 
-
-
 
 The following windowsOptions are the only documented [Windows Security Context options](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#windowssecuritycontextoptions-v1-core) while the the rest are general [Security Context options](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core))
 
