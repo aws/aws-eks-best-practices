@@ -1,4 +1,4 @@
-# Amazon EKS optimized Windows AMI management [@momarcio]
+# Amazon EKS optimized Windows AMI management
 The Amazon EKS optimized AMI is built on top of Windows Server 2019, and is configured to serve as the base image for Amazon EKS Windows nodes. The AMI is configured to work with Amazon EKS out of the box, and it includes Docker, the kubelet, and the AWS IAM Authenticator. 
 
 You can programmatically retrieve the Amazon Machine Image (AMI) ID for Amazon EKS optimized AMIs by querying the AWS Systems Manager Parameter Store API. This parameter eliminates the need for you to manually look up Amazon EKS optimized AMI IDs. For more information about the Systems Manager Parameter Store API, see [GetParameter](https://docs.aws.amazon.com/systems-manager/latest/APIReference/API_GetParameter.html). Your user account must have the ssm:GetParameter IAM permission to retrieve the Amazon EKS optimized AMI metadata.
@@ -23,7 +23,7 @@ Using the same version across the Amazon EKS cluster reduces the time during tro
 
 Use Amazon EC2 Image Builder to select between Windows Server versions, AWS Windows Server AMI release dates and/or OS build version. The build components step, allows you to select between existing EKS Optimized Windows Artifacts as well as the kubelet versions. For more information: https://docs.aws.amazon.com/eks/latest/userguide/eks-custom-ami-windows.html
 
-![](https://hackmd.io/_uploads/Syora8ZMu.png)
+![](./images/build-components.png)
 
 ## Caching Windows base layers on custom AMIs ##
 As Windows container images are larger, ranging from 3.8Gb on disk for a Windows container image containing .NET framework based on Windows Server 2004 SAC to 7.5Gb on Windows Server 2019 LTSC, it is essential to implement a Windows base layer caching strategy while using Auto-Scaling through [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) in order to avoid delays during a pod launch on a new Windows node.
@@ -53,6 +53,6 @@ phases:
 
 To make sure the following component works as expected, check if the IAM role used by EC2 Image builder (EC2InstanceProfileForImageBuilder) has the attached policies:
 
-![](https://hackmd.io/_uploads/Bka47yBUO.png)
+![](./images/permissions-policies.png)
 
 
