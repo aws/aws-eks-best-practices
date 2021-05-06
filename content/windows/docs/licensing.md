@@ -1,4 +1,4 @@
-# Choosing a Windows Server Version and License [@momarcio]
+# Choosing a Windows Server Version and License
 
 There are two primary release channels available to Windows Server customers, the Long-Term Servicing Channel and the Semi-Annual Channel.
 
@@ -25,7 +25,6 @@ There are technical specifics reasons why Windows Server 2004 SAC and later shou
 
 **What is Direct Server Return?**
 DSR is an implementation of asymmetric network load distribution in load balanced systems, meaning that the request and response traffic use a different network path.
-
 
 **.NET Framework optimization.**
 The majority of apps are ASP.NET-based web apps. In Windows Server, version 2004, the Server Core container image no longer optimizes the .NET Framework for performance, which saves a lot of space. Instead, .NET Framework optimization (aka “NGEN”) is done in the higher-level .NET Framework runtime image. 
