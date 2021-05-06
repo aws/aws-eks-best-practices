@@ -1,11 +1,9 @@
-# Networking [@sdsteve]
+# Windows Networking
 
 ## Windows Container Networking Overview
 Windows containers use fundamentally different than Linux containers. Linux containers use Linux constructs like namespaces, the union file system, and cgroups. On Windows, those constructs are abstracted from Docker by the Host Compute Service (HCS). HCS acts as an API layer that sits above the container implementation on Windows. Windows containers also leverage the Host Network Service (HNS) that defines the network topology on a node. 
 
-![](https://hackmd.io/_uploads/Byrar3av_.png)
-
-
+![](./images/windows-networking.png)
 
 From a networking perspective, HCS and HNS make Windows containers function like virtual machines. For example, each container has a virtual network adapter (vNIC) that is connected to a Hyper-V virtual switch (vSwitch) as shown in the diagram above.
 
