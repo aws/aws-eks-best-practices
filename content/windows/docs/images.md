@@ -1,4 +1,4 @@
-# Container image scanning [@momarcio]
+# Container image scanning
 
 Image Scanning is an automated vulnerability assessment feature that helps improve the security of your application’s container images by scanning them for a broad range of operating system vulnerabilities.
 
@@ -12,4 +12,4 @@ To learn more about how to integrate these solutions with Amazon Elastic Contain
 
 * [Anchore, scanning images on Amazon Elastic Container Registry (ECR)](https://anchore.com/blog/scanning-images-on-amazon-elastic-container-registry/)
 * [PaloAlto, scanning images on Amazon Elastic Container Registry (ECR)](https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/vulnerability_management/registry_scanning0/scan_ecr.html)
-* [TrenMicro, scanning images on Amazon Elastic Container Registry (ECR)](https://deep-security.github.io/smartcheck-docs/admin_docs/admin.html)
+* [TrendMicro, scanning images on Amazon Elastic Container Registry (ECR)](https://deep-security.github.io/smartcheck-docs/admin_docs/admin.html)
