@@ -2,17 +2,15 @@
 
 ## What is a gMSA account
 
-> *The group Managed Service Account (gMSA) provides the same functionality within the domain but also extends that functionality over multiple servers. When connecting to a service hosted on a server farm, such as Network Load Balanced solution, the authentication protocols supporting mutual authentication require that all instances of the services use the same principal. When a gMSA is used as service principal, the Windows operating system manages the password for the account instead of relying on the administrator to manage the password.*
-> 
-> *The Microsoft Key Distribution Service (kdssvc.dll) provides the mechanism to securely obtain the latest key or a specific key with a key identifier for an Active Directory account. The Key Distribution Service shares a secret which is used to create keys for the account. These keys are periodically changed. For a gMSA the domain controller computes the password on the key provided by the Key Distribution Services, in addition to other attributes of the gMSA. Member hosts can obtain the current and preceding password values by contacting a domain controller.*
-> 
-> *Reference: https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview*
+Windows-based applications such as .NET applications often use Active Directory as an identity provider, providing authorization/authentication using NTLM or Kerberos protocol. 
+
+An application server to exchange Kerberos tickets with Active Directory requires to be domain-joined. Windows containers don’t support domain joins and would not make much sense as containers are ephemeral resources, creating a burden on the Active Directory RID pool.
+
+However, administrators can leverage [gMSA Active Directory](https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) accounts to negotiate a Windows authentication for resources such as Windows containers, NLB, and server farms.
 
 ## Windows container and gMSA use case
 
-Windows-based networks commonly use Active Directory (AD) for authentication and authorization. This applies to users, computers, and other network resources. In a Enterprise setting it is common for developers often design their applications to run on domain-joined servers to take advantage of Integrated Windows Authentication. Integrating with AD makes it easy for users and other services to automatically and transparently sign in to the application with their identities.
-
-ASP.NET applications that rely on Windows authentication, and run as Windows containers, benefit from gMSA because the Windows Node is used to exchange the Kerberos ticket on behalf of the container. However, the dockerfile used to build the Windows container image needs configure IIS and enable Windows authentication.
+ASP.NET applications that leverage on Windows authentication, and run as Windows containers, benefit from gMSA because the Windows Node is used to exchange the Kerberos ticket on behalf of the container. However, the dockerfile used to build the Windows container image needs configure IIS and enable Windows authentication.
 
 The following steps will set up IIS for Windows Authentication:
 
