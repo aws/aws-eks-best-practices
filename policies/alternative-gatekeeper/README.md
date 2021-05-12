@@ -21,6 +21,7 @@ We started by recreating the example [Restricted legacy PSP template](https://ku
 | Descrption | Legacy PSP Field | Constraint and Constraint Template Files |
 | --- | --- | --- |
 | Block running privileged containers | `privileged` | psp_privileged.yaml |
+| Block  the ability for Pods to escalate privleges via `setuid` or `setgid` binaries etc. | `allowPrivilegeEscalation` | psp_privilege_escalation.yaml |
 | Block the ability for the Pods to request any Linux capabilities (e.g. NET_ADMIN | `defaultAddCapabilities`, `requiredDropCapabilities`, `allowedCapabilities` | psp_capabilities.yaml |
 | Block the ability for Pods to run as the root user | `runAsUser`, `runAsGroup`, `supplementalGroups`, `fsgroup` | psp_users.yaml |
 | Block the ability for Pods to use the host's namespace(s) | `hostPID`, `hostIPC` | psp_host_namespaces.yaml |
@@ -35,6 +36,12 @@ Privileged mode comes from Docker where it "enables access to all devices on the
 One of the main reasons why people generally want privileged mode is that it allows things running within a container on the host to call the local container runtime/socket and launch more containers. This is an anti-pattern with Kubernetes - which should be launching all the Pods/containers on all of its hosts. This means that if you need one Pod to launch other containers/Pods it should do so via the Kubernetes API.
 
 There is a more granular way to allow access to specific privileges/capabilities using the capabilities policy. We block both privleged mode as well as all the capabilities by default in that seperate policy as well.
+
+### Block privilege escalation
+
+Linux has a feature allowing particular executables to run as a different user and/or group than the one running it - setuid/setgid. This is primarily used to escalate the privileges of the current user.
+
+This requires the PodSpec to explicitly disable that feature.
 
 ### Block the ability for the Pods to request any Linux capabilities
 
