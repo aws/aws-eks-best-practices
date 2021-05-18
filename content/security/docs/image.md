@@ -140,7 +140,9 @@ In a Kubernetes environment, you can use a dynamic admission controller to verif
     ECR intends to support image signing in the future.  The [issue](https://github.com/aws/containers-roadmap/issues/43) is being tracked on the container roadmap.
 
 ### Update the packages in your container images
-You should include RUN `apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security udpates.
+You should include RUN `apt-get update && apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security udpates.
+
+Run `apt-get clean` to minimize the size of the image. `clean` will empty the cached files in `/var/cache/apt/archives/`. You can also run `rm -rf /var/lib/apt/lists/*` after installing packages. Be aware that these commands may be different for each package manager. 
 
 ## Tools
 + [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
