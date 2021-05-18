@@ -27,6 +27,7 @@ spec:
         runAsGroup: 101
         capabilities:
           add: ["NET_ADMIN", "SYS_TIME"]
+        allowPrivilegeEscalation: false
       readinessProbe:
           httpGet:
             scheme: HTTP

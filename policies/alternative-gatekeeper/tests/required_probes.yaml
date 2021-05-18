@@ -28,3 +28,4 @@ spec:
         capabilities:
           drop:
             - ALL
+        allowPrivilegeEscalation: false

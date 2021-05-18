@@ -1,9 +1,10 @@
+# This is an example of a PodSpec that passes all our default checks
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-containers-resource-ratios-disallowed
+  name: nginx-allowed
   labels:
-    app: nginx-containers-resource-ratios-disallowed
+    app: nginx-allowed
 spec:
   securityContext:
     supplementalGroups:
@@ -12,6 +13,13 @@ spec:
   containers:
     - name: nginx
       image: nginxinc/nginx-unprivileged:1.19
+      resources:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 1
+          memory: 1Gi
       ports:
       - containerPort: 8080
         protocol: TCP
@@ -21,7 +29,7 @@ spec:
         capabilities:
           drop:
             - ALL
-        allowPrivilegeEscalation: false
+        allowPrivilegeEscalation: true
       readinessProbe:
           httpGet:
             scheme: HTTP
