@@ -142,7 +142,15 @@ In a Kubernetes environment, you can use a dynamic admission controller to verif
 ### Update the packages in your container images
 You should include RUN `apt-get update && apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security udpates.
 
-Run `apt-get clean` to delete the installer files from `/var/cache/apt/archives/`. You can also run `rm -rf /var/lib/apt/lists/*` after installing packages. This removes the index files or the lists of packages that are available to install. Be aware that these commands may be different for each package manager. 
+Run `apt-get clean` to delete the installer files from `/var/cache/apt/archives/`. You can also run `rm -rf /var/lib/apt/lists/*` after installing packages. This removes the index files or the lists of packages that are available to install. Be aware that these commands may be different for each package manager. For exaple: 
+
+```dockerfile
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    libsqlite3-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+```
 
 ## Tools
 + [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
