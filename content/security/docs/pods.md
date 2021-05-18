@@ -238,6 +238,16 @@ You can force the use of requests and limits by setting a [resource quota](https
 ### Do not allow privileged escalation
 Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this as are binaries with the SUID or SGID bit.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from using privileged escalation by implementing a pod security policy that sets `allowPriviledgedEscalation` to `false` or by setting `securityContext.allowPrivilegedEscalation` in the `podSpec`.
 
+### Configure your images with read-only root file system
+Configuring your images with a read-only root file system prevents an attacker from overwriting a binary on the file system that your application uses. If your application has to write to the file system, consider writing to a temporary directory or attach and mount a volume. You can enforce this by setting the a pod's SecurityContext as follows:
+
+```yaml
+...
+securityContext:
+  readOnlyRootFilesystem: true
+...
+```
+
 ## Pod Security Standards
 [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/) (PSSs) are part of the proposal to replace PSPs. They are an attempt to provide a set of standards for pod security that is independent of the enforcement mechanism. The standards define three policy types: 
 
