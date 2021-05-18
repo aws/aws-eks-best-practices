@@ -145,6 +145,7 @@ You should include RUN `apt-get upgrade` in your Dockerfiles to upgrade the pack
 ## Tools
 + [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
 + [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images
++ [dockle](https://github.com/goodwithtech/dockle) Verifies that your Dockerfile aligns with best practices for creating secure images
 + [dockerfile-lint](https://github.com/projectatomic/dockerfile_lint) Rule based linter for Dockerfiles
 + [hadolint](https://github.com/hadolint/hadolint) A smart dockerfile linter
 + [Gatekeeper and OPA](https://github.com/open-policy-agent/gatekeeper) A policy based admission controller
