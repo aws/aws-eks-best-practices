@@ -166,7 +166,7 @@ Some workloads are expensive to evict. Big data analysis, machine learning tasks
 
 Ensure that:
 
-* Expensive to evict pods have the label `cluster-autoscaler.kubernetes.io/safe-to-evict=false`
+* Expensive to evict pods have the annotation `cluster-autoscaler.kubernetes.io/safe-to-evict=false`
 
 ## Advanced Use Cases
 
