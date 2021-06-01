@@ -68,11 +68,13 @@ If you need to constrain the IP addresses the CNI caches then you can use these 
 - `WARM_IP_TARGET` -- Number of free IP addresses the CNI should keep available. Use this if your subnet is small and you want to reduce IP address usage. 
 - `MINIMUM_IP_TARGET` -- Number of minimum IP addresses the CNI should allocate at node startup. 
 
-To configure these options, you can download aws-k8s-cni.yaml compatible with your cluster and set environment variables. At the time of writing, the latest release is located [here](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.6/aws-k8s-cni.yaml).
+To configure these options, you can download aws-k8s-cni.yaml compatible with your cluster and set environment variables. At the time of writing, the latest release is located [here](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.7/aws-k8s-cni.yaml).
 
-!!! info Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. Doing so will ensure that as Pods get created, the CNI can assign IP addresses from the warm pool without calling the EC2 API. 
+!!! info
+    Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. Doing so will ensure that as Pods get created, the CNI can assign IP addresses from the warm pool without calling the EC2 API. 
 
-!!! warning Avoid setting the value of `WARM_IP_TARGET` too low as it will cause additional calls to the EC2 API, and that might cause throttling of the requests.
+!!! warning
+    Avoid setting the value of `WARM_IP_TARGET` too low as it will cause additional calls to the EC2 API, and that might cause throttling of the requests.
 
 ## CNI custom networking
 
@@ -82,7 +84,7 @@ Enabling a custom network removes an available elastic network interface (and al
 
 If you want the CNI to assign IP addresses for Pods from a different subnet, you can set `AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG` environment variable to `true`.
 
-```bash
+```shell
 kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
 ```
 
@@ -154,7 +156,9 @@ CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns
 
 For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
 
-`for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done`
+```shell
+for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done
+```
 
 ### Use NodeLocal DNSCache
 You can improve the Cluster DNS performance by running [NodeLocal DNSCache](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/). This feature runs a DNS caching agent on cluster nodes as a DaemonSet. All the pods use the DNS caching agent running on the node for name resolution instead of using `kube-dns` Service. 
