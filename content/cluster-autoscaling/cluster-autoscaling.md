@@ -246,6 +246,7 @@ This page contains a list of Cluster Autoscaler presentations and demos. If you'
 | Presentation/Demo | Presenters |
 | ------------ | ------- |
 | [Autoscaling and Cost Optimization on Kubernetes: From 0 to 100](https://sched.co/Zemi) | Guy Templeton, Skyscanner & Jiaxin Shan, Amazon |
+| [SIG-Autoscaling Deep Dive](https://youtu.be/odxPyW_rZNQ) | Maciek Pytel & Marcin Wielgus |
 
 ## References
 
@@ -253,5 +254,6 @@ This page contains a list of Cluster Autoscaler presentations and demos. If you'
 * https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md
 * https://github.com/aws/amazon-ec2-instance-selector
 * https://github.com/aws/aws-node-termination-handler
+
 
 
