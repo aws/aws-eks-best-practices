@@ -43,3 +43,5 @@ This guide is being released on GitHub so as to collect direct feedback and sugg
 
 ## Further Reading
 [Kubernetes Security Whitepaper](https://github.com/kubernetes/community/blob/master/sig-security/security-audit-2019/findings/Kubernetes%20White%20Paper.pdf), sponsored by the Security Audit Working Group, this Whitepaper describes key aspects of the Kubernetes attack surface and security architecture with the aim of helping security practitioners make sound design and implementation decisions.
+
+The CNCF published also a [white paper](https://github.com/cncf/tag-security/blob/main/security-whitepaper/CNCF_cloud-native-security-whitepaper-Nov2020.pdf) on cloud native security. The paper examines how the security landscape has evolved and recommends methodologies and practices that align with DevOps processes and agile methodologies.
