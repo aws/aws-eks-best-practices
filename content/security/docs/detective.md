@@ -1,8 +1,12 @@
 # Auditing and logging
-Collecting and analyzing \[audit\] logs is useful for a variety of different reasons.  Logs can help with root cause analysis and attribution, i.e. ascribing a change to a particular user. When enough logs have been collected, they can be used to detect anomalous behaviors too. On EKS, the audit logs are sent to Amazon Cloudwatch Logs. The audit policy for EKS currently augments the reference [policy](https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh#L983-L1108) in the helper script with the following policy: 
+Collecting and analyzing \[audit\] logs is useful for a variety of different reasons.  Logs can help with root cause analysis and attribution, i.e. ascribing a change to a particular user. When enough logs have been collected, they can be used to detect anomalous behaviors too. On EKS, the audit logs are sent to Amazon Cloudwatch Logs. The audit policy for EKS is as follows: 
 
 ```yaml
-- level: RequestResponse
+apiVersion: audit.k8s.io/v1beta1
+kind: Policy
+rules:
+  # Log aws-auth configmap changes
+  - level: RequestResponse
     namespaces: ["kube-system"]
     verbs: ["update", "patch", "delete"]
     resources:
@@ -11,8 +15,141 @@ Collecting and analyzing \[audit\] logs is useful for a variety of different rea
         resourceNames: ["aws-auth"]
     omitStages:
       - "RequestReceived"
-```
-This logs changes to the `aws-auth` ConfigMap which is used to grant access to an EKS cluster. 
+  - level: None
+    users: ["system:kube-proxy"]
+    verbs: ["watch"]
+    resources:
+      - group: "" # core
+        resources: ["endpoints", "services", "services/status"]
+  - level: None
+    users: ["kubelet"] # legacy kubelet identity
+    verbs: ["get"]
+    resources:
+      - group: "" # core
+        resources: ["nodes", "nodes/status"]
+  - level: None
+    userGroups: ["system:nodes"]
+    verbs: ["get"]
+    resources:
+      - group: "" # core
+        resources: ["nodes", "nodes/status"]
+  - level: None
+    users:
+      - system:kube-controller-manager
+      - system:kube-scheduler
+      - system:serviceaccount:kube-system:endpoint-controller
+    verbs: ["get", "update"]
+    namespaces: ["kube-system"]
+    resources:
+      - group: "" # core
+        resources: ["endpoints"]
+  - level: None
+    users: ["system:apiserver"]
+    verbs: ["get"]
+    resources:
+      - group: "" # core
+        resources: ["namespaces", "namespaces/status", "namespaces/finalize"]
+  - level: None
+    users:
+      - system:kube-controller-manager
+    verbs: ["get", "list"]
+    resources:
+      - group: "metrics.k8s.io"
+  - level: None
+    nonResourceURLs:
+      - /healthz*
+      - /version
+      - /swagger*
+  - level: None
+    resources:
+      - group: "" # core
+        resources: ["events"]
+  - level: Request
+    users: ["kubelet", "system:node-problem-detector", "system:serviceaccount:kube-system:node-problem-detector"]
+    verbs: ["update","patch"]
+    resources:
+      - group: "" # core
+        resources: ["nodes/status", "pods/status"]
+    omitStages:
+      - "RequestReceived"
+  - level: Request
+    userGroups: ["system:nodes"]
+    verbs: ["update","patch"]
+    resources:
+      - group: "" # core
+        resources: ["nodes/status", "pods/status"]
+    omitStages:
+      - "RequestReceived"
+  - level: Request
+    users: ["system:serviceaccount:kube-system:namespace-controller"]
+    verbs: ["deletecollection"]
+    omitStages:
+      - "RequestReceived"
+  # Secrets, ConfigMaps, and TokenReviews can contain sensitive & binary data,
+  # so only log at the Metadata level.
+  - level: Metadata
+    resources:
+      - group: "" # core
+        resources: ["secrets", "configmaps"]
+      - group: authentication.k8s.io
+        resources: ["tokenreviews"]
+    omitStages:
+      - "RequestReceived"
+  - level: Request
+    resources:
+      - group: ""
+        resources: ["serviceaccounts/token"]
+  - level: Request
+    verbs: ["get", "list", "watch"]
+    resources: 
+      - group: "" # core
+      - group: "admissionregistration.k8s.io"
+      - group: "apiextensions.k8s.io"
+      - group: "apiregistration.k8s.io"
+      - group: "apps"
+      - group: "authentication.k8s.io"
+      - group: "authorization.k8s.io"
+      - group: "autoscaling"
+      - group: "batch"
+      - group: "certificates.k8s.io"
+      - group: "extensions"
+      - group: "metrics.k8s.io"
+      - group: "networking.k8s.io"
+      - group: "policy"
+      - group: "rbac.authorization.k8s.io"
+      - group: "scheduling.k8s.io"
+      - group: "settings.k8s.io"
+      - group: "storage.k8s.io"
+    omitStages:
+      - "RequestReceived"
+  # Default level for known APIs
+  - level: RequestResponse
+    resources: 
+      - group: "" # core
+      - group: "admissionregistration.k8s.io"
+      - group: "apiextensions.k8s.io"
+      - group: "apiregistration.k8s.io"
+      - group: "apps"
+      - group: "authentication.k8s.io"
+      - group: "authorization.k8s.io"
+      - group: "autoscaling"
+      - group: "batch"
+      - group: "certificates.k8s.io"
+      - group: "extensions"
+      - group: "metrics.k8s.io"
+      - group: "networking.k8s.io"
+      - group: "policy"
+      - group: "rbac.authorization.k8s.io"
+      - group: "scheduling.k8s.io"
+      - group: "settings.k8s.io"
+      - group: "storage.k8s.io"
+    omitStages:
+      - "RequestReceived"
+  # Default level for all other requests.
+  - level: Metadata
+    omitStages:
+      - "RequestReceived"
+``` 
 
 ## Recommendations
 
