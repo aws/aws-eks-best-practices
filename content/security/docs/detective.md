@@ -221,7 +221,7 @@ fields @timestamp, @message
 | sort @timestamp desc
 | limit 100
 | filter objectRef.resource="secrets" and verb in ["get", "watch", "list"] and responseStatus.code="401"
-| count() by bin(1m)
+| stats count() by bin(1m)
 ```
 List of failed anonymous requests:
 ```
