@@ -77,6 +77,8 @@ When assigning K8s RBAC permissions to an IAM role using mapRoles in aws-auth Co
     - system:masters
 ```
 
+In Kubernetes 1.20 and above, this change is no longer required, since ```user.extra.sessionName.0``` was added to the Kubernetes audit log.
+
 ### Employ least privileged access when creating RoleBindings and ClusterRoleBindings
 Like the earlier point about granting access to AWS Resources, RoleBindings and ClusterRoleBindings should only include the set of permissions necessary to perform a specific function. Avoid using `["*"]` in your Roles and ClusterRoles unless it's absolutely necessary. If you're unsure what permissions to assign, consider using a tool like [audit2rbac](https://github.com/liggitt/audit2rbac) to automatically generate Roles and binding based on the observed API calls in the Kubernetes Audit Log.
 
