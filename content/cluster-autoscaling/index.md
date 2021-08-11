@@ -49,7 +49,7 @@ Ensure that:
 * Node Groups with many nodes are preferred over many Node Groups with fewer nodes. This will have the biggest impact on scalability.
 * Wherever possible, prefer EC2 features when both systems provide support (e.g. Regions, MixedInstancePolicy)
 
-*Note: If possible, we recommend using [EKS Managed Node Groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html). Managed Node Groups come with powerful management features, including features for Cluster Autoscaler like automatic EC2 Auto Scaling Group discovery and graceful node termination.*
+*Note: WRee recommend using [EKS Managed Node Groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html). Managed Node Groups come with powerful management features, including features for Cluster Autoscaler like automatic EC2 Auto Scaling Group discovery and graceful node termination.*
 
 ## Optimizing for Performance and Scalability
 
