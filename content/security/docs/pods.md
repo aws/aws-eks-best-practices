@@ -209,7 +209,7 @@ allowedHostPaths:
     readOnly: true # only allow read-only mounts
 ```
 
-For futher information about the dangers of privileged escalation, read Seth Art's blog [Bad Pods: Kubernetes Pod Privilege Escalation](https://labs.bishopfox.com/tech-blog/bad-pods-kubernetes-pod-privilege-escalation).
+For further information about the dangers of privileged escalation, read Seth Art's blog [Bad Pods: Kubernetes Pod Privilege Escalation](https://labs.bishopfox.com/tech-blog/bad-pods-kubernetes-pod-privilege-escalation).
 
 ### Set requests and limits for each container to avoid resource contention and DoS attacks
 A pod without requests or limits can theoretically consume all of the resources available on a host.  As additional pods are scheduled onto a node, the node may experience CPU or memory pressure which can cause the Kubelet to terminate or evict pods from the node.  While you can’t prevent this from happening all together, setting requests and limits will help minimize resource contention and mitigate the risk from poorly written applications that consume an excessive amount of resources. 
@@ -229,7 +229,7 @@ Kubernetes uses three Quality of Service (QoS) classes to prioritize the workloa
 | :-- | :-- | :-- | :-- |
 | Guaranteed | highest | limit = request != 0  | Only exceed memory limits |
 | Burstable  | medium  | limit != request != 0 | Can be killed if exceed request memory |
-| Best-Effort| lowest  | limit & request Not Set | First to get killed when there's insufficient menory |
+| Best-Effort| lowest  | limit & request Not Set | First to get killed when there's insufficient memory |
 
 For additional information about resource QoS, please refer to the [Kubernetes documentation](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md).
 
@@ -238,8 +238,73 @@ You can force the use of requests and limits by setting a [resource quota](https
 ### Do not allow privileged escalation
 Privileged escalation allows a process to change the security context under which its running.  Sudo is a good example of this as are binaries with the SUID or SGID bit.  Privileged escalation is basically a way for users to execute a file with the permissions of another user or group.  You can prevent a container from using privileged escalation by implementing a pod security policy that sets `allowPriviledgedEscalation` to `false` or by setting `securityContext.allowPrivilegedEscalation` in the `podSpec`.
 
+### Disable ServiceAccount token mounts
+
+For pods that do not need to access the Kubernetes API, you can disable the
+automatic mounting of a ServiceAccount token on a pod spec, or for all pods that
+use a particular ServiceAccount.
+
+!!! attention
+    Disabling ServiceAccount mounting does not prevent a pod from having network
+    access to the Kubernetes API. To prevent a pod from having any network
+    access to the Kubernetes API, you will need to modify the [EKS cluster
+    endpoint access][eks-ep-access] and use
+    [NetworkPolicy](../network/#network-policy) to block pod access
+
+[eks-ep-access]: https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-no-automount
+spec:
+  automountServiceAccountToken: false
+```
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-no-automount
+automountServiceAccountToken: false
+```
+
+### Disable service discovery
+
+For pods that do not need to lookup or call in cluster services, you can
+reduce the amount of information given to a pod. You can set the Pod's DNS
+policy to not use CoreDNS, and not expose services in the pod's namespace as
+environment variables. See the [Kubernetes docs on environment
+variables][k8s-env-var-docs] for more information on service links. The default
+value for a pod's DNS policy is "ClusterFirst" which uses in-cluster DNS, while
+the non-default value "Default" uses the underlying node's DNS resolution. See
+the [Kubernetes docs on Pod DNS policy][dns-policy] for more information.
+
+[k8s-env-var-docs]: https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables
+[dns-policy]: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
+
+!!! attention
+    Disabling service links and changing the pod's DNS policy does not prevent a
+    pod from having network access to the in-cluster DNS service. An attacker
+    can still enumerate services in a cluster by reaching the in-cluster DNS
+    service. (ex: `dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent
+    in-cluster service discovery, use [NetworkPolicy](../network/#network-policy)
+    to block pod access
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-no-service-info
+spec:
+    dnsPolicy: Default # "Default" is not the true default value
+    enableServiceLinks: false
+```
+
+
 ### Configure your images with read-only root file system
-Configuring your images with a read-only root file system prevents an attacker from overwriting a binary on the file system that your application uses. If your application has to write to the file system, consider writing to a temporary directory or attach and mount a volume. You can enforce this by setting the a pod's SecurityContext as follows:
+Configuring your images with a read-only root file system prevents an attacker from overwriting a binary on the file system that your application uses. If your application has to write to the file system, consider writing to a temporary directory or attach and mount a volume. You can enforce this by setting the pod's SecurityContext as follows:
 
 ```yaml
 ...
@@ -257,7 +322,7 @@ securityContext:
 
 ## Tools and Resources
 + [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor) is a tool that makes it easier to create K8s Pod Security Policies (PSPs) from either a live K8s environment or from a single .yaml file containing a pod specification (Deployment, DaemonSet, Pod, etc).
-+ [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitue for PSPs.
++ [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitute for PSPs.
 + A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
 + [Policy based countermeasures: part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
 + [Policy based countermeasures: part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
