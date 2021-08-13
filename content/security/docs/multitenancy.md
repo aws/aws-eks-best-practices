@@ -24,7 +24,7 @@ None of these controls, however, prevent pods from different tenants from sharin
   + **Account Limits** to ensure quality of service and fairness when sharing a cluster
   + **Namespace Templates** for secure tenant isolation and self-service namespace initialization
   
-[Loft](https://loft.sh) is a commerical offering from the maintainers of Kiosk and [DevSpace](https://github.com/devspace-cloud/devspace) that adds the following capabilities: 
+[Loft](https://loft.sh) is a commercial offering from the maintainers of Kiosk and [DevSpace](https://github.com/devspace-cloud/devspace) that adds the following capabilities:
 
   + **Mutli-cluster access** for granting access to spaces in different clusters 
   + **Sleep mode** scales down deployments in a space during periods of inactivity
@@ -36,13 +36,13 @@ There are three primary use cases that can be addressed by soft multi-tenancy.
 
 The first is in an Enterprise setting where the "tenants" are semi-trusted in that they are employees, contractors, or are otherwise authorized by the organization. Each tenant will typically align to an administrative division such as a department or team. 
 
-In this type of setting, a cluster administrator will usually be responsible for creating namespaces and managing policies. They may also implement a delegated adminstration model where certain individuals are given oversight of a namespace, allowing them to perform CRUD operations for non-policy related objects like deployments, services, pods, jobs, etc. 
+In this type of setting, a cluster administrator will usually be responsible for creating namespaces and managing policies. They may also implement a delegated administration model where certain individuals are given oversight of a namespace, allowing them to perform CRUD operations for non-policy related objects like deployments, services, pods, jobs, etc.
 
 The isolation provided by Docker may be acceptable within this setting or it may need to be augmented with additional controls such as Pod Security Policies (PSPs). It may also be necessary to restrict communication between services in different namespaces if stricter isolation is required.
 
 ### Kubernetes as a Service
 
-By constrast, soft multi-tenancy can be used in settings where you want to offer Kubernetes as a service (KaaS). With KaaS, your application is hosted in a shared cluster along with a collection of controllers and CRDs that provide a set of PaaS services.  Tenants interact directly with the Kubernetes API server and are permitted to perform CRUD operations on non-policy objects. There is also an element of self-service in that tenants may be allowed to create and manage their own namespaces. In this type of environment, tenants are assumed to be running untrusted code.
+By contrast, soft multi-tenancy can be used in settings where you want to offer Kubernetes as a service (KaaS). With KaaS, your application is hosted in a shared cluster along with a collection of controllers and CRDs that provide a set of PaaS services.  Tenants interact directly with the Kubernetes API server and are permitted to perform CRUD operations on non-policy objects. There is also an element of self-service in that tenants may be allowed to create and manage their own namespaces. In this type of environment, tenants are assumed to be running untrusted code.
 
 To isolate tenants in this type of environment, you will likely need to implement strict network policies as well as _pod sandboxing_. Sandboxing is where you run the containers of a pod inside a micro VM like Firecracker or in a user-space kernel.  Today, you can create sandboxed pods with EKS Fargate.
 
@@ -121,11 +121,11 @@ You can use Kyverno to isolate namespaces, enforce pod security and other best p
 + [k-rail](https://github.com/cruise-automation/k-rail) Designed to help you secure a multi-tenant environment through the enforcement of certain policies. 
 
 ## Hard multi-tenancy
-Hard multi-tenancy can be implemented by provisioning separate clusters for each tenant.  While this provides very strong isolation between tenants, it has several drawbacks.  
+Hard multi-tenancy can be implemented by provisioning separate clusters for each tenant.  While this provides very strong isolation between tenants, it has several drawbacks.
 
 First, when you have many tenants, this approach can quickly become expensive. Not only will you have to pay for the control plane costs for each cluster, you will not be able to share compute resources between clusters.  This will eventually cause fragmentation where a subset of your clusters are underutilized while others are overutilized. 
 
-Second, you will likely need to buy or build special tooling to manage all of these clusters.  In time, managing hundreds or thousands of clusters may simply become too unweildy.  
+Second, you will likely need to buy or build special tooling to manage all of these clusters.  In time, managing hundreds or thousands of clusters may simply become too unwieldy.
 
 Finally, creating a cluster per tenant will be slow relative to a creating a namespace. Nevertheless, a hard-tenancy approach may be necessary in highly-regulated industries or in SaaS environments where strong isolation is required. 
 
