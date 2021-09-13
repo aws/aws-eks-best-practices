@@ -2,7 +2,6 @@ apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
   name: k8spspcapabilities
-  namespace: kube-system
   annotations:
     description: Controls Linux capabilities.
 spec:
@@ -13,6 +12,7 @@ spec:
       validation:
         # Schema for the `parameters` field
         openAPIV3Schema:
+          type: object
           properties:
             allowedCapabilities:
               type: array

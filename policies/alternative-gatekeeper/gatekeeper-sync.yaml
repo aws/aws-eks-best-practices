@@ -1,0 +1,27 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: gatekeeper
+  namespace: flux-system
+spec:
+  interval: 1h0m0s
+  timeout: 1m0s
+  url: https://open-policy-agent.github.io/gatekeeper/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: gatekeeper
+  namespace: flux-system
+spec:
+  chart:
+    spec:
+      chart: gatekeeper
+      sourceRef:
+        kind: HelmRepository
+        name: gatekeeper
+      version: 3.6.0-beta.3
+  install: {}
+  interval: 1m0s
+  targetNamespace: kube-system

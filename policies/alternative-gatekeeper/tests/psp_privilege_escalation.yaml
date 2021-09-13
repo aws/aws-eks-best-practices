@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-allowed
+  name: nginx-privilege-escalation
   labels:
-    app: nginx-allowed
+    app: nginx-privilege-escalation
 spec:
   securityContext:
     supplementalGroups:
