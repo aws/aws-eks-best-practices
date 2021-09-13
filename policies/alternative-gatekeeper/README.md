@@ -133,7 +133,7 @@ It is best practice to always specify a specific version/tag when deploying to y
 
 ## What is an example PodSpec that passes with all the default policies?
 
-There is an example in `gatekeeper-tests/allowed.yaml` as follows. If you find that something isn't working add the relevent section from this example.
+There is an example in `tests/allowed.yaml` as follows. If you find that something isn't working add the relevent section from this example.
 
 **NOTE:** The user and group need to be created within the container and the app needs relevant permissions in order to run as that user and group you specify. In the case of our nginx example they created a 2nd image and [Dockerfile](https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/Dockerfile-debian.template) to do this and had to give up some things like being able to do HTTP on port 80 with the container running as a non-root user. The 101 we are specifying for the UID and GID we got from the Dockerfile and it will vary from container to container - we just need it to not be root's UID/GID of 0.
 
