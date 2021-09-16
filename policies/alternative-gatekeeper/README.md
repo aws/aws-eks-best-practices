@@ -3,12 +3,30 @@
 This is an exmaple set of Gatekeeper Policies that draws from the official [Gatekeeper Library](https://github.com/open-policy-agent/gatekeeper-library) as well as the fields which Kubernetes saw fit to include in its original [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/).
 
 ## How to deploy?
-This can be deployed to a machine that already has Gatekeeper installed via a `kubectl apply --recursive -f policies` or via GitOps tools, such as Flux or ArgoCD, configured to deploy all the YAML manifests in that folder.
+This can be deployed to a machine that already has Gatekeeper installed via a `kubectl apply -k policies/constraint-templates/ && kubectl apply -k policies/constraints/` or via GitOps tools, such as Flux or ArgoCD, configured to deploy all the YAML manifests in that folder.
+
+There are the required manifests in this repository (`gatekeeper-sync.yaml` and `policies-sync.yaml`) to deploy this with Flux v2. 
+
+### (Optional) Deploy Open Policy Agent (OPA) Gatekeeper and the policies via Flux v2
+
+In order to deploy Gatekeeper and the example policies:
+1. Ensure you are on a system where `kubectl` is installed and working against the cluster
+1. [Install the Flux v2 CLI](https://fluxcd.io/docs/installation/#install-the-flux-cli)
+1. Run `flux install` to install Flux onto the cluster
+1. Change directory into the root of quickstart-eks-cdk-python
+1. Run `kubectl apply -f gatekeeper-sync.yaml` to install the Gatekeeper Helm Chart w/Flux (as well as enable future GitOps if the main branch of the repo is updated)
+1. Run `flux get all` to see the progress of getting and installing the Gatekeeper Helm Chart
+1. Run `flux create source git gatekeeper --url=https://github.com/aws/aws-eks-best-practices --branch=main` to add this repo to Flux as a source
+    1. Alternatively, and perhaps advisably, specify the URL of your git repo you've forked/cloned the projet to instead - as it will trigger GitOps actios going forward when this changes!
+1. Run `kubectl apply -f policies/policies-sync.yaml` to install the policies with Flux (as well as enable future GitOps if the main branch of the repo is updated)
+1. Run `flux get all` to see all of the Flux items and their reconciliation statuses
+
+If you want to change any of the Gatekeeper Constraints or ConstraitTemplates you just change the YAML and then push/merge it to the repo and branch you indicated above and Flux will them deploy those changes to your cluster via GitOps.
 
 If you are going to do this with GitOps it is suggested that you fork these templates and constraints and do it from your own git repo(s).
 
 ## How to test it works?
-There is an example that will be blocked by each policy in the `gatekeeper-tests` folder. These policies are derivied from the `allowed.yaml` template, which passes all of the policies, changed to violate just the policy in question. 
+There is an example that will be blocked by each policy in the `tests` folder. These policies are derivied from the `allowed.yaml` template, which passes all of the policies, changed to violate *just* the policy in question. 
 
 ## What policies are we enforcing by default in our Quickstart?
 

@@ -1,0 +1,39 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: gatekeeper-constraint-templates
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./policies/alternative-gatekeeper/policies/constraint-templates
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: gatekeeper
+  validation: client
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v1beta1
+      kind: HelmRelease
+      name: gatekeeper
+      namespace: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: gatekeeper-constraints
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./policies/alternative-gatekeeper/policies/constraints
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: gatekeeper
+  validation: client
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v1beta1
+      kind: HelmRelease
+      name: gatekeeper
+      namespace: flux-system
+  dependsOn:
+    - name: gatekeeper-constraint-templates

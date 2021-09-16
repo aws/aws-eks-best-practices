@@ -2,7 +2,6 @@ apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
   name: k8spsphostnamespace
-  namespace: kube-system
   annotations:
     description: Controls usage of host namespaces.
 spec:

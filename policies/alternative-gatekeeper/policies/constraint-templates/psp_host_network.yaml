@@ -2,7 +2,6 @@ apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
   name: k8spsphostnetworkingports
-  namespace: kube-system
   annotations:
     description: Controls usage of host networking and ports.
 spec:
@@ -13,6 +12,7 @@ spec:
       validation:
         # Schema for the `parameters` field
         openAPIV3Schema:
+          type: object
           properties:
             hostNetwork:
               type: boolean

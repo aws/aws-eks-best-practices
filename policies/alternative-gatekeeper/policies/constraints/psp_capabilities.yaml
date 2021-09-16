@@ -4,11 +4,10 @@ metadata:
   name: capabilities
   namespace: kube-system
 spec:
-spec:
   match:
     kinds:
       - apiGroups: [""]
         kinds: ["Pod"]
-    excludedNamespaces: ["kube-system"]
+    excludedNamespaces: ["kube-system","flux-system"]
   parameters:
     requiredDropCapabilities: ["ALL"]

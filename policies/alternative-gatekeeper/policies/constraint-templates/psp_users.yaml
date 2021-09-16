@@ -2,7 +2,6 @@ apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
   name: k8spspallowedusers
-  namespace: kube-system
   annotations:
     description: Controls the user and group IDs of the container.
 spec:
@@ -12,6 +11,7 @@ spec:
         kind: K8sPSPAllowedUsers
       validation:
         openAPIV3Schema:
+          type: object
           properties:
             runAsUser:
               type: object

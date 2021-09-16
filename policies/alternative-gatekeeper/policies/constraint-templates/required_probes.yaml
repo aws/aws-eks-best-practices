@@ -2,7 +2,6 @@ apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
   name: k8srequiredprobes
-  namespace: kube-system
   annotations:
     description: Requires Pods to have readiness and/or liveness probes.
 spec:
@@ -12,6 +11,7 @@ spec:
         kind: K8sRequiredProbes
       validation:
         openAPIV3Schema:
+          type: object
           properties:
             probes:
               type: array
