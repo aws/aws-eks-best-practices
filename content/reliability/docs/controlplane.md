@@ -159,7 +159,7 @@ New Kubernetes versions introduce significant changes, and you cannot downgrade 
 - Consider turning on [control plane logging](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html) and review the logs for any errors. 
 - Consider using `eksctl` to manage EKS cluster. You can use `eksctl` to [update the control plane, add-ons, and worker nodes](https://eksctl.io/usage/cluster-upgrade/). 
 - EKS control plane upgrade doesn’t include upgrading worker nodes. You are responsible for updating EKS worker nodes. Consider using [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) or [EKS on Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html) to automate the process of upgrading worker nodes. 
-- If required, you can use `kubectl convert` to [convert Kubernetes manifests files between different API versions](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#convert).
+- If required, you can use [`kubectl convert`](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin) plugin to [convert Kubernetes manifests files between different API versions](https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/).
 
 ## Running large clusters
 
