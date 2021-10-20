@@ -157,7 +157,7 @@ You may need to increase the system resource reservation if you run custom daemo
 
 `eksctl` offers the easiest way to customize [resource reservation for system and Kubernetes daemons](https://eksctl.io/usage/customizing-the-kubelet/). 
 
-## Implement QoS
+### Implement QoS
 
 For critical applications, consider defining `requests`=`limits` for the container in the Pod. This will ensure that the container will not be killed if another Pod requests resources.
 
