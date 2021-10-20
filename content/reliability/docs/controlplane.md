@@ -142,7 +142,7 @@ users:
 ```
 
 ## Handling Cluster Upgrades
-Kubernetes follows a quarterly release cycle; a new minor version (like 1.**16** or 1.**17**) is released approximately every three months. Each minor version is supported for approximately nine months after it is first released. Kubernetes supports compatibility between the control plane and worker nodes for at least two minor versions.
+Since April 2021, Kubernetes release cycle has been changed from four releases a year (once a quarter) to three releases a year. A new minor version (like 1.**21** or 1.**22**) is released approximately [every fifteen weeks](https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when). Starting with Kubernetes 1.19, each minor version is supported for approximately twelve months after it's first released.. Kubernetes supports compatibility between the control plane and worker nodes for at least two minor versions.
 
 In line with the Kubernetes community support for Kubernetes versions, EKS provides at least three production-ready versions of Kubernetes at any given time, with a fourth version in deprecation.
 
