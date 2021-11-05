@@ -400,9 +400,9 @@ subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: Group
   name: system:authenticated
-- *apiGroup**: rbac.authorization.k8s.io
+- apiGroup: rbac.authorization.k8s.io
   kind: Group
-  name: system:unauthenticated*
+  name: system:unauthenticated
 ```
 Delete the entry for system:unauthenticated group from the “subjects” section in the above editor screen. 
 
