@@ -323,5 +323,90 @@ In Kubernetes 1.19 and above, this change is no longer required.
 ### Grant least privileged access to applications
 [Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function properly.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you gradually limit the scope of IAM roles assigned to applications. Consult the documentation on granting [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources for further information.
 
+### Review and revoke unnecessary anonymous access
+
+Ideally anonymous access should be disabled for all API actions. Anonymous access is granted by creating a RoleBinding or ClusterRoleBinding for the Kubernetes built-in user system:anonymous. You can use the [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) tool to identify permissions that system:anonymous user has on your cluster:
+```
+./rbac-lookup | grep -P 'system:(anonymous)|(unauthenticated)'
+system:anonymous               cluster-wide        ClusterRole/system:discovery
+system:unauthenticated         cluster-wide        ClusterRole/system:discovery
+system:unauthenticated         cluster-wide        ClusterRole/system:public-info-viewer
+```
+
+Any role or ClusterRole other than system:public-info-viewer should not be bound to system:anonymous user or system:unauthenticated group.
+
+There may be some legitimate reasons to enable anonymous access on specific APIs. If this is the case for your cluster ensure that only those specific APIs are accessible by anonymous user and exposing those APIs without authentication doesn’t make your cluster vulnerable. 
+
+Prior to Kubernetes/EKS Version 1.14, system:unauthenticated group was associated to system:discovery and system:basic-user ClusterRoles by default.  Note that even if you have updated your cluster to version 1.14 or higher, these permissions may still be enabled on your cluster, since cluster updates do not revoke these permissions. To check if system:unauthenticated group has system:discovery permissions on your cluster run the following command: 
+```
+kubectl describe clusterrolebindings system:discovery
+
+Name:         system:discovery
+Labels:       kubernetes.io/bootstrapping=rbac-defaults
+Annotations:  rbac.authorization.kubernetes.io/autoupdate: true
+Role:
+  Kind:  ClusterRole
+  Name:  system:discovery
+Subjects:
+  Kind   Name                    Namespace
+  ----   ----                    ---------
+  Group  system:authenticated
+  Group  system:unauthenticated
+```
+
+To check if system:unauthenticated group has system:basic-user permission on your cluster run the following command:
+```
+kubectl describe clusterrolebindings system:basic-user
+
+Name:         system:basic-user
+Labels:       kubernetes.io/bootstrapping=rbac-defaults
+Annotations:  rbac.authorization.kubernetes.io/autoupdate: true
+Role:
+  Kind:  ClusterRole
+  Name:  system:basic-user
+Subjects:
+  Kind   Name                    Namespace
+  ----   ----                    ---------
+  Group  system:authenticated
+  Group  system:unauthenticated
+```
+If system:unauthenticated group is bound to system:discovery and/or system:basic-user ClusterRoles on your cluster, you should disassociate these roles from system:unauthenticated group. Edit system:discovery ClusterRoleBinding using the following command:
+```
+kubectl edit clusterrolebindings system:discovery
+```
+The above command will open the current definition of system:discovery ClusterRoleBinding in an editor as shown below:
+```
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  creationTimestamp: "2021-06-17T20:50:49Z"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: system:discovery
+  resourceVersion: "24502985"
+  selfLink: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/system%3Adiscovery
+  uid: b7936268-5043-431a-a0e1-171a423abeb6
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:discovery
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:authenticated
+- *apiGroup**: rbac.authorization.k8s.io
+  kind: Group
+  name: system:unauthenticated*
+```
+Delete the entry for system:unauthenticated group from the “subjects” section in the above editor screen. 
+
+Repeat the same steps for system:basic-user ClusterRoleBinding.
+
 ### Alternative approaches
 While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html). If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA. 
