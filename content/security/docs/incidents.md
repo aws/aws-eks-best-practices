@@ -5,6 +5,34 @@ Your ability to react quickly to an incident can help minimize damage caused fro
 
 ### Identify the offending Pod and worker node
 Your first course of action should be to isolate the damage.  Start by identifying where the breach occurred and isolate that Pod and its node from the rest of the infrastructure.
+
+### Identify the offending Pods and worker nodes using workload name
+
+If you know the name and namespace of the offending pod, you can identify the the worker node running the pod as follows:
+```
+kubectl get pods <name> --namespace <namespace> -o=jsonpath='{.spec.nodeName}{"\n"}'   
+```
+If a Workload Resource (https://kubernetes.io/docs/concepts/workloads/controllers/) such as a Deployment has been compromised, it is likely that all the pods that are part of the workload resource are compromised. Use the following command to list all the pods of the Workload Resource and the nodes they are running on:
+```
+selector=$(kubectl get deployments <name> \
+ --namespace <namespace> -o json | jq -j \
+'.spec.selector.matchLabels | to_entries | .[] | "\(.key)=\(.value)"')
+
+kubectl get pods --namespace <namespace> --selector=$selector \
+-o json | jq -r '.items[] | "\(.metadata.name) \(.spec.nodeName)"'
+```
+The above command is for deployments. You can run the same command for other workload resources such as replicasets,, statefulsets, etc. 
+
+### Identify the offending Pods and worker nodes using service account name
+
+In some cases, you may identify that a service account is compromised.  It is likely that pods using the identified service account are compromised. You can identify all the pods using the service account and nodes they are running on with the following command:
+```
+kubectl get pods -o json --namespace <namespace> | \
+    jq -r '.items[] |
+    select(.spec.serviceAccount == "<service account name>") |
+    "\(.metadata.name) \(.spec.nodeName)"'
+```
+
 ### Isolate the Pod by creating a Network Policy that denies all ingress and egress traffic to the pod
 A deny all traffic rule may help stop an attack that is already underway by severing all connections to the pod. The following Network Policy will apply to a pod with the label `app=web`. 
 ```yaml
@@ -52,6 +80,14 @@ This will serve as a warning to cluster administrators not to tamper with the af
     + `docker container diff CONTAINER` to capture changes to files and directories to container's  filesystem since its initial launch.   
 + **Pause the container for forensic capture**.
 + **Snapshot the instance's EBS volumes**.
+
+### Redeploy compromised Pod or Workload Resource
+
+Once you have gathered data for forensic analysis, you can redeploy the compromised pod or workload resource.
+
+First roll out the fix for the vulnerability that was compromised and start new replacement pods. Then delete the vulnerable pods. 
+
+If the vulnerable pods are managed by a higher-level Kubernetes workload resource (for example, a Deployment or DaemonSet), deleting them will schedule new ones. So vulnerable pods will be launched again. In that case you should deploy a new replacement workload resource after fixing the vulnerability. Then you should delete the vulnerable workload.
 
 ## Recommendations
 
