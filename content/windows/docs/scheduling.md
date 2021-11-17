@@ -62,7 +62,7 @@ It is possible to check the OS build version through the following command:
 kubectl get pods -o wide
 ```
 
-The KERNEL-VERSION output matchs the Windows OS build version.
+The KERNEL-VERSION output matches the Windows OS build version.
 
 ```bash 
 NAME                           STATUS   ROLES    AGE   VERSION              INTERNAL-IP    EXTERNAL-IP     OS-IMAGE                         KERNEL-VERSION                  CONTAINER-RUNTIME
