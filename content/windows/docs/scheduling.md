@@ -54,6 +54,7 @@ This label reflects the Windows major, minor, and build number that need to matc
 | Server core 2019 LTSC    | 10.0.17763    |
 | Server core 1809 SAC   | 10.0.17763    |
 | Server core 2004 SAC     | 10.0.19041    |
+| Server core 20H2 SAC | 10.0.19042 |
 
 It is possible to check the OS build version through the following command:
 
