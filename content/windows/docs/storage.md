@@ -98,25 +98,25 @@ The following manifest creates a Windows Pod, setup the VolumeMount as `C:\Data`
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: windows-server-sac2004
+  name: windows-server-ltsc2019
   namespace: windows
 spec:
   selector:
     matchLabels:
-      app: windows-server-sac2004
+      app: windows-server-ltsc2019
       tier: backend
       track: stable
   replicas: 1
   template:
     metadata:
       labels:
-        app: windows-server-sac2004
+        app: windows-server-ltsc2019
         tier: backend
         track: stable
     spec:
       containers:
-      - name: windows-server-sac2004
-        image: mcr.microsoft.com/windows/servercore:2004
+      - name: windows-server-ltsc2019
+        image: mcr.microsoft.com/windows/servercore:ltsc2019
         ports:
         - name: http
           containerPort: 80
@@ -130,7 +130,7 @@ spec:
             claimName: ebs-windows-pv-claim
       nodeSelector:
         kubernetes.io/os: windows
-        node.kubernetes.io/windows-build: '10.0.19041'
+        node.kubernetes.io/windows-build: '10.0.17763'
 ```
 
 Test the results by accessing the Windows pod via PowerShell:
