@@ -6,7 +6,7 @@ You can keep servers on the Long-Term Servicing Channel (LTSC), move them to the
 
 ## Long-Term Servicing Channel (LTSC)
 
-This is the release model you're already familiar with (formerly called the “Long-Term Servicing Branch”) where a new major version of Windows Server is released every 2-3 years. Users are entitled to 5 years of mainstream support and 5 years of extended support. This channel is appropriate for systems that require a longer servicing option and functional stability. Deployments of Windows Server 2019 and earlier versions of Windows Server will not be affected by the new Semi-Annual Channel releases. The Long-Term Servicing Channel will continue to receive security and non-security updates, but it will not receive the new features and functionality.
+Formerly called the “Long-Term Servicing Branch”, this is the release model you are already familiar with where a new major version of Windows Server is released every 2-3 years. Users are entitled to 5 years of mainstream support and 5 years of extended support. This channel is appropriate for systems that require a longer servicing option and functional stability. Deployments of Windows Server 2019 and earlier versions of Windows Server will not be affected by the new Semi-Annual Channel releases. The Long-Term Servicing Channel will continue to receive security and non-security updates, only receiving select new features and functionality.
 
 ## Semi-Annual Channel (SAC)
 
