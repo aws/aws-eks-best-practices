@@ -18,7 +18,7 @@ Following the [Amazon EKS Self-managed Windows nodes](https://docs.aws.amazon.co
 If eksctl is the deployment tool, check the following documentation to customize the kubelet configuration https://eksctl.io/usage/customizing-the-kubelet/
 
 ## Windows container memory requirements
-As per [Microsoft documentation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/system-requirements), a Windows Server base image for NANO requires at least 30MB, whereas Server Core requires 45MB. However, these numbers grows up as you add Windows components such as the .NET Framework, Web Services as IIS and applications.
+As per [Microsoft documentation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/system-requirements), a Windows Server base image for NANO requires at least 30MB, whereas Server Core requires 45MB. These numbers grow as you add Windows components such as the .NET Framework, Web Services as IIS and applications.
 
 It is essential for you to know the minimum amount of memory required by your Windows container image, i.e. the base image plus its application layers, and set it as the container's resources/requests in the pod specification. You should also set a limit to avoid pods to consume all the available node memory in case of an application issue.
 
