@@ -2,13 +2,13 @@
 
 There are two primary release channels available to Windows Server customers, the Long-Term Servicing Channel and the Semi-Annual Channel.
 
-You can keep servers on the Long-Term Servicing Channel (LTSC), move them to the Semi-Annual Channel, or have some servers on either track, depending on what works best for your needs.
+You can keep servers on the Long-Term Servicing Channel (LTSC), move them to the Semi-Annual Channel (SAC), or have some servers on either track, depending on what works best for your needs.
 
 ## Long-Term Servicing Channel (LTSC)
 
 This is the release model you're already familiar with (formerly called the “Long-Term Servicing Branch”) where a new major version of Windows Server is released every 2-3 years. Users are entitled to 5 years of mainstream support and 5 years of extended support. This channel is appropriate for systems that require a longer servicing option and functional stability. Deployments of Windows Server 2019 and earlier versions of Windows Server will not be affected by the new Semi-Annual Channel releases. The Long-Term Servicing Channel will continue to receive security and non-security updates, but it will not receive the new features and functionality.
 
-## Semi-Annual Channel
+## Semi-Annual Channel (SAC)
 
 The Semi-Annual Channel is perfect for customers who are innovating quickly to take advantage of new operating system capabilities at a faster pace, focused in on containers and microservices. Windows Server products in the Semi-Annual Channel will have new releases available twice a year, in spring and fall. Each release in this channel will be supported for 18 months from the initial release.
 
