@@ -14,13 +14,13 @@ Windows Server products in the Semi-Annual Channel have new releases available t
 
 Most of the features introduced in the Semi-Annual Channel will be rolled up into the next Long-Term Servicing Channel release of Windows Server. The editions, functionality, and supporting content might vary from release to release depending on customer feedback. In this model, Windows Server releases are identified by the year and month or half of release: for example, in 2020, the release in the 4th month (April) is identified as version 2004. This naming changed with the last SAC release which is identified as 20H2.
 
-## Should you keep servers on the LTSC or move them to the Semi-Annual Channel?
+## Which channel should I use?
 
-Microsoft recommends the version Semi-Annual Channel (SAC) for containers workload since it release news features at a faster pace. At AWS we recommend SAC versions for production environments, specifically Windows Server 2004 SAC and later.
+Microsoft is moving to the LTSC as the primary release channel. The two current SAC builds will be supported until the end of their 18-month lifecycles ending 2021-12-14 for version 2004 and 2022-05-10 for version 20H2.
 
-There are technical specifics reasons why Windows Server 2004 SAC and later should be used:
+Important features optimized for Container workloads which originated in the SAC have been incorporated into the LTSC build:
 
-* Direct Server Return (DSR) support.
+* Direct Server Return (DSR) support. (available in the LTSC August 2020 Cumulative Update)
 * .NET Framework optimization.
 
 **What is Direct Server Return?**
