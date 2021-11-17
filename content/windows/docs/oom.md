@@ -38,5 +38,5 @@ In the example below, when the Kubernetes scheduler tries to place a pod on a no
 ```
 ## Conclusion
 
-Using this approach minimizes the risks of memory exhaustion but does not prevent it happen. Using Amazon CloudWatch Metrics, you can set up alerts and remediations in case of memory exhaustion occur.
+Using this approach minimizes the risks of memory exhaustion but does not prevent it happen. Using Amazon CloudWatch Metrics, you can set up alerts and remediations in case of memory exhaustion occurs.
 
