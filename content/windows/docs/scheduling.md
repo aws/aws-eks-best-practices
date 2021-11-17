@@ -52,7 +52,6 @@ This label reflects the Windows major, minor, and build number that need to matc
 | Product Name | Build Number(s) |
 | -------- | -------- |
 | Server core 2019 LTSC    | 10.0.17763    |
-| Server core 1809 SAC   | 10.0.17763    |
 | Server core 2004 SAC     | 10.0.19041    |
 | Server core 20H2 SAC | 10.0.19042 |
 
