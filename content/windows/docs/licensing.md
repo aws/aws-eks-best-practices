@@ -26,13 +26,6 @@ Important features optimized for Container workloads which originated in the SAC
 **What is Direct Server Return?**
 DSR is an implementation of asymmetric network load distribution in load balanced systems, meaning that the request and response traffic use a different network path.
 
-**.NET Framework optimization.**
-The majority of apps are ASP.NET-based web apps. In Windows Server, version 2004, the Server Core container image no longer optimizes the .NET Framework for performance, which saves a lot of space. Instead, .NET Framework optimization (aka “NGEN”) is done in the higher-level .NET Framework runtime image. 
-
-.NET Framework NGEN optimization in containers is now more targeted to ASP.NET applications and Windows PowerShell scripts. In addition, the change to optimizing assemblies in the .NET Framework Runtime image (and not the Server Core base image) led to technical benefits that also resulted on a smaller reduce container size. 
-
-For instance, a Windows Server core 2004 with .NET Framework has **3.98GB** on disk compared with **8.06GB** on Windows Server 2019 LTSC.
-
 ## Licensing
 
 At Amazon Web Services (AWS), the EKS Optimized AMIs for Windows are based on the Datacenter version, which doesn't have a limitation on the numbers of containers running on a worker node. For more information: https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/faq
