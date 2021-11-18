@@ -184,7 +184,7 @@ metadata:
 spec:
   containers:
   - name: test-fsx
-    image: mcr.microsoft.com/windows/servercore:1809
+    image: mcr.microsoft.com/windows/servercore:ltsc2019
     command:
       - powershell.exe
       - -command
