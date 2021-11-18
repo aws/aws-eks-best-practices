@@ -20,8 +20,7 @@ Microsoft is moving to the LTSC as the primary release channel. The two current 
 
 Important features optimized for Container workloads which originated in the SAC have been incorporated into the LTSC build:
 
-* Direct Server Return (DSR) support. (available in the LTSC August 2020 Cumulative Update)
-* .NET Framework optimization.
+* Direct Server Return (DSR) support. (available in the LTSC [August 2020 Cumulative Update](https://support.microsoft.com/en-us/topic/august-20-2020-kb4571748-os-build-17763-1432-preview-fa1db909-8923-e70f-9aef-ba09edaee6f0))
 
 **What is Direct Server Return?**
 DSR is an implementation of asymmetric network load distribution in load balanced systems, meaning that the request and response traffic use a different network path.
