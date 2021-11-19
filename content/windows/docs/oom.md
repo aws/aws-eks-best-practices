@@ -9,7 +9,7 @@ However, you can combine these flags to manage **NodeAllocatable** to reduce Cap
 
 On Windows nodes, a best practice is to reserve at least 2GB of memory for the OS and process. Use `--kubelet-reserve` and/or `--system-reserve` to reduce NodeAllocatable.
 
-Following the [Amazon EKS Self-managed Windows nodes](https://docs.aws.amazon.com/eks/latest/userguide/launch-windows-workers.html) documentation, use the CloudFormation template to launch a new Windows node group with customizations to kubelet configuration. The CloudFormation has a element called `BootstrapArguments` which is the same as `KubeletExtraArgs`. Use with the following flags and values:
+Following the [Amazon EKS Self-managed Windows nodes](https://docs.aws.amazon.com/eks/latest/userguide/launch-windows-workers.html) documentation, use the CloudFormation template to launch a new Windows node group with customizations to kubelet configuration. The CloudFormation has an element called `BootstrapArguments` which is the same as `KubeletExtraArgs`. Use with the following flags and values:
 
 ```bash 
 --kube-reserved memory=0.5Gi,ephemeral-storage=1Gi --system-reserved memory=1.5Gi,ephemeral-storage=1Gi --eviction-hard memory.available<200Mi,nodefs.available<10%"
@@ -18,7 +18,7 @@ Following the [Amazon EKS Self-managed Windows nodes](https://docs.aws.amazon.co
 If eksctl is the deployment tool, check the following documentation to customize the kubelet configuration https://eksctl.io/usage/customizing-the-kubelet/
 
 ## Windows container memory requirements
-As per [Microsoft documentation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/system-requirements), a Windows Server base image for NANO requires at least 30MB, whereas Server Core requires 45MB. However, these numbers grows up as you add Windows components such as the .NET Framework, Web Services as IIS and applications.
+As per [Microsoft documentation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/system-requirements), a Windows Server base image for NANO requires at least 30MB, whereas Server Core requires 45MB. These numbers grow as you add Windows components such as the .NET Framework, Web Services as IIS and applications.
 
 It is essential for you to know the minimum amount of memory required by your Windows container image, i.e. the base image plus its application layers, and set it as the container's resources/requests in the pod specification. You should also set a limit to avoid pods to consume all the available node memory in case of an application issue.
 
@@ -38,5 +38,5 @@ In the example below, when the Kubernetes scheduler tries to place a pod on a no
 ```
 ## Conclusion
 
-Using this approach minimizes the risks of memory exhaustion but does not prevent it happen. Using Amazon CloudWatch Metrics, you can set up alerts and remediations in case of memory exhaustion occur.
+Using this approach minimizes the risks of memory exhaustion but does not prevent it happen. Using Amazon CloudWatch Metrics, you can set up alerts and remediations in case of memory exhaustion occurs.
 

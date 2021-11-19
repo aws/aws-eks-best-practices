@@ -9,7 +9,7 @@ Out-of-tree volume plugins are developed independently of the Kubernetes code ba
 You can check more about Amazon Elastic Kubernetes Services (EKS) storage classes and CSI Drivers on https://docs.aws.amazon.com/eks/latest/userguide/storage.html
 
 ## In-tree Volume Plugin for Windows 
-Kubernetes volumes enable applications, with data persistence requirements, to be deployed on Kubernetes. The management of persistent volumes consists of provisioning/de-provisioning/resizing of volumes, attaching/detaching a volume to/from a Kubernetes node, and mounting/dismounting a volume to/from individual containers in a pod. The code for implementing these volume management actions for a specific storage back-end or protocol is shipped in the form of a Kubernetes volume plugin **(In-tree Volume Plugins)**. On Amazon Elastic Kubernete Services (EKS) the following class of Kubernetes volume plugins are supported on Windows:
+Kubernetes volumes enable applications, with data persistence requirements, to be deployed on Kubernetes. The management of persistent volumes consists of provisioning/de-provisioning/resizing of volumes, attaching/detaching a volume to/from a Kubernetes node, and mounting/dismounting a volume to/from individual containers in a pod. The code for implementing these volume management actions for a specific storage back-end or protocol is shipped in the form of a Kubernetes volume plugin **(In-tree Volume Plugins)**. On Amazon Elastic Kubernetes Services (EKS) the following class of Kubernetes volume plugins are supported on Windows:
 
 *In-tree Volume Plugin:* [awsElasticBlockStore](https://kubernetes.io/docs/concepts/storage/volumes/#awselasticblockstore)
 
@@ -98,25 +98,25 @@ The following manifest creates a Windows Pod, setup the VolumeMount as `C:\Data`
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: windows-server-sac2004
+  name: windows-server-ltsc2019
   namespace: windows
 spec:
   selector:
     matchLabels:
-      app: windows-server-sac2004
+      app: windows-server-ltsc2019
       tier: backend
       track: stable
   replicas: 1
   template:
     metadata:
       labels:
-        app: windows-server-sac2004
+        app: windows-server-ltsc2019
         tier: backend
         track: stable
     spec:
       containers:
-      - name: windows-server-sac2004
-        image: mcr.microsoft.com/windows/servercore:2004
+      - name: windows-server-ltsc2019
+        image: mcr.microsoft.com/windows/servercore:ltsc2019
         ports:
         - name: http
           containerPort: 80
@@ -130,7 +130,7 @@ spec:
             claimName: ebs-windows-pv-claim
       nodeSelector:
         kubernetes.io/os: windows
-        node.kubernetes.io/windows-build: '10.0.19041'
+        node.kubernetes.io/windows-build: '10.0.17763'
 ```
 
 Test the results by accessing the Windows pod via PowerShell:
@@ -170,7 +170,7 @@ Code associated with CSI plugins ship as out-of-tree scripts and binaries that a
 CSI node plugins (especially those associated with persistent volumes exposed as either block devices or over a shared file-system) need to perform various privileged operations like scanning of disk devices, mounting of file systems, etc. These operations differ for each host operating system. For Linux worker nodes, containerized CSI node plugins are typically deployed as privileged containers. For Windows worker nodes, privileged operations for containerized CSI node plugins is supported using [csi-proxy](https://github.com/kubernetes-csi/csi-proxy), a community-managed, stand-alone binary that needs to be pre-installed on each Windows node. **The Amazon EKS Optimized Windows AMI does not contain the CSI-Proxy executable by default.**
 
 ## Amazon FSx for Windows File Server
-An option is to use Amazon FSx for Windows File Server through a SMB feature called [SMB Global Mapping](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/persistent-storage) which makes it possible to mount a SMB share on the host, then pass directories on that share into a container. The container doesn't need to be configured with a specific server, share, username or password - that's all handled on the host instead. The container will work the same as if it had local storage.
+An option is to use Amazon FSx for Windows File Server through an SMB feature called [SMB Global Mapping](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/persistent-storage) which makes it possible to mount a SMB share on the host, then pass directories on that share into a container. The container doesn't need to be configured with a specific server, share, username or password - that's all handled on the host instead. The container will work the same as if it had local storage.
 
 > The SMB Global Mapping is transparent to the orchestrator, and it is mounted through HostPath which can **imply in secure concerns**.
 
@@ -184,7 +184,7 @@ metadata:
 spec:
   containers:
   - name: test-fsx
-    image: mcr.microsoft.com/windows/servercore:1809
+    image: mcr.microsoft.com/windows/servercore:ltsc2019
     command:
       - powershell.exe
       - -command

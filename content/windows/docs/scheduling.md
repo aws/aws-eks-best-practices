@@ -52,8 +52,8 @@ This label reflects the Windows major, minor, and build number that need to matc
 | Product Name | Build Number(s) |
 | -------- | -------- |
 | Server core 2019 LTSC    | 10.0.17763    |
-| Server core 1809 SAC   | 10.0.17763    |
 | Server core 2004 SAC     | 10.0.19041    |
+| Server core 20H2 SAC | 10.0.19042 |
 
 It is possible to check the OS build version through the following command:
 
@@ -61,7 +61,7 @@ It is possible to check the OS build version through the following command:
 kubectl get pods -o wide
 ```
 
-The KERNEL-VERSION output matchs the Windows OS build version.
+The KERNEL-VERSION output matches the Windows OS build version.
 
 ```bash 
 NAME                           STATUS   ROLES    AGE   VERSION              INTERNAL-IP    EXTERNAL-IP     OS-IMAGE                         KERNEL-VERSION                  CONTAINER-RUNTIME
@@ -70,7 +70,7 @@ ip-172-31-44-38.ec2.internal   Ready    <none>   42d   v1.18.9-eks-d1db3c   172.
 ip-172-31-5-245.ec2.internal   Ready    <none>   31d   v1.18.9-eks-d1db3c   172.31.5.245   3.236.151.236   Windows Server Datacenter        10.0.19041.685                  docker://19.3.14
 ```
 
-The example bellow applies an additional nodeSelector to the pod manifest in order to match the correctly Windows-build version when running different Windows node groups OS version.
+The example below applies an additional nodeSelector to the pod manifest in order to match the correct Windows-build version when running different Windows node groups OS versions.
 
 ```yaml
 nodeSelector:
