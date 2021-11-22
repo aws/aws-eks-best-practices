@@ -3,7 +3,7 @@ The Amazon EKS optimized AMI is built on top of Windows Server 2019, and is conf
 
 You can programmatically retrieve the Amazon Machine Image (AMI) ID for Amazon EKS optimized AMIs by querying the AWS Systems Manager Parameter Store API. This parameter eliminates the need for you to manually look up Amazon EKS optimized AMI IDs. For more information about the Systems Manager Parameter Store API, see [GetParameter](https://docs.aws.amazon.com/systems-manager/latest/APIReference/API_GetParameter.html). Your user account must have the ssm:GetParameter IAM permission to retrieve the Amazon EKS optimized AMI metadata.
 
-The following example retrieves the AMI ID for the latest Amazon EKS optimized AMI for Windows Server 2004 SAC Core.
+The following example retrieves the AMI ID for the latest Amazon EKS optimized AMI for Windows Server 2019 LTSC Core.
 
 ```bash    
 aws ssm get-parameter --name /aws/service/ami-windows-latest/Windows_Server-2019-English-Core-EKS_Optimized-1.21/image_id --region us-east-1 --query "Parameter.Value" --output text
@@ -26,7 +26,7 @@ Use Amazon EC2 Image Builder to select between Windows Server versions, AWS Wind
 ![](./images/build-components.png)
 
 ## Caching Windows base layers on custom AMIs ##
-Windows container images are larger than their Linux counterparts.  A base image of Windows Server Core 2019 LTSC is 5.74GB on disk.  If you are running the full suite of .NET Framework 4.8 on the same base image, the size grows to 8.24GB.  It is essential to implement a Windows base layer caching strategy while using Auto-Scaling through [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) in order to avoid delays during a pod launch on a new Windows node.
+Windows container images are larger than their Linux counterparts.  A base image of Windows Server 2019 LTSC Core is 5.74GB on disk.  If you are running the full suite of .NET Framework 4.8 on the same base image, the size grows to 8.24GB.  It is essential to implement a Windows base layer caching strategy while using Auto-Scaling through [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) in order to avoid delays during a pod launch on a new Windows node.
 
 Pulling the image from the repository isn't an expensive operation for the OS; however, the **extraction** operation may take minutes depending on the size and number of layers an image contains.
 
