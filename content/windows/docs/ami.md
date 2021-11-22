@@ -6,13 +6,13 @@ You can programmatically retrieve the Amazon Machine Image (AMI) ID for Amazon E
 The following example retrieves the AMI ID for the latest Amazon EKS optimized AMI for Windows Server 2004 SAC Core.
 
 ```bash    
-aws ssm get-parameter --name /aws/service/ami-windows-latest/Windows_Server-2004-English-Core-EKS_Optimized-1.19/image_id --region us-east-1 --query "Parameter.Value" --output text
+aws ssm get-parameter --name /aws/service/ami-windows-latest/Windows_Server-2019-English-Core-EKS_Optimized-1.21/image_id --region us-east-1 --query "Parameter.Value" --output text
 ```
 
 Example output:
 
 ```
-ami-0238afdbabf1a606a
+ami-09770b3eec4552d4e
 ```
 
 ## Managing your own Amazon EKS optimized Windows AMI
@@ -26,7 +26,7 @@ Use Amazon EC2 Image Builder to select between Windows Server versions, AWS Wind
 ![](./images/build-components.png)
 
 ## Caching Windows base layers on custom AMIs ##
-As Windows container images are larger, ranging from 3.8Gb on disk for a Windows container image containing .NET framework based on Windows Server 2004 SAC to 7.5Gb on Windows Server 2019 LTSC, it is essential to implement a Windows base layer caching strategy while using Auto-Scaling through [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) in order to avoid delays during a pod launch on a new Windows node.
+Windows container images are larger than their Linux counterparts.  A base image of Windows Server Core 2019 LTSC is 5.74GB on disk.  If you are running the full suite of .NET Framework 4.8 on the same base image, the size grows to 8.24GB.  It is essential to implement a Windows base layer caching strategy while using Auto-Scaling through [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) in order to avoid delays during a pod launch on a new Windows node.
 
 Pulling the image from the repository isn't an expensive operation for the OS; however, the **extraction** operation may take minutes depending on the size and number of layers an image contains.
 
@@ -48,7 +48,7 @@ phases:
           commands:
             - Set-ExecutionPolicy Unrestricted -Force
             - (Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin 111000111000.dkr.ecr.us-east-1.amazonaws.com
-            - docker pull 111000111000.dkr.ecr.us-east-1.amazonaws.com/fluentd-windows-sac2004
+            - docker pull 111000111000.dkr.ecr.us-east-1.amazonaws.com/fluentd-windows-servercore-ltsc2019
 ```
 
 To make sure the following component works as expected, check if the IAM role used by EC2 Image builder (EC2InstanceProfileForImageBuilder) has the attached policies:
