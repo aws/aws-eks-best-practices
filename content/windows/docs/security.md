@@ -1,18 +1,16 @@
 # Pod Security Contexts
 
 
-**Pod Security policies(PSP)** and **Pod Security Standards(PSS)** are two main ways of enforcing security in Kubernetes. Note that PodSecurityPolicy is deprecated as of Kubernetes v1.21, and will be removed in v1.25 and Pod Security Standard(PSS) is the Kubernetes recommended approach for enforcing security going forward.
+**Pod Security Policies (PSP)** and **Pod Security Standards (PSS)** are two main ways of enforcing security in Kubernetes. Note that PodSecurityPolicy is deprecated as of Kubernetes v1.21, and will be removed in v1.25 and Pod Security Standard (PSS) is the Kubernetes recommended approach for enforcing security going forward.
 
-A Pod Security Policy(PSP) is a native solution in Kubernetes to implement security policies. PSP is a cluster-level resource that controls security-sensitive aspects of the Pod specification. Using Pod Security Policy you can define a set of conditions that Pods must meet to be accepted by the cluster.
+A Pod Security Policy (PSP) is a native solution in Kubernetes to implement security policies. PSP is a cluster-level resource that controls security-sensitive aspects of the Pod specification. Using Pod Security Policy you can define a set of conditions that Pods must meet to be accepted by the cluster.
 The PSP feature has been available from the early days of Kubernetes and is designed to block misconfigured pods from being created on a given cluster. 
 
-For more information on pod security policies please refer the kubernetes [documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/). According to the [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/), older versions will stop getting support nine months after the deprecation of the feature.
+For more information on Pod Security Policies please reference the Kubernetes [documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/). According to the [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/), older versions will stop getting support nine months after the deprecation of the feature.
 
-On the other hand, Pod Security Standards(PSS) which is the recommended security approach and typically implemented using Security Contexts are defined as part of the Pod and container specifications in the Pod manifest.
-PSS is the official standard that the Kubernetes project team has defined to address the security-related best practices for Pods. It defines policies such as baseline(minimally restrictive, default), privileged(unrestrictive) and restricted(most restrictive). 
+On the other hand, Pod Security Standards (PSS) which is the recommended security approach and typically implemented using Security Contexts are defined as part of the Pod and container specifications in the Pod manifest. PSS is the official standard that the Kubernetes project team has defined to address the security-related best practices for Pods. It defines policies such as baseline (minimally restrictive, default), privileged (unrestrictive) and restricted (most restrictive). 
 
-We recommend starting with the baseline policy. PSS baseline policy provides a solid balance between security and potential friction, requiring a minimal list of exceptions, it serves as a good starting point for workload security. If you are currently using PSP's we recomend switching to PSS.
-More details on the PSS policies can be found in the kubernetes [documentation.](https://kubernetes.io/docs/concepts/security/pod-security-standards/) These policies can be enforced with any tool that supports validation of Rego/OPA checks.
+We recommend starting with the baseline policy. PSS baseline policy provides a solid balance between security and potential friction, requiring a minimal list of exceptions, it serves as a good starting point for workload security. If you are currently using PSP's we recomend switching to PSS. More details on the PSS policies can be found in the Kubernetes [documentation](https://kubernetes.io/docs/concepts/security/pod-security-standards/). These policies can be enforced with any tool that supports validation of Rego/OPA checks.
 
 Security context settings allow one to give privileges to select processes, use program profiles to restrict capabilities to individual programs, allow privilege escalation, filter system calls, among other things.
 
@@ -20,7 +18,7 @@ Windows pods in Kubernetes have some limitations and differentiators from standa
 
 Windows uses a Job object per container with a system namespace filter to contain all processes in a container and provide logical isolation from the host. There is no way to run a Windows container without the namespace filtering in place. This means that system privileges cannot be asserted in the context of the host, and thus privileged containers are not available on Windows. 
 
-The following windowsOptions are the only documented [Windows Security Context options](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#windowssecuritycontextoptions-v1-core) while the the rest are general [Security Context options](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core))
+The following `windowsOptions` are the only documented [Windows Security Context options](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#windowssecuritycontextoptions-v1-core) while the rest are general [Security Context options](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core))
 
 For a list of security context attributes that are supported in Windwos vs linux, please refer to the official documentation [here](https://kubernetes.io/docs/setup/production-environment/windows/_print/#v1-container).
 
@@ -44,7 +42,7 @@ spec:
     kubernetes.io/os: windows
 ```
 
-whereas, in the following the container level security context overrides the pod level security context.
+Whereas in the following, the container level security context overrides the pod level security context.
 
 ```yaml
 apiVersion: v1
@@ -67,9 +65,9 @@ spec:
 
 Examples of acceptable values for the runAsUserName field: ContainerAdministrator, ContainerUser, NT AUTHORITY\NETWORK SERVICE, NT AUTHORITY\LOCAL SERVICE
 
-It is generally a good idea to run your containers with ContainerUser for windows pods. The users are not shared between the Container and host but the ContainerAdministrator does have additional privileges with in the container. Note that, there are  username [limitations](https://kubernetes.io/docs/tasks/configure-pod-container/configure-runasusername/#windows-username-limitations) to be aware of.
+It is generally a good idea to run your containers with ContainerUser for Windows pods. The users are not shared between the container and host but the ContainerAdministrator does have additional privileges with in the container. Note that, there are username [limitations](https://kubernetes.io/docs/tasks/configure-pod-container/configure-runasusername/#windows-username-limitations) to be aware of.
 
-A good example of when to use ContainerAdministrator is to set path. You can use the USER directive to do that, like so:
+A good example of when to use ContainerAdministrator is to set PATH. You can use the USER directive to do that, like so:
 
 ```bash
 USER ContainerAdministrator
