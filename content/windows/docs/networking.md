@@ -43,6 +43,7 @@ nodeGroups:
 In order to utilize DSR in Windows Server 2019 and above, you will need to specify the following [**kube-proxy**](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/) flags during instance startup:
 
 ```powershell
+<powershell>
   [string]$EKSBinDir = “$env:ProgramFiles\Amazon\EKS”
   [string]$EKSBootstrapScriptName = ‘Start-EKSBootstrap.ps1’
   [string]$EKSBootstrapScriptFile = “$EKSBinDir\$EKSBootstrapScriptName”
@@ -52,7 +53,8 @@ In order to utilize DSR in Windows Server 2019 and above, you will need to speci
   & $cfn_signal --exit-code=$LastError `
     --stack=“${AWS::StackName}” `
     --resource=“NodeGroup” `
-    --region=${AWS::Region} 
+    --region=${AWS::Region}
+</powershell>
 ```
 
 DSR enablement can be verified following the instructions in the [Microsoft Networking blog](https://techcommunity.microsoft.com/t5/networking-blog/direct-server-return-dsr-in-a-nutshell/ba-p/693710).
