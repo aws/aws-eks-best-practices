@@ -28,7 +28,7 @@ Another key consideration is the flow of network traffic. With Windows there is 
 
 To address this issue, we leverage Direct Server Return (DSR). DSR is an implementation of asymmetric network load distribution. In other words, the request and response traffic use different network paths. This feature speeds up communication between pods and reduces the risk of port exhaustion. We therefore recommend enabling DSR on Windows nodes. 
 
-DSR is enabled by default in Windows Server 2019 LTSC AMIs and [newer releases](licensing.md). You can use the latest Windows Server 2019 LTSC AMI by specifying WindowsServer2019CoreContainer as the amiFamily in the `eksctl` nodeGroup. See [eksctl custom AMI](https://eksctl.io/usage/custom-ami-support/) for additional information. 
+ DSR is enabled by default in Windows Server SAC EKS Optimized AMIs. For Windows Server 2019 LTSC EKS Optimized AMIs, you will need to enable it during instance provisioning using the script below and by specifying WindowsServer2019CoreContainer as the amiFamily in the `eksctl` nodeGroup. See [eksctl custom AMI](https://eksctl.io/usage/custom-ami-support/) for additional information. 
 
 ```yaml
 nodeGroups:
