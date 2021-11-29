@@ -10,7 +10,7 @@ This guide focus specifically on Windows nodes running on Amazon Elastic Kuberne
 
 Windows Server Core is a minimal installation option that is available as part of the [EKS Optimized Windows AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-windows-ami.html). Deploying Windows Server Core has a couple benefits. First, it has a relatively small disk footprint being 6GB on Server Core against 10GB on Windows Server with Desktop experience. Second, it has smaller attack surface because of its smaller code base.
 
-You can specify the Server Core EKS Optimized AMI for Windows during when you deploy your nodes through `eksctl` or Cloudformation.
+You can specify the Server Core EKS Optimized AMI for Windows when you deploy your nodes through `eksctl` or Cloudformation.
 
 The example below is an eksctl manifest for a Windows node group based on Windows Server Core 2004:
 
@@ -20,7 +20,7 @@ nodeGroups:
   instanceType: c5.xlarge
   minSize: 1
   volumeSize: 50
-  amiFamily: WindowsServer2004CoreContainer
+  amiFamily: WindowsServer2019CoreContainer
   ssh:
     allow: false
 ```
@@ -41,14 +41,14 @@ nodeGroups:
   instanceType: c5.xlarge
   minSize: 1
   volumeSize: 50
-  amiFamily: WindowsServer2004CoreContainer
+  amiFamily: WindowsServer2019CoreContainer
   ssh:
     allow: false
 ```
 
-If access to the Windows node is needed, use [AWS System Manager Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) to establish a secure PowerShell session through AWS Console or SSM agent. To see how to implement the solution watch [Securely Access Windows Instances Using AWS Systems Manager Session Manager](https://www.youtube.com/watch?v=nt6NTWQ-h6o)
+If access to the Windows node is needed, use [AWS System Manager Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) to establish a secure PowerShell session through the AWS Console and SSM agent. To see how to implement the solution watch [Securely Access Windows Instances Using AWS Systems Manager Session Manager](https://www.youtube.com/watch?v=nt6NTWQ-h6o)
 
-In order to use System Manager Session Manager an additional IAM policy must be applied to the Windows nodes. Below is an example where the **AmazonSSMManagedInstanceCore** is specified in the eksctl cluster manifest:
+In order to use System Manager Session Manager an additional IAM policy must be applied to the Windows nodes. Below is an example where the **AmazonSSMManagedInstanceCore** is specified in the `eksctl` cluster manifest:
 
 ```yaml 
  nodeGroups:
@@ -56,7 +56,7 @@ In order to use System Manager Session Manager an additional IAM policy must be 
   instanceType: c5.xlarge
   minSize: 1
   volumeSize: 50
-  amiFamily: WindowsServer2004CoreContainer
+  amiFamily: WindowsServer2019CoreContainer
   ssh:
     allow: false
   iam:
@@ -82,14 +82,14 @@ Below is the ouput after the first run. As you can see, it generated findings ba
 
 ![](./images/inspector-agent.png)
 
-For more information on how to use Amazon Inspector, watch the [Improving the security and compliance of Windows Workloads with Amazon Inspector](https://www.youtube.com/watch?v=nIcwiJ85EKU) video to learn how to install Amazon Inspector agents, set up the CIS Benchmark assessment, and generate reports.
+For more information on Amazon Inspector, including how to install Amazon Inspector agents, set up the CIS Benchmark assessment, and generate reports, watch the [Improving the security and compliance of Windows Workloads with Amazon Inspector](https://www.youtube.com/watch?v=nIcwiJ85EKU) video.
 
 ## Amazon GuardDuty
 > [Amazon GuardDuty](https://aws.amazon.com/guardduty/) is a threat detection service that continuously monitors for malicious activity and unauthorized behavior to protect your AWS accounts, workloads, and data stored in Amazon S3. With the cloud, the collection and aggregation of account and network activities is simplified, but it can be time consuming for security teams to continuously analyze event log data for potential threats. 
 
-By using Amazon GuardDuty you can have visilitiby on malicious actitivy against Windows Worker nodes, like RDP brute force and Port Probe. 
+By using Amazon GuardDuty you have visilitiby on malicious actitivy against Windows worker nodes, like RDP brute force and Port Probe attacks. 
 
 Watch the [Threat Detection for Windows Workloads using Amazon GuardDuty](https://www.youtube.com/watch?v=ozEML585apQ) video to learn how to implement and run CIS Benchmarks on Optimized EKS Windows AMI
 
-## Security in Amazon EC2
-Follow the [Security in Amazon EC2 best practices](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-security.html) security best practices to implement security controls an every layer.
+## Security in Amazon EC2 for Windows
+Read up on the [Security best practices for Amazon EC2 Windows instances](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-security.html) to implement security controls at every layer.
