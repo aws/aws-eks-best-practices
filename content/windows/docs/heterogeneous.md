@@ -43,9 +43,9 @@ nodeSelector:
     kubernetes.io/os: windows
     nodeclass: windows2019
   tolerations:
-    - key: "special"
+    - key: "os"
       operator: "Equal"
-      value: "true"
+      value: "windows"
       effect: "NoSchedule"
 ```
 
