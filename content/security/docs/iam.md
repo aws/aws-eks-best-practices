@@ -228,7 +228,7 @@ You can block access to instance metadata by requiring the instance to use IMDSv
 aws ec2 modify-instance-metadata-options --instance-id <value> --http-tokens required --http-put-response-hop-limit 1
 ```
 
-You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html](https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html).
+You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [Limiting access to the instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access).
 
 If you have an application that is using an older version of the AWS SDK that doesn't support IRSA, and you want the pod to inherit the role assigned to the instance, consider using Kubernetes network policies to **selectively** allow access EC2 metadata.
 
