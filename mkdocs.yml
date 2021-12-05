@@ -2,12 +2,12 @@ site_name: EKS Best Practices Guides
 repo_name: "aws/aws-eks-best-practices"
 repo_url: "https://github.com/aws/aws-eks-best-practices"
 docs_dir: "content"
-theme: 
+theme:
   name: material
-  features: 
-    - tabs
+  features:
+    - navigation.tabs
 nav:
-  - Guides: 
+  - Guides:
     - Introduction: 'index.md'
   - Security:
     - Home: 'security/docs/index.md'
@@ -22,7 +22,7 @@ nav:
     - Regulatory Compliance: 'security/docs/compliance.md'
     - Incident Response and Forensics: 'security/docs/incidents.md'
     - Image Security: 'security/docs/image.md'
-  - Cluster Autoscaling: 
+  - Cluster Autoscaling:
     - Home: 'cluster-autoscaling/index.md'
   - Reliability:
     - Home: 'reliability/docs/index.md'
@@ -30,7 +30,7 @@ nav:
     - Control Plane: 'reliability/docs/controlplane.md'
     - Data Plane: 'reliability/docs/dataplane.md'
     - Network: 'reliability/docs/networkmanagement.md'
-  - Windows Containers (beta): 
+  - Windows Containers (beta):
     - AMI Management: 'windows/docs/ami.md'
     - gMSA for Windows Containers: 'windows/docs/gmsa.md'
     - Windows Server Hardening: 'windows/docs/hardening.md'
