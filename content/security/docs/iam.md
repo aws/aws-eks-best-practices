@@ -102,7 +102,7 @@ While IAM is the preferred way to authenticate users who need access to an EKS c
 + [Consistent OIDC authentication across multiple EKS clusters using kube-oidc-proxy](https://aws.amazon.com/blogs/opensource/consistent-oidc-authentication-across-multiple-eks-clusters-using-kube-oidc-proxy/)
 
 !!! attention
-    EKS navitely supports OIDC authentication without using a proxy. For further information, please read the launch blog, [Introducing OIDC identity provider authentication for Amazon EKS](https://aws.amazon.com/blogs/containers/introducing-oidc-identity-provider-authentication-amazon-eks/). For an example showing how to configure EKS with Dex, a popular open source OIDC provider with connectors for a variety of different authention methods, see [Using Dex & dex-k8s-authenticator to authenticate to Amazon EKS](https://aws.amazon.com/blogs/containers/using-dex-dex-k8s-authenticator-to-authenticate-to-amazon-eks/). As described in the blogs, the username/group of users authenticated by an OIDC provider will appear in the Kubernetes audit log. 
+    EKS natively supports OIDC authentication without using a proxy. For further information, please read the launch blog, [Introducing OIDC identity provider authentication for Amazon EKS](https://aws.amazon.com/blogs/containers/introducing-oidc-identity-provider-authentication-amazon-eks/). For an example showing how to configure EKS with Dex, a popular open source OIDC provider with connectors for a variety of different authention methods, see [Using Dex & dex-k8s-authenticator to authenticate to Amazon EKS](https://aws.amazon.com/blogs/containers/using-dex-dex-k8s-authenticator-to-authenticate-to-amazon-eks/). As described in the blogs, the username/group of users authenticated by an OIDC provider will appear in the Kubernetes audit log. 
 
 You can also use [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html) to federate AWS with an external identity provider, e.g. Azure AD. If you decide to use this, the AWS CLI v2.0 includes an option to create a named profile that makes it easy to associate an SSO session with your current CLI session and assume an IAM role. Know that you must assume a role _prior_ to running `kubectl` as the IAM role is used to determine the user's Kubernetes RBAC group.
 
@@ -158,7 +158,7 @@ This role authorizes unauthenticated and authenticated users to read API informa
 When an application running within a Pod calls the Kubernetes APIs, the Pod needs to be assigned a service account that explicitly grants it permission to call those APIs.  Similar to guidelines for user access, the Role or ClusterRole bound to a service account should be restricted to the API resources and methods that the application needs to function and nothing else. To use a non-default service account simply set the `spec.serviceAccountName` field of a Pod to the name of the service account you wish to use. For additional information about creating service accounts, see [https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions). 
 
 ### IAM Roles for Service Accounts (IRSA)
-IRSA is a feature that allows you to assign an IAM role to a Kubernetes service account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). Pods with service accounts that reference an IAM Role call a public OIDC discovery endpoint for AWS IAM upon startup. The endpoint cryptographically signs the OIDC token issued by Kubernetes which ultimately allows the Pod to call the AWS APIs associated IAM role. When an AWS API is invoked, the AWS SDKs calls `sts:AssumeRoleWithWebIdentity` and automatically exchanges the Kubernetes issued token for a AWS role credential. 
+IRSA is a feature that allows you to assign an IAM role to a Kubernetes service account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). When Pods are configured with a Service Account that references an IAM Role, the Kubernetes API server will call the public OIDC discovery endpoint for the cluster on startup. The endpoint cryptographically signs the OIDC token issued by Kubernetes and the resulting token mounted as a volume. This signed token allows the Pod to call the AWS APIs associated IAM role. When an AWS API is invoked, the AWS SDKs calls `sts:AssumeRoleWithWebIdentity`. After validating the token's signature, IAM exchanges the Kubernetes issued token for a temporary AWS role credential. 
 
 Decoding the (JWT) token for IRSA will produce output similar to the example you see below: 
 ```json
@@ -228,7 +228,7 @@ You can block access to instance metadata by requiring the instance to use IMDSv
 aws ec2 modify-instance-metadata-options --instance-id <value> --http-tokens required --http-put-response-hop-limit 1
 ```
 
-You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html](https://docs.aws.amazon.com/eks/latest/userguide/restrict-ec2-credential-access.html).
+You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [Limiting access to the instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access).
 
 If you have an application that is using an older version of the AWS SDK that doesn't support IRSA, and you want the pod to inherit the role assigned to the instance, consider using Kubernetes network policies to **selectively** allow access EC2 metadata.
 
@@ -322,6 +322,91 @@ In Kubernetes 1.19 and above, this change is no longer required.
 
 ### Grant least privileged access to applications
 [Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function properly.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you gradually limit the scope of IAM roles assigned to applications. Consult the documentation on granting [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources for further information.
+
+### Review and revoke unnecessary anonymous access
+
+Ideally anonymous access should be disabled for all API actions. Anonymous access is granted by creating a RoleBinding or ClusterRoleBinding for the Kubernetes built-in user system:anonymous. You can use the [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) tool to identify permissions that system:anonymous user has on your cluster:
+```
+./rbac-lookup | grep -P 'system:(anonymous)|(unauthenticated)'
+system:anonymous               cluster-wide        ClusterRole/system:discovery
+system:unauthenticated         cluster-wide        ClusterRole/system:discovery
+system:unauthenticated         cluster-wide        ClusterRole/system:public-info-viewer
+```
+
+Any role or ClusterRole other than system:public-info-viewer should not be bound to system:anonymous user or system:unauthenticated group.
+
+There may be some legitimate reasons to enable anonymous access on specific APIs. If this is the case for your cluster ensure that only those specific APIs are accessible by anonymous user and exposing those APIs without authentication doesn’t make your cluster vulnerable. 
+
+Prior to Kubernetes/EKS Version 1.14, system:unauthenticated group was associated to system:discovery and system:basic-user ClusterRoles by default.  Note that even if you have updated your cluster to version 1.14 or higher, these permissions may still be enabled on your cluster, since cluster updates do not revoke these permissions. To check if system:unauthenticated group has system:discovery permissions on your cluster run the following command: 
+```
+kubectl describe clusterrolebindings system:discovery
+
+Name:         system:discovery
+Labels:       kubernetes.io/bootstrapping=rbac-defaults
+Annotations:  rbac.authorization.kubernetes.io/autoupdate: true
+Role:
+  Kind:  ClusterRole
+  Name:  system:discovery
+Subjects:
+  Kind   Name                    Namespace
+  ----   ----                    ---------
+  Group  system:authenticated
+  Group  system:unauthenticated
+```
+
+To check if system:unauthenticated group has system:basic-user permission on your cluster run the following command:
+```
+kubectl describe clusterrolebindings system:basic-user
+
+Name:         system:basic-user
+Labels:       kubernetes.io/bootstrapping=rbac-defaults
+Annotations:  rbac.authorization.kubernetes.io/autoupdate: true
+Role:
+  Kind:  ClusterRole
+  Name:  system:basic-user
+Subjects:
+  Kind   Name                    Namespace
+  ----   ----                    ---------
+  Group  system:authenticated
+  Group  system:unauthenticated
+```
+If system:unauthenticated group is bound to system:discovery and/or system:basic-user ClusterRoles on your cluster, you should disassociate these roles from system:unauthenticated group. Edit system:discovery ClusterRoleBinding using the following command:
+```
+kubectl edit clusterrolebindings system:discovery
+```
+The above command will open the current definition of system:discovery ClusterRoleBinding in an editor as shown below:
+```
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  creationTimestamp: "2021-06-17T20:50:49Z"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: system:discovery
+  resourceVersion: "24502985"
+  selfLink: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/system%3Adiscovery
+  uid: b7936268-5043-431a-a0e1-171a423abeb6
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:discovery
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:authenticated
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:unauthenticated
+```
+Delete the entry for system:unauthenticated group from the “subjects” section in the above editor screen. 
+
+Repeat the same steps for system:basic-user ClusterRoleBinding.
 
 ### Alternative approaches
 While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html). If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA. 
