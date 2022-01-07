@@ -214,7 +214,7 @@ $ kubectl exec python-app -it ps
 
 In this example, the shell script receives `SIGTERM`, the main process, which happens to be a Python application in this example, doesn’t get a `SIGTERM` signal. When the Pod is terminated, the Python application will be killed abruptly. This can be remediated by changing the [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#entrypoint) of the container to launch the Python application. Alternatively, you can use a tool like [dumb-init](https://github.com/Yelp/dumb-init) to ensure that your application can handle signals.  
 
-You can also use [Container hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks) to execute a script or an HTTP request at container start or stop. The `PreStop` hook action runs when the container receives a `SIGTERM` signal and is killed after `terminationGracePeriodSeconds`. 
+You can also use [Container hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks) to execute a script or an HTTP request at container start or stop. The `PreStop` hook action runs before the container receives a `SIGTERM` signal and must complete before this signal is sent. The `terminationGracePeriodSeconds` value applies from when the `PreStop` hook action begins executing, not when the `SIGTERM` signal is sent.
 
 ## Recommendations
 
