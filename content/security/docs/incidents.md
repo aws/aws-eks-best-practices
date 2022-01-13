@@ -33,7 +33,7 @@ kubectl get pods -o json --namespace <namespace> | \
     "\(.metadata.name) \(.spec.nodeName)"'
 ```
 
-### Identify the offending Pods and worker nodes using container image
+### Identify Pods with vulnerable or compromised images and worker nodes
 In some cases, you may discover that a container image being used in pods on your cluster is malicious or compromised. A container image is malicious or compromised, if it was found to contain malware, is a known bad image or has a CVE that has been exploited. You should consider all the pods using the container image compromised. You can identify the pods using the image and nodes they are running on with the following command:
 ```
 IMAGE=<Name of the malicious/compromised image>
