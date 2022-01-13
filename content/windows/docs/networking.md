@@ -28,7 +28,7 @@ Another key consideration is the flow of network traffic. With Windows there is 
 
 To address this issue, we leverage Direct Server Return (DSR). DSR is an implementation of asymmetric network load distribution. In other words, the request and response traffic use different network paths. This feature speeds up communication between pods and reduces the risk of port exhaustion. We therefore recommend enabling DSR on Windows nodes. 
 
- DSR is enabled by default in Windows Server SAC EKS Optimized AMIs. For Windows Server 2019 LTSC EKS Optimized AMIs, you will need to enable it during instance provisioning using the script below and by specifying WindowsServer2019CoreContainer as the amiFamily in the `eksctl` nodeGroup. See [eksctl custom AMI](https://eksctl.io/usage/custom-ami-support/) for additional information. 
+DSR is enabled by default in Windows Server 2004 SAC AMIs and newer releases. You can use the latest Windows Server 2004 SAC AMI by specifying WindowsServer2004CoreContainer as the amiFamily in the `eksctl` nodeGroup. See [eksctl custom AMI](https://eksctl.io/usage/custom-ami-support/) for additional information. 
 
 ```yaml
 nodeGroups:
@@ -36,30 +36,11 @@ nodeGroups:
   instanceType: c5.xlarge
   minSize: 1
   volumeSize: 50
-  amiFamily: WindowsServer2019CoreContainer
+  amiFamily: WindowsServer2004CoreContainer
   ssh:
     allow: false
 ```
-In order to utilize DSR in Windows Server 2019 and above, you will need to specify the following [**kube-proxy**](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/) flags during instance startup:
-
-```powershell
-<powershell>
-  [string]$EKSBinDir = “$env:ProgramFiles\Amazon\EKS”
-  [string]$EKSBootstrapScriptName = ‘Start-EKSBootstrap.ps1’
-  [string]$EKSBootstrapScriptFile = “$EKSBinDir\$EKSBootstrapScriptName”
-  [string]$cfn_signal = “$env:ProgramFiles\Amazon\cfn-bootstrap\cfn-signal.exe”
-  & $EKSBootstrapScriptFile -EKSClusterName ${ClusterName} ${BootstrapArguments} --feature-gates=“WinDSR=true” --enable-dsr=true 3>&1 4>&1 5>&1 6>&1
-  $LastError = if ($?) { 0 } else { $Error[0].Exception.HResult }
-  & $cfn_signal --exit-code=$LastError `
-    --stack=“${AWS::StackName}” `
-    --resource=“NodeGroup” `
-    --region=${AWS::Region}
-</powershell>
-```
-
-DSR enablement can be verified following the instructions in the [Microsoft Networking blog](https://techcommunity.microsoft.com/t5/networking-blog/direct-server-return-dsr-in-a-nutshell/ba-p/693710).
-
-Using an older versions of Windows will increase the risk of port exhaustion as those versions do not support DSR. 
+Using an older versions of Windows will increase the risk of port exhaustion as those versions of Windows do not support DSR.
 
 ## Container Network Interface (CNI) options
 The AWSVPC CNI is the de facto CNI plugin for Windows and Linux worker nodes. While the AWSVPC CNI satisfies the needs of many customers, still there may be times when you need to consider alternatives like an overlay network to avoid IP exhaustion. In these cases, the Calico CNI can be used in place of the AWSVPC CNI. [Project Calico](https://www.projectcalico.org/) is open source software that was developed by [Tigera](https://www.tigera.io/). That software includes a CNI that works with EKS. Instructions for installing Calico CNI in EKS can be found on the [Project Calico EKS installation](https://docs.projectcalico.org/getting-started/kubernetes/managed-public-cloud/eks) page.
