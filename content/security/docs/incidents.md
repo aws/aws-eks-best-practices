@@ -33,6 +33,15 @@ kubectl get pods -o json --namespace <namespace> | \
     "\(.metadata.name) \(.spec.nodeName)"'
 ```
 
+### Identify the offending Pods and worker nodes using container image
+In some cases, you may discover that a container image being used in pods on your cluster is malicious or compromised. You should consider all the pods using the container image compromised. You can identify all the pods using the image and nodes they are running on with the following command:
+```
+kubectl get pods -o json --all-namespaces | \
+    jq -r '.items[] | 
+		select(.spec.containers[] | .image == "rastasheep/ubuntu-sshd:14.04") | 
+	    "\(.metadata.name) \(.metadata.namespace) \(.spec.nodeName)"'
+```
+
 ### Isolate the Pod by creating a Network Policy that denies all ingress and egress traffic to the pod
 A deny all traffic rule may help stop an attack that is already underway by severing all connections to the pod. The following Network Policy will apply to a pod with the label `app=web`. 
 ```yaml
