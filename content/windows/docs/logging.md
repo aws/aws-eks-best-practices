@@ -19,20 +19,19 @@ The general logging best practices are no different when operating Windows workl
 
     How you generate these transaction/correlation id's depends on the programming construct. But a very common pattern is to use a logging Aspect/Interceptor, which can use [MDC](https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/MDC.html) (Mapped diagnostic context) to inject a unique transaction/correlation id to every incoming request, like so: 
 
+```java   
+import org.slf4j.MDC;
+import java.util.UUID;
+Class LoggingAspect { //interceptor
 
-    ```java   
-    import org.slf4j.MDC;
-    import java.util.UUID;
-    Class LoggingAspect { //interceptor
-
-        @Before(value = "execution(* *.*(..))")
-        func before(...) {
-            transactionId = generateTransactionId();
-            MDC.put(CORRELATION_ID, transactionId);
-        }
-
-        func generateTransactionId() {
-            return UUID.randomUUID().toString();
-        }
+    @Before(value = "execution(* *.*(..))")
+    func before(...) {
+        transactionId = generateTransactionId();
+        MDC.put(CORRELATION_ID, transactionId);
     }
-    ```
+
+    func generateTransactionId() {
+        return UUID.randomUUID().toString();
+    }
+}
+```
