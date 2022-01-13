@@ -54,7 +54,7 @@ If you have shared datasets with different POSIX file permissions or want to res
     As of March 23, 2021 the EFS CSI driver supports dynamic provisioning of EFS Access Points. Access points are application-specific entry points into an EFS file system that make it easier to share a file system between multiple pods. Each EFS file system can have up to 120 PVs. See [Introducing Amazon EFS CSI dynamic provisioning](https://aws.amazon.com/blogs/containers/introducing-efs-csi-dynamic-provisioning/) for additional information. 
 
 ## Secrets management
-Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the `podSpec`.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see [https://kubernetes.io/docs/concepts/configuration/secret/](https://kubernetes.io/docs/concepts/configuration/secret/). 
+Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encrypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the `podSpec`.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see [https://kubernetes.io/docs/concepts/configuration/secret/](https://kubernetes.io/docs/concepts/configuration/secret/). 
 
 !!! caution
     Secrets in a particular namespace can be referenced by all pods in the secret's namespace.
@@ -64,7 +64,7 @@ Kubernetes secrets are used to store sensitive information, such as user certifi
 
 ## Recommendations
 ### Use AWS KMS for envelope encryption of Kubernetes secrets
-This allows you to encrypt your secrets with a unique data encryption key (DEK). The DEK is then encypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. 
+This allows you to encrypt your secrets with a unique data encryption key (DEK). The DEK is then encrypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. 
 For additional details, see [using EKS encryption provider support for defense in depth](https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/)
 
 ### Audit the use of Kubernetes Secrets

@@ -6,6 +6,7 @@ We currently have published guides for the following topics:
 * [Best Practices for Security](security/docs/)
 * [Best Practices for Reliability](reliability/docs/)
 * [Best Practices for Cluster Autoscaling](cluster-autoscaling/)
+* [Best Practices for Running Windows Containers](windows/docs/ami/)
 
 In the future we will be publishing best practices guidance for performance, cost optimization, and operational excellence. 
 
