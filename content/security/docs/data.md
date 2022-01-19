@@ -23,7 +23,7 @@ spec:
     volumeHandle: <file_system_id>
 ```
 
-The [FSx CSI driver](https://github.com/kubernetes-sigs/aws-fsx-csi-driver) supports dynamic provisioning of Lustre file systems.  It encrypts data with a service managed key by default, although there is an option to provide you own CMK as in this example:
+The [FSx CSI driver](https://github.com/kubernetes-sigs/aws-fsx-csi-driver) supports dynamic provisioning of Lustre file systems.  It encrypts data with a service managed key by default, although there is an option to provide your own CMK as in this example:
 
 ```yaml
 kind: StorageClass
@@ -45,7 +45,7 @@ parameters:
 Encrypting data at rest is considered a best practice.  If you're unsure whether encryption is necessary, encrypt your data. 
 
 ### Rotate your CMKs periodically
-Configure KMS to automatically rotate you CMKs.  This will rotate your keys once a year while saving old keys indefinitely so that your data can still be decrypted.  For additional information see [Rotating customer master keys](https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
+Configure KMS to automatically rotate your CMKs.  This will rotate your keys once a year while saving old keys indefinitely so that your data can still be decrypted.  For additional information see [Rotating customer master keys](https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
 
 ### Use EFS access points to simplify access to shared datasets
 If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see [https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html](https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html). Today, if you want to use an access point (AP) you'll need to reference the AP in the PV's `volumeHandle` parameter.
@@ -96,16 +96,16 @@ If you have secrets that cannot be shared between applications in a namespace, c
 The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instantiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
 
 ### Use an external secrets provider
-There are several viable alternatives to using Kubernetes secrets, including [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) and Hashicorp's [Vault](https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). These services offer features such as fine grained access controls, strong encryption, and automatic rotation of secrets that are not available with Kubernetes Secrets. Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) is another approach that uses asymetric encryption to create "sealed secrets". A public key is used to encrypt the secret while the private key used to decrypt the secret is kept within the cluster, allowing you to safely to store sealed secrets in source control systems like Git. See [Managing secrets deployment in Kubernetes using Sealed Secrets](https://aws.amazon.com/blogs/opensource/managing-secrets-deployment-in-kubernetes-using-sealed-secrets/) for further information. 
+There are several viable alternatives to using Kubernetes secrets, including [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) and Hashicorp's [Vault](https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). These services offer features such as fine grained access controls, strong encryption, and automatic rotation of secrets that are not available with Kubernetes Secrets. Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) is another approach that uses asymmetric encryption to create "sealed secrets". A public key is used to encrypt the secret while the private key used to decrypt the secret is kept within the cluster, allowing you to safely to store sealed secrets in source control systems like Git. See [Managing secrets deployment in Kubernetes using Sealed Secrets](https://aws.amazon.com/blogs/opensource/managing-secrets-deployment-in-kubernetes-using-sealed-secrets/) for further information. 
 
 As the use of external secrets stores has grown, so has need for integrating them with Kubernetes. The [Secret Store CSI Driver](https://github.com/kubernetes-sigs/secrets-store-csi-driver) is a community project that uses the CSI driver model to fetch secrets from external secret stores. Currently, the Driver has support for [AWS Secrets Manager](https://github.com/aws/secrets-store-csi-driver-provider-aws), Azure, Vault, and GCP. The AWS provider supports both AWS Secrets Manager **and** AWS Parameter Store. It can also be configured to rotate secrets when they expire and can synchronize AWS Secrets Manager secrets to Kubernetes Secrets. Synchronization of secrets can be useful when you need to reference a secret as an environment variable instead of reading them from a volume. 
 
 !!! note
-    When the the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that refereces a secret. The code for this operation can be found [here](https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go).
+    When the the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that references a secret. The code for this operation can be found [here](https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go).
     
 For additional information about the AWS Secrets & Configuration Provider (ASCP) refer to the following resources:
 
 + [How to use AWS Secrets Configuration Provider with Kubernetes Secret Store CSI Driver](https://aws.amazon.com/blogs/security/how-to-use-aws-secrets-configuration-provider-with-kubernetes-secrets-store-csi-driver/)
 + [Integrating Secrets Manager secrets with Kubernetes Secrets Store CSI Driver](https://docs.aws.amazon.com/secretsmanager/latest/userguide/integrating_csi_driver.html)
 
-[external-secrets](https://github.com/external-secrets/kubernetes-external-secrets) is yet another way to use an external secret store with Kubernetes. Like the CSI Driver, external-secrets works against a variety of different backends, including AWS Secrets Manager. The difference is, rather than retrieving secrets from the external secret store, external-secrets copies secrets from these backends to Kubernetes as Secrets.  This let's you manage secrets using your preferred secret store and interact with secrets in a Kubernetes-native way. 
+[external-secrets](https://github.com/external-secrets/kubernetes-external-secrets) is yet another way to use an external secret store with Kubernetes. Like the CSI Driver, external-secrets works against a variety of different backends, including AWS Secrets Manager. The difference is, rather than retrieving secrets from the external secret store, external-secrets copies secrets from these backends to Kubernetes as Secrets.  This lets you manage secrets using your preferred secret store and interact with secrets in a Kubernetes-native way. 
