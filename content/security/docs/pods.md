@@ -48,6 +48,7 @@ In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/pol
 As of Kubernetes version 1.21, PSP have been deprecated. They are scheduled for removal in Kubernetes version 1.25. 
 
 !!! attention
+    
     [PSPs are deprecated](https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/) in Kubernetes version 1.21. You will have until version 1.25 or roughly 2 years to transition to an alternative. This [document](https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation) explains the motivation for this deprecation.
 
 ### Migrating to a new pod security solution
@@ -242,6 +243,7 @@ To enforce the use of the `spec.securityContext`, and its associated elements, w
 While this conveniently lets you to build/run images in Docker containers, you're basically relinquishing complete control of the node to the process running in the container. If you need to build container images on Kubernetes use [Kaniko](https://github.com/GoogleContainerTools/kaniko), [buildah](https://github.com/containers/buildah), [img](https://github.com/genuinetools/img), or a build service like [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) instead. 
 
 !!! Tip
+    
     Kubernetes clusters used for CICD processing, such as building container images, should be isolated from clusters running more generalized workloads.
 
 ### Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only
@@ -277,7 +279,8 @@ Kubernetes uses three Quality of Service (QoS) classes to prioritize the workloa
 
 If limits and requests are not set, the pod is configured as _best-effort_ (lowest priority).  Best-effort pods are the first to get killed when there is insufficient memory.  If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values and not equal to 0, the pod is configured as _guaranteed_ (highest priority).  Guaranteed pods will not be killed unless they exceed their configured memory limits. If the limits and requests are configured with different values and not equal to 0, or one container within the pod sets limits and the others don’t or have limits set for different resources, the pods are configured as _burstable_ (medium priority). These pods have some resource guarantees, but can be killed once they exceed their requested memory. 
 
-!!! attention
+!!! Attention
+    
     Requests don't affect the `memory_limit_in_bytes` value of the container's cgroup; the cgroup limit is set to the amount of memory available on the host. Nevertheless, setting the requests value too low could cause the pod to be targeted for termination by the kubelet if the node undergoes memory pressure. 
 
 | Class | Priority | Condition | Kill Condition |
@@ -302,7 +305,8 @@ For pods that do not need to access the Kubernetes API, you can disable the
 automatic mounting of a ServiceAccount token on a pod spec, or for all pods that
 use a particular ServiceAccount.
 
-!!! attention
+!!! Attention
+    
     Disabling ServiceAccount mounting does not prevent a pod from having network
     access to the Kubernetes API. To prevent a pod from having any network
     access to the Kubernetes API, you will need to modify the [EKS cluster
@@ -342,7 +346,8 @@ the [Kubernetes docs on Pod DNS policy][dns-policy] for more information.
 [k8s-env-var-docs]: https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables
 [dns-policy]: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
 
-!!! attention
+!!! Attention
+    
     Disabling service links and changing the pod's DNS policy does not prevent a
     pod from having network access to the in-cluster DNS service. An attacker
     can still enumerate services in a cluster by reaching the in-cluster DNS
