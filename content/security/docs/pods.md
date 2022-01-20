@@ -168,6 +168,8 @@ Policy-as-code (as compared to Pod Security Admission)
   - Supports mutating API server requests before validation
   - Generates policies and resources
   - Can be used to shift left, into CICD pipelines, before making calls to the Kubernetes API server
+  - Can be used to implement behaviors that are not necessarily security related, such as best practices, organizational standards, etc.
+  - Can be used in non-Kubernetes use cases (solution dependent)
 - Cons
   - Not part of native Kubernetes
   - More complex to learn, configure, and support
