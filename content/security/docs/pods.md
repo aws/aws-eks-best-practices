@@ -58,7 +58,7 @@ Since PSPs are scheduled to be removed and are no longer under active developmen
 - Policy-as-code solutions from the Kubernetes ecosystem
 - Kubernetes [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
 
-Both the policy-as-code and Pod Security Standards solutions can coexist with PSP; they can be used in clusters before PSP is removed. This reduces friction when migrating from PSP.
+Both the policy-as-code and Pod Security Standards solutions can coexist with PSP; they can be used in clusters before PSP is removed. This reduces friction when migrating from PSP. Please see this [document](https://kubernetes.io/docs/tasks/configure-pod-container/migrate-from-psp/) when considering migrating from PSP to Pod Security Standards.
 
 ### Policy-as-code
 Policy-as-code solutions provide guardrails to guide cluster users, and prevent unwanted behaviors, through prescribed and automated controls. Policy-as-code uses [Kubernetes Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) to intercept the Kubernetes API server request flow, and mutate and validate request payloads, based on policies written and stored as code. There are several open source policy-as-code solutions available for Kubernetes. These solutions are not part of the Kubernetes project; they are sourced from the Kubernetes ecosystem. Some policy-as-code solutions are listed below.
