@@ -8,7 +8,7 @@ The processes that run within a container run under the context of the \[Linux\]
 
 `CAP_AUDIT_WRITE, CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_MKNOD, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_SYS_CHROOT`
 
-!!! info 
+!!! Info 
     
     EC2 and Fargate pods are assigned the aforementioned capabilities by default. Additionally, Linux capabilities can only be dropped from Fargate pods. 
 
@@ -47,7 +47,7 @@ In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/pol
 
 As of Kubernetes version 1.21, PSP have been deprecated. They are scheduled for removal in Kubernetes version 1.25. 
 
-!!! attention
+!!! Attention
     
     [PSPs are deprecated](https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/) in Kubernetes version 1.21. You will have until version 1.25 or roughly 2 years to transition to an alternative. This [document](https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation) explains the motivation for this deprecation.
 
