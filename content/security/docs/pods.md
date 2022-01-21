@@ -60,7 +60,7 @@ Both the PAC and PSS solutions can coexist with PSP; they can be used in cluster
 
 ### Policy-as-code (PAC)
 
-Policy-as-code (PAC) solutions provide guardrails to guide cluster users, and prevent unwanted behaviors, through prescribed and automated controls. PAC uses [Kubernetes Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) to intercept the Kubernetes API server request flow, and mutate and validate request payloads, based on policies written and stored as code. Mutation and validation happens before the API server request results in a change to the cluster. PAC solutions use policies to match and act on API server request payloads, based on taxonomy and values.
+Policy-as-code (PAC) solutions provide guardrails to guide cluster users, and prevent unwanted behaviors, through prescribed and automated controls. PAC uses [Kubernetes Dynamic Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) to intercept the Kubernetes API server request flow, via a webhook call, and mutate and validate request payloads, based on policies written and stored as code. Mutation and validation happens before the API server request results in a change to the cluster. PAC solutions use policies to match and act on API server request payloads, based on taxonomy and values.
 
 There are several open source PAC solutions available for Kubernetes. These solutions are not part of the Kubernetes project; they are sourced from the Kubernetes ecosystem. Some PAC solutions are listed below.
 
@@ -77,7 +77,7 @@ For further information about PAC solutions and how to help you select the appro
 
 ### Pod Security Standards (PSS) and Pod Security Admission (PSA)
 
-In response to the PSP deprecation and the ongoing need to control pod security out-of-the-box, with a native Kubernetes solution, the Kubernetes [Auth Special Interest Group](https://github.com/kubernetes/community/tree/master/sig-auth) created the [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/) and [Pod Security Admission (PSA)](https://kubernetes.io/docs/concepts/security/pod-security-admission/). The PSA effort includes an [admission controller webhook project](https://github.com/kubernetes/pod-security-admission#pod-security-admission) that implements the controls defined in the PSS. This admission controller approach resembles that used in the PAC solutions.
+In response to the PSP deprecation and the ongoing need to control pod security out-of-the-box, with a built-in Kubernetes solution, the Kubernetes [Auth Special Interest Group](https://github.com/kubernetes/community/tree/master/sig-auth) created the [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/) and [Pod Security Admission (PSA)](https://kubernetes.io/docs/concepts/security/pod-security-admission/). The PSA effort includes an [admission controller webhook project](https://github.com/kubernetes/pod-security-admission#pod-security-admission) that implements the controls defined in the PSS. This admission controller approach resembles that used in the PAC solutions.
 
 According to the Kubernetes documentation, the PSS _"define three different policies to broadly cover the security spectrum. These policies are cumulative and range from highly-permissive to highly-restrictive."_ 
 
@@ -244,7 +244,7 @@ webhooks:
 
 ### Choosing between policy-as-code and Pod Security Standards
 
-The Pod Security Standards (PSS) were developed to replace the Pod Security Policy (PSP), by providing a solution that was native to Kubernetes and did not require non-native solutions from the Kubernetes ecosystem. That being said, policy-as-code (PAC) solutions are considerably more flexible. 
+The Pod Security Standards (PSS) were developed to replace the Pod Security Policy (PSP), by providing a solution that was built-in to Kubernetes and did not require solutions from the Kubernetes ecosystem. That being said, policy-as-code (PAC) solutions are considerably more flexible. 
 
 The following list of Pros and Cons is designed help you make a more informed decision about your pod security solution.
 
@@ -266,7 +266,7 @@ Pros:
 
 Cons:
 
-  + Not part of native Kubernetes
+  + Not built into Kubernetes
   + More complex to learn, configure, and support
   + Policy authoring may require new skills/languages/capabilities
 
@@ -274,7 +274,7 @@ Cons:
 
 Pros:
 
-  + Built into native Kubernetes
+  + Built into Kubernetes
   + Simpler to configure
   + No new languages to use or policies to author
   + If the cluster default admission level is configured to _privileged_, namespace labels can be used to opt namespaces into the pod security profiles.
