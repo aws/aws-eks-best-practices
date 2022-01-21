@@ -1,6 +1,6 @@
 # Pod Security
 
-Pods have a variety of different settings that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that’s running in a container from escaping the isolation boundaries of container runtime and gaining access to the underlying host.
+The pod specification includes a variety of different attributes that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that’s running in a container from escaping the isolation boundaries of the container runtime and gaining access to the underlying host.
 
 ### Linux Capabilities
 
@@ -43,9 +43,7 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 
 ### Pod Security Policy (PSP)
 
-In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) resources were used to specify a set of requirements that pods had to meet before they could be created. PSPs were used, in conjunction with Kubernetes [Role Based Access Control (RBAC)](https://kubernetes.io/docs/reference/access-authn-authz/rbac/), to apply levels of access to work loads via role assumption.
-
-As of Kubernetes version 1.21, PSP have been deprecated. They are scheduled for removal in Kubernetes version 1.25. 
+In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) resources were used to specify a set of requirements that pods had to meet before they could be created. As of Kubernetes version 1.21, PSP have been deprecated. They are scheduled for removal in Kubernetes version 1.25. 
 
 !!! Attention
     
@@ -58,7 +56,7 @@ Since PSPs are scheduled to be removed and are no longer under active developmen
 + Policy-as-code (PAC) solutions from the Kubernetes ecosystem
 + Kubernetes [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
 
-Both the PAC and PSS solutions can coexist with PSP; they can be used in clusters before PSP is removed. This reduces friction when migrating from PSP. Please see this [document](https://kubernetes.io/docs/tasks/configure-pod-container/migrate-from-psp/) when considering migrating from PSP to PSS.
+Both the PAC and PSS solutions can coexist with PSP; they can be used in clusters before PSP is removed. This eases adoption when migrating from PSP. Please see this [document](https://kubernetes.io/docs/tasks/configure-pod-container/migrate-from-psp/) when considering migrating from PSP to PSS.
 
 ### Policy-as-code (PAC)
 
@@ -66,8 +64,8 @@ Policy-as-code (PAC) solutions provide guardrails to guide cluster users, and pr
 
 There are several open source PAC solutions available for Kubernetes. These solutions are not part of the Kubernetes project; they are sourced from the Kubernetes ecosystem. Some PAC solutions are listed below.
 
-+ [Open Policy Agent (OPA)](https://www.openpolicyagent.org/)
 + [OPA/Gatekeeper](https://open-policy-agent.github.io/gatekeeper/website/docs/)
++ [Open Policy Agent (OPA)](https://www.openpolicyagent.org/)
 + [Kyverno](https://kyverno.io/)
 + [Kubewarden](https://www.kubewarden.io/)
 + [jsPolicy](https://www.jspolicy.com/)
@@ -86,16 +84,19 @@ According to the Kubernetes documentation, the PSS _"define three different poli
 These policies are defined as:
 
 + **Privileged:** Unrestricted (unsecure) policy, providing the widest possible level of permissions. This policy allows for known privilege escalations. It is the absence of a policy. This is good for applications such as logging agents, CNIs, storage drivers, and other system wide applications that need privileged access.
-+ **Baseline:** Minimally restrictive policy which prevents known privilege escalations. Allows the default (minimally specified) Pod configuration. The baseline policy prohibits use of hostNetwork, hostPID, hostIPC, hostPath, hostPort, the inability to add Linux capabilities, along with several other restrictions. Controls are: `AppArmor, Capabilities, Host Namespaces, HostPath Volumes, Host Ports, Privileged Containers, proc mount type, SELinux, Sysctls`
 
-+ **Restricted:** Heavily restricted policy, following current Pod hardening best practices.  This policy inherits from the baseline and adds further restrictions such as the inability to run as root or a root-group. Restricted policies may impact an application's ability to function. They are primarily targeted at running security critical applications. Controls are: `non-root users, non-root groups, Privilege Escalation, Seccomp, Volume Types`
++ **Baseline:** Minimally restrictive policy which prevents known privilege escalations. Allows the default (minimally specified) Pod configuration. The baseline policy prohibits use of hostNetwork, hostPID, hostIPC, hostPath, hostPort, the inability to add Linux capabilities, along with several other restrictions. 
+
++ **Restricted:** Heavily restricted policy, following current Pod hardening best practices.  This policy inherits from the baseline and adds further restrictions such as the inability to run as root or a root-group. Restricted policies may impact an application's ability to function. They are primarily targeted at running security critical applications.
 
 These policies define [profiles for pod execution](https://kubernetes.io/docs/concepts/security/pod-security-standards/#profile-details), arranged into three levels of privileged vs. restricted access.
 
 To implement the controls defined by the PSS, PSA operates in three modes:
 
 + **enforce:** Policy violations will cause the pod to be rejected.
+
 + **audit:** Policy violations will trigger the addition of an audit annotation to the event recorded in the audit log, but are otherwise allowed.
+
 + **warn:**	Policy violations will trigger a user-facing warning, but are otherwise allowed.
 
 These modes and the profile (restriction) levels are configured at the Kubernetes Namespace level, using labels, as seen in the below example.
@@ -111,10 +112,12 @@ metadata:
 
 When used independently, these operational modes have different responses that result in different user experiences. The _enforce_ mode will prevent pods from being created if respective podSpecs violate the configured restriction level. However, in this mode, non-pod Kubernetes objects that create pods, such as Deployments, will not be prevented from being applied to the cluster, even if the podSpec therein violates the applied PSS. In this case the Deployment will be applied, while the pod(s) will be prevented from being applied.
 
-This is a difficult user experience, as there is no immediate indication that the successfully applied Deployment object belies failed pod creation. The offending podSpecs will not create pods. Inspecting the Deployment resource will expose the message from the failed pod(s), as seen below.
+This is a difficult user experience, as there is no immediate indication that the successfully applied Deployment object belies failed pod creation. The offending podSpecs will not create pods. Inspecting the Deployment resource with `kubectl get deploy <DEPLOYMENT_NAME> -oyaml` will expose the message from the failed pod(s) `.status.conditions` element, as seen below.
 
 ```yaml
 ...
+status:
+  conditions:
     - lastTransitionTime: "2022-01-20T01:02:08Z"
       lastUpdateTime: "2022-01-20T01:02:08Z"
       message: 'pods "test-688f68dc87-tw587" is forbidden: violates PodSecurity "restricted:latest":
@@ -129,7 +132,7 @@ This is a difficult user experience, as there is no immediate indication that th
 ...
 ```
 
-In both the _audit_ and _warn_ modes, the pod restrictions do not prevent violating pods from being created and started. However, in these modes audit annotations and warnings are triggered, respectively, when pods, as well as objects that create pods, contain podSpecs with violations, as seen below.
+In both the _audit_ and _warn_ modes, the pod restrictions do not prevent violating pods from being created and started. However, in these modes audit annotations on API server audit log events and warnings to API server clients, such as _kubectl_, are triggered, respectively, when pods, as well as objects that create pods, contain podSpecs with violations. A `kubectl` _Warning_ message is seen below.
 
 ```bash
 Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "test" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "test" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "test" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "test" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
@@ -146,7 +149,6 @@ kind: Namespace
 metadata:
   name: policy-test
   labels:
-    kubernetes.io/metadata.name: policy-test
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/warn: restricted
@@ -160,22 +162,85 @@ kind: Namespace
 metadata:
   name: policy-test
   labels:
-    kubernetes.io/metadata.name: policy-test
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/warn: restricted
 ```
 
 In the above example, PSA is configured to allow the creation of all pods that satisfy the _baseline_ profile level, and then _warn_ on pods (and objects that create pods) that violate the _restricted_ profile level. This is a useful approach to determine the possible impacts when changing from the _baseline_ to _restricted_ profiles.
 
-PSA uses _Exemptions_ to exclude enforcement of violations against pods that would have otherwise been applied. These exemptions are seen below.
+#### Existing Pods
+
+If a namespace with existing pods is modified to use a more restrictive PSS profile, the _audit_ and _warn_ modes will produce appropriate messages; however, _enforce_ mode will not delete the pods. The warning messages are seen below.
+
+```bash
+Warning: existing pods in namespace "policy-test" violate the new PodSecurity enforce level "restricted:latest"
+Warning: test-688f68dc87-htm8x: allowPrivilegeEscalation != false, unrestricted capabilities, runAsNonRoot != true, seccompProfile
+namespace/policy-test configured
+```
+
+#### Exemptions
+
+PSA uses _Exemptions_ to exclude enforcement of violations against pods that would have otherwise been applied. These exemptions are listed below.
 
 + **Usernames:** requests from users with an exempt authenticated (or impersonated) username are ignored.
+
 + **RuntimeClassNames:** pods and workload resources specifying an exempt runtime class name are ignored.
+
 + **Namespaces:** pods and workload resources in an exempt namespace are ignored.
+
+These exemptions are applied statically in the [PSA admission controller configuration](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller) as part of the API server configuration.
+
+In the _Validating Webhook_ implementation the exemptions can be configured within a Kubernetes [ConfigMap](https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/20-configmap.yaml) resource that gets mounted as a volume into the [pod-security-webhook](https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/50-deployment.yaml) container.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-security-webhook
+  namespace: pod-security-webhook
+data:
+  podsecurityconfiguration.yaml: |
+    apiVersion: pod-security.admission.config.k8s.io/v1beta1
+    kind: PodSecurityConfiguration
+    defaults:
+      enforce: "restricted"
+      enforce-version: "latest"
+      audit: "restricted"
+      audit-version: "latest"
+      warn: "restricted"
+      warn-version: "latest"
+    exemptions:
+      # Array of authenticated usernames to exempt.
+      usernames: []
+      # Array of runtime class names to exempt.
+      runtimeClasses: []
+      # Array of namespaces to exempt.
+      namespaces: ["kube-system","policy-test1"]
+```
+
+As seen in the above ConfigMap YAML the cluster-wide default PSS level has been set to _restricted_ for all PSA modes, _audit_, _enforce_, and _warn_. This affects all namespaces, except those exempted: `namespaces: ["kube-system","policy-test1"]`. Additionally, in the _ValidatingWebhookConfiguration_ resource, seen below, the _pod-security-webhook_ namespace is also exempted from configured PSS.
+
+```yaml
+...
+webhooks:
+  # Audit annotations will be prefixed with this name
+  - name: "pod-security-webhook.kubernetes.io"
+    # Fail-closed admission webhooks can present operational challenges.
+    # You may want to consider using a failure policy of Ignore, but should 
+    # consider the security tradeoffs.
+    failurePolicy: Fail
+    namespaceSelector:
+      # Exempt the webhook itself to avoid a circular dependency.
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values: ["pod-security-webhook"]
+...
+```
 
 !!! Attention 
     
-    As of Kubernetes versions _1.22_ and _1.23_, the Pod Security Admission feature is _alpha_ and _beta_ status, respectively. At least until GA, the current admission controller webhook can be configured from [these instructions](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
+    As of Kubernetes versions _1.22_ and _1.23_, the Pod Security Admission feature is _alpha_ and _beta_ status, respectively. At least until GA, the current admission controller can be used via a validating webhook, configured from [these instructions](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
 
 ### Choosing between policy-as-code and Pod Security Standards
 
@@ -192,8 +257,8 @@ Pros:
   + Not just applied at the namespace level
   + More mature than the Pod Security Standards
   + Decisions can be based on anything in the API server request payload, as well as existing cluster resources and external data (solution dependent)
-  + Supports mutating API server requests before validation
-  + Generates policies and resources (solution dependent)
+  + Supports mutating API server requests before validation (solution dependent)
+  + Can generate complementary policies and Kubernetes resources (solution dependent - From pod policies, Kyverno can [auto-gen](https://kyverno.io/docs/writing-policies/autogen/) policies for higher-level controllers, such as Deployments. Kyverno can also generate additional Kubernetes resources _"when a new resource is created or when the source is updated"_ by using [Generate Rules](https://kyverno.io/docs/writing-policies/generate/).)
   + Can be used to shift left, into CICD pipelines, before making calls to the Kubernetes API server (solution dependent)
   + Can be used to implement behaviors that are not necessarily security related, such as best practices, organizational standards, etc.
   + Can be used in non-Kubernetes use cases (solution dependent)
@@ -212,6 +277,7 @@ Pros:
   + Built into native Kubernetes
   + Simpler to configure
   + No new languages to use or policies to author
+  + If the cluster default admission level is configured to _privileged_, namespace labels can be used to opt namespaces into the pod security profiles.
 
 Cons:
 
@@ -220,9 +286,28 @@ Cons:
   + Primarily focused on pods
 
 #### Summary
+
 If you currently do not have a pod security solution, beyond PSP, and your required pod security posture fits the model defined in the Pod Security Standards (PSS), then an easier path may be to adopt the PSS, in lieu of a policy-as-code solution. However, if your pod security posture does not fit the PSS model, or you envision adding additional controls, beyond that defined by PSS, then a policy-as-code solution would seem a better fit.
 
 ## Recommendations
+
+### Use multiple Pod Security Admission (PSA) modes for a better user experience
+
+As mentioned earlier, PSA _enforce_ mode prevents pods with PSS violations from being applied, but does not stop higher-level controllers, such as Deployments. In fact, the Deployment will be applied successfully without any indication that the pods failed to be applied. While you can use _kubectl_ to inspect the Deployment object, and discover the failed pods message from the PSA, the user experience could be better. To make the user experience better, multiple PSA modes (audit, enforce, warn) should be used.
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: policy-test
+  labels:
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+```
+
+In the above example, with _enforce_ mode defined, when a Deployment manifest with PSS violations in the respective podSpec is attempted to be applied to the Kubernetes API server, the Deployment will be successfully applied, but the pods will not. And, since the _audit_ and _warn_ modes are also enabled, the API server client with receive a warning message and the API server audit log event will be annotated with a message as well.
+
 
 ### Restrict the containers that can run as privileged
 
@@ -270,6 +355,10 @@ The `podSpec` allows you to specify requests and limits for CPU and memory.  CPU
 When you specify _requests_ for CPU or memory, you’re essentially designating the amount of _memory_ that containers are guaranteed to get.  Kubernetes aggregates the requests of all the containers in a pod to determine which node to schedule the pod onto.  If a container exceeds the requested amount of memory it may be subject to termination if there’s memory pressure on the node. 
 
 _Limits_ are the maximum amount of CPU and memory resources that a container is allowed to consume and directly corresponds to the `memory.limit_in_bytes` value of the cgroup created for the container.  A container that exceeds the memory limit will be OOM killed. If a container exceeds its CPU limit, it will be throttled. 
+
+!!! Tip
+
+    When using container `resources.limits` it is strongly recommended that container resource usage (a.k.a. Resource Footprints) be data-driven and accurate, based on load testing. Absent an accurate and trusted resource footprint, container `resources.limits` can be padded. For example, `resources.limits.memory` could be padded 20-30% higher than observable maximums, to account for potential memory resource limit inaccuracies.
 
 Kubernetes uses three Quality of Service (QoS) classes to prioritize the workloads running on a node.  These include: 
 
