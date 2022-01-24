@@ -306,7 +306,7 @@ metadata:
     pod-security.kubernetes.io/warn: restricted
 ```
 
-In the above example, with _enforce_ mode defined, when a Deployment manifest with PSS violations in the respective podSpec is attempted to be applied to the Kubernetes API server, the Deployment will be successfully applied, but the pods will not. And, since the _audit_ and _warn_ modes are also enabled, the API server client with receive a warning message and the API server audit log event will be annotated with a message as well.
+In the above example, with _enforce_ mode defined, when a Deployment manifest with PSS violations in the respective podSpec is attempted to be applied to the Kubernetes API server, the Deployment will be successfully applied, but the pods will not. And, since the _audit_ and _warn_ modes are also enabled, the API server client will receive a warning message and the API server audit log event will be annotated with a message as well.
 
 
 ### Restrict the containers that can run as privileged
