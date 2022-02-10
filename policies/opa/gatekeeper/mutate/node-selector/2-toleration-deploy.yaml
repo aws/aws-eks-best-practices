@@ -1,0 +1,23 @@
+# Adds a toleration to all pods in a specific namespace
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
+  name: mutator-add-toleration-deploy
+  annotations:
+    aws-eks-best-practices/description: >-
+      Adds toleration - https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Deployment"]
+    versions: ["v1"]
+  match:
+    namespaces: ["tenants-x"]
+  location: "spec.template.spec.tolerations"
+  parameters:
+    assign:
+      value: 
+      - key: "tenant"
+        operator: "Equal"
+        value: "tenants-x"
+        effect: "NoSchedule"
