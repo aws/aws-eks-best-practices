@@ -1,4 +1,4 @@
-This repository contains two seperate examples. 
+This repository contains two separate examples. 
 
 In the first (/kyverno and /opa) we have some example policies that are consistent between kyverno, OPA without Gatekeeper and OPA with Gatekeeper. These will help you see the differences on how to use these three tools.
 
