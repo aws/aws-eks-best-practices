@@ -142,7 +142,7 @@ With this node affinity, the label is required during scheduling, but not during
 
 #### Part 2 - Taints and tolerations
 
-Attracting pods to nodes is just the first part of this three-part approach. For this approach to work, we must repel pods from scheduling onto nodes for which the pods are not authorized. To repel unwanted or unauthorized pods, Kubernetes uses node [taints](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/). Taints are used to place conditions on nodes, to prevent pods from being scheduled. The below taint uses a key-value pair of `tenant: tenants-x`.
+Attracting pods to nodes is just the first part of this three-part approach. For this approach to work, we must repel pods from scheduling onto nodes for which the pods are not authorized. To repel unwanted or unauthorized pods, Kubernetes uses node [taints](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/). Taints are used to place conditions on nodes that prevent pods from being scheduled. The below taint uses a key-value pair of `tenant: tenants-x`.
 
 ``` yaml
 ...
@@ -202,9 +202,9 @@ spec:
             - "tenants-x"
 ```
 
-The above policy is applied to a Kubernetes API server request to be apply a pod to the _tenants-x_ namespace. This adds the `requiredDuringSchedulingIgnoredDuringExecution` node affinity rule, so that pods are attracted to nodes with the `tenant: tenants-x` label.
+The above policy is applied to a Kubernetes API server request, to apply a pod to the _tenants-x_ namespace. The policy adds the `requiredDuringSchedulingIgnoredDuringExecution` node affinity rule, so that pods are attracted to nodes with the `tenant: tenants-x` label.
 
-A second policy, seen below, adds the toleration to the same pod specification.
+A second policy, seen below, adds the toleration to the same pod specification, using the same matching criteria of target namespace and groups, kinds, and versions.
 
 ``` yaml
 apiVersion: mutations.gatekeeper.sh/v1alpha1
@@ -231,7 +231,7 @@ spec:
         effect: "NoSchedule"
 ```
 
-The above policies are specific to pods; this is due to the paths to the mutated elements in the policies' _locations_ elements. Additional policies could be written to handle resources that create pods, like Deployment and Job resources. The listed policies and other examples can been seen in the companion [GitHub project](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa/gatekeeper/mutate/node-selection) for this guide.
+The above policies are specific to pods; this is due to the paths to the mutated elements in the policies' `location` elements. Additional policies could be written to handle resources that create pods, like Deployment and Job resources. The listed policies and other examples can been seen in the companion [GitHub project](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa/gatekeeper/mutate/node-selector) for this guide.
 
 The result of these two mutations is that pods are attracted to the desired node, while at the same time, not repelled by the specific node taint. To verify this, we can see the snippets of output from two `kubectl` calls to get the nodes labeled with `tenant=tenants-x`, and get the pods in the `tenants-x` namespace.
 
@@ -251,7 +251,7 @@ tenant-test-deploy-58b895ff87-vw796   1/1     Running   0          13s   10.0.3.
 tenant-test-pod                       1/1     Running   0          13s   10.0.35.83    ip-10-0-43-107...
 ```
 
-As we can see from the above outputs, all the pods are scheduled on the nodes labeled with `tenant=tenants-x`. Simply put, the pods will only run on the desired nodes, and the other pods (without the requisite affinity and tolerations) will not. The tenant workloads are effectively isolated.
+As we can see from the above outputs, all the pods are scheduled on the nodes labeled with `tenant=tenants-x`. Simply put, the pods will only run on the desired nodes, and the other pods (without the required affinity and tolerations) will not. The tenant workloads are effectively isolated.
 
 An example mutated pod specification is seen below.
 
@@ -286,7 +286,7 @@ spec:
 In the above examples, we used policies written for OPA/Gatekeeper. However, there are other policy management tools that handle our node-selection use case as well. For example, this [Kyverno policy](https://kyverno.io/policies/other/add_node_affinity/add_node_affinity/) could be used to handle the node affinity mutation.
 
 !!! tip
-    If operating correctly, mutating policies will effect the desired changes to inbound API server request payloads. However, validating policies should be also included to verify that the desired changes occur, before changes are allowed to persist. This is especially important when using these policies for tenant-to-node isolation. It is also a good idea to include _Audit_ policies to routinely check your cluster for unwanted configurations.
+    If operating correctly, mutating policies will effect the desired changes to inbound API server request payloads. However, validating policies should also be included to verify that the desired changes occur, before changes are allowed to persist. This is especially important when using these policies for tenant-to-node isolation. It is also a good idea to include _Audit_ policies to routinely check your cluster for unwanted configurations.
 
 ### References
 
