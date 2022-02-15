@@ -160,7 +160,7 @@ The audit logs are part of the EKS managed Kubernetes control plane logs that ar
     When you enable control plane logging, you will incur [costs](https://aws.amazon.com/cloudwatch/pricing/) for storing the logs in CloudWatch. This raises a broader issue about the ongoing cost of security. Ultimately you will have to weigh those costs against the cost of a security breach, e.g. financial loss, damage to your reputation, etc. You may find that you can adequately secure your environment by implementing only some of the recommendations in this guide. 
 
 !!! warning
-    The maximum size for a CWL entry is 256KB whereas the maximum Kubernetes API request size is 1.5MiB. This is important know because an attacker could theoretically obfuscate their activity by creating a request that is too large for CWL to handle. This can be done by padding the annotations field of a request with a large amount of junk data, which hides all data after the annotation.
+    The maximum size for a CloudWatch Logs entry is [256KB](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html) whereas the maximum Kubernetes API request size is 1.5MiB. Log entries greater than 256KB will either be truncated or only include the request metadata. 
 
 ### Utilize audit metadata
 Kubernetes audit logs include two annotations that indicate whether or not a request was authorized `authorization.k8s.io/decision` and the reason for the decision `authorization.k8s.io/reason`.  Use these attributes to ascertain why a particular API call was allowed. 
