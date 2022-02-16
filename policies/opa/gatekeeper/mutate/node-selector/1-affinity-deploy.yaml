@@ -8,7 +8,7 @@ metadata:
       Adds Node affinity - https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
 spec:
   applyTo:
-  - groups: [""]
+  - groups: ["apps"]
     kinds: ["Deployment"]
     versions: ["v1"]
   match:

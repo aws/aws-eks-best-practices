@@ -8,7 +8,7 @@ metadata:
       Adds toleration - https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 spec:
   applyTo:
-  - groups: [""]
+  - groups: ["apps"]
     kinds: ["Deployment"]
     versions: ["v1"]
   match:
