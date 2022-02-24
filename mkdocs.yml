@@ -23,7 +23,8 @@ nav:
     - Incident Response and Forensics: 'security/docs/incidents.md'
     - Image Security: 'security/docs/image.md'
   - Cluster Autoscaling: 
-    - Home: 'cluster-autoscaling/index.md'
+    - Karpenter: 'karpenter/index.md
+    - Cluster-Autoscaler: 'cluster-autoscaling/index.md'
   - Reliability:
     - Home: 'reliability/docs/index.md'
     - Applications: 'reliability/docs/application.md'
