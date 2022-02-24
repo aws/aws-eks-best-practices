@@ -102,7 +102,8 @@ com.amazonaws.<region>.sts – For IAM roles for service accounts
 com.amazonaws.<region>.ssm - If using Karpenter 
 ```
 
-!!! note Karpenter (controller and webhook deployment) container images must be in or copied to Amazon ECR private or to a another private registry accessible from inside the VPC. The reason for this is that the Karpenter controller and webhook pods currently use Public ECR images. If these are not available from within the VPC, or from networks peered with the VPC, you will get Image pull errors when Kubernetes tries to pull these images from ECR public. 
+!!! note 
+    Karpenter (controller and webhook deployment) container images must be in or copied to Amazon ECR private or to a another private registry accessible from inside the VPC. The reason for this is that the Karpenter controller and webhook pods currently use Public ECR images. If these are not available from within the VPC, or from networks peered with the VPC, you will get Image pull errors when Kubernetes tries to pull these images from ECR public. 
 
 For further information, see [Issue 988](https://github.com/aws/karpenter/issues/988) and [Issue 1157](https://github.com/aws/karpenter/issues/1157).
 
@@ -237,7 +238,8 @@ In general, you should allow Karpenter to decide where to run pods, based on the
 
 When you configure your cluster to automatically scale, you should create billing alarms to warn you when your spend has exceeded a threshold and add resource limits to your Karpenter configuration. Setting resource limits with Karpenter is similar to setting an AWS autoscaling group’s maximum capacity in that it represents the maximum amount of compute resources that can be instantiated by a Karpenter provisioner. 
 
-!!! note It is not possible to set a global limit for the whole cluster. Limits apply to specific provisioners. 
+!!! note 
+    It is not possible to set a global limit for the whole cluster. Limits apply to specific provisioners. 
 
 The snippet below tells Karpenter to only provision a maximum of 1000 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only when the limit is met or exceeded. When a limit is exceeded the Karpenter controller will write `*memory* **resource usage of** *1001* **exceeds limit of** *1000*` or a similar looking message to the controller’s logs. If you are routing your container logs to CloudWatch logs, you can create a [metrics filter](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html) to look for specific patterns or terms in your logs and then create a [CloudWatch alarm](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to alert you when your configured metrics threshold is breached. 
 
@@ -251,7 +253,8 @@ spec:
       memory: 1000Gi
 ```
 
-!!! note Setting GPU limits is not supported at this time.
+!!! note 
+    Setting GPU limits is not supported at this time.
 
 If you don’t use limits or constrain the instance types that Karpenter can provision, Karpenter will continue adding compute capacity to your cluster as needed. While configuring Karpenter in this way allows your cluster to scale freely, it can also have significant cost implications. It is for this reason that we recommend that configuring billing alarms. Billing alarms allow you to be alerted and proactively notified when the calculated estimated charges in your account(s) exceed a defined threshold. See [Setting up an Amazon CloudWatch Billing Alarm to Proactively Monitor Estimated Charges](https://aws.amazon.com/blogs/mt/setting-up-an-amazon-cloudwatch-billing-alarm-to-proactively-monitor-estimated-charges/) for additional information. 
 
