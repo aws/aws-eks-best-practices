@@ -32,7 +32,7 @@ Karpenter removes a layer of AWS abstraction to bring some of the flexibility di
 
 ### Consider other autoscaling projects when...
 
-You need features that are still being developed in Karpenter. Because Karpenter is a relatively new project, consider other autoscaling projects for the time being if you have a need for features that are not yet part of Karpenter. 
+You need features that are still being developed in Karpenter. Because Karpenter is a relatively new project, consider other autoscaling projects for the time being if you have a need for features that are not yet part of Karpenter.
 
 ### Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
@@ -40,7 +40,7 @@ Karpenter is installed using a [Helm chart](https://karpenter.sh/v0.5.5/getting-
 
 ### Avoid using custom launch template and custom AMIs with Karpenter
 
-Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s provisioners while others are ignored by Karpenter, e.g. subnets and instance types. 
+Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s provisioners while others are ignored by Karpenter, e.g. subnets and instance types.
 
 Granted, there may be times when you will want to use your own custom launch template, rather than using what Karpenter uses by default. You can use custom AMIs with Karpenter by referencing a launch template in the Provider spec. The reasons to create custom launch templates may include the need to:
 
@@ -49,7 +49,7 @@ Granted, there may be times when you will want to use your own custom launch tem
 
 To learn more, see [Launch Templates and Custom Images](https://karpenter.sh/preview/aws/launch-templates/) in the Karpenter documentation. For background on custom AMIs, see [Amazon EKS AMI Build using EC2 Image Builder](https://www.sufle.io/blog/custom-amazon-eks-ami-build), [Packer scripts](https://github.com/awslabs/amazon-eks-ami), and [Create custom Amazon Linux AMIs for Amazon EKS](https://aws.amazon.com/premiumsupport/knowledge-center/eks-custom-linux-ami/).
 
-### Exclude instance types that do not fit your workload 
+### Exclude instance types that do not fit your workload
 
 Consider excluding specific instances types with the [node.kubernetes.io/instance-type](http://node.kubernetes.io/instance-type) key if they are not required by workloads running in your cluster.
 
@@ -63,25 +63,25 @@ The following example shows how to avoid provisioning large Graviton instances.
       'm6gd.16xlarge'
       'r6g.16xlarge'
       'r6gd.16xlarge'
-      'c6g.16xlarge' 
+      'c6g.16xlarge'
 ```
 
 ### Install the AWS Node Termination Handler when using Spot
 
 At present, Karpenter does not handle the Spot Interruption Termination Notice (ITN) two-minute warning. In lieu of this, you can install [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) to gracefully cordon and drain your spot nodes when they are interrupted.
- Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown, will need NTH. 
+ Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown, will need NTH.
 
 ### **Amazon EKS private cluster without outbound internet access**
 
-When provisioning an EKS Cluster into a VPC with no route to the internet, you have to make sure you’ve configured your environment in accordance with the private cluster [requirements](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements)that appear in EKS documentation. In addition, you need to make sure you’ve created an STS VPC regional endpoint in your VPC. If not, you will see errors similar to those that appear below. 
+When provisioning an EKS Cluster into a VPC with no route to the internet, you have to make sure you’ve configured your environment in accordance with the private cluster [requirements](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements)that appear in EKS documentation. In addition, you need to make sure you’ve created an STS VPC regional endpoint in your VPC. If not, you will see errors similar to those that appear below.
 
 ```console
 ERROR controller.controller.metrics Reconciler error {"commit": "5047f3c", "reconciler group": "karpenter.sh", "reconciler kind": "Provisioner", "name": "default", "namespace": "", "error": "fetching instance types using ec2.DescribeInstanceTypes, WebIdentityErr: failed to retrieve credentials\ncaused by: RequestError: send request failed\ncaused by: Post \"https://sts.<region>.amazonaws.com/\": dial tcp x.x.x.x:443: i/o timeout"}
 ```
 
-These changes are necessary in a private cluster because the Karpenter Controller uses IAM Roles for Service Accounts (IRSA). Pods configured with IRSA acquire credentials by calling the AWS Security Token Service (AWS STS) API. If there is no outbound internet access, you must create and use an ***AWS STS VPC endpoint in your VPC***. 
+These changes are necessary in a private cluster because the Karpenter Controller uses IAM Roles for Service Accounts (IRSA). Pods configured with IRSA acquire credentials by calling the AWS Security Token Service (AWS STS) API. If there is no outbound internet access, you must create and use an ***AWS STS VPC endpoint in your VPC***.
 
-Private clusters also require you to create a ***VPC endpoint for SSM***. When Karpenter tries to provision a new node, it queries the Launch template configs and an SSM parameter. If you do not have a SSM VPC endpoint in your VPC, it will cause the following error: 
+Private clusters also require you to create a ***VPC endpoint for SSM***. When Karpenter tries to provision a new node, it queries the Launch template configs and an SSM parameter. If you do not have a SSM VPC endpoint in your VPC, it will cause the following error:
 
 ```console
 INFO    controller.provisioning Waiting for unschedulable pods  {"commit": "5047f3c", "provisioner": "default"}
@@ -91,7 +91,7 @@ ERROR   controller.provisioning Could not launch node, launching instances, gett
 caused by: Post "https://ssm.<region>.amazonaws.com/": dial tcp x.x.x.x:443: i/o timeout  {"commit": "5047f3c", "provisioner": "default"}
 ```
 
-In summary, to use Karpenter in a completely Private EKS Clusters, you need to create the following VPC endpoints : 
+In summary, to use Karpenter in a completely Private EKS Clusters, you need to create the following VPC endpoints :
 
 ```console
 com.amazonaws.<region>.ec2
@@ -99,11 +99,11 @@ com.amazonaws.<region>.ecr.api
 com.amazonaws.<region>.ecr.dkr
 com.amazonaws.<region>.s3 – For pulling container images
 com.amazonaws.<region>.sts – For IAM roles for service accounts
-com.amazonaws.<region>.ssm - If using Karpenter 
+com.amazonaws.<region>.ssm - If using Karpenter
 ```
 
-!!! note 
-    Karpenter (controller and webhook deployment) container images must be in or copied to Amazon ECR private or to a another private registry accessible from inside the VPC. The reason for this is that the Karpenter controller and webhook pods currently use Public ECR images. If these are not available from within the VPC, or from networks peered with the VPC, you will get Image pull errors when Kubernetes tries to pull these images from ECR public. 
+!!! note
+    Karpenter (controller and webhook deployment) container images must be in or copied to Amazon ECR private or to a another private registry accessible from inside the VPC. The reason for this is that the Karpenter controller and webhook pods currently use Public ECR images. If these are not available from within the VPC, or from networks peered with the VPC, you will get Image pull errors when Kubernetes tries to pull these images from ECR public.
 
 For further information, see [Issue 988](https://github.com/aws/karpenter/issues/988) and [Issue 1157](https://github.com/aws/karpenter/issues/1157).
 
@@ -113,16 +113,16 @@ The following best practices cover topics related to creating provisioners.
 
 ### Create multiple provisioners when...
 
-When different teams are sharing a cluster and need to run their workloads on different worker nodes, or have different OS or instance type requirements, create multiple provisioners. For example, one team may want to use Bottlerocket, while another may want to use Amazon Linux. Likewise, one team might have access to expensive GPU hardware that wouldn’t be needed by another team. Using multiple provisioners makes sure that the most appropriate assets are available to each team. 
+When different teams are sharing a cluster and need to run their workloads on different worker nodes, or have different OS or instance type requirements, create multiple provisioners. For example, one team may want to use Bottlerocket, while another may want to use Amazon Linux. Likewise, one team might have access to expensive GPU hardware that wouldn’t be needed by another team. Using multiple provisioners makes sure that the most appropriate assets are available to each team.
 
 ### Create provisioners that are mutually exclusive
 
 It is recommended to create Provisioners that are mutually exclusive. If they are not, and multiple Provisioners are matched, Karpenter will randomly choose which to use, causing unexpected results. Useful examples for creating multiple provisioners include the following:
 
-Creating a Provisioner with GPU and only allowing special workload to run these (expensive) nodes. 
+Creating a Provisioner with GPU and only allowing special workload to run these (expensive) nodes.
 
 ```yaml
-# Provisioner for GPU Instances with Taints   
+# Provisioner for GPU Instances with Taints
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
@@ -141,7 +141,7 @@ spec:
   ttlSecondsAfterEmpty: 60
 ```
 
-Deployment with toleration for the taint: 
+Deployment with toleration for the taint:
 
 ```yaml
 # Deployment of GPU Workload will have tolerations defined
@@ -155,13 +155,13 @@ spec:
       tolerations:
       - key: "nvidia.com/gpu"
         operator: "Exists"
-        effect: "NoSchedule"     
+        effect: "NoSchedule"
 ```
 
 For a general deployment for another team, the provisioner spec could include nodeAffinify. A Deployment could then use nodeSelectorTerms to match `billing-team`.
 
 ```yaml
-# Provisioner for regular EC2 instances 
+# Provisioner for regular EC2 instances
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
@@ -184,7 +184,7 @@ spec:
     - r5.xlarge
 ```
 
-Deployment using nodeAffinity: 
+Deployment using nodeAffinity:
 
 ```yaml
 # Deployment will have spec.affinity.nodeAffinity defined
@@ -211,7 +211,7 @@ You can use timers on provisioned nodes to set when to delete nodes that are dev
 
 ### Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
-When using Spot, Karpenter uses the [Capacity Optimized](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html)[Prioritized allocation strategy](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html) to provision EC2 instances. The Capacity Optimized allocation strategy will instruct EC2 to provision instances from deeper spot pools in order to decrease the likelihood of interruption. The more instance types you allow Karpenter to utilize, the better EC2 can optimize your spot instance’s runtime. By default, Karpenter will use all Instance Types EC2 offers in the region and availability zones your cluster is deployed in. Karpenter intelligently chooses from the set of all instance types based on pending pods to make sure your pods are scheduled onto appropriately sized and equipped instances. For example, if your pod does not require a GPU, Karpenter will not schedule your pod to an EC2 instance type supporting a GPU. 
+When using Spot, Karpenter uses the [Capacity Optimized](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html)[Prioritized allocation strategy](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html) to provision EC2 instances. The Capacity Optimized allocation strategy will instruct EC2 to provision instances from deeper spot pools in order to decrease the likelihood of interruption. The more instance types you allow Karpenter to utilize, the better EC2 can optimize your spot instance’s runtime. By default, Karpenter will use all Instance Types EC2 offers in the region and availability zones your cluster is deployed in. Karpenter intelligently chooses from the set of all instance types based on pending pods to make sure your pods are scheduled onto appropriately sized and equipped instances. For example, if your pod does not require a GPU, Karpenter will not schedule your pod to an EC2 instance type supporting a GPU.
 
 You shouldn’t place too many constraints on Karpenter when using Spot instances because doing so can affect the availability of your applications. Say, for example, all of the instances of a particular type are reclaimed and there are no suitable alternatives available to replace them. Your pods will remain in a pending state until the spot capacity for the configured instance types is replenished. You can reduce the risk of insufficient capacity errors by spreading your instances across different availability zones, because spot pools are different across AZs. That said, the general best practice is to allow Karpenter to use a diverse set of instance types when using Spot.
 
@@ -236,12 +236,12 @@ In general, you should allow Karpenter to decide where to run pods, based on the
 
 ### Create billing alarms to monitor your compute spend
 
-When you configure your cluster to automatically scale, you should create billing alarms to warn you when your spend has exceeded a threshold and add resource limits to your Karpenter configuration. Setting resource limits with Karpenter is similar to setting an AWS autoscaling group’s maximum capacity in that it represents the maximum amount of compute resources that can be instantiated by a Karpenter provisioner. 
+When you configure your cluster to automatically scale, you should create billing alarms to warn you when your spend has exceeded a threshold and add resource limits to your Karpenter configuration. Setting resource limits with Karpenter is similar to setting an AWS autoscaling group’s maximum capacity in that it represents the maximum amount of compute resources that can be instantiated by a Karpenter provisioner.
 
-!!! note 
-    It is not possible to set a global limit for the whole cluster. Limits apply to specific provisioners. 
+!!! note
+    It is not possible to set a global limit for the whole cluster. Limits apply to specific provisioners.
 
-The snippet below tells Karpenter to only provision a maximum of 1000 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only when the limit is met or exceeded. When a limit is exceeded the Karpenter controller will write `*memory* **resource usage of** *1001* **exceeds limit of** *1000*` or a similar looking message to the controller’s logs. If you are routing your container logs to CloudWatch logs, you can create a [metrics filter](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html) to look for specific patterns or terms in your logs and then create a [CloudWatch alarm](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to alert you when your configured metrics threshold is breached. 
+The snippet below tells Karpenter to only provision a maximum of 1000 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only when the limit is met or exceeded. When a limit is exceeded the Karpenter controller will write `*memory* **resource usage of** *1001* **exceeds limit of** *1000*` or a similar looking message to the controller’s logs. If you are routing your container logs to CloudWatch logs, you can create a [metrics filter](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html) to look for specific patterns or terms in your logs and then create a [CloudWatch alarm](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to alert you when your configured metrics threshold is breached.
 
 For further information using limits with Karpenter, see [Setting Resource Limits](https://karpenter.sh/preview/tasks/set-resource-limits/) in the Karpenter documentation.
 
@@ -253,12 +253,12 @@ spec:
       memory: 1000Gi
 ```
 
-!!! note 
+!!! note
     Setting GPU limits is not supported at this time.
 
-If you don’t use limits or constrain the instance types that Karpenter can provision, Karpenter will continue adding compute capacity to your cluster as needed. While configuring Karpenter in this way allows your cluster to scale freely, it can also have significant cost implications. It is for this reason that we recommend that configuring billing alarms. Billing alarms allow you to be alerted and proactively notified when the calculated estimated charges in your account(s) exceed a defined threshold. See [Setting up an Amazon CloudWatch Billing Alarm to Proactively Monitor Estimated Charges](https://aws.amazon.com/blogs/mt/setting-up-an-amazon-cloudwatch-billing-alarm-to-proactively-monitor-estimated-charges/) for additional information. 
+If you don’t use limits or constrain the instance types that Karpenter can provision, Karpenter will continue adding compute capacity to your cluster as needed. While configuring Karpenter in this way allows your cluster to scale freely, it can also have significant cost implications. It is for this reason that we recommend that configuring billing alarms. Billing alarms allow you to be alerted and proactively notified when the calculated estimated charges in your account(s) exceed a defined threshold. See [Setting up an Amazon CloudWatch Billing Alarm to Proactively Monitor Estimated Charges](https://aws.amazon.com/blogs/mt/setting-up-an-amazon-cloudwatch-billing-alarm-to-proactively-monitor-estimated-charges/) for additional information.
 
-You may also want to enable Cost Anomaly Detection which is an AWS Cost Management feature that uses machine learning to continuously monitor your cost and usage to detect unusual spends. Further information can be found in the [AWS Cost Anomaly Detection Getting Started](https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html) guide. If you’ve gone so far as to create a budget in AWS Budgets, you can also configure an action to notify you when a specific threshold has been breached. With budget actions you can send an email, post a message to an SNS topic, or send a message to a chatbot like Slack. For further information see [Configuring AWS Budgets actions](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html). 
+You may also want to enable Cost Anomaly Detection which is an AWS Cost Management feature that uses machine learning to continuously monitor your cost and usage to detect unusual spends. Further information can be found in the [AWS Cost Anomaly Detection Getting Started](https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html) guide. If you’ve gone so far as to create a budget in AWS Budgets, you can also configure an action to notify you when a specific threshold has been breached. With budget actions you can send an email, post a message to an SNS topic, or send a message to a chatbot like Slack. For further information see [Configuring AWS Budgets actions](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html).
 
 ### Use the do-not-evict  annotation to prevent Karpenter from deprovisioning a node
 
@@ -266,8 +266,8 @@ If you are running a critical application on a Karpenter-provisioned node, such 
 
 If the only non-daemonset pods left on a node are those associated with jobs, Karpenter is able to target and terminate those nodes so long as the job status is succeed or failed.
 
-### Use Quotas or LimitRanges to force people to set resource Requests and/or configure sensible defaults for Requests/Limits
+### Use LimitRanges to configure defaults for resource requests and limits
 
-Because Kubernetes doesn’t set default requests or limits, a container’s consumption of resources from the underlying host, CPU, and memory is unbound. The Kubernetes scheduler looks at a pod’s total requests (the higher of the total requests from the pod’s containers or the total resources from the pod’s Init containers) to determine which worker node to schedule the pod onto. Similarly, Karpenter considers a pod’s requests and limits to determine which type of instance it provisions. By using a limit range or quota, you force users to set requests and limits or have them use default values you set when they neglect to configure requests and limits. 
+Because Kubernetes doesn’t set default requests or limits, a container’s consumption of resources from the underlying host, CPU, and memory is unbound. The Kubernetes scheduler looks at a pod’s total requests (the higher of the total requests from the pod’s containers or the total resources from the pod’s Init containers) to determine which worker node to schedule the pod onto. Similarly, Karpenter considers a pod’s requests to determine which type of instance it provisions. You can use a limit range to apply a sensible default for a namespace, in case resource requests are not specified by some pods.
 
 See [Configure Default Memory Requests and Limits for a Namespace](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
