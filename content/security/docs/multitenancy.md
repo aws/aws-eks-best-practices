@@ -231,7 +231,7 @@ spec:
         effect: "NoSchedule"
 ```
 
-The above policies are specific to pods; this is due to the paths to the mutated elements in the policies' `location` elements. Additional policies could be written to handle resources that create pods, like Deployment and Job resources. The listed policies and other examples can been seen in the companion [GitHub project](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa/gatekeeper/mutate/node-selector) for this guide.
+The above policies are specific to pods; this is due to the paths to the mutated elements in the policies' `location` elements. Additional policies could be written to handle resources that create pods, like Deployment and Job resources. The listed policies and other examples can been seen in the companion [GitHub project](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa/gatekeeper/node-selector) for this guide.
 
 The result of these two mutations is that pods are attracted to the desired node, while at the same time, not repelled by the specific node taint. To verify this, we can see the snippets of output from two `kubectl` calls to get the nodes labeled with `tenant=tenants-x`, and get the pods in the `tenants-x` namespace.
 
