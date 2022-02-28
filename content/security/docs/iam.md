@@ -108,6 +108,7 @@ You can also use [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userg
 
 ### Additional Resources
 [rbac.dev](https://github.com/mhausenblas/rbac.dev) A list of additional resources, including blogs and tools, for Kubernetes RBAC
+[aws-auth](https://github.com/keikoproj/aws-auth) A command-line utility to update the aws-auth ConfigMap
 
 ## Pods Identities
 Certain applications that run within a Kubernetes cluster need permission to call the Kubernetes API to function properly. For example, the [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller) needs to be able to list a Service's Endpoints. The controller also needs to be able to invoke AWS APIs to provision and configure an ALB.  In this section we will explore the best practices for assigning rights and privileges to Pods. 
