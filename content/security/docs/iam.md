@@ -92,6 +92,9 @@ By default when you provision an EKS cluster, the API cluster endpoint is set to
 ### Create the cluster with a dedicated IAM role
 When you create an Amazon EKS cluster, the IAM entity user or role, such as a federated user that creates the cluster, is automatically granted `system:masters` permissions in the cluster's RBAC configuration. This access cannot be removed and is not managed through the `aws-auth` ConfigMap. Therefore it is a good idea to create the cluster with a dedicated IAM role and regularly audit who can assume this role. This role should not be used to perform routine actions on the cluster, and instead additional users should be granted access to the cluster through the `aws-auth` ConfigMap for this purpose. After the `aws-auth` ConfigMap is configured, the role can be deleted and only recreated in an emergency / break glass scenario where the `aws-auth` ConfigMap is corrupted and the cluster is otherwise inaccessible. This can be particularly useful in production clusters which do not usually have direct user access configured.
 
+### Use a tool like eksctl to make changes to the aws-auth ConfigMap
+An improperly formatted aws-auth ConfigMap may cause you to lose access to the cluster. If you need to make changes to the ConfigMap, use a tool like [eksctl](https://eksctl.io/usage/iam-identity-mappings/) or [aws-auth](https://github.com/keikoproj/aws-auth) (keikoproj) instead of editing the ConfigMap directly. 
+
 ### Regularly audit access to the cluster
 Who requires access is likely to change over time. Plan to periodically audit the `aws-auth` ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on [auditing](detective.md).  Additional ideas can be found in this [article](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D) from NCC Group. 
 
@@ -108,7 +111,6 @@ You can also use [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userg
 
 ### Additional Resources
 [rbac.dev](https://github.com/mhausenblas/rbac.dev) A list of additional resources, including blogs and tools, for Kubernetes RBAC
-[aws-auth](https://github.com/keikoproj/aws-auth) A command-line utility to update the aws-auth ConfigMap
 
 ## Pods Identities
 Certain applications that run within a Kubernetes cluster need permission to call the Kubernetes API to function properly. For example, the [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller) needs to be able to list a Service's Endpoints. The controller also needs to be able to invoke AWS APIs to provision and configure an ALB.  In this section we will explore the best practices for assigning rights and privileges to Pods. 
