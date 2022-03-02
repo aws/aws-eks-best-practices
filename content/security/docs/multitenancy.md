@@ -71,7 +71,7 @@ Network policies restrict communication between pods using labels or IP address 
 
 ### Role-based access control (RBAC)
 
-Roles and role bindings are the Kubernetes objects used to enforce role-based access control (RBAC) in Kubernetes. **Roles** contain lists of actions that can be performed against objects in your cluster. **Role bindings** specify the individuals or groups to whom the roles apply.  In the enterprise and KaaS settings, RBAC can be used to permit administration of objects by selected groups or individuals.
+Roles and role bindings are the Kubernetes objects used to enforce role-based access control (RBAC) in Kubernetes. **Roles** contain lists of actions that can be performed against objects in your cluster. **Role bindings** specify the individuals or groups to whom the roles apply.  In the enterprise and KaaS settings, RBAC can be used to permit administration of objects by selected groups or individuals. However, widely scoped roles can allow administrators or applications associated with it to access wide range of objects. Therefore, ensure roles and role bindings deployed in your cluster are restricted and scoped to resources which user or applications need to access. For more information about RBAC, see the [Kubernetes RBAC documentation](https://kubernetes.io/docs/reference/access-authn-authz/rbac/).
 
 ### Quotas
 
