@@ -202,7 +202,7 @@ spec:
               - matchExpressions:
                 - key: "billing-team"
                   operator: "In"
-                  values: ["myteam"]
+                  values: ["my-team"]
 ```
 
 ### Use timers (TTL) to automatically delete nodes from the cluster
