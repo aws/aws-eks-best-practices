@@ -119,7 +119,7 @@ When different teams are sharing a cluster and need to run their workloads on di
 
 It is recommended to create Provisioners that are mutually exclusive. If they are not, and multiple Provisioners are matched, Karpenter will randomly choose which to use, causing unexpected results. Useful examples for creating multiple provisioners include the following:
 
-Creating a Provisioner with GPU and only allowing special workload to run these (expensive) nodes.
+Creating a Provisioner with GPU and only allowing special workloads to run on these (expensive) nodes:
 
 ```yaml
 # Provisioner for GPU Instances with Taints
