@@ -211,7 +211,19 @@ You can use timers on provisioned nodes to set when to delete nodes that are dev
 
 ### Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
-When using Spot, Karpenter uses the [Capacity Optimized](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html)[Prioritized allocation strategy](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html) to provision EC2 instances. The Capacity Optimized allocation strategy will instruct EC2 to provision instances from deeper spot pools in order to decrease the likelihood of interruption. The more instance types you allow Karpenter to utilize, the better EC2 can optimize your spot instance’s runtime. By default, Karpenter will use all Instance Types EC2 offers in the region and availability zones your cluster is deployed in. Karpenter intelligently chooses from the set of all instance types based on pending pods to make sure your pods are scheduled onto appropriately sized and equipped instances. For example, if your pod does not require a GPU, Karpenter will not schedule your pod to an EC2 instance type supporting a GPU.
+When using Spot, Karpenter uses the [Capacity Optimized](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html)[Prioritized allocation strategy](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html) to provision EC2 instances. The Capacity Optimized allocation strategy will instruct EC2 to provision instances from deeper spot pools in order to decrease the likelihood of interruption. The more instance types you allow Karpenter to utilize, the better EC2 can optimize your spot instance’s runtime. By default, Karpenter will use all Instance Types EC2 offers in the region and availability zones your cluster is deployed in. Karpenter intelligently chooses from the set of all instance types based on pending pods to make sure your pods are scheduled onto appropriately sized and equipped instances. For example, if your pod does not require a GPU, Karpenter will not schedule your pod to an EC2 instance type supporting a GPU. When you're unsure about which instance types to use, you can run the Amazon [ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector) to generate a list of instance types that match your compute requirements. For example, the CLI takes memory vCPU, architecture, and region as input parameters and provides you with a list of EC2 instances that satisfy those constraints.
+
+```console
+$ ec2-instance-selector --memory 4 --vcpus 2 --cpu-architecture x86_64 -r ap-southeast-1
+c5.large
+c5a.large
+c5ad.large
+c5d.large
+c6i.large
+t2.medium
+t3.medium
+t3a.medium
+```
 
 You shouldn’t place too many constraints on Karpenter when using Spot instances because doing so can affect the availability of your applications. Say, for example, all of the instances of a particular type are reclaimed and there are no suitable alternatives available to replace them. Your pods will remain in a pending state until the spot capacity for the configured instance types is replenished. You can reduce the risk of insufficient capacity errors by spreading your instances across different availability zones, because spot pools are different across AZs. That said, the general best practice is to allow Karpenter to use a diverse set of instance types when using Spot.
 
@@ -260,14 +272,38 @@ If you don’t use limits or constrain the instance types that Karpenter can pro
 
 You may also want to enable Cost Anomaly Detection which is an AWS Cost Management feature that uses machine learning to continuously monitor your cost and usage to detect unusual spends. Further information can be found in the [AWS Cost Anomaly Detection Getting Started](https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html) guide. If you’ve gone so far as to create a budget in AWS Budgets, you can also configure an action to notify you when a specific threshold has been breached. With budget actions you can send an email, post a message to an SNS topic, or send a message to a chatbot like Slack. For further information see [Configuring AWS Budgets actions](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html).
 
-### Use the do-not-evict  annotation to prevent Karpenter from deprovisioning a node
+### Use the do-not-evict annotation to prevent Karpenter from deprovisioning a node
 
 If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/do-not-evict` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `do-not-evict` annotation is removed. See [Deprovisioning](https://karpenter.sh/preview/tasks/deprovisioning/#pod-set-to-do-not-evict) documentation for further information.
 
 If the only non-daemonset pods left on a node are those associated with jobs, Karpenter is able to target and terminate those nodes so long as the job status is succeed or failed.
+
+### Configure the Node Termination Handler to use queue processor mode
+Node Termination Handler operates in two modes, using Instance Metadata Services (IMDS) or using a Queue Processor. The IMDS service runs a pod on each node to monitor the events and act accordingly. Whereas the queue processor uses Amazon Simple Queue Service (Amazon SQS) to receive Auto Scaling Group (ASG) lifecycle events, EC2 status change events, Spot interruption termination notice events, and Spot rebalance recommendation events. These events can be configured to be published to Amazon EventBridge. In Karpenter’s case, Auto Scaling Group lifecycle events should not be considered because the instances provisioned using Karpenter are not part of an ASG.
+
+When following the [installation instructions](https://github.com/aws/aws-node-termination-handler#infrastructure-setup), you can skip the steps for **Set up a Termination Lifecycle Hook on an Auto Scaling group** and **Tag the Auto Scaling groups** because instances provisioned by Karpenter do not belong to an autoscaling group. In the step **Create Amazon Eventbridge Rules**, skip the step to create Auto Scaling event rules. If you are deploying the Helm chart for the Node Termination Handler Queue Processor, use the following values:
+
+```yaml
+## Queue processor values.yaml
+
+enableSqsTerminationDraining: true
+queueURL: "<specify your queue URl>"
+awsRegion: "<specify your region>"
+serviceAccount:
+  create: false
+  name: nth # <-- adjust to your service account
+checkASGTagBeforeDraining: false # <-- set to false as instances do not belong to any ASG
+enableSpotInterruptionDraining: true
+```
 
 ### Use LimitRanges to configure defaults for resource requests and limits
 
 Because Kubernetes doesn’t set default requests or limits, a container’s consumption of resources from the underlying host, CPU, and memory is unbound. The Kubernetes scheduler looks at a pod’s total requests (the higher of the total requests from the pod’s containers or the total resources from the pod’s Init containers) to determine which worker node to schedule the pod onto. Similarly, Karpenter considers a pod’s requests to determine which type of instance it provisions. You can use a limit range to apply a sensible default for a namespace, in case resource requests are not specified by some pods.
 
 See [Configure Default Memory Requests and Limits for a Namespace](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
+
+## Additional Resources
+* [Karpenter/Spot Workshop](https://cmp307.ec2spotworkshops.com/040_karpenter.html)
+* [Karpenter Node Provisioner](https://youtu.be/_FXRIKWJWUk)
+* [TGIK Karpenter](https://youtu.be/zXqrNJaTCrU)
+* [Karpenter vs. Cluster Autoscaler](https://youtu.be/3QsVRHVdOnM)
