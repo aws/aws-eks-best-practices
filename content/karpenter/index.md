@@ -56,7 +56,7 @@ Consider excluding specific instances types with the [node.kubernetes.io/instanc
 The following example shows how to avoid provisioning large Graviton instances.
 
 ```yaml
-- key: [node.kubernetes.io/instance-type](http://node.kubernetes.io/instance-type)
+- key: node.kubernetes.io/instance-type
     operator: NotIn
     values:
       'm6g.16xlarge'
