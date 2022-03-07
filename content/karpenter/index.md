@@ -73,7 +73,7 @@ At present, Karpenter does not handle the Spot Interruption Termination Notice (
 
 ### **Amazon EKS private cluster without outbound internet access**
 
-When provisioning an EKS Cluster into a VPC with no route to the internet, you have to make sure you’ve configured your environment in accordance with the private cluster [requirements](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements)that appear in EKS documentation. In addition, you need to make sure you’ve created an STS VPC regional endpoint in your VPC. If not, you will see errors similar to those that appear below.
+When provisioning an EKS Cluster into a VPC with no route to the internet, you have to make sure you’ve configured your environment in accordance with the private cluster [requirements](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements) that appear in EKS documentation. In addition, you need to make sure you’ve created an STS VPC regional endpoint in your VPC. If not, you will see errors similar to those that appear below.
 
 ```console
 ERROR controller.controller.metrics Reconciler error {"commit": "5047f3c", "reconciler group": "karpenter.sh", "reconciler kind": "Provisioner", "name": "default", "namespace": "", "error": "fetching instance types using ec2.DescribeInstanceTypes, WebIdentityErr: failed to retrieve credentials\ncaused by: RequestError: send request failed\ncaused by: Post \"https://sts.<region>.amazonaws.com/\": dial tcp x.x.x.x:443: i/o timeout"}
@@ -119,7 +119,7 @@ When different teams are sharing a cluster and need to run their workloads on di
 
 It is recommended to create Provisioners that are mutually exclusive. If they are not, and multiple Provisioners are matched, Karpenter will randomly choose which to use, causing unexpected results. Useful examples for creating multiple provisioners include the following:
 
-Creating a Provisioner with GPU and only allowing special workload to run these (expensive) nodes.
+Creating a Provisioner with GPU and only allowing special workloads to run on these (expensive) nodes:
 
 ```yaml
 # Provisioner for GPU Instances with Taints
@@ -202,7 +202,7 @@ spec:
               - matchExpressions:
                 - key: "billing-team"
                   operator: "In"
-                  values: ["myteam"]
+                  values: ["my-team"]
 ```
 
 ### Use timers (TTL) to automatically delete nodes from the cluster
