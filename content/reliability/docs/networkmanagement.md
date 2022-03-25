@@ -88,9 +88,6 @@ If you want the CNI to assign IP addresses for Pods from a different subnet, you
 kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
 ```
 
-!!! note
-    EKS managed node groups currently don’t support custom networking option. 
-
 When `AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true`, the CNI will assign Pod IP address from a subnet defined in `ENIConfig`. The `ENIConfig` custom resource is used to define the subnet in which Pods will be scheduled. 
 
 ```yaml
