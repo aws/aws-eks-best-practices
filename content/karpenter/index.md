@@ -307,3 +307,4 @@ See [Configure Default Memory Requests and Limits for a Namespace](https://kuber
 * [Karpenter Node Provisioner](https://youtu.be/_FXRIKWJWUk)
 * [TGIK Karpenter](https://youtu.be/zXqrNJaTCrU)
 * [Karpenter vs. Cluster Autoscaler](https://youtu.be/3QsVRHVdOnM)
+* [Groupless Autoscaling with Karpenter](https://www.youtube.com/watch?v=43g8uPohTgc)
