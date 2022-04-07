@@ -340,7 +340,19 @@ Any role or ClusterRole other than system:public-info-viewer should not be bound
 
 There may be some legitimate reasons to enable anonymous access on specific APIs. If this is the case for your cluster ensure that only those specific APIs are accessible by anonymous user and exposing those APIs without authentication doesn’t make your cluster vulnerable. 
 
-Prior to Kubernetes/EKS Version 1.14, system:unauthenticated group was associated to system:discovery and system:basic-user ClusterRoles by default.  Note that even if you have updated your cluster to version 1.14 or higher, these permissions may still be enabled on your cluster, since cluster updates do not revoke these permissions. To check if system:unauthenticated group has system:discovery permissions on your cluster run the following command: 
+Prior to Kubernetes/EKS Version 1.14, system:unauthenticated group was associated to system:discovery and system:basic-user ClusterRoles by default.  Note that even if you have updated your cluster to version 1.14 or higher, these permissions may still be enabled on your cluster, since cluster updates do not revoke these permissions. 
+To check which ClusterRoles have "system:unauthenticated" except system:public-info-viewer you can run the following command (requires jq util):
+
+```
+kubectl get ClusterRoleBinding -o json | jq -r '.items[] | select(.subjects[]?.name =="system:unauthenticated") | select(.metadata.name != "system:public-info-viewer") | .metadata.name'
+```
+
+And "system:unauthenticated" can be removed from all the roles except "system:public-info-viewer" using:
+```
+kubectl get ClusterRoleBinding -o json | jq -r '.items[] | select(.subjects[]?.name =="system:unauthenticated") | select(.metadata.name != "system:public-info-viewer") | del(.subjects[] | select(.name =="system:unauthenticated"))' | kubectl apply -f -
+```
+
+Alternatively, you can check and remove it manually by kubectl describe and kubectl edit. To check if system:unauthenticated group has system:discovery permissions on your cluster run the following command: 
 ```
 kubectl describe clusterrolebindings system:discovery
 
@@ -373,6 +385,7 @@ Subjects:
   Group  system:authenticated
   Group  system:unauthenticated
 ```
+
 If system:unauthenticated group is bound to system:discovery and/or system:basic-user ClusterRoles on your cluster, you should disassociate these roles from system:unauthenticated group. Edit system:discovery ClusterRoleBinding using the following command:
 ```
 kubectl edit clusterrolebindings system:discovery
