@@ -92,8 +92,50 @@ By default when you provision an EKS cluster, the API cluster endpoint is set to
 ### Create the cluster with a dedicated IAM role
 When you create an Amazon EKS cluster, the IAM entity user or role, such as a federated user that creates the cluster, is automatically granted `system:masters` permissions in the cluster's RBAC configuration. This access cannot be removed and is not managed through the `aws-auth` ConfigMap. Therefore it is a good idea to create the cluster with a dedicated IAM role and regularly audit who can assume this role. This role should not be used to perform routine actions on the cluster, and instead additional users should be granted access to the cluster through the `aws-auth` ConfigMap for this purpose. After the `aws-auth` ConfigMap is configured, the role can be deleted and only recreated in an emergency / break glass scenario where the `aws-auth` ConfigMap is corrupted and the cluster is otherwise inaccessible. This can be particularly useful in production clusters which do not usually have direct user access configured.
 
-### Use a tool like eksctl to make changes to the aws-auth ConfigMap
-An improperly formatted aws-auth ConfigMap may cause you to lose access to the cluster. If you need to make changes to the ConfigMap, use a tool like [eksctl](https://eksctl.io/usage/iam-identity-mappings/) or [aws-auth](https://github.com/keikoproj/aws-auth) (keikoproj) instead of editing the ConfigMap directly. 
+### Use tools to make changes to the aws-auth ConfigMap
+An improperly formatted aws-auth ConfigMap may cause you to lose access to the cluster. If you need to make changes to the ConfigMap, use a tool.
+
+**eksctl**
+
+The `eksctl` CLI includes a command for adding identity mappings to the aws-auth
+ConfigMap.
+
+View CLI Help:
+
+```
+eksctl create iamidentitymapping --help
+```
+
+Make an IAM Role a Cluster Admin:
+```
+ eksctl create iamidentitymapping --cluster  <clusterName> --region=<region> --arn arn:aws:iam::123456:role/testing --group system:masters --username admin
+```
+
+For more information, review [`eksctl` docs](https://eksctl.io/usage/iam-identity-mappings/)
+
+**[aws-auth](https://github.com/keikoproj/aws-auth) by keikoproj**
+
+`aws-auth` by keikoproj includes both a cli and a go library.
+
+Download and view help CLI help:
+```
+go get github.com/keikoproj/aws-auth
+aws-auth help
+```
+
+[Review the docs on GitHub](https://github.com/keikoproj/aws-auth/blob/master/README.md) for more information, including the go library.
+
+**[AWS IAM Authenticator CLI](https://github.com/kubernetes-sigs/aws-iam-authenticator/tree/master/cmd/aws-iam-authenticator)**
+
+The `aws-iam-authenticator` project includes a CLI for updating the ConfigMap.
+
+[Download a release](https://github.com/kubernetes-sigs/aws-iam-authenticator/releases) on GitHub.
+
+Add cluster permissions to an IAM Role:
+
+```
+./aws-iam-authenticator add role --rolearn arn:aws:iam::185309785115:role/lil-dev-role-cluster --username lil-dev-user --groups system:masters --kubeconfig ~/.kube/config
+```
 
 ### Regularly audit access to the cluster
 Who requires access is likely to change over time. Plan to periodically audit the `aws-auth` ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on [auditing](detective.md).  Additional ideas can be found in this [article](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D) from NCC Group. 
