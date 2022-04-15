@@ -123,7 +123,14 @@ go get github.com/keikoproj/aws-auth
 aws-auth help
 ```
 
-[Review the docs on GitHub](https://github.com/keikoproj/aws-auth/blob/master/README.md) for more information, including the go library.
+Alternatively, install `aws-auth` with the [krew plugin manager](https://krew.sigs.k8s.io) for kubectl.
+
+```
+kubectl krew install aws-auth
+kubectl aws-auth
+```
+
+[Review the aws-auth docs on GitHub](https://github.com/keikoproj/aws-auth/blob/master/README.md) for more information, including the go library.
 
 **[AWS IAM Authenticator CLI](https://github.com/kubernetes-sigs/aws-iam-authenticator/tree/master/cmd/aws-iam-authenticator)**
 
