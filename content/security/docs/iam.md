@@ -327,7 +327,7 @@ spec:
 ### Scope the IAM Role trust policy for IRSA to the service account name
 The trust policy can be scoped to a Namespace or a specific service account within a Namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other Pods within the same Namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See [https://eksctl.io/usage/iamserviceaccounts/](https://eksctl.io/usage/iamserviceaccounts/) for further information. 
 
-### When your application needs access to IDMS, use IMDSv2 and increase the hop limit on EC2 instances to 2
+### When your application needs access to IMDS, use IMDSv2 and increase the hop limit on EC2 instances to 2
 [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) requires you use a PUT request to get a session token.  The initial PUT request has to include a TTL for the session token.  Newer versions of the AWS SDKs will handle this and the renewal of said token automatically. It's also important to be aware that the default hop limit on EC2 instances is intentionally set to 1 to prevent IP forwarding. As a consequence, Pods that request a session token that are run on EC2 instances may eventually time out and fallback to using the IMDSv1 data flow. EKS adds support IMDSv2 by _enabling_ both v1 and v2 and changing the hop limit to 2 on nodes provisioned by eksctl or with the official CloudFormation templates. 
 
 ### Disable auto-mounting of service account tokens
