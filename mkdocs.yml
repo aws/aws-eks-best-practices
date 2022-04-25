@@ -45,6 +45,14 @@ nav:
     - Scheduling: 'windows/docs/scheduling.md'
     - Pod Security for Windows Containers: 'windows/docs/security.md'
     - Storage Options: 'windows/docs/storage.md'
+  - Networking:
+    - Overview: 'networking/docs/index.md'
+    - Custom Networking: 'networking/docs/customnetworking.md'
+    - Security Groups Per Pod: 'networking/docs/sg.md'
+    - Multi-homed Pods: 'networking/docs/multus.md'
+    - IPv6
+      - Overview: 'networking/docs/ipv6.md'
+      - Migrate to IPv6: 'networking/docs/migrate.md'
 markdown_extensions:
     - toc:
         permalink: true
