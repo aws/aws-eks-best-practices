@@ -250,10 +250,10 @@ This page contains a list of Cluster Autoscaler presentations and demos. If you'
 
 ## References
 
-* https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md
-* https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md
-* https://github.com/aws/amazon-ec2-instance-selector
-* https://github.com/aws/aws-node-termination-handler
+* [https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md)
+* [https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md)
+* [https://github.com/aws/amazon-ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector)
+* [https://github.com/aws/aws-node-termination-handler](https://github.com/aws/aws-node-termination-handler)
 
 
 
