@@ -343,34 +343,13 @@ Each application should have its own dedicated service account.  This applies to
     If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster. 
 
 ### Run the application as a non-root user
-Containers run as root by default. While this allows them to read the web identity token file, running a container as root is not considered a best practice. As an alternative, consider adding the `spec.securityContext.runAsUser` attribute to the PodSpec.  The value of `runAsUser` is arbitrary value.
 
-In the following example, all processes within the Pod will run under the user ID specified in the `runAsUser` field. 
+Containers run as root by default. While convenient, this is not considered a best practice due to the security risk. If an attacker were able to exploit a vulnerability in the application and get shell access it is possible for them to act as root on the node, not just the container.
 
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: security-context-demo
-spec:
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 3000
-  containers:
-  - name: sec-ctx-demo
-    image: busybox
-    command: [ "sh", "-c", "sleep 1h" ]
-```
+Instead you can mitigate this risk by having the application run as a non-root user. This can be done by a `USER` directive in your Dockerfile, or at deploy time by settings in the Pod `securityContext`. More details and code examples can be found on the [Pod Security recommendations](pods.md#do-not-run-processes-in-containers-as-root).
 
-When you run a container as a non-root user, it prevents the container from reading the IRSA service account token because the token is assigned 0600 [root] permissions by default. If you update the securityContext for your container to include fsgroup=65534 [Nobody] it will allow the container to read the token.
-
-```
-spec:
-  securityContext:
-    fsGroup: 65534
-```
-
-In Kubernetes 1.19 and above, this change is no longer required.
+!!! note
+    If your cluster is Kubernetes 1.18 or earlier you'll need to take one more step. IRSA service account tokens are assigned `0600 root` permissions by default, and will not be readable by the non-root user. If you update the `securityContext` for your container to include `fsgroup=65534` (Nobody) it will allow the container to read the token. In Kubernetes 1.19+ this change is no longer required.
 
 ### Grant least privileged access to applications
 [Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function properly.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you gradually limit the scope of IAM roles assigned to applications. Consult the documentation on granting [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources for further information.
