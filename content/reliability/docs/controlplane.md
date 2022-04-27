@@ -174,6 +174,7 @@ AWS sets service limits (an upper limit on the number of each resource your team
 - Besides the limits from orchestration engines, there are limits in other AWS services, such as Elastic Load Balancing (ELB) and Amazon VPC, that may affect your application performance.
 - More about EC2 limits here: [EC2 service limits](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html).
 - Each EC2 instance limits the number of packets that can be sent to the [Amazon-provided DNS server](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-limits) to a maximum of 1024 packets per second per network interface.
+- In EKS environment, etcd storage limit is 8GB as per [upstream guidance](https://etcd.io/docs/v3.5/dev-guide/limit/#storage-size-limit).Please monitor metric etcd_db_total_size_in_bytes to track etcd db size.
 
 ## Additional Resources:
 
