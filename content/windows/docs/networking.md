@@ -18,7 +18,7 @@ Using the formula above, we can calculate max pods for an m5.large instance.
 
 _(1 primary ENI * 10 secondary IPs per ENI) - 3 = 7_
 
-The reason it only support 7 is because the CNI only allows us to use the worker node's primary ENI. Also each ENI on an m5.large supports 10 secondary IP addresses, so we subtract 3 from 10 to get our total of 7 IP addresses.
+**Note: The reason it only support 7 is because the VPC CNI for Windows only allows us to use the worker node's primary ENI. Also each ENI on an m5.large supports 10 secondary IP addresses, so we subtract 3 from 10 to get our total of 7 IP addresses.**
 
 For more information on how many IP addresses an instance type can support, see [IP addresses per network interface per instance type](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI). 
 
