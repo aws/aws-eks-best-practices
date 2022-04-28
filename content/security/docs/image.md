@@ -91,6 +91,15 @@ Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will 
 
 For further information about using endpoint policies, see [Using VPC endpoint policies to control Amazon ECR access](https://aws.amazon.com/blogs/containers/using-vpc-endpoint-policies-to-control-amazon-ecr-access/). 
 
+### Implement lifecycle policies for ECR
+The [NIST Application Container Security Guide](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf) warns about the risk of "stale images in registries", noting that over time old images with vulnerable, out-of-date software packages should be removed to prevent accidental deployment and exposure.
+
+Each ECR repository can have a lifecycle policy that sets rules for when images expire. The [AWS official doc](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html) describes how to set up test rules, evaluate them and then apply them. There are several [lifecycle policy examples](https://docs.aws.amazon.com/AmazonECR/latest/userguide/lifecycle_policy_examples.html) in the official docs that show different ways of filtering the images in a repository:
+
+* Filtering by image age or count
+* Filtering by tagged or untagged images
+* Filtering by image tags, either in multiple rules or a single rule
+
 ### Create a set of curated images
 Rather than allowing developers to create their own images, consider creating a set of vetted images for the different application stacks in your organization.  By doing so, developers can forego learning how to compose Dockerfiles and concentrate on writing code.  As changes are merged into Master, a CI/CD pipeline can automatically compile the asset, store it in an artifact repository and copy the artifact into the appropriate image before pushing it to a Docker registry like ECR. At the very least you should create a set of base images from which developers to create their own Dockerfiles.  Ideally, you want to avoid pulling images from Dockerhub because a) you don't always know what is in the image and b) about [a fifth](https://www.kennasecurity.com/blog/one-fifth-of-the-most-used-docker-containers-have-at-least-one-critical-vulnerability/) of the top 1000 images have vulnerabilties. A list of those images and their vulnerabilities can be found at https://vulnerablecontainers.org/.
 
