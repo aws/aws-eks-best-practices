@@ -21,6 +21,51 @@ Instead of enabling SSH access, use [SSM Session Manager](https://docs.aws.amazo
 
 As of August 19th, 2020 Managed Node Groups support custom AMIs and EC2 Launch Templates.  This allows you to embed the SSM agent into the AMI or install it as the worker node is being bootstrapped. If you rather not modify the Optimized AMI or the ASG's launch template, you can install the SSM agent with a DaemonSet as in this example, https://github.com/aws-samples/ssm-agent-daemonset-installer. 
 
+#### Minimal IAM policy for SSM based SSH Access
+
+The `AmazonSSMManagedInstanceCore` AWS managed policy contains a number of permissions that are not required for SSM Session Manager / SSM RunCommand if you're just looking to avoid SSH access. Of concern specifically is the
+`*` permissions for `ssm:GetParameter(s)` which would allow for the role to access all parameters in Parameter Store (including SecureStrings with the AWS managed KMS key configured).
+
+The following IAM policy contains the minimal set of permissions to enable node access via SSM Systems Manager.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EnableAccessViaSSMSessionManager",
+      "Effect": "Allow",
+      "Action": [
+        "ssmmessages:OpenDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:CreateControlChannel",
+        "ssm:UpdateInstanceInformation"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EnableSSMRunCommand",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:UpdateInstanceInformation",
+        "ec2messages:SendReply",
+        "ec2messages:GetMessages",
+        "ec2messages:GetEndpoint",
+        "ec2messages:FailMessage",
+        "ec2messages:DeleteMessage",
+        "ec2messages:AcknowledgeMessage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+With this policy in place and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed, you can then run `aws ssm start-session --target [INSTANCE_ID_OF_EKS_NODE]` to access the node.
+
+Note, you may also want to consider adding permissions to [enable Session Manager logging](https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging).
+
 ### Deploy workers onto private subnets
 By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  Beginning April 22, 2020, the assignment of public IP addresses to nodes in a managed node groups will be controlled by the subnet they are deployed onto.  Prior to this, nodes in a Managed Node Group were automatically assigned a public IP. If you choose to deploy your worker nodes on to public subnets, implement restrictive AWS security group rules to limit their exposure.
 
