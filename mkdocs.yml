@@ -55,9 +55,7 @@ markdown_extensions:
     - codehilite
 plugins: 
     - search
-        indexing: 'full'
 extra:
   analytics:
     provider: google
     property: G-VQGL8B2FH8
-
