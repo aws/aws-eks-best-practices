@@ -55,3 +55,8 @@ markdown_extensions:
     - codehilite
 plugins: 
     - search
+extra:
+  analytics:
+    provider: google
+    property: G-313385601
+
