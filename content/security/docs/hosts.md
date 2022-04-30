@@ -62,9 +62,14 @@ The following IAM policy contains the minimal set of permissions to enable node 
 }
 ```
 
-With this policy in place and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed, you can then run `aws ssm start-session --target [INSTANCE_ID_OF_EKS_NODE]` to access the node.
+With this policy in place and the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) installed, you can then run 
+```bash
+aws ssm start-session --target [INSTANCE_ID_OF_EKS_NODE]
+``` 
+to access the node.
 
-Note, you may also want to consider adding permissions to [enable Session Manager logging](https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging).
+!!! note
+    You may also want to consider adding permissions to [enable Session Manager logging](https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging).
 
 ### Deploy workers onto private subnets
 By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  Beginning April 22, 2020, the assignment of public IP addresses to nodes in a managed node groups will be controlled by the subnet they are deployed onto.  Prior to this, nodes in a Managed Node Group were automatically assigned a public IP. If you choose to deploy your worker nodes on to public subnets, implement restrictive AWS security group rules to limit their exposure.
