@@ -171,9 +171,9 @@ Some general guidance can be applied to sizing resource requests and limits for 
 
 - For non-CPU resources, configuring `requests`=`limits` provides the most predictable behavior. If `requests`!=`limits`, the container also has its [QOS](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#qos-classes) reduced from Guaranteed to Burstable making it more likely to be evicted in the event of [node pressure](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/).
 
-- For non-CPU resources, do not specify a limit that is much larger than request.  The larger `limits` are configured relative to `requests`, the more likely nodes will be overcommitted leading to high chances of workload interruption.
+- For non-CPU resources, do not specify a limit that is much larger than the request.  The larger `limits` are configured relative to `requests`, the more likely nodes will be overcommitted leading to high chances of workload interruption.
 
-- Correctly sized requests are particularly important when using an autos-scaling solution like [Karpenter](/karpenter/) or [Cluster AutoScaler](/cluster-autoscaling).  These tools look at your workload requests to determine the number and size of nodes to be provisioned. If your requests are too small with larger limits, you may find your workloads being evicted or OOM killed if they have been tightly packed on a node.
+- Correctly sized requests are particularly important when using a node auto-scaling solution like [Karpenter](/karpenter/) or [Cluster AutoScaler](/cluster-autoscaling).  These tools look at your workload requests to determine the number and size of nodes to be provisioned. If your requests are too small with larger limits, you may find your workloads evicted or OOM killed if they have been tightly packed on a node.
 
 Determining resource requests can be difficult, but tools like the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can help you 'right-size' the requests by observing container resource usage at runtime.
 
