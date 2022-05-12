@@ -36,7 +36,7 @@ You need features that are still being developed in Karpenter. Because Karpenter
 
 ### Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
-Karpenter is installed using a [Helm chart](https://karpenter.sh/v0.5.5/getting-started/#install-karpenter-helm-chart). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `Karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
+Karpenter is installed using a [Helm chart](https://karpenter.sh/v0.5.5/getting-started/#install-karpenter-helm-chart). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
 
 ### Avoid using custom launch template and custom AMIs with Karpenter
 
