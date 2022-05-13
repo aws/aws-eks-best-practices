@@ -163,6 +163,26 @@ For critical applications, consider defining `requests`=`limits` for the contain
 
 It is a best practice to implement CPU and memory limits for all containers as it prevents a container inadvertently consuming system resources impacting the availability of other co-located processes.
 
+### Configure and Size Resource Requests/Limits for all Workloads
+
+Some general guidance can be applied to sizing resource requests and limits for workloads:
+
+- Do not specify resource limits on CPU.  In the absence of limits, the request acts as a weight on [how much relative CPU time containers get](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#how-pods-with-resource-limits-are-run). This allows your workloads to use the full CPU without an artificial limit or starvation.
+
+- For non-CPU resources, configuring `requests`=`limits` provides the most predictable behavior. If `requests`!=`limits`, the container also has its [QOS](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#qos-classes) reduced from Guaranteed to Burstable making it more likely to be evicted in the event of [node pressure](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/).
+
+- For non-CPU resources, do not specify a limit that is much larger than the request.  The larger `limits` are configured relative to `requests`, the more likely nodes will be overcommitted leading to high chances of workload interruption.
+
+- Correctly sized requests are particularly important when using a node auto-scaling solution like [Karpenter](/karpenter/) or [Cluster AutoScaler](/cluster-autoscaling).  These tools look at your workload requests to determine the number and size of nodes to be provisioned. If your requests are too small with larger limits, you may find your workloads evicted or OOM killed if they have been tightly packed on a node.
+
+Determining resource requests can be difficult, but tools like the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can help you 'right-size' the requests by observing container resource usage at runtime.  Other tools that may be useful for determining request sizes include:
+
+- [Goldilocks](https://github.com/FairwindsOps/goldilocks)
+- [Parca](https://www.parca.dev/)
+- [Prodfiler](https://prodfiler.com/)
+- [rsg](https://mhausenblas.info/right-size-guide/)
+
+
 ### Configure resource quotas for namespaces
 
 Namespaces are intended for use in environments with many users spread across multiple teams, or projects. They provide a scope for names and are a way to divide cluster resources between multiple teams, projects, workloads. You can limit the aggregate resource consumption in a namespace. The [`ResourceQuota`](https://kubernetes.io/docs/concepts/policy/resource-quotas/) object can limit the quantity of objects that can be created in a namespace by type, as well as the total amount of compute resources that may be consumed by resources in that project. You can limit the total sum of storage and/or compute (CPU and memory) resources that can be requested in a given namespace.
