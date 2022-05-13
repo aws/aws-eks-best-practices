@@ -298,6 +298,12 @@ Because Kubernetes doesn’t set default requests or limits, a container’s con
 
 See [Configure Default Memory Requests and Limits for a Namespace](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
 
+### Apply accurate resource requests to all workloads
+
+Karpenter is able to launch nodes that best fit your workloads when its information about your workloads requirements is accurate.  
+
+See [Configure and Size Resource Requests/Limits for all Workloads](/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads)
+
 ## Additional Resources
 * [Karpenter/Spot Workshop](https://cmp307.ec2spotworkshops.com/040_karpenter.html)
 * [Karpenter Node Provisioner](https://youtu.be/_FXRIKWJWUk)

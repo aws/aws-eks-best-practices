@@ -175,7 +175,13 @@ Some general guidance can be applied to sizing resource requests and limits for 
 
 - Correctly sized requests are particularly important when using a node auto-scaling solution like [Karpenter](/karpenter/) or [Cluster AutoScaler](/cluster-autoscaling).  These tools look at your workload requests to determine the number and size of nodes to be provisioned. If your requests are too small with larger limits, you may find your workloads evicted or OOM killed if they have been tightly packed on a node.
 
-Determining resource requests can be difficult, but tools like the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can help you 'right-size' the requests by observing container resource usage at runtime.
+Determining resource requests can be difficult, but tools like the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can help you 'right-size' the requests by observing container resource usage at runtime.  Other tools that may be useful for determining request sizes include:
+
+- [Goldilocks](https://github.com/FairwindsOps/goldilocks)
+- [Parca](https://www.parca.dev/)
+- [Prodfiler](https://prodfiler.com/)
+- [rsg](https://mhausenblas.info/right-size-guide/)
+
 
 ### Configure resource quotas for namespaces
 
