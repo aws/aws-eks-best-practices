@@ -20,7 +20,7 @@ A StorageClass provides a way for administrators to describe the "classes" of st
 You can check it by running the following command:
 
 ```bash
-kubectl describe storageclasse gp2
+kubectl describe storageclass gp2
 ```
 
 Output:
