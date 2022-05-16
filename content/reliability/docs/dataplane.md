@@ -173,7 +173,7 @@ Some general guidance can be applied to sizing resource requests and limits for 
 
 - For non-CPU resources, do not specify a limit that is much larger than the request.  The larger `limits` are configured relative to `requests`, the more likely nodes will be overcommitted leading to high chances of workload interruption.
 
-- Correctly sized requests are particularly important when using a node auto-scaling solution like [Karpenter](/karpenter/) or [Cluster AutoScaler](/cluster-autoscaling).  These tools look at your workload requests to determine the number and size of nodes to be provisioned. If your requests are too small with larger limits, you may find your workloads evicted or OOM killed if they have been tightly packed on a node.
+- Correctly sized requests are particularly important when using a node auto-scaling solution like [Karpenter](https://aws.github.io/aws-eks-best-practices/karpenter/) or [Cluster AutoScaler](https://aws.github.io/aws-eks-best-practices/cluster-autoscaling/).  These tools look at your workload requests to determine the number and size of nodes to be provisioned. If your requests are too small with larger limits, you may find your workloads evicted or OOM killed if they have been tightly packed on a node.
 
 Determining resource requests can be difficult, but tools like the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can help you 'right-size' the requests by observing container resource usage at runtime.  Other tools that may be useful for determining request sizes include:
 

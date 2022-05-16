@@ -36,7 +36,7 @@ You need features that are still being developed in Karpenter. Because Karpenter
 
 ### Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
-Karpenter is installed using a [Helm chart](https://karpenter.sh/v0.5.5/getting-started/#install-karpenter-helm-chart). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
+Karpenter is installed using a [Helm chart](https://karpenter.sh/v0.10.0/getting-started/). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
 
 ### Avoid using custom launch template and custom AMIs with Karpenter
 
@@ -302,7 +302,7 @@ See [Configure Default Memory Requests and Limits for a Namespace](https://kuber
 
 Karpenter is able to launch nodes that best fit your workloads when its information about your workloads requirements is accurate.  
 
-See [Configure and Size Resource Requests/Limits for all Workloads](/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads)
+See [Configure and Size Resource Requests/Limits for all Workloads](https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads)
 
 ## Additional Resources
 * [Karpenter/Spot Workshop](https://cmp307.ec2spotworkshops.com/040_karpenter.html)
