@@ -23,4 +23,7 @@ The CNI plugin is selected by Kubelet when --network-plugin command-line option 
 
 ### kube-proxy
 
-## Kubernetes & DNS
+## Kubernetes DNS and Discovery
+
+
+

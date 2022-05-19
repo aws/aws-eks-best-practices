@@ -1,0 +1,327 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    eksctl.io/restartedAt: "2022-03-16T18:28:44-04:00"
+    kubernetes.io/psp: eks.privileged
+  creationTimestamp: "2022-03-18T20:07:28Z"
+  generateName: aws-node-
+  labels:
+    app.kubernetes.io/name: aws-node
+    controller-revision-hash: 664f69998c
+    k8s-app: aws-node
+    pod-template-generation: "5"
+  name: aws-node-tl2rk
+  namespace: kube-system
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: DaemonSet
+    name: aws-node
+    uid: cb972207-e5b2-4b03-aff9-a9ec7743ecde
+  resourceVersion: "7059645"
+  uid: 6c3b68e3-c740-4108-8ebf-cac80933c240
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchFields:
+          - key: metadata.name
+            operator: In
+            values:
+            - ip-192-168-96-42.us-west-2.compute.internal
+  containers:
+  - env:
+    - name: ADDITIONAL_ENI_TAGS
+      value: '{}'
+    - name: AWS_VPC_CNI_NODE_PORT_SUPPORT
+      value: "true"
+    - name: AWS_VPC_ENI_MTU
+      value: "9001"
+    - name: AWS_VPC_K8S_CNI_CONFIGURE_RPFILTER
+      value: "false"
+    - name: AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG
+      value: "false"
+    - name: AWS_VPC_K8S_CNI_EXTERNALSNAT
+      value: "false"
+    - name: AWS_VPC_K8S_CNI_LOGLEVEL
+      value: DEBUG
+    - name: AWS_VPC_K8S_CNI_LOG_FILE
+      value: /host/var/log/aws-routed-eni/ipamd.log
+    - name: AWS_VPC_K8S_CNI_RANDOMIZESNAT
+      value: prng
+    - name: AWS_VPC_K8S_CNI_VETHPREFIX
+      value: eni
+    - name: AWS_VPC_K8S_PLUGIN_LOG_FILE
+      value: /var/log/aws-routed-eni/plugin.log
+    - name: AWS_VPC_K8S_PLUGIN_LOG_LEVEL
+      value: DEBUG
+    - name: DISABLE_INTROSPECTION
+      value: "false"
+    - name: DISABLE_METRICS
+      value: "false"
+    - name: DISABLE_NETWORK_RESOURCE_PROVISIONING
+      value: "false"
+    - name: ENABLE_IPv4
+      value: "true"
+    - name: ENABLE_IPv6
+      value: "false"
+    - name: ENABLE_POD_ENI
+      value: "true"
+    - name: ENABLE_PREFIX_DELEGATION
+      value: "false"
+    - name: MY_NODE_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.nodeName
+    - name: WARM_ENI_TARGET
+      value: "1"
+    - name: WARM_PREFIX_TARGET
+      value: "1"
+    - name: AWS_STS_REGIONAL_ENDPOINTS
+      value: regional
+    - name: AWS_DEFAULT_REGION
+      value: us-west-2
+    - name: AWS_REGION
+      value: us-west-2
+    - name: AWS_ROLE_ARN
+      value: arn:aws:iam::615847537300:role/eksctl-sg-per-pod-addon-vpc-cni-Role1-QIM7FG0N0MT4
+    - name: AWS_WEB_IDENTITY_TOKEN_FILE
+      value: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+    image: 602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon-k8s-cni:v1.10.1-eksbuild.1
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      exec:
+        command:
+        - /app/grpc-health-probe
+        - -addr=:50051
+        - -connect-timeout=5s
+        - -rpc-timeout=5s
+      failureThreshold: 3
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    name: aws-node
+    ports:
+    - containerPort: 61678
+      hostPort: 61678
+      name: metrics
+      protocol: TCP
+    readinessProbe:
+      exec:
+        command:
+        - /app/grpc-health-probe
+        - -addr=:50051
+        - -connect-timeout=5s
+        - -rpc-timeout=5s
+      failureThreshold: 3
+      initialDelaySeconds: 1
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    resources:
+      requests:
+        cpu: 25m
+    securityContext:
+      capabilities:
+        add:
+        - NET_ADMIN
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /host/opt/cni/bin
+      name: cni-bin-dir
+    - mountPath: /host/etc/cni/net.d
+      name: cni-net-dir
+    - mountPath: /host/var/log/aws-routed-eni
+      name: log-dir
+    - mountPath: /var/run/aws-node
+      name: run-dir
+    - mountPath: /var/run/dockershim.sock
+      name: dockershim
+    - mountPath: /run/xtables.lock
+      name: xtables-lock
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-wn6qv
+      readOnly: true
+    - mountPath: /var/run/secrets/eks.amazonaws.com/serviceaccount
+      name: aws-iam-token
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostNetwork: true
+  initContainers:
+  - env:
+    - name: DISABLE_TCP_EARLY_DEMUX
+      value: "true"
+    - name: ENABLE_IPv6
+      value: "false"
+    - name: ENABLE_POD_ENI
+      value: "true"
+    - name: AWS_STS_REGIONAL_ENDPOINTS
+      value: regional
+    - name: AWS_DEFAULT_REGION
+      value: us-west-2
+    - name: AWS_REGION
+      value: us-west-2
+    - name: AWS_ROLE_ARN
+      value: arn:aws:iam::615847537300:role/eksctl-sg-per-pod-addon-vpc-cni-Role1-QIM7FG0N0MT4
+    - name: AWS_WEB_IDENTITY_TOKEN_FILE
+      value: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+    image: 602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon-k8s-cni-init:v1.10.1-eksbuild.1
+    imagePullPolicy: IfNotPresent
+    name: aws-vpc-cni-init
+    resources: {}
+    securityContext:
+      privileged: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /host/opt/cni/bin
+      name: cni-bin-dir
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-wn6qv
+      readOnly: true
+    - mountPath: /var/run/secrets/eks.amazonaws.com/serviceaccount
+      name: aws-iam-token
+      readOnly: true
+  nodeName: ip-192-168-96-42.us-west-2.compute.internal
+  preemptionPolicy: PreemptLowerPriority
+  priority: 2000001000
+  priorityClassName: system-node-critical
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: aws-node
+  serviceAccountName: aws-node
+  terminationGracePeriodSeconds: 10
+  tolerations:
+  - operator: Exists
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/disk-pressure
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/memory-pressure
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/pid-pressure
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/unschedulable
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/network-unavailable
+    operator: Exists
+  volumes:
+  - name: aws-iam-token
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          audience: sts.amazonaws.com
+          expirationSeconds: 86400
+          path: token
+  - hostPath:
+      path: /opt/cni/bin
+      type: ""
+    name: cni-bin-dir
+  - hostPath:
+      path: /etc/cni/net.d
+      type: ""
+    name: cni-net-dir
+  - hostPath:
+      path: /var/run/dockershim.sock
+      type: ""
+    name: dockershim
+  - hostPath:
+      path: /run/xtables.lock
+      type: ""
+    name: xtables-lock
+  - hostPath:
+      path: /var/log/aws-routed-eni
+      type: DirectoryOrCreate
+    name: log-dir
+  - hostPath:
+      path: /var/run/aws-node
+      type: DirectoryOrCreate
+    name: run-dir
+  - name: kube-api-access-wn6qv
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2022-03-18T20:07:38Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2022-04-22T21:55:51Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2022-04-22T21:55:51Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2022-03-18T20:07:28Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://1fad064542d301f48120c2212e14f482b5aefdd8f9f003b3334d1a8830afc5b7
+    image: 602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon-k8s-cni:v1.10.1-eksbuild.1
+    imageID: docker-pullable://602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon-k8s-cni@sha256:3b6db8b6fb23424366ef91d7e9e818e42291316fa81c00c2c75dcafa614340c5
+    lastState: {}
+    name: aws-node
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2022-03-18T20:07:40Z"
+  hostIP: 192.168.96.42
+  initContainerStatuses:
+  - containerID: docker://b8249bbfd8b01b5e0a281d3d57de09a1e0e4d8f7f1f66bdf010e182874bd7d05
+    image: 602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon-k8s-cni-init:v1.10.1-eksbuild.1
+    imageID: docker-pullable://602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon-k8s-cni-init@sha256:6c70af7bf257712105a89a896b2afb86c86ace865d32eb73765bf29163a08c56
+    lastState: {}
+    name: aws-vpc-cni-init
+    ready: true
+    restartCount: 0
+    state:
+      terminated:
+        containerID: docker://b8249bbfd8b01b5e0a281d3d57de09a1e0e4d8f7f1f66bdf010e182874bd7d05
+        exitCode: 0
+        finishedAt: "2022-03-18T20:07:37Z"
+        reason: Completed
+        startedAt: "2022-03-18T20:07:37Z"
+  phase: Running
+  podIP: 192.168.96.42
+  podIPs:
+  - ip: 192.168.96.42
+  qosClass: Burstable
+  startTime: "2022-03-18T20:07:28Z"

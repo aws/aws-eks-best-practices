@@ -4,7 +4,7 @@ EKS uses Amazon VPC to provide networking capabilities to worker nodes and Kuber
 
 Worker nodes connect to the EKS control plane through the EKS public endpoint or EKS-managed elastic network interfaces (ENIs). The subnets that you pass when you create the cluster influence where EKS places these ENIs. You need to provide a minimum of two subnets in at least two Availability Zones. The route that worker nodes take to connect is determined by whether you have enabled or disabled the private endpoint for your cluster. EKS uses the EKS-managed ENI to communicate with worker nodes.
 
-> Insert a diagram about how control plane and worker nodes communicate.
+![Cluster Communication](../images/cluster-communications.png)
 
 ## VPC Coniderations
 
