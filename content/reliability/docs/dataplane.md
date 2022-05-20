@@ -75,7 +75,8 @@ spec:
 ```
 
 
-!!! warning Do not require that pods be scheduled across distinct AZs otherwise, the number of pods in a deployment will never exceed the number of AZs. 
+!!! warning 
+    Do not require that pods be scheduled across distinct AZs otherwise, the number of pods in a deployment will never exceed the number of AZs. 
 
 
 With Kubernetes 1.18+, you can use [Spread Constraints for Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods) to schedule pods across multiple AZs.
