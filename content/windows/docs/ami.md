@@ -31,7 +31,8 @@ Use Amazon EC2 Image Builder to select between Windows Server versions, AWS Wind
 
 When using a custom EKS Optimized AMI, Windows worker nodes can be launched up to 65% faster by enabling the Fast Launch feature. This feature maintains a set of pre-provisioned snapshots which have the _Sysprep specialize_, _Windows Out of Box Experience (OOBE)_ steps and required reboots already completed. These snapshots are then used on subsequent launches, reducing the time to scale-out or replace nodes. Fast Launch can be only enabled for AMIs *you own* through the EC2 console or in the AWS CLI and the number of snapshots maintained is configurable. 
 
-!!! warning Fast Launch is not compatible with the default Amazon-provided EKS optimized AMI, create a custom AMI as above before attempting to enable it. 
+!!! warning
+    Fast Launch is not compatible with the default Amazon-provided EKS optimized AMI, create a custom AMI as above before attempting to enable it. 
  
 For more information: [AWS Windows AMIs - Configure your AMI for faster launching](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/windows-ami-version-history.html#win-ami-config-fast-launch)
 
