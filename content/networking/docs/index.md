@@ -63,4 +63,4 @@ Multiple network interfaces for pods are useful in various use cases; examples i
 * Performance: Additional interfaces often leverage specialized hardware specifications such as Single Root I/O Virtualization (SR-IOV) and Data Plane Development Kit (DPDK), which bypass the operating system kernel for increased bandwidth and network performance.
 * Security: Supporting multi-tenant networks with strict traffic isolation requirements. Connecting multiple subnets to pods to meet compliance requirements.
 
-Multus section of this guide covers in detail on how to setup multi-homed Pods and best practices to run them at scale.
+Multus section of this guide covers in detail on how to setup multi-homed Pods and best practices to run them at scale. 
