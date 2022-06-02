@@ -4,7 +4,7 @@ Kubernetes was designed to run distributed applications on a cluster of connecte
 
 ## How to use this guide?
 
-This guide is meant for EKS cluster administrators, operators, and developers. Although the main aim of the guide is to provide guidance and recommendations about cluster networking operations supported by EKS. However, we have also tried to cover the [basic networking concepts](./networking.md) in the context of Kubernetes and [Kubernetes networking model](./k8s-networking.md). The guide covers EKS relevant [AWS Networking concepts] (./aws-networking.md). Through the [Amazon VPC Container Network Interface (CNI)](https://github.com/aws/amazon-vpc-cni-k8s) plugin, Amazon EKS handles cluster networking. Amazon EKS supports native VPC networking via the VPC CNI plugin for Kubernetes. 
+This guide is meant for EKS cluster administrators, operators, and developers. Although the main aim of the guide is to provide guidance and recommendations about cluster networking operations supported by EKS. The guide also covers [Kubernetes pods networking](../docs/k8s-networking.md) basics. Through the [Amazon VPC Container Network Interface (CNI)](https://github.com/aws/amazon-vpc-cni-k8s) plugin, Amazon EKS handles cluster networking. Amazon EKS supports native VPC networking via the VPC CNI plugin for Kubernetes. 
 
 Amazon VPC CNI supports different networking modes. You can use this guide to learn about different networking modes supported by EKS so you can choose the best option for your needs. We strongly recommend you learn about proposal and design of [Amazon VPC CNI](./vpc-cni.md) before considering the EKS cluster networking modes.
 
