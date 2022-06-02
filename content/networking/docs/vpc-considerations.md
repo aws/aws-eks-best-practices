@@ -24,11 +24,11 @@ Size the subnets you will use for Pod networking for growth. If you have insuffi
 
 ### Using public subnets for worker nodes
 
-If you use public subnets, then they must have the automatic public IP address assignment setting enabled; otherwise, worker nodes will not be able to communicate with the cluster. 
+If you use public subnets, then they must have the automatic public IP address assignment setting enabled; otherwise, worker nodes will not be able to communicate with the cluster.
 
 ### Run worker nodes and pods in different subnets
 
-Consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) (also called **CNI custom networking**) to avoid IP address allocation conflicts between Pods and other resources in the VPC. 
+Consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) (also called **CNI custom networking**) to avoid IP address allocation conflicts between Pods and other resources in the VPC.
 
 ### SNAT
 

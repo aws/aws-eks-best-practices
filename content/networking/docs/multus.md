@@ -1,20 +1,10 @@
 # Multus
 
-A CNI is the container network interface that provides an application programming interface to configure network interfaces in containers. Multus CNI is a container network interface plugin for Kubernetes that enables attaching multiple network interfaces to pods. In Kubernetes, each pod has only one network interface by default, other than local loopback. With Multus, you can create multi-homed pods that have multiple interfaces. Multus acts as ‘meta’ plugin that can call other CNI plugins to configure additional interfaces.
-
-Multiple network interfaces for pods are useful in various use cases; examples include:
-
-- Traffic splitting: Running network functions (NF) that require separation of control/management, and data/user plane network traffic to meet low latency Quality of Service (QoS) requirements.
-- Performance: Additional interfaces often leverage specialized hardware specifications such as Single Root I/O Virtualization (SR-IOV) and Data Plane Development Kit (DPDK), which bypass the operating system kernel for increased bandwidth and network performance.
-- Security: Supporting multi-tenant networks with strict traffic isolation requirements. Connecting multiple subnets to pods to meet compliance requirements.
-
-## What is a multi-homed pod?
-
-The Multus CNI plugin allows pods to have multiple interfaces in Kubernetes. The current version of EKS support for Multus bundles Amazon VPC CNI as the default delegate plugin (which is the only supported and validated default  delegate plugin). The default delegate plugin configures the primary network interface (eth0) for pods to enable Kubernetes control plane traffic, including the IP Address Management (IPAM) for the primary network interface for the pods.
+A CNI is the container network interface that provides an application programming interface to configure network interfaces in containers. The Multus CNI plugin allows pods to have multiple interfaces in Kubernetes. The current version of EKS support for Multus bundles Amazon VPC CNI as the default delegate plugin (which is the only supported and validated default  delegate plugin). The default delegate plugin configures the primary network interface (eth0) for pods to enable Kubernetes control plane traffic, including the IP Address Management (IPAM) for the primary network interface for the pods.
 
 Here’s an example of how multi-homed pods can work on AWS. The image below shows two pods with two network interfaces, eth0 and net1. In both cases, the Amazon VPC CNI manages the pod eth0 (default Multus delegate). Interface net1 is managed by Multus via the ipvlan CNI plugin for pod1, which handles the user plane (eg: voice, video) traffic separated from the k8 control plane traffic. Where as pod2 net1 gets connected to the host elastic network interface through the host-device CNI plugin, and enables DPDK to accelerate the packet processing.
 
-![multi-homed-pod](../images/multus.png)
+![Multi homed pod](../images/multus.png)
 
 ## Deploying Multus
 
@@ -48,13 +38,11 @@ IPAM plugins such as static, whereabouts, and host-local supply IP addresses, bu
 
 We recommend using host-device CNI intead of using ipvlan CNI in the case where pod requires to have secondary interface as DPDK ENA interface. For DPDK interface, it is highly recommended to use Nitro instances (C5/M5) with ENA driver for workernode group. You will still use automation through CloudFormation, LifeCycle Hook, CloudWatch Event, and Lambda to configure multiple ENIs on a worker node.
 
-**Note**
-
-The version of /opt/cni/bin/host-device should be higher than [0.8.6 in the workernode] (https://github.com/awslabs/amazon-eks-ami/pull/496), in order to use the pciBudID parameter. Please check the CNI plugin version in advance. The current EKS optimized AMI (1.18) already has an updated version of host-device CNI (0.8.6).
+> **_NOTE:_** The version of /opt/cni/bin/host-device should be higher than [0.8.6 in the workernode] (https://github.com/awslabs/amazon-eks-ami/pull/496), in order to use the pciBudID parameter. Please check the CNI plugin version in advance. The current EKS optimized AMI (1.18) already has an updated version of host-device CNI (0.8.6).
 
 We have tested the host device to work with pciBusID. The pciBusIds are sequential on an EC2 instance type and are static. On a worker node, the pciBusId from the example network attachment definition is mapped to eth1.
 
-```sh
+```yaml
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
@@ -72,7 +60,7 @@ You can use the above network attachment definition in your pod definition and w
 - 'privileged' mode is enabled to access to host device space.
 - /sys should be mounted to the container so that DPDK can access to files under that directory. (Ref: https://github.com/jeremyeder/docker-dpdk/blob/master/Dockerfile)
 
-```sh
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -162,7 +150,7 @@ sudo usermod -aG docker ec2-user
 
 You can configure configmap for ENI resource pool as below.  
 
-```bash
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -190,7 +178,7 @@ data:
 
 You can configure a pod to use the SRIOV resource pool as below.
 
-```bash
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:

@@ -8,7 +8,7 @@ Networking is a crucial component in Kubernetes. Pod-to-Pod networking also know
 
 The Kubernetes network model defines a “flat” network and uses an IP per Pod model to meet the above requirements. Every Pod gets its own IP address and communicates with other Pods using IP addresses, reducing the complexity of mapping container ports to host ports. A Pod is modeled as a group of containers that share a network namespace, including their IP address and MAC address. Containers within a Pod all have the same IP address and port space assigned through the network namespace assigned to the Pod, and can find each other via localhost since they reside in the same namespace.
 
-![pod-networking](../images/pod-networking.png)
+![Pod Networking](../images/pod-networking.png)
 
 This creates a clean, backwards-compatible model where pods can be treated much like VMs or physical hosts from the perspectives of port allocation, naming, service discovery, load balancing, application configuration, and migration. Network segmentation can be defined using network policies to restrict traffic within these base networking capabilities.
 

@@ -47,12 +47,20 @@ nav:
     - Storage Options: 'windows/docs/storage.md'
   - Networking:
     - Overview: 'networking/docs/index.md'
-    - Custom Networking: 'networking/docs/customnetworking.md'
-    - Security Groups Per Pod: 'networking/docs/sg.md'
-    - Multi-homed Pods: 'networking/docs/multus.md'
+    - K8s Networking: 'networking/docs/k8s-networking.md'
+    - VPC CNI: 'networking/docs/index.md'
+    - VPC Considerations: ''networking/docs/vpc-considerations.md'
+    - IPv4:
+      - Modes:
+        - Secondary IP: networking/docs/secondary-ip.md'
+        - Prefix Delegation: networking/docs/pd.md'
+        - Security Groups Per Pod: networking/docs/sg-per-pod.md'
+        - Custom Networking: 'networking/docs/customnetworking.md'
     - IPv6
       - Overview: 'networking/docs/ipv6.md'
       - Migrate to IPv6: 'networking/docs/migrate.md'
+    - Multi-homed Pods: 'networking/docs/multus.md'
+    - CoreDNS: 'networking/docs/coredns.md'
 markdown_extensions:
     - toc:
         permalink: true

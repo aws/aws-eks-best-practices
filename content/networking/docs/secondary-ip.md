@@ -22,14 +22,14 @@ If you need to constrain the IP addresses the CNI caches, then you can use warm 
 
 - `WARM_IP_TARGET` — Number of free IP addresses the CNI should keep available. 
 - `MINIMUM_IP_TARGET` — Number of minimum IP addresses the CNI should allocate at node startup.
-- `WAM_ENI_TARGET` - Number of minimum ENI the CNI should keep available (default is 1). 
+- `WAM_ENI_TARGET` - Number of minimum ENI the CNI should keep available (default is 1).
 
 !!! info
 
 - Configure the value of `MINIMUM_IP_TARGET` to closely match the number of Pods you expect to run on your nodes. Doing so will ensure that as Pods get created, the CNI can assign IP addresses from the warm pool without calling the EC2 API.
 - It is recommended to use default value of 1 for `WARM_ENI_TARGET`. It's a good balance between having too many unused IPs attached, and the risk of being throttled by the EC2 API. Please note `WARM_ENI_TARGET` value will be ignored when you set `MINIMUM_IP_TARGET`.
 
-!!! Warning
+!!! warning
 
 - Avoid setting the value of `WARM_IP_TARGET` too low as it will cause additional calls to the EC2 API, and that might cause throttling of the requests.
 - Avoid the WARM_IP_TARGET setting for large clusters or if the cluster has high pod churn. Setting it will cause additional calls to the EC2 API, and that might cause throttling of the requests. You should set `MINIMUM_IP_TARGET` along with `WARM_IP_TARGET` for large clusters with high Pod churn.

@@ -4,7 +4,7 @@ Kubernetes was designed to run distributed applications on a cluster of connecte
 
 ## How to use this guide?
 
-This guide is meant for EKS cluster administrators, operators, and developers. Although the main aim of the guide is to provide guidance and recommendations about cluster networking operations supported by EKS. The guide also covers [Kubernetes pods networking](../docs/k8s-networking.md) basics. Through the [Amazon VPC Container Network Interface (CNI)](https://github.com/aws/amazon-vpc-cni-k8s) plugin, Amazon EKS handles cluster networking. Amazon EKS supports native VPC networking via the VPC CNI plugin for Kubernetes. 
+This guide is meant for EKS cluster administrators, operators, and developers. Although the main aim of the guide is to provide guidance and recommendations about cluster networking operations supported by EKS. The guide also covers [Kubernetes pods networking](../docs/k8s-networking.md) basics. Through the [Amazon VPC Container Network Interface (CNI)](https://github.com/aws/amazon-vpc-cni-k8s) plugin, Amazon EKS handles cluster networking. Amazon EKS supports native VPC networking via the VPC CNI plugin for Kubernetes.
 
 Amazon VPC CNI supports different networking modes. You can use this guide to learn about different networking modes supported by EKS so you can choose the best option for your needs. We strongly recommend you learn about proposal and design of [Amazon VPC CNI](./vpc-cni.md) before considering the EKS cluster networking modes.
 
@@ -12,7 +12,7 @@ The guide is organized into different networking modes for easier consumption. E
 
 ## Amazon VPC CNI and Configuration Modes
 
-The [Amazon VPC CNI plugin] (./vpc-cni.md) offers networking for pods and enables Kubernetes Pods to have the same IP address on the VPC network and inside the pod. You may leverage Amazon VPC CNI's diverse modes and plugin configurations to address a variety of use cases, including:
+The [Amazon VPC CNI plugin](./vpc-cni.md) offers networking for pods and enables Kubernetes Pods to have the same IP address on the VPC network and inside the pod. You may leverage Amazon VPC CNI's diverse modes and plugin configurations to address a variety of use cases, including:
 
 * extending AWS native security group features to Pods
 * increasing the number of IPs available to Pods
@@ -24,7 +24,7 @@ The [Amazon VPC CNI plugin] (./vpc-cni.md) offers networking for pods and enable
 * accelerating Pod launch times
 * establishing tenant isolation and network segmentation
 
-Teh networking modes supported by Amazon VPC CNI can be boradly classified as:
+The networking modes supported by Amazon VPC CNI can be boradly classified as:
 
 * Secondary IP Mode
 * Prefix Delegation Mode
@@ -33,7 +33,7 @@ Teh networking modes supported by Amazon VPC CNI can be boradly classified as:
   
 Amazon VPC CNI exposes different setting under each of the modes to accelerate Pod luanch times, and to support Pod churn rates. We will cover these setting under each of the modes and also recommended values for each of the settings.
 
-By default, VPC CNI supports IPv4 cluster networking. However, if you are primarily concerned with resolving the IPv4 exhaustion issue, you can provision cluster in IPv6 mode. Please refer to the following section to understand the distinction between IPv6 support and upstream dual-stack. This tutorial intends to address both IPv6 migration recommended practices and IPv6 mechanics.
+By default, VPC CNI supports IPv4 cluster networking. However, if you are primarily concerned with resolving the IPv4 exhaustion issue, you can provision cluster in IPv6 mode. Please refer to the following section to understand the distinction between IPv6 support and upstream dual-stack.
 
 ## Understanding IPv6 and Kubernetes Dual-Stack
 
@@ -47,11 +47,13 @@ This guide aims to cover the implementation details for IPv6 along with best pra
 
 AWS VPC CNI plugin is the only officially supported [network plugin](https://kubernetes.io/docs/concepts/cluster-administration/networking/) on EKS. VPC CNI provides native integration with AWS VPC and works in Undrelay mode. In Underlay mode, containers and hosts are located at the same network layer and share the same position. Network interconnection between containers depends on the underlying network. Using this plugin allows Kubernetes pods to have the same IP address inside the pod as they do on the VPC network.
 
-However, since EKS runs upstream Kubernetes and is certified Kubernetes conformant, you can use alternate [CNI plugins](https://github.com/containernetworking/cni).Alternate CNIs works in overlay network mode over Amazon VPC.
+However, since EKS runs upstream Kubernetes and is certified Kubernetes conformant, you can use alternate [CNI plugins](https://github.com/containernetworking/cni). Alternate CNIs works in overlay network mode over Amazon VPC.
 
 An overlay network allows network devices to communicate across an underlying network (referred to as the underlay) without the underlay network having any knowledge of the devices connected to the overlay network. From the point of view of the devices connected to the overlay network, it looks just like a normal network. The overlay network takes a network packet, referred to as the inner packet, and encapsulating it inside an outer network packet. In this way the underlay sees the outer packets without needing to understand how to handle the inner packets. In Overlay mode, a container is independent of the host's IP address range. During cross-host communication, tunnels are established between hosts and all packets in the container CIDR block are encapsulated as packets exchanged between hosts in the underlying physical network. This mode removes the dependency on the underlying network.
 
-How the overlay knows where to send packets varies by overlay type and the protocols they use. For example Weavenet and Flannel provides Layer2 and multicast support vs. Calico which uses BGP to program route tables and avoids packet encapsulation. A compelling reason to opt for an alternate CNI plugin is to run Pods without using a VPC IP address per Pod. Although, using an alternate CNI plugin can come at the expense of network performance which you might want to avoid if running network internsive workloads.
+How the overlay knows where to send packets varies by overlay type and the protocols they use. For example Weavenet and Flannel provides Layer2 and multicast support vs. Calico which uses BGP to program route tables and avoids packet encapsulation.
+
+A strong argument to choose an alternative CNI plugin is the ability to operate Pods without assigning each Pod a unique VPC IP address. Nevertheless, adopting a different CNI plugin may reduce network performance, which you may wish to avoid if you're running network-intensive workloads. If you intend to utilize an alternative CNI plugin in production, we recommend that you either obtain commercial support or have the in-house knowledge to troubleshoot and provide fixes to the open source CNI plugin project. Check the [EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html) for a list of partners and installation instructions.
 
 ## Support for Multi-Homed Pods
 
@@ -63,4 +65,4 @@ Multiple network interfaces for pods are useful in various use cases; examples i
 * Performance: Additional interfaces often leverage specialized hardware specifications such as Single Root I/O Virtualization (SR-IOV) and Data Plane Development Kit (DPDK), which bypass the operating system kernel for increased bandwidth and network performance.
 * Security: Supporting multi-tenant networks with strict traffic isolation requirements. Connecting multiple subnets to pods to meet compliance requirements.
 
-Multus section of this guide covers in detail on how to setup multi-homed Pods and best practices to run them at scale. 
+Multus section of this guide covers in detail on how to setup multi-homed Pods and best practices to run them at scale.
