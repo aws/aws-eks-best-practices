@@ -86,5 +86,6 @@ Refer to the following resources to learn more about best practices for cost opt
 +  [Right size guide](https://github.com/mhausenblas/right-size-guide)
 + [Fargate count](https://github.com/mreferre/fargatecount)
 + [FairwindsOps Goldilocks](https://github.com/FairwindsOps/goldilocks)
++ [Choose Right Node Size](https://learnk8s.io/research#choosing-node-size)
 
 
