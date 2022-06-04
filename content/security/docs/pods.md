@@ -471,7 +471,7 @@ Policy-as-code and Pod Security Standards can be used to enforce this behavior.
 !!! Info 
     
     As per [Windows containers in Kubernetes](https://kubernetes.io/docs/concepts/windows/intro/) `securityContext.readOnlyRootFilesystem` cannot be set to
-    `true` for container running on Windows as write access is required for registry and system processes to run inside the container
+    `true` for a container running on Windows as write access is required for registry and system processes to run inside the container.
 
 ## Tools and Resources
 
