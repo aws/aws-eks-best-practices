@@ -34,11 +34,15 @@ Managed node groups automatically calculate the maximum number of pods for you. 
 
 For self-managed nodes, we suggest setting the maximum pods per EKS user guide to avoid exhaustion of the instance’s CPU and memory resources. You may consider using a script called [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh) ** to calculate EKS's recommended maximum pods for a given instance type. Also, the [Kubernetes community recommends](https://github.com/kubernetes/community/blob/master/sig-scalability/configs-and-limits/thresholds.md) that the maximum number of pods be no more than 110 or 10 * number of cores.
 
-### Non-Nitro Instances
+### Instance Type
+
+#### Nitro Instance Type
 
 Prefix Assignment mode is supported on instances built on the [Nitro system](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html#ec2-nitro-instances). You may consider creating a different EKS cluster for workloads that are required to run on non-nitro instances.
 
-### Similar Instance Types
+> **_Attention:_** If you run.metal instances, we recommend upgrading to the most recent version of VPC CNI (>v1.9.0).
+
+#### Similar Instance Types
 
 Consider using similar instance types in a node group to maximize node use. Your node group may contain instances of many types. If an instance has a low maximum pod count, that value is applied to all nodes in the node group.
 
@@ -50,7 +54,7 @@ The recommended and default value set in the [installation manifest](https://git
 
 If you have a need to further conserve IPv4 addresses per node you can instead use WARM_IP_TARGET and MINIMUM_IP_TARGET settings, which override WARM_PREFIX_TARGET if set. By setting WARM_IP_TARGET to a value less than 16, you can prevent CNI from keeping one full free prefix attached. 
 
-Allocating an additional prefix to an existing ENI is a faster EC2 API operation compared to creating and attaching a new ENI to the instance, which gives you the better performance characteristics while being frugal with IPv4 address allocation. Attaching a prefix typically completes in under a second, where attaching a new ENI can take up to 10 seconds. For most use cases, CNI will only need a single ENI per worker node when running in prefix assignment mode. If you can afford (in the worst case) up to 15 unused IPs per node, we strongly recommend using the newer prefix assignment networking mode, and realizing the performance and efficiency gains that come with it. 
+Allocating an additional prefix to an existing ENI is a faster EC2 API operation compared to creating and attaching a new ENI to the instance, which gives you the better performance characteristics while being frugal with IPv4 address allocation. Attaching a prefix typically completes in under a second, where attaching a new ENI can take up to 10 seconds. For most use cases, CNI will only need a single ENI per worker node when running in prefix assignment mode. If you can afford (in the worst case) up to 15 unused IPs per node, we strongly recommend using the newer prefix assignment networking mode, and realizing the performance and efficiency gains that come with it.
 
 ### Subnet Fragmentation (IPv4)
 
@@ -61,6 +65,8 @@ failed to allocate a private IP/Prefix address: InsufficientCidrBlocks: There ar
 To avoid fragmentation and have sufficient contiguous space for creating prefixes, you may use VPC Subnet CIDR reservations to reserve IP space within a subnet for exclusive use by prefixes. Once you create a reservation, the VPC CNI plugin will call EC2 APIs to assign prefixes that are automatically allocated from the reserved space.
 
 It is recommended to create a new subnet, reserve space for prefixes, and enable prefix assignment with VPC CNI for worker nodes running in that subnet. If the new subnet is dedicated only to pods running in your EKS cluster with VPC CNI prefix assignment enabled, then you can skip the prefix reservation step.
+
+> **_Attention:_** Please consider updating to the most recent version of VPC CNI if you are experiencing troubles with VPC CNI (v1.9.0) retrying continually due to the unavailability of prefixes in severely fragmented subnets.
 
 ### VPC CNI Upgrade/Downgrade Behavior
 

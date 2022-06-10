@@ -1,4 +1,4 @@
-# Running for IPv6 EKS Clusters
+# Running IPv6 EKS Clusters
 
 With the launch of IPv6 support in EKS, you can now create IPv6 Kubernetes clusters. In an IPv6 EKS cluster, pods and services will receive IPv6 addresses while maintaining the ability for legacy IPv4 endpoints to connect to services running on IPv6 clusters, as well as pods to connect to legacy IPv4 endpoints outside the cluster. All the pod-to-pod communication within a cluster is always IPV6. Within a VPC (/56), the IPv6 CIDR block size for IPv6 subnets is fixed at /64. This provides 264 (approximately 18 quintillion) IPv6 addresses, allowing you to scale your deployments on EKS. EKS’s support for IPv6 is focused on resolving the IP exhaustion problem, which is constrained by the limited size of the IPv4 address space. This is a significant concern raised by a number of our customers and is distinct from Kubernetes’ "IPv4/IPv6 dual-stack" feature.
 
@@ -22,6 +22,8 @@ Pods will perform a DNS lookup for an endpoint and, upon receiving an IPv4 “A�
 
 Any pod-to-pod communication across the nodes always uses an IPv6 address. VPC CNI configures iptables to handle IPv6 while blocking any IPv4 connections.
 
+> **_ATTENTION:_** AWS managed policy AmazonEKS_CNI_Policy only includes the permission for Ipv4 clusters. You need to create a new role for IPv6 clusters. Please follow steps [here](https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-ipv6-policy) to create an IAM role for IPv6 clusters. Without this role VPC CNI will fail to assign address to your pods. IAM role for IPv6 will be created for you if you are using eksctl.
+
 Amazon EKS recommends running worker nodes and hence pods in private subnets. You can create public load balancers in the public subnets that load balance traffic to pods running on nodes that are in private subnets. Private subnets in IPv6 VPCs are configured with an egress-only internet gateway. Any pod communication from within private subnets to IPv6 endpoints outside the cluster will be routed via an egress-only internet gateway by default.
 
 EKS IPv6 cluster communication will continue to follow EKS the IPv4 model but will continue to provision X-ENIs in dual stack mode (IPv4/IPv6). Kubernetes node components such as kubelet and kube-proxy are configured to support dual stacks. Kubelet and kube-proxy bind to both IPv4 and IPv6 addresses attached to the primary network interface of a node. Kubernetes apiserver communicates to pods and node components via the EKS managed ENI(IPv6). Pods communicate with the apiserver via the same EKS managed ENIs, and pod to apiserver communication always uses IPv6 mode.
@@ -36,7 +38,7 @@ EKS in IPv6 mode continues to support existing methods of access control to the 
 
 ### Max Pods
 
-A single IPv6 prefix is sufficient to run many pods on a single node. This also effectively removes the max-pods limitations tied to ENI and IP limitations. Although IPv6 removes direct dependency on max-pods, when using prefix attachments with smaller instance types like the m5.large, you’re likely to exhaust the instance’s CPU and memory resources long before you exhaust its IP addresses. You must set the EKS recommended maximum pod value by hand if you are using self-managed node groups or a managed node group with a custom AMI ID. 
+A single IPv6 prefix is sufficient to run many pods on a single node. This also effectively removes the max-pods limitations tied to ENI and IP limitations. Although IPv6 removes direct dependency on max-pods, when using prefix attachments with smaller instance types like the m5.large, you’re likely to exhaust the instance’s CPU and memory resources long before you exhaust its IP addresses. You must set the EKS recommended maximum pod value by hand if you are using self-managed node groups or a managed node group with a custom AMI ID.
 
 You can use the following formula to determine the maximum number of pods you can deploy on a node for a IPv6 EKS cluster.
 
@@ -66,12 +68,13 @@ EKS supports IPv6 for pods running on Fargate. Pods running on Fargate do receiv
 
 By default, VPC allocates IPv6 CIDR from the public GUA range. VPCs do not support assigning private IPv6 addresses from the Unique Local Address (ULA) range as defined by RFC 4193 (fd00::/8 or fc00::/8). This is true even when you would like to assign an IPv6 CIDR owned by you. In an IPv6 EKS cluster, nodes and pods receive public IPv6 addresses. EKS assigns IPv6 addresses to services based on Unique Local IPv6 Unicast Addresses (ULA). The ULA Service CIDR for an IPv6 cluster is automatically assigned during the cluster creation stage and cannot be modified, unlike IPv4.
 
-### Loadbalancer Controller
+### AWS Load Balancer Controller
 
 IPv6 is not supported with the in tree loadbalancer controller (upstream). You are required to use the latest version of the AWS Elastic Load Balancer Controller (ELB). The AWS load balancer controller manages Elastic Load Balancers for EKS. Application Load Balancer (ALB) and Network Load Balancer (NLB) in dual stack IP mode when you add an annotation service. To your service or ingress manifests, add `beta.kubernetes.io/aws-load-balancer-ip-address-type: dualstack`.
 
-***Note***
-ELB provisions ALB when you deploy ingress. You will not be able to configure ingress with the instance type. ALB currently supports `ip` mode only. Please make sure you change the `instance` type for any ingress in the scope before migrating to IPv6. You will lose the source ip when you use nlb in an `instance` mode. You will not be able to use nlb instance target type mode if you have a strict requirement to capture incoming source IP for any audit or security reasons.
+> **_NOTE:_** ELB provisions ALB when you deploy ingress. You will not be able to configure ingress with the instance type. ALB currently supports `ip` mode only. Please make sure you change the `instance` type for any ingress in the scope before migrating to IPv6. You will lose the source ip when you use nlb in an `instance` mode. You will not be able to use nlb instance target type mode if you have a strict requirement to capture incoming source IP for any audit or security reasons.
+
+AWS Network Load Balancer does not support dual-stack UDP protocol address types. If you have strong requirements for low-latency, real-time streaming, online gaming, and IoT, we recommend running IPv4 clusters. To learn more about managing health checks for UDP services, please refer to ["How to route UDP traffic into Kubernetes"](https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/).
 
 ### IMDSv2
 

@@ -3,7 +3,7 @@
 Networking is a crucial component in Kubernetes. Pod-to-Pod networking also known as cluster networking is central part of Kubernetes and is focus of this guide. Kubernetes makes opinionated choices about how Pods are networked. In particular, Kubernetes dictates the following requirements on cluster networking.
 
 * Pods scheduled on the same node must be able to communicate with other Pods without using NAT (Network Address Translation).
-* All system daemons (background processes, for example, [kubelet](https://kubernetes.io/docs/concepts/overview/components/) running on a particular node can communicate with the Pods running on the same node.
+* All system daemons (background processes, for example, [kubelet](https://kubernetes.io/docs/concepts/overview/components/)) running on a particular node can communicate with the Pods running on the same node.
 * Pods that use the [host network](https://docs.docker.com/network/host/) must be able to contact all other Pods on all other nodes without using NAT.
 
 The Kubernetes network model defines a “flat” network and uses an IP per Pod model to meet the above requirements. Every Pod gets its own IP address and communicates with other Pods using IP addresses, reducing the complexity of mapping container ports to host ports. A Pod is modeled as a group of containers that share a network namespace, including their IP address and MAC address. Containers within a Pod all have the same IP address and port space assigned through the network namespace assigned to the Pod, and can find each other via localhost since they reside in the same namespace.

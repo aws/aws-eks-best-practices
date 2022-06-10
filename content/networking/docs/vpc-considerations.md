@@ -1,4 +1,10 @@
-# EKS Control Plane Communication
+# VPC Considerations
+
+We recommend you understand the EKS control plane communication mechanisms before you start to plan your VPC or use existing VPCs to create clusters.
+
+Refer to [Cluster VPC considerations](https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html) and [Amazon EKS security group considerations] when architecting a VPC and subnets to be used with EKS.
+
+## EKS Control Plane Communication
 
 EKS uses Amazon VPC to provide networking capabilities to worker nodes and Kubernetes Pods. An EKS cluster consists of two VPCs: an AWS-managed VPC that hosts the Kubernetes control plane and a second customer-managed VPC that hosts the Kubernetes worker nodes where containers run, as well as other AWS infrastructure (like load balancers) used by the cluster. All worker nodes need the ability to connect to the managed API server endpoint. This connection allows the worker node to register itself with the Kubernetes control plane and to receive requests to run application pods.
 
@@ -6,9 +12,7 @@ Worker nodes connect to the EKS control plane through the EKS public endpoint or
 
 ![Cluster Communication](../images/cluster-communications.png)
 
-## VPC Coniderations
-
-Refer to [Cluster VPC considerations](https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html) when architecting a VPC to be used with EKS.
+> **Attention:** Your VPC must have DNS hostname and DNS resolution support, or your nodes can't register with your cluster
 
 If you deploy worker nodes in private subnets then these subnets should have a default route to a [NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html).
 
@@ -28,7 +32,7 @@ If you use public subnets, then they must have the automatic public IP address a
 
 ### Run worker nodes and pods in different subnets
 
-Consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) (also called **CNI custom networking**) to avoid IP address allocation conflicts between Pods and other resources in the VPC.
+Consider creating [separate subnets for Pod networking](https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html) (also called **CNI custom networking**) to avoid IP address allocation conflicts between Pods and other resources in the VPC. 
 
 ### SNAT
 
