@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wrong-tenant-test-deploy
+  namespace: default
+  labels:
+    app: test
+spec:
+  selector:
+    matchLabels:
+      app: test
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 5
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: test
+    spec: 
+      containers:
+      - name: test-pause
+        image: public.ecr.aws/eks-distro/kubernetes/pause:3.2
+        imagePullPolicy: Always
+        securityContext:  
+          allowPrivilegeEscalation: false  
+          runAsUser: 1000  
+          readOnlyRootFilesystem: true  
+
+

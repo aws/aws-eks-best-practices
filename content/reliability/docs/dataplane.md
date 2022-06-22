@@ -38,7 +38,47 @@ By default, the Cluster Autoscaler does not scale-down nodes that have pods depl
 
 You can protect your workloads from failures in an individual AZ by running worker nodes and pods in multiple AZs. You can control the AZ the worker nodes are created in using the subnets you create the nodes in.
 
-You can set pod anti-affinity rules to schedule pods across multiple AZs. The manifest below informs Kubernetes scheduler to *prefer* scheduling pods in distinct AZs. 
+If you are using Kubernetes 1.18+, the recommended method for spreading pods across AZs is to use [Topology Spread Constraints for Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods).
+
+The deployment below spreads pods across AZs if possible, letting those pods run anyway if not:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-server
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          whenUnsatisfiable: ScheduleAnyway
+          topologyKey: topology.kubernetes.io/zone
+          labelSelector:
+            matchLabels:
+              app: web-server
+      containers:
+      - name: web-app
+        image: nginx
+        resources:
+          requests:
+            cpu: 1
+```
+
+!!! note
+    `kube-scheduler` is only aware of topology domains via nodes that exist with those labels.  If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `kube-scheduler` isn't aware of the other zones.  For this topology spread to work as expected with the scheduler, nodes must already exist in all zones.  This issue will be resolved in Kubernetes 1.24 with the addition of the `MinDomainsInPodToplogySpread` [feature gate](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api) which allows specifying a `minDomains` property to inform the scheduler of the number of eligible domains.
+
+!!! warning
+    Setting `whenUnsatisfiable` to `DoNotSchedule` will cause pods to be unschedulable if the topology spread constraint can't be fulfilled.  It should only be set if its preferable for pods to not run instead of violating the topology spread constraint.
+
+On older versions of Kubernetes, you can use pod anti-affinity rules to schedule pods across multiple AZs. The manifest below informs Kubernetes scheduler to *prefer* scheduling pods in distinct AZs. 
 
 ```
 apiVersion: apps/v1
@@ -75,36 +115,8 @@ spec:
 ```
 
 
-!!! warning Do not require that pods be scheduled across distinct AZs otherwise, the number of pods in a deployment will never exceed the number of AZs. 
-
-
-With Kubernetes 1.18+, you can use [Spread Constraints for Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods) to schedule pods across multiple AZs.
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-server
-  labels:
-    app: web-server
-spec:
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        app: web-server
-    spec:
-      topologySpreadConstraints:
-        - maxSkew: 1
-          whenUnsatisfiable: DoNotSchedule
-          topologyKey: failure-domain.beta.kubernetes.io/zone
-          labelSelector:
-            matchLabels:
-              app: web-server
-      containers:
-      - name: web-app
-        image: nginx
-```
+!!! warning 
+    Do not require that pods be scheduled across distinct AZs otherwise, the number of pods in a deployment will never exceed the number of AZs. 
 
 ### Ensure capacity in each AZ when using EBS volumes
 
@@ -162,6 +174,26 @@ You may need to increase the system resource reservation if you run custom daemo
 For critical applications, consider defining `requests`=`limits` for the container in the Pod. This will ensure that the container will not be killed if another Pod requests resources.
 
 It is a best practice to implement CPU and memory limits for all containers as it prevents a container inadvertently consuming system resources impacting the availability of other co-located processes.
+
+### Configure and Size Resource Requests/Limits for all Workloads
+
+Some general guidance can be applied to sizing resource requests and limits for workloads:
+
+- Do not specify resource limits on CPU.  In the absence of limits, the request acts as a weight on [how much relative CPU time containers get](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#how-pods-with-resource-limits-are-run). This allows your workloads to use the full CPU without an artificial limit or starvation.
+
+- For non-CPU resources, configuring `requests`=`limits` provides the most predictable behavior. If `requests`!=`limits`, the container also has its [QOS](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#qos-classes) reduced from Guaranteed to Burstable making it more likely to be evicted in the event of [node pressure](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/).
+
+- For non-CPU resources, do not specify a limit that is much larger than the request.  The larger `limits` are configured relative to `requests`, the more likely nodes will be overcommitted leading to high chances of workload interruption.
+
+- Correctly sized requests are particularly important when using a node auto-scaling solution like [Karpenter](https://aws.github.io/aws-eks-best-practices/karpenter/) or [Cluster AutoScaler](https://aws.github.io/aws-eks-best-practices/cluster-autoscaling/).  These tools look at your workload requests to determine the number and size of nodes to be provisioned. If your requests are too small with larger limits, you may find your workloads evicted or OOM killed if they have been tightly packed on a node.
+
+Determining resource requests can be difficult, but tools like the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can help you 'right-size' the requests by observing container resource usage at runtime.  Other tools that may be useful for determining request sizes include:
+
+- [Goldilocks](https://github.com/FairwindsOps/goldilocks)
+- [Parca](https://www.parca.dev/)
+- [Prodfiler](https://prodfiler.com/)
+- [rsg](https://mhausenblas.info/right-size-guide/)
+
 
 ### Configure resource quotas for namespaces
 

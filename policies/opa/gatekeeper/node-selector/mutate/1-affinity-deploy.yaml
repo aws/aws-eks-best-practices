@@ -1,0 +1,24 @@
+# Adds a node affinity to all pods in a specific namespace
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
+  name: mutator-add-nodeaffinity-deploy
+  annotations:
+    aws-eks-best-practices/description: >-
+      Adds Node affinity - https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+spec:
+  applyTo:
+  - groups: ["apps"]
+    kinds: ["Deployment"]
+    versions: ["v1"]
+  match:
+    namespaces: ["tenants-x"]
+  location: "spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms"
+  parameters:
+    assign:
+      value: 
+        - matchExpressions:
+          - key: "tenant"
+            operator: In
+            values:
+            - "tenants-x"

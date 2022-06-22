@@ -92,6 +92,58 @@ By default when you provision an EKS cluster, the API cluster endpoint is set to
 ### Create the cluster with a dedicated IAM role
 When you create an Amazon EKS cluster, the IAM entity user or role, such as a federated user that creates the cluster, is automatically granted `system:masters` permissions in the cluster's RBAC configuration. This access cannot be removed and is not managed through the `aws-auth` ConfigMap. Therefore it is a good idea to create the cluster with a dedicated IAM role and regularly audit who can assume this role. This role should not be used to perform routine actions on the cluster, and instead additional users should be granted access to the cluster through the `aws-auth` ConfigMap for this purpose. After the `aws-auth` ConfigMap is configured, the role can be deleted and only recreated in an emergency / break glass scenario where the `aws-auth` ConfigMap is corrupted and the cluster is otherwise inaccessible. This can be particularly useful in production clusters which do not usually have direct user access configured.
 
+### Use tools to make changes to the aws-auth ConfigMap
+An improperly formatted aws-auth ConfigMap may cause you to lose access to the cluster. If you need to make changes to the ConfigMap, use a tool.
+
+**eksctl**
+
+The `eksctl` CLI includes a command for adding identity mappings to the aws-auth
+ConfigMap.
+
+View CLI Help:
+
+```
+eksctl create iamidentitymapping --help
+```
+
+Make an IAM Role a Cluster Admin:
+```
+ eksctl create iamidentitymapping --cluster  <clusterName> --region=<region> --arn arn:aws:iam::123456:role/testing --group system:masters --username admin
+```
+
+For more information, review [`eksctl` docs](https://eksctl.io/usage/iam-identity-mappings/)
+
+**[aws-auth](https://github.com/keikoproj/aws-auth) by keikoproj**
+
+`aws-auth` by keikoproj includes both a cli and a go library.
+
+Download and view help CLI help:
+```
+go get github.com/keikoproj/aws-auth
+aws-auth help
+```
+
+Alternatively, install `aws-auth` with the [krew plugin manager](https://krew.sigs.k8s.io) for kubectl.
+
+```
+kubectl krew install aws-auth
+kubectl aws-auth
+```
+
+[Review the aws-auth docs on GitHub](https://github.com/keikoproj/aws-auth/blob/master/README.md) for more information, including the go library.
+
+**[AWS IAM Authenticator CLI](https://github.com/kubernetes-sigs/aws-iam-authenticator/tree/master/cmd/aws-iam-authenticator)**
+
+The `aws-iam-authenticator` project includes a CLI for updating the ConfigMap.
+
+[Download a release](https://github.com/kubernetes-sigs/aws-iam-authenticator/releases) on GitHub.
+
+Add cluster permissions to an IAM Role:
+
+```
+./aws-iam-authenticator add role --rolearn arn:aws:iam::185309785115:role/lil-dev-role-cluster --username lil-dev-user --groups system:masters --kubeconfig ~/.kube/config
+```
+
 ### Regularly audit access to the cluster
 Who requires access is likely to change over time. Plan to periodically audit the `aws-auth` ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on [auditing](detective.md).  Additional ideas can be found in this [article](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D) from NCC Group. 
 
@@ -156,6 +208,9 @@ rules:
 This role authorizes unauthenticated and authenticated users to read API information and is deemed safe to be publicly accessible.
 
 When an application running within a Pod calls the Kubernetes APIs, the Pod needs to be assigned a service account that explicitly grants it permission to call those APIs.  Similar to guidelines for user access, the Role or ClusterRole bound to a service account should be restricted to the API resources and methods that the application needs to function and nothing else. To use a non-default service account simply set the `spec.serviceAccountName` field of a Pod to the name of the service account you wish to use. For additional information about creating service accounts, see [https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions). 
+
+!!! note
+    Prior to Kubernetes 1.24, Kubernetes would automatically create a secret for each a service account. This secret was mounted to the pod at /var/run/secrets/kubernetes.io/serviceaccount and would be used by the pod to authenticate to the Kubernetes API server. In Kubernetes 1.24, a service account token is dynamically generated when the pod runs and is only valid for an hour by default. A secret for the service account will not be created. If you have an application that runs outside the cluster that needs to authenticate to the Kubernetes API, e.g. Jenkins, you will need to create a secret of type `kubernetes.io/service-account-token` along with an annotation that references the service account such as `metadata.annotations.kubernetes.io/service-account.name: <SERVICE_ACCOUNT_NAME>`. Secrets created in this way do not expire.
 
 ### IAM Roles for Service Accounts (IRSA)
 IRSA is a feature that allows you to assign an IAM role to a Kubernetes service account. It works by leveraging a Kubernetes feature known as [Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-token-volume-projection). When Pods are configured with a Service Account that references an IAM Role, the Kubernetes API server will call the public OIDC discovery endpoint for the cluster on startup. The endpoint cryptographically signs the OIDC token issued by Kubernetes and the resulting token mounted as a volume. This signed token allows the Pod to call the AWS APIs associated IAM role. When an AWS API is invoked, the AWS SDKs calls `sts:AssumeRoleWithWebIdentity`. After validating the token's signature, IAM exchanges the Kubernetes issued token for a temporary AWS role credential. 
@@ -275,7 +330,7 @@ spec:
 ### Scope the IAM Role trust policy for IRSA to the service account name
 The trust policy can be scoped to a Namespace or a specific service account within a Namespace. When using IRSA it's best to make the role trust policy as explicit as possible by including the service account name. This will effectively prevent other Pods within the same Namespace from assuming the role. The CLI `eksctl` will do this automatically when you use it to create service accounts/IAM roles. See [https://eksctl.io/usage/iamserviceaccounts/](https://eksctl.io/usage/iamserviceaccounts/) for further information. 
 
-### When your application needs access to IDMS, use IMDSv2 and increase the hop limit on EC2 instances to 2
+### When your application needs access to IMDS, use IMDSv2 and increase the hop limit on EC2 instances to 2
 [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) requires you use a PUT request to get a session token.  The initial PUT request has to include a TTL for the session token.  Newer versions of the AWS SDKs will handle this and the renewal of said token automatically. It's also important to be aware that the default hop limit on EC2 instances is intentionally set to 1 to prevent IP forwarding. As a consequence, Pods that request a session token that are run on EC2 instances may eventually time out and fallback to using the IMDSv1 data flow. EKS adds support IMDSv2 by _enabling_ both v1 and v2 and changing the hop limit to 2 on nodes provisioned by eksctl or with the official CloudFormation templates. 
 
 ### Disable auto-mounting of service account tokens
@@ -337,7 +392,19 @@ Any role or ClusterRole other than system:public-info-viewer should not be bound
 
 There may be some legitimate reasons to enable anonymous access on specific APIs. If this is the case for your cluster ensure that only those specific APIs are accessible by anonymous user and exposing those APIs without authentication doesn’t make your cluster vulnerable. 
 
-Prior to Kubernetes/EKS Version 1.14, system:unauthenticated group was associated to system:discovery and system:basic-user ClusterRoles by default.  Note that even if you have updated your cluster to version 1.14 or higher, these permissions may still be enabled on your cluster, since cluster updates do not revoke these permissions. To check if system:unauthenticated group has system:discovery permissions on your cluster run the following command: 
+Prior to Kubernetes/EKS Version 1.14, system:unauthenticated group was associated to system:discovery and system:basic-user ClusterRoles by default.  Note that even if you have updated your cluster to version 1.14 or higher, these permissions may still be enabled on your cluster, since cluster updates do not revoke these permissions. 
+To check which ClusterRoles have "system:unauthenticated" except system:public-info-viewer you can run the following command (requires jq util):
+
+```
+kubectl get ClusterRoleBinding -o json | jq -r '.items[] | select(.subjects[]?.name =="system:unauthenticated") | select(.metadata.name != "system:public-info-viewer") | .metadata.name'
+```
+
+And "system:unauthenticated" can be removed from all the roles except "system:public-info-viewer" using:
+```
+kubectl get ClusterRoleBinding -o json | jq -r '.items[] | select(.subjects[]?.name =="system:unauthenticated") | select(.metadata.name != "system:public-info-viewer") | del(.subjects[] | select(.name =="system:unauthenticated"))' | kubectl apply -f -
+```
+
+Alternatively, you can check and remove it manually by kubectl describe and kubectl edit. To check if system:unauthenticated group has system:discovery permissions on your cluster run the following command: 
 ```
 kubectl describe clusterrolebindings system:discovery
 
@@ -370,6 +437,7 @@ Subjects:
   Group  system:authenticated
   Group  system:unauthenticated
 ```
+
 If system:unauthenticated group is bound to system:discovery and/or system:basic-user ClusterRoles on your cluster, you should disassociate these roles from system:unauthenticated group. Edit system:discovery ClusterRoleBinding using the following command:
 ```
 kubectl edit clusterrolebindings system:discovery

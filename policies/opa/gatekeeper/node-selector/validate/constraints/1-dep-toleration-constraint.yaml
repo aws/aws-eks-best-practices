@@ -1,0 +1,19 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredTolerationDep
+metadata:
+  name: deployment-toleration
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment"]
+    namespaces:
+      - "tenants-x"
+  parameters:
+    ops: ["CREATE","UPDATE"]
+    tolerations:
+    - effect: NoSchedule
+      key: tenant
+      operator: Equal
+      value: tenants-x
+    errMsg: "INVALID_DEPLOYMENT_TOLERATIONS"

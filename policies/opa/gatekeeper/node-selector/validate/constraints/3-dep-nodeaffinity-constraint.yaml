@@ -1,0 +1,22 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredNodeAffinityDep
+metadata:
+  name: dep-node-affinity
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment"]
+    namespaces:
+      - "tenants-x"
+  parameters:
+    ops: ["CREATE","UPDATE"]
+    errMsg: "INVALID_DEPLOYMENT_NODEAFFINITY"
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: tenant
+            operator: In
+            values:
+            - tenants-x

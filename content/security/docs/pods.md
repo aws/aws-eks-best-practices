@@ -467,6 +467,12 @@ securityContext:
 
 Policy-as-code and Pod Security Standards can be used to enforce this behavior.
 
+
+!!! Info 
+    
+    As per [Windows containers in Kubernetes](https://kubernetes.io/docs/concepts/windows/intro/) `securityContext.readOnlyRootFilesystem` cannot be set to
+    `true` for a container running on Windows as write access is required for registry and system processes to run inside the container.
+
 ## Tools and Resources
 
 + [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitute for PSPs.
@@ -474,3 +480,4 @@ Policy-as-code and Pod Security Standards can be used to enforce this behavior.
 + A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
 + [Policy based countermeasures: part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
 + [Policy based countermeasures: part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
++ [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) a tool that converts PSPs to OPA/Gatekeeper, KubeWarden, or Kyverno policies 

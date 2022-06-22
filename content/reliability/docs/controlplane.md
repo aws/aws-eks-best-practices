@@ -55,8 +55,15 @@ Consider monitoring these control plane metrics:
 | Metric | Description  |
 |:--|:--|
 | `etcd_request_duration_seconds` | Etcd request latency in seconds for each operation and object type. |
+| `etcd_db_total_size_in_bytes` | Etcd database size. |
 
-Consider using [Grafana dashboard 12006](https://grafana.com/grafana/dashboards/12006) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics.
+Consider using the [Kubernetes Monitoring Overview Dashboard](https://grafana.com/grafana/dashboards/14623) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics.
+
+The following Prometheus query can be used to monitor the current size of etcd. The query assumes there is job called `kube-apiserver` for scraping metrics from API metrics endpoint. 
+
+```text
+max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
+```
 
 ## Cluster Authentication
 
@@ -174,6 +181,7 @@ AWS sets service limits (an upper limit on the number of each resource your team
 - Besides the limits from orchestration engines, there are limits in other AWS services, such as Elastic Load Balancing (ELB) and Amazon VPC, that may affect your application performance.
 - More about EC2 limits here: [EC2 service limits](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html).
 - Each EC2 instance limits the number of packets that can be sent to the [Amazon-provided DNS server](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-limits) to a maximum of 1024 packets per second per network interface.
+- In EKS environment, etcd storage limit is **8GB** as per [upstream guidance](https://etcd.io/docs/v3.5/dev-guide/limit/#storage-size-limit). Please monitor metric `etcd_db_total_size_in_bytes` to track etcd db size. You can refer to [alert rules](https://github.com/etcd-io/etcd/blob/main/contrib/mixin/mixin.libsonnet#L213-L240) `etcdBackendQuotaLowSpace` and `etcdExcessiveDatabaseGrowth` to setup this monitoring.
 
 ## Additional Resources:
 

@@ -1,11 +1,11 @@
 # Introduction
-Welcome to the EKS Best Practices Guides.  The primary goal of this project is to offer a set of best practices for day 2 operations for Amazon EKS. We elected to publish this guidance to GitHub so we could interate quickly, provide timely and effective recommendations for variety of concerns, and easily incorporate suggestions from the broader community.  
+Welcome to the EKS Best Practices Guides.  The primary goal of this project is to offer a set of best practices for day 2 operations for Amazon EKS. We elected to publish this guidance to GitHub so we could iterate quickly, provide timely and effective recommendations for variety of concerns, and easily incorporate suggestions from the broader community.  
 
 We currently have published guides for the following topics: 
 
 * [Best Practices for Security](security/docs/)
 * [Best Practices for Reliability](reliability/docs/)
-* [Best Practices for Cluster Autoscaling](cluster-autoscaling/)
+* Best Practices for Cluster Autoscaling ([karpenter](karpenter/), [cluster-autoscaler](cluster-autoscaling/))
 * [Best Practices for Running Windows Containers](windows/docs/ami/)
 
 In the future we will be publishing best practices guidance for performance, cost optimization, and operational excellence. 

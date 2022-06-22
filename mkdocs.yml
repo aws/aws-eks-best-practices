@@ -4,6 +4,8 @@ repo_url: "https://github.com/aws/aws-eks-best-practices"
 docs_dir: "content"
 theme: 
   name: material
+  icon: 
+    repo: fontawesome/brands/github
   features: 
     - tabs
 nav:
@@ -23,7 +25,8 @@ nav:
     - Incident Response and Forensics: 'security/docs/incidents.md'
     - Image Security: 'security/docs/image.md'
   - Cluster Autoscaling: 
-    - Home: 'cluster-autoscaling/index.md'
+    - Karpenter: 'karpenter/index.md'
+    - Cluster-Autoscaler: 'cluster-autoscaling/index.md'
   - Reliability:
     - Home: 'reliability/docs/index.md'
     - Applications: 'reliability/docs/application.md'
@@ -66,3 +69,9 @@ markdown_extensions:
         permalink: true
     - admonition
     - codehilite
+plugins: 
+    - search
+extra:
+  analytics:
+    provider: google
+    property: G-VQGL8B2FH8

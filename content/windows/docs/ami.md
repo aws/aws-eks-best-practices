@@ -27,6 +27,15 @@ Use Amazon EC2 Image Builder to select between Windows Server versions, AWS Wind
 
 **NOTE:** Prior to selecting a base image, consult the [Windows Server Version and License](licensing.md) section for important details pertaining to release channel updates.
 
+## Configuring faster launching for custom EKS optimized AMIs ##
+
+When using a custom EKS Optimized AMI, Windows worker nodes can be launched up to 65% faster by enabling the Fast Launch feature. This feature maintains a set of pre-provisioned snapshots which have the _Sysprep specialize_, _Windows Out of Box Experience (OOBE)_ steps and required reboots already completed. These snapshots are then used on subsequent launches, reducing the time to scale-out or replace nodes. Fast Launch can be only enabled for AMIs *you own* through the EC2 console or in the AWS CLI and the number of snapshots maintained is configurable. 
+
+!!! warning
+    Fast Launch is not compatible with the default Amazon-provided EKS optimized AMI, create a custom AMI as above before attempting to enable it. 
+ 
+For more information: [AWS Windows AMIs - Configure your AMI for faster launching](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/windows-ami-version-history.html#win-ami-config-fast-launch)
+
 ## Caching Windows base layers on custom AMIs ##
 
 Windows container images are larger than their Linux counterparts.  A base image of Windows Server 2019 LTSC Core is 5.74GB on disk.  If you are running the full suite of .NET Framework 4.8 on the same base image, the size grows to 8.24GB.  It is essential to implement a Windows base layer caching strategy while using Auto-Scaling through [Cluster Autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html) in order to avoid delays during a pod launch on a new Windows node.
