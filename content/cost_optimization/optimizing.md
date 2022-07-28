@@ -1,6 +1,3 @@
----
-tags: cost_optimization
----
 # Optimizing over time (Right Sizing)
 
 Right Sizing as per the AWS Well-Architected Framework, is “… using the lowest cost resource that still meets the technical specifications of a specific workload”.
