@@ -1,7 +1,3 @@
----
-tags: cost_optimization
----
-
 # Cost-effective resources 
 Cost Effective resources means using the appropriate services, resources, and configurations for your workloads running on a Kubernetes cluster, which will result in cost savings.
 
