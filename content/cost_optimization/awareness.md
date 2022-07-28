@@ -1,6 +1,3 @@
----
-tags: cost_optimization
----
 # Expenditure awareness
 
 Expenditure awareness is understanding who, where and what is causing expenditures in your EKS cluster. Getting an accurate picture of this data will help raise awareness of your spend and highlight areas to remediate.
