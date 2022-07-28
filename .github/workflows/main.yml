@@ -12,6 +12,7 @@ on:
     # only main branch
     branches:
       - main
+      - master
 
     # at least one changed file must match this path
     paths:
