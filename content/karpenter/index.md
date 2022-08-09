@@ -305,7 +305,7 @@ Karpenter is able to launch nodes that best fit your workloads when its informat
 See [Configure and Size Resource Requests/Limits for all Workloads](https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads)
 
 ## Additional Resources
-* [Karpenter/Spot Workshop](https://cmp307.ec2spotworkshops.com/040_karpenter.html)
+* [Karpenter/Spot Workshop](https://ec2spotworkshops.com/karpenter.html)
 * [Karpenter Node Provisioner](https://youtu.be/_FXRIKWJWUk)
 * [TGIK Karpenter](https://youtu.be/zXqrNJaTCrU)
 * [Karpenter vs. Cluster Autoscaler](https://youtu.be/3QsVRHVdOnM)
