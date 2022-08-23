@@ -48,6 +48,14 @@ nav:
     - Scheduling: 'windows/docs/scheduling.md'
     - Pod Security for Windows Containers: 'windows/docs/security.md'
     - Storage Options: 'windows/docs/storage.md'
+  - Networking:
+    - Home: 'networking/index/index.md'
+    - VPC and Subnet Considerations: 'networking/subnets/index.md'
+    - Amazon VPC CNI: 'networking/vpc-cni/index.md'
+    - Prefix Mode: 'networking/prefix-mode/index.md'
+    - Running IPv6 Clusters: 'networking/ipv6/index.md'
+    - Security Groups per Pod: 'networking/sgpp/index.md'
+    - Custom Networking: 'networking/custom-networking/index.md'
 markdown_extensions:
     - toc:
         permalink: true

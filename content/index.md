@@ -7,6 +7,7 @@ We currently have published guides for the following topics:
 * [Best Practices for Reliability](reliability/docs/)
 * Best Practices for Cluster Autoscaling ([karpenter](karpenter/), [cluster-autoscaler](cluster-autoscaling/))
 * [Best Practices for Running Windows Containers](windows/docs/ami/)
+* [Best Practices for Networking](networking/)
 
 In the future we will be publishing best practices guidance for performance, cost optimization, and operational excellence. 
 
