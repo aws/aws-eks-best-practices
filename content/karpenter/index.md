@@ -240,7 +240,7 @@ If you need to run highly available applications, follow general EKS best practi
 Karpenter’s model of layered constraints allows you to create a complex set of provisioner and pod deployment constraints to get the best possible matches for pod scheduling. Examples of constraints that a pod spec can request include the following:
 
 * Needing to run in availability zones where only particular applications are available. Say, for example, you have pod that has to communicate with another application that runs on an EC2 instance residing in a particular availability zone. If your aim is to reduce cross-AZ traffic in your VPC, you may want to co-locate the pods in the AZ where the EC2 instance is located. This sort of targeting is often accomplished using node selectors. For additional information on [Node selectors](https://karpenter.sh/preview/tasks/scheduling/#node-selectors), please refer to the Kubernetes documentation.
-* Requiring certain kinds of processors or other hardware. See the [Accelerators](https://karpenter.sh/v0.6.1/aws/provisioning/#accelerators-gpu)section of the Karpenter docs for a podspec example that requires the pod to run on a GPU processor.
+* Requiring certain kinds of processors or other hardware. See the [Accelerators](https://karpenter.sh/v0.6.1/aws/provisioning/#accelerators-gpu) section of the Karpenter docs for a podspec example that requires the pod to run on a GPU processor.
 
 ### Create billing alarms to monitor your compute spend
 
