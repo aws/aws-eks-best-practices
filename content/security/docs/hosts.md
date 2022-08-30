@@ -6,6 +6,19 @@ Inasmuch as it's important to secure your container images, it's equally importa
 ### Use an OS optimized for running containers
 Consider using Flatcar Linux, Project Atomic, RancherOS, and [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/), a special purpose OS from AWS designed for running Linux containers.  It includes a reduced attack surface, a disk image that is verified on boot, and enforced permission boundaries using SELinux.
 
+Alternately, use the [EKS optimized AMI][eks-ami] for your Kubernetes worker nodes. The EKS optimized AMI is released regularly and contains a minimal set of OS packages and binaries necessary to run your containerized workloads.
+
+[eks-ami]: https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html
+
+### Keep your worker node OS updated
+
+Regardless of whether you use a container-optimized host OS like Bottlerocket or a larger, but still minimalist, Amazon Machine Image like the EKS optimized AMIs, it is best practice to keep these host OS images up to date with the latest security patches.
+
+For the EKS optimized AMIs, regularly check the [CHANGELOG][eks-ami-changes] and/or [release notes channel][eks-ami-releases] and automate the rollout of updated worker node images into your cluster.
+
+[eks-ami-changes]: https://github.com/awslabs/amazon-eks-ami/blob/master/CHANGELOG.md
+[eks-ami-releases]: https://github.com/awslabs/amazon-eks-ami/releases
+
 ### Treat your infrastructure as immutable and automate the replacement of your worker nodes
 Rather than performing in-place upgrades, replace your workers when a new patch or update becomes available. This can be approached a couple of ways. You can either add instances to an existing autoscaling group using the latest AMI as you sequentially cordon and drain nodes until all of the nodes in the group have been replaced with the latest AMI.  Alternatively, you can add instances to a new node group while you sequentially cordon and drain nodes from the old node group until all of the nodes have been replaced.  EKS [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) uses the first approach and will display a message in the console to upgrade your workers when a new AMI becomes available. `eksctl` also has a mechanism for creating node groups with the latest AMI and for gracefully cordoning and draining pods from nodes groups before the instances are terminated. If you decide to use a different method for replacing your worker nodes, it is strongly recommended that you automate the process to minimize human oversight as you will likely need to replace workers regularly as new updates/patches are released and when the control plane is upgraded. 
 
