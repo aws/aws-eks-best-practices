@@ -72,6 +72,7 @@ NodeLocal DNSCache is not supported in strict mode as all network traffic, even 
 **Supporting Kubernetes Network Policy**
 
 We recommend using standard enforcing mode when using network policy with Pods that have associated security groups.
+
 We strongly recommend to utilize security groups for Pods to limit network-level access to AWS services that are not part of a cluster. Consider network policies to restrict network traffic between Pods inside a cluster, often known as East/West traffic. 
 
 ### Identify Incompatibilities with Security Groups per Pod 
