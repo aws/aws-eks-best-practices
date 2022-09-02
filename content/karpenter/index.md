@@ -2,11 +2,11 @@
 
 ## Karpenter
 
-Karpenter is an open-source cluster autoscaler that automatically provisions new nodes in response to unschedulable pods. Karpenter evaluates the aggregate resource requirements of the pending pods and chooses the optimal instance type to run them. It will automatically scale-in or terminate instances that don’t have any non-daemonset pods to reduce waste.
+Karpenter is an open-source cluster autoscaler that automatically provisions new nodes in response to unschedulable pods. Karpenter evaluates the aggregate resource requirements of the pending pods and chooses the optimal instance type to run them. It will automatically scale-in or terminate instances that don’t have any non-daemonset pods to reduce waste. It also supports a consolidation feature which will actively move pods around and either delete or replace nodes with cheaper versions to reduce cluster cost.
 
 **Reasons to use Karpenter**
 
-Before the launch of Karpenter, Kubernetes users relied primarily on [Amazon EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) and the [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) (CAS) to dynamically adjust the compute capacity of their clusters. With Karpenter, you don’t need to create dozens of node groups to achieve the flexibility and diversity you get with Karpenter. Moreover, Karpenter is not tightly coupled to Kubernetes versions (as CAS is) and doesn’t require you to jump between AWS and Kubernetes APIs.
+Before the launch of Karpenter, Kubernetes users relied primarily on [Amazon EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) and the [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) (CAS) to dynamically adjust the compute capacity of their clusters. With Karpenter, you don’t need to create dozens of node groups to achieve the flexibility and diversity you get with Karpenter. Moreover, Karpenter is not as tightly coupled to Kubernetes versions (as CAS is) and doesn’t require you to jump between AWS and Kubernetes APIs.
 
 Karpenter consolidates instance orchestration responsibilities within a single system, which is simpler, more stable and cluster-aware. Karpenter was designed to overcome some of the challenges presented by Cluster Autoscaler by providing simplified ways to:
 
@@ -38,16 +38,18 @@ You need features that are still being developed in Karpenter. Because Karpenter
 
 Karpenter is installed using a [Helm chart](https://karpenter.sh/v0.10.0/getting-started/). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
 
-### Avoid using custom launch template and custom AMIs with Karpenter
+### Avoid using custom launch templates with Karpenter
 
 Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s provisioners while others are ignored by Karpenter, e.g. subnets and instance types.
 
-Granted, there may be times when you will want to use your own custom launch template, rather than using what Karpenter uses by default. You can use custom AMIs with Karpenter by referencing a launch template in the Provider spec. The reasons to create custom launch templates may include the need to:
+You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [Customer User Data and Ami](https://karpenter.sh/preview/aws/user-data/).
+
+Granted, there may be times when you will want to use your own custom launch template, rather than using what Karpenter uses by default. The reasons to create custom launch templates may include the need to:
 
 * Integrate with existing infrastructure.
 * Meet compliance requirements.
 
-To learn more, see [Launch Templates and Custom Images](https://karpenter.sh/preview/aws/launch-templates/) in the Karpenter documentation. For background on custom AMIs, see [Amazon EKS AMI Build using EC2 Image Builder](https://www.sufle.io/blog/custom-amazon-eks-ami-build), [Packer scripts](https://github.com/awslabs/amazon-eks-ami), and [Create custom Amazon Linux AMIs for Amazon EKS](https://aws.amazon.com/premiumsupport/knowledge-center/eks-custom-linux-ami/).
+To learn more, see [Launch Templates and Custom Images](https://karpenter.sh/preview/aws/launch-templates/) in the Karpenter documentation. For background on building custom AMIs, see [Amazon EKS AMI Build using EC2 Image Builder](https://www.sufle.io/blog/custom-amazon-eks-ami-build), [Packer scripts](https://github.com/awslabs/amazon-eks-ami), and [Create custom Amazon Linux AMIs for Amazon EKS](https://aws.amazon.com/premiumsupport/knowledge-center/eks-custom-linux-ami/).
 
 ### Exclude instance types that do not fit your workload
 
@@ -115,9 +117,9 @@ The following best practices cover topics related to creating provisioners.
 
 When different teams are sharing a cluster and need to run their workloads on different worker nodes, or have different OS or instance type requirements, create multiple provisioners. For example, one team may want to use Bottlerocket, while another may want to use Amazon Linux. Likewise, one team might have access to expensive GPU hardware that wouldn’t be needed by another team. Using multiple provisioners makes sure that the most appropriate assets are available to each team.
 
-### Create provisioners that are mutually exclusive
+### Create provisioners that are mutually exclusive or weighted
 
-It is recommended to create Provisioners that are mutually exclusive. If they are not, and multiple Provisioners are matched, Karpenter will randomly choose which to use, causing unexpected results. Useful examples for creating multiple provisioners include the following:
+It is recommended to create Provisioners that are either mutually exclusive or weighted to provide consistent scheduling behavior. If they are not and multiple Provisioners are matched, Karpenter will randomly choose which to use, causing unexpected results. Useful examples for creating multiple provisioners include the following:
 
 Creating a Provisioner with GPU and only allowing special workloads to run on these (expensive) nodes:
 
@@ -207,7 +209,7 @@ spec:
 
 ### Use timers (TTL) to automatically delete nodes from the cluster
 
-You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading or repacking nodes, so that nodes are retired and replaced with updated versions. See [How Karpenter nodes are deprovisioned](https://karpenter.sh/preview/tasks/deprovisioning/#how-karpenter-nodes-are-deprovisioned) in the Karpenter documentation for information on using  **`ttlSecondsUntilExpired`** and **`ttlSecondsAfterEmpty`** to deprovision nodes.
+You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [How Karpenter nodes are deprovisioned](https://karpenter.sh/preview/tasks/deprovisioning/#how-karpenter-nodes-are-deprovisioned) in the Karpenter documentation for information on using  **`ttlSecondsUntilExpired`** and **`ttlSecondsAfterEmpty`** to deprovision nodes.
 
 ### Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
@@ -292,6 +294,10 @@ checkASGTagBeforeDraining: false # <-- set to false as instances do not belong t
 enableSpotInterruptionDraining: true
 ```
 
+### Configure requests=limits for all non-CPU resources when using consolidation
+
+Consolidation and scheduling in general work by comparing the pods resource requests vs the amount of allocatable resources on a node.  The resource limits are not considered.  As an example, pods that have a memory limit that is larger than the memory request can burst above the request.  If several pods on the same node burst at the same time, this can cause some of the pods to be terminated due to an out of memory (OOM) condition.  Consolidation can make this more likely to occur as it works to pack pods onto nodes only considering their requests.
+
 ### Use LimitRanges to configure defaults for resource requests and limits
 
 Because Kubernetes doesn’t set default requests or limits, a container’s consumption of resources from the underlying host, CPU, and memory is unbound. The Kubernetes scheduler looks at a pod’s total requests (the higher of the total requests from the pod’s containers or the total resources from the pod’s Init containers) to determine which worker node to schedule the pod onto. Similarly, Karpenter considers a pod’s requests to determine which type of instance it provisions. You can use a limit range to apply a sensible default for a namespace, in case resource requests are not specified by some pods.
@@ -300,7 +306,7 @@ See [Configure Default Memory Requests and Limits for a Namespace](https://kuber
 
 ### Apply accurate resource requests to all workloads
 
-Karpenter is able to launch nodes that best fit your workloads when its information about your workloads requirements is accurate.  
+Karpenter is able to launch nodes that best fit your workloads when its information about your workloads requirements is accurate.  This is particularly important if using Karpenter's consolidation feature.
 
 See [Configure and Size Resource Requests/Limits for all Workloads](https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads)
 
