@@ -36,26 +36,25 @@ A Kubernetes validation webhook could also be used to validate that images are f
 Nowadays, it is not uncommon for an organization to have multiple development teams operating independently within a shared AWS account.  If these teams don't need to share assets, you may want to create a set of IAM policies that restrict access to the repositories each team can interact with.  A good way to implement this is by using ECR [namespaces](https://docs.aws.amazon.com/AmazonECR/latest/userguide/Repositories.html#repository-concepts). Namespaces are a way to group similar repositories together.  For example, all of the registries for team A can be prefaced with the team-a/ while those for team B can use the team-b/ prefix. The policy to restrict access might look like the following: 
 ```json
 {
-"Version": "2012-10-17",
-"Statement": [{
-  "Sid": "AllowPushPull",
-  "Effect": "Allow",
-  "Principal": {
-    "AWS": "arn:aws:iam::123456789012:role/<team_a_role_name>"
-  },
-  "Action": [
-    "ecr:GetDownloadUrlForLayer",
-    "ecr:BatchGetImage",
-    "ecr:BatchCheckLayerAvailability",
-    "ecr:PutImage",
-    "ecr:InitiateLayerUpload",
-    "ecr:UploadLayerPart",
-    "ecr:CompleteLayerUpload"
-  ],
-  "Resource": [
-    "arn:aws:ecr:region:123456789012:repository/team-a/*"
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowPushPull",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+      ],
+      "Resource": [
+        "arn:aws:ecr:<region>:<account_id>:repository/team-a/*"
+      ]
+    }
   ]
-  }]
 }
 ```
 ### Consider using ECR private endpoints
