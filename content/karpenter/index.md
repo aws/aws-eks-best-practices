@@ -93,6 +93,15 @@ ERROR   controller.provisioning Could not launch node, launching instances, gett
 caused by: Post "https://ssm.<region>.amazonaws.com/": dial tcp x.x.x.x:443: i/o timeout  {"commit": "5047f3c", "provisioner": "default"}
 ```
 
+There is no ***VPC endpoint for the [Price List Query API](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-pelong.html)*** and currently no workaround for this condition.
+As a result, pricing data will go stale over time, resulting in the following error messages:
+
+```console
+ERROR   controller.aws.pricing  updating on-demand pricing, RequestError: send request failed
+caused by: Post "https://api.pricing.us-east-1.amazonaws.com/": dial tcp 52.94.231.236:443: i/o timeout; RequestError: send request failed
+caused by: Post "https://api.pricing.us-east-1.amazonaws.com/": dial tcp 52.94.231.236:443: i/o timeout, using existing pricing data from 2022-08-17T00:19:52Z  {"commit": "4b5f953"}
+```
+
 In summary, to use Karpenter in a completely Private EKS Clusters, you need to create the following VPC endpoints :
 
 ```console
