@@ -61,6 +61,7 @@ Nowadays, it is not uncommon for an organization to have multiple development te
 The ECR API has a public endpoint.  Consequently, ECR registries can be accessed from the Internet so long as the request has been authenticated and authorized by IAM. For those who need to operate in a sandboxed environment where the cluster VPC lacks an Internet Gateway (IGW), you can configure a private endpoint for ECR.  Creating a private endpoint enables you to privately access the ECR API through a private IP address instead of routing traffic across the Internet. For additional information on this topic, see https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html.
 
 ### Implement endpoint policies for ECR
+The default endpoint policy for allows access to all ECR repositories within a region.  This might allow an attacker/insider to exfiltrate data by packaging it as a container image and pushing it to a registry in another AWS account.  Mitigating this risk involves creating an endpoint policy that limits API access to ECR repositories. For example, the following policy allows all AWS principles in your account to perform all actions against your and only your ECR repositories:
 ```json
 {
   "Statement": [
