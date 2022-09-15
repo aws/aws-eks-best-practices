@@ -1,3 +1,3 @@
-## kyverno Cluster Policies
+## Kyverno Cluster Policies
 
-Polices written for [kyverno](https://github.com/nirmata/kyverno) policy management
+Polices written for [Kyverno](https://kyverno.io) policy management
