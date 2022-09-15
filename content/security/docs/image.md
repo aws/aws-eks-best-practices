@@ -61,7 +61,7 @@ Nowadays, it is not uncommon for an organization to have multiple development te
 The ECR API has a public endpoint.  Consequently, ECR registries can be accessed from the Internet so long as the request has been authenticated and authorized by IAM. For those who need to operate in a sandboxed environment where the cluster VPC lacks an Internet Gateway (IGW), you can configure a private endpoint for ECR.  Creating a private endpoint enables you to privately access the ECR API through a private IP address instead of routing traffic across the Internet. For additional information on this topic, see https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html.
 
 ### Implement endpoint policies for ECR
-The default endpoint policy for allows access to all ECR repositories within a region.  This might allow an attacker/insider to exfiltrate data by packaging it as a container image and pushing it to a registry in another AWS account.  Mitigating this risk involves creating an endpoint policy that limits API access to ECR respositories. For example, the following policy allows all AWS principles in your account to perform all actions against your and only your ECR repositories: 
+The default endpoint policy for allows access to all ECR repositories within a region.  This might allow an attacker/insider to exfiltrate data by packaging it as a container image and pushing it to a registry in another AWS account.  Mitigating this risk involves creating an endpoint policy that limits API access to ECR repositories. For example, the following policy allows all AWS principles in your account to perform all actions against your and only your ECR repositories: 
 ```json 
 {
     "Statement": [{
@@ -103,7 +103,7 @@ Each ECR repository can have a lifecycle policy that sets rules for when images 
     If the image for long running application is purged from ECR, it can cause an image pull errors when the application is redeployed or scaled horizontally. When using image lifecycle policies, be sure you have good CI/CD practices in place to keep deployments and the images that they reference up to date and always create [image] expiry rules that account for how often you do releases/deployments. 
 
 ### Create a set of curated images
-Rather than allowing developers to create their own images, consider creating a set of vetted images for the different application stacks in your organization.  By doing so, developers can forego learning how to compose Dockerfiles and concentrate on writing code.  As changes are merged into Master, a CI/CD pipeline can automatically compile the asset, store it in an artifact repository and copy the artifact into the appropriate image before pushing it to a Docker registry like ECR. At the very least you should create a set of base images from which developers to create their own Dockerfiles.  Ideally, you want to avoid pulling images from Dockerhub because a) you don't always know what is in the image and b) about [a fifth](https://www.kennasecurity.com/blog/one-fifth-of-the-most-used-docker-containers-have-at-least-one-critical-vulnerability/) of the top 1000 images have vulnerabilties. A list of those images and their vulnerabilities can be found at https://vulnerablecontainers.org/.
+Rather than allowing developers to create their own images, consider creating a set of vetted images for the different application stacks in your organization.  By doing so, developers can forego learning how to compose Dockerfiles and concentrate on writing code.  As changes are merged into Master, a CI/CD pipeline can automatically compile the asset, store it in an artifact repository and copy the artifact into the appropriate image before pushing it to a Docker registry like ECR. At the very least you should create a set of base images from which developers to create their own Dockerfiles.  Ideally, you want to avoid pulling images from Dockerhub because a) you don't always know what is in the image and b) about [a fifth](https://www.kennasecurity.com/blog/one-fifth-of-the-most-used-docker-containers-have-at-least-one-critical-vulnerability/) of the top 1000 images have vulnerabilities. A list of those images and their vulnerabilities can be found at https://vulnerablecontainers.org/.
 
 ### Add the USER directive to your Dockerfiles to run as a non-root user
 As was mentioned in the pod security section, you should avoid running container as root.  While you can configure this as part of the podSpec, it is a good habit to use the `USER` directive to your Dockerfiles.  The `USER` directive sets the UID to use when running `RUN`, `ENTRYPOINT`, or `CMD` instruction that appears after the USER directive.
@@ -112,7 +112,7 @@ As was mentioned in the pod security section, you should avoid running container
 Linting can be used to verify that your Dockerfiles are adhering to a set of predefined guidelines, e.g. the inclusion of the `USER` directive or the requirement that all images be tagged.  [dockerfile_lint](https://github.com/projectatomic/dockerfile_lint) is an open source project from RedHat that verifies common best practices and includes a rule engine that you can use to build your own rules for linting Dockerfiles. It can be incorporated into a CI pipeline, in that builds with Dockerfiles that violate a rule will automatically fail. 
 
 ### Build images from Scratch 
-Reducing the attack surface of your container images should be primary aim when building images.  The ideal way to do this is by creating minimal images that are devoid of binaries that can be used to exploit vulnerabilities. Fortunately, Docker has a mechanism to create images from [`scratch`](https://docs.docker.com/develop/develop-images/baseimages/#create-a-simple-parent-image-using-scratch). With langages like Go, you can create a static linked binary and reference it in your Dockerfile as in this example: 
+Reducing the attack surface of your container images should be primary aim when building images.  The ideal way to do this is by creating minimal images that are devoid of binaries that can be used to exploit vulnerabilities. Fortunately, Docker has a mechanism to create images from [`scratch`](https://docs.docker.com/develop/develop-images/baseimages/#create-a-simple-parent-image-using-scratch). With languages like Go, you can create a static linked binary and reference it in your Dockerfile as in this example: 
 ```dockerfile
 ############################
 # STEP 1 build executable binary
@@ -151,9 +151,9 @@ In a Kubernetes environment, you can use a dynamic admission controller to verif
     ECR intends to support image signing in the future.  The [issue](https://github.com/aws/containers-roadmap/issues/43) is being tracked on the container roadmap.
 
 ### Update the packages in your container images
-You should include RUN `apt-get update && apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security udpates.
+You should include RUN `apt-get update && apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security updates.
 
-Run `apt-get clean` to delete the installer files from `/var/cache/apt/archives/`. You can also run `rm -rf /var/lib/apt/lists/*` after installing packages. This removes the index files or the lists of packages that are available to install. Be aware that these commands may be different for each package manager. For exaple: 
+Run `apt-get clean` to delete the installer files from `/var/cache/apt/archives/`. You can also run `rm -rf /var/lib/apt/lists/*` after installing packages. This removes the index files or the lists of packages that are available to install. Be aware that these commands may be different for each package manager. For example: 
 
 ```dockerfile
 RUN apt-get update && apt-get install -y \
@@ -170,6 +170,7 @@ RUN apt-get update && apt-get install -y \
 + [dockerfile-lint](https://github.com/projectatomic/dockerfile_lint) Rule based linter for Dockerfiles
 + [hadolint](https://github.com/hadolint/hadolint) A smart dockerfile linter
 + [Gatekeeper and OPA](https://github.com/open-policy-agent/gatekeeper) A policy based admission controller
++ [Kyverno](https://kyverno.io/) A Kubernetes-native policy engine
 + [in-toto](https://in-toto.io/) Allows the user to verify if a step in the supply chain was intended to be performed, and if the step was performed by the right actor
 + [Notary](https://github.com/theupdateframework/notary) A project for signing container images
 + [Notary v2](https://github.com/notaryproject/nv2)

@@ -26,7 +26,7 @@ None of these controls, however, prevent pods from different tenants from sharin
   
 [Loft](https://loft.sh) is a commercial offering from the maintainers of Kiosk and [DevSpace](https://github.com/devspace-cloud/devspace) that adds the following capabilities:
 
-  + **Mutli-cluster access** for granting access to spaces in different clusters 
+  + **Multi-cluster access** for granting access to spaces in different clusters 
   + **Sleep mode** scales down deployments in a space during periods of inactivity
   + **Single sign-on** with OIDC authentication providers like GitHub
 
@@ -83,9 +83,9 @@ To prevent this from happening, you should plan to impose quotas on namespaces i
 
 You can also use quotas to apportion the cluster's resources to align with a tenant's spend.  This is particularly useful in the KaaS scenario.
 
-### Pod priority and pre-emption
+### Pod priority and preemption
 
-Pod priority and pre-emption can be useful when you want to provide different qualities of services (QoS) for different customers.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the Kubelet will evict the lower-priority pods from customer B to accommodate the higher-priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher quality of service.
+Pod priority and preemption can be useful when you want to provide different qualities of services (QoS) for different customers.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the Kubelet will evict the lower-priority pods from customer B to accommodate the higher-priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher quality of service.
 
 ## Mitigating controls
 
@@ -110,7 +110,7 @@ There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredn
 
 [Kyverno](https://kyverno.io) is a Kubernetes native policy engine that can validate, mutate, and generate configurations with policies as Kubernetes resources. Kyverno uses Kustomize-style overlays for validation, supports JSON Patch and strategic merge patch for mutation, and can clone resources across namespaces based on flexible triggers.
 
-You can use Kyverno to isolate namespaces, enforce pod security and other best practices, and generate default configurations such as network policies.  Several examples are included in the GitHub [respository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/kyverno) for this project.  
+You can use Kyverno to isolate namespaces, enforce pod security and other best practices, and generate default configurations such as network policies.  Several examples are included in the GitHub [repository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/kyverno) for this project. Many others are included in the [policy library](https://kyverno.io/policies/) on the Kyverno website.
 
 ### Isolating tenant workloads to specific nodes
 
@@ -297,7 +297,7 @@ In the above examples, we used policies written for OPA/Gatekeeper. However, the
 ## Hard multi-tenancy
 Hard multi-tenancy can be implemented by provisioning separate clusters for each tenant.  While this provides very strong isolation between tenants, it has several drawbacks.
 
-First, when you have many tenants, this approach can quickly become expensive. Not only will you have to pay for the control plane costs for each cluster, you will not be able to share compute resources between clusters.  This will eventually cause fragmentation where a subset of your clusters are underutilized while others are overutilized. 
+First, when you have many tenants, this approach can quickly become expensive. Not only will you have to pay for the control plane costs for each cluster, you will not be able to share compute resources between clusters.  This will eventually cause fragmentation where a subset of your clusters are under utilized while others are over utilized. 
 
 Second, you will likely need to buy or build special tooling to manage all of these clusters.  In time, managing hundreds or thousands of clusters may simply become too unwieldy.
 
@@ -307,7 +307,7 @@ Finally, creating a cluster per tenant will be slow relative to a creating a nam
 
 The Kubernetes community has recognized the current shortcomings of soft multi-tenancy and the challenges with hard multi-tenancy. The [Multi-Tenancy Special Interest Group (SIG)](https://github.com/kubernetes-sigs/multi-tenancy) is attempting to address these shortcomings through several incubation projects, including Hierarchical Namespace Controller (HNC) and Virtual Cluster.
 
-The HNC proposal (KEP) describes a way to create parent-child relationships between namespaces with \[policy\] object inheritance along with an ability for tenant administrators to create subnamespaces.
+The HNC proposal (KEP) describes a way to create parent-child relationships between namespaces with \[policy\] object inheritance along with an ability for tenant administrators to create sub-namespaces.
 
 The Virtual Cluster proposal describes a mechanism for creating separate instances of the control plane services, including the API server, the controller manager, and scheduler, for each tenant within the cluster (also known as "Kubernetes on Kubernetes").
 
