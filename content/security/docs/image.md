@@ -62,15 +62,16 @@ The ECR API has a public endpoint.  Consequently, ECR registries can be accessed
 
 ### Implement endpoint policies for ECR
 The default endpoint policy for allows access to all ECR repositories within a region.  This might allow an attacker/insider to exfiltrate data by packaging it as a container image and pushing it to a registry in another AWS account.  Mitigating this risk involves creating an endpoint policy that limits API access to ECR respositories. For example, the following policy allows all AWS principles in your account to perform all actions against your and only your ECR repositories: 
-```json 
+```json
 {
-    "Statement": [{
-    "Sid": "LimitECRAccess",
-    "Principal": "*",
-    "Action": "*",
-    "Effect": "Allow",
-    "Resource": "arn:aws:ecr:region:<your_account_id>:repository/*"
-    },
+  "Statement": [
+    {
+      "Sid": "LimitECRAccess",
+      "Principal": "*",
+      "Action": "*",
+      "Effect": "Allow",
+      "Resource": "arn:aws:ecr:<region>:<account_id>:repository/*"
+    }
   ]
 }
 ```
