@@ -88,7 +88,9 @@ to access the node.
 By deploying workers onto private subnets, you minimize their exposure to the Internet where attacks often originate.  Beginning April 22, 2020, the assignment of public IP addresses to nodes in a managed node groups will be controlled by the subnet they are deployed onto.  Prior to this, nodes in a Managed Node Group were automatically assigned a public IP. If you choose to deploy your worker nodes on to public subnets, implement restrictive AWS security group rules to limit their exposure.
 
 ### Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices
-[Inspector](https://docs.aws.amazon.com/inspector/latest/userguide/inspector_introduction.html) requires the deployment of an agent that continually monitors activity on the instance while using a set of rules to assess alignment with best practices. 
+You can use [Amazon Inspector](https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html) to check for unintended network accessibility of your nodes and for vulnerabilities on those Amazon EC2 instances.
+
+Amazon Inspector can provide common vulnerabilities and exposures (CVE) data for your Amazon EC2 instances only if the Amazon EC2 Systems Manager (SSM) agent is installed and enabled. This agent is preinstalled on [many Amazon EC2 instances](https://docs.aws.amazon.com/ja_jp/systems-manager/latest/userguide/ami-preinstalled-agent.html) including [EKS optimized Amazon Linux AMIs](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html). Regardless of SSM agent status, all of your Amazon EC2 instances are scanned for network reachability issues. For more information about configuring scans for Amazon EC2, see [Scanning Amazon EC2 instances](https://docs.aws.amazon.com/inspector/latest/user/enable-disable-scanning-ec2.html).
 
 !!! attention
     Inspector cannot be run on the infrastructure used to run Fargate pods.
