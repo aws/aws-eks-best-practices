@@ -113,7 +113,7 @@ Kubernetes has the concepts of `requests` and `limits` when it comes to CPU & Me
 
 By default, we're ensuring that we run running a tight ship by not only requiring that each of the containers in our Pods have **BOTH** a CPU & Memory request & limit - and that they are the same thing.
 
-This is the ideal configuration if you are running a multi-tenant cluster to ensure that there are not any 'noisy neighbor' issues where people who don't specify limits burst into over provisioning on the Node where it was scheduled. This forces each service to think about how much CPU and Memory they actually need and declare it in their Spec templates when they deploy to the cluster - and be held to that.
+This is the ideal configuration if you are running a multi-tenant cluster to ensure that there are not any 'noisy neighbor' issues where people who don't specify limits burst into over-provisioning on the Node where it was scheduled. This forces each service to think about how much CPU and Memory they actually need and declare it in their Spec templates when they deploy to the cluster - and be held to that.
 
 #### Require any Pods to declare readiness and liveness probes/healthchecks
 
