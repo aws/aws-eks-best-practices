@@ -1,13 +1,5 @@
 # Avoiding Errors & Timeouts with Kubernetes Applications and AWS Load Balancers
 
-## Background
-
-Kubernetes is a complex system for managing containers, their configuration, and the network traffic between them. One of the common first problems encountered after deploying an application in Kubernetes is:
-
-
->How do I expose this application so my customers or clients can access it?
-
-
 After creating the necessary Kubernetes resources (Service, Deployment, Ingress, etc), the pods should be able to receive traffic from your clients through an Elastic Load Balancer. However, you may find that errors, timeouts, or connection resets are being generated when you make changes to the application or Kubernetes environment. Those changes could be a deployment or a scaling action (either manual or automatic).
 
 Unfortunately, those errors may be generated even when your application is not logging problems. This is because the Kubernetes systems controlling the resources in your cluster may be running faster than the AWS systems that control the Load Balancer membership. The Pods may also be receiving traffic before your application has completed it’s startup operations and responding correctly.
@@ -17,7 +9,8 @@ Lets review the process through which a pod becomes Ready and how traffic can be
 ## Pod Readiness
 
 This diagram from a [2019 Kubecon talk](https://www.youtube.com/watch?v=Vw9GmSeomFg), shows the steps taken for a pod to become Ready and receive traffic for a `LoadBalancer` service:
-[Image: image.png]*[Ready? A Deep Dive into Pod Readiness Gates for Service Health... - Minhan Xia & Ping Zou](https://www.youtube.com/watch?v=Vw9GmSeomFg)*
+![readiness.png](readiness.png)
+*[Ready? A Deep Dive into Pod Readiness Gates for Service Health... - Minhan Xia & Ping Zou](https://www.youtube.com/watch?v=Vw9GmSeomFg)*  
 When a pod that is a member of a NodePort Service is created, Kubernetes will go through the following steps:
 
 1. The pod is created on the Kubernetes control plane (i.e. from a `kubectl` command or scaling action).
@@ -35,7 +28,8 @@ When a pod that is a member of a NodePort Service is created, Kubernetes will go
 ### Impact on Deployments
 
 Below is a diagram showing the steps taken when an application deployment triggers the replacement of pods:
-[Image: image.png]*[Ready? A Deep Dive into Pod Readiness Gates for Service Health... - Minhan Xia & Ping Zou](https://www.youtube.com/watch?v=Vw9GmSeomFg)*
+![deployments.png](deployments.png)
+*[Ready? A Deep Dive into Pod Readiness Gates for Service Health... - Minhan Xia & Ping Zou](https://www.youtube.com/watch?v=Vw9GmSeomFg)*  
 Of note in this diagram is that the second Pod will not be deployed until the first pod has reached the “Ready” state. Steps 4 and 5 from the previous section will also happen in parallel with the deployment actions above.
 
 This means that the actions to propagate the new pod status may still be in-progress when the Deployment controller moves on to the next pods. Since this process also terminates the older version of pods, this could lead to a situation where the pods have reached a Ready status but those changes are still being propagated and the older versions of the pod have been terminated. 
@@ -51,14 +45,14 @@ To avoid these problems we can add configuration to ensure the Kubernetes system
 ### Use IP Target-Type Load Balancers
 
 When creating a `LoadBalancer` type service the traffic is sent from the load balancer to *any node in the cluster* via **Instance target type** registration. Each node then redirects the traffic from the `NodePort` to a Pod/IP tuple in the Service’s Endpoints array, this target could be running on a separate worker node (***Note:*** *Remember that array should only have “Ready” pods*):
-[Image: loadbalancer-service-traffic-3.png]
+![nodeport.png](nodeport.png)
 
 This adds an additional hop to your request, and adds complexity to the Load Balancer configuration. For example, if the Load Balancer above was configured with session affinity, that affinity could only hold between the load balancer and the backend node (depending on the affinity configuration). 
 
 Since the Load Balancer is not communicating with the backend Pod directly, controlling the traffic flow and timing with the Kubernetes systems becomes more difficult.
 
 When using the [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller), **IP target type** can be used to register the Pod IP/Port tuples with the Load Balancer directly:
-[Image: image.png]
+![ip.png](ip.png)  
 This simplifies the traffic path from the Load Balancer to the target Pods. This means when a new target is registered we can be sure that target is a “Ready” Pod IP and port, the health checks from the load balancer will hit the Pod Directly, and when reviewing VPC flow logs or monitoring utilities traffic between the Load Balancer and the Pods will be easily traceable.
 
 Using IP registration also allows us to control the timing and configuration of the traffic directly against the backend Pods, rather than trying to manage connections through the `NodePort` rules as well.
@@ -205,148 +199,3 @@ spec:
                 port:
                   number: 8080
 ```
-
-
-
-### Conclusion
-
-This post has discussed some of the considerations and problems that can come up when working with Kubernetes and AWS Load Balancers. To ensure your applications can be updated with 0 downtime configure the options below:
-
-* Use IP Target-Type Load Balancers
-* Utilize Pod Readiness Gates
-* Ensure Pods are Deregistered from Load Balancers *before* Termination
-* Ensure Pods have Readiness Probes
-* Configure a Pod Disruption Budget
-* Gracefully handle Termination Signals
-* Be Wary of the Deregistration Delay 
-
-
-
-
-
-
-
-
-
-* * *
-
-
-
-
-This section is not meant to be shared with customers directly as it has some internal doc/resource links and extraneous information.
-
-## References 
-
-* [The fine art of not dropping packets in Kubernetes](https://quip-amazon.com/qZhyANYWP9Ra) This is a great rundown of the problem with explanations of a lot of the problems in more depth than this doc discusses. 
-* [Ready? A Deep Dive into Pod Readiness Gates for Service Health... - Minhan Xia & Ping Zou](https://www.youtube.com/watch?v=Vw9GmSeomFg) - Pod Readiness discussion from kubecon including the reasoning for PodReadinessGates. This is awesome!
-* [Eason Cao’s blog on Zero DownTime Deployment](https://easoncao.com/zero-downtime-deployment-when-using-alb-ingress-controller-on-amazon-eks-and-prevent-502-error/) - a bit dated in the configuration but the theory discussion is still relevant and great
-* My testing notes [[Internal] NLB testing](https://quip-amazon.com/9ixUAZTXe3bn)
-    * Example manifest I used is included in that doc for a full example ^
-* More general [NLB Configuration Review](https://quip-amazon.com/P408Azvs4rCF) - little dated but similar rundown on how to configure the NLB. there are a few additions that aren’t discussed here like `externalTrafficPolicy`
-
-## Testing Notes
-
-In addition to the above I had these notes while I was testing/validating the above recommendations. These may not be relevant for all customers but can be a real pain when you run into them:
-
-* These annotations are ignored until K8s 1.20 for NLB LoadBalancer services. The ALB ingress controller supports them for `nlb-ip` mode:
-*   annotations:
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: '10'
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: '10'
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: '2'
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: '2'
-* Looks like ELB returns a 400 if you supply both of the annotations below for an `nlb-ip`, but if you set *only* the interval annotation it will set both correctly to 10s. 
-
-```
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: '10'
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: '10'
-```
-
-* The registration/health checks from the NLB are a mess. The target is in Initial state for ~2 min (some of which the endpoint accepts connections, i’m assuming to the now `initial` node) 
-* If you set maxUnavailable to 0% or 0, or you set minAvailable to 100% or the number of replicas, you are requiring zero voluntary evictions. When you set zero voluntary evictions for a workload object such as ReplicaSet, then you cannot successfully drain a Node running one of those Pods.
-
-* **I seem to have the best results with a combination** of:
-    * An NLB-IP target type service with the Health checks as strict as we can get:
-
-```
-    service.beta.kubernetes.io/aws-load-balancer-type: nlb-ip
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: '10'
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: '2'
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: '2'
-```
-
-    * PodDisruptionBudget defined ensuring 1 replica is up (in each AZ, if possible as the NLB does interesting things when all backends in an AZ are unhealthy)
-        * this is not strictly applicable to the tests but can help ensure that if we drain all nodes we maintain *some* pods to take load
-    * extended `terminationGracePeriodSeconds` and a `preStop` command defined to sleep for long enough that the NLB deregistration process completes. *This can be a lot longer than expected, test and update.*
-        * In my testing in us-west-2 the total deregistration time was pretty consistently ~5min across my tests
-
-```
-        lifecycle:
-          preStop:
-            exec:
-              command: ["/bin/sh", "-c", "sleep 420"] 
-```
-
-    * Liveness and Readiness probes to ensure the application is ready for requests when the Pod is `Ready` 
-        * This may be an artifact of the flask application I used in testing. It looked to be failing on 1-2 requests as the workers booted up. I was actually surprised the kubernetes changes happened faster than gunicorn could boot a couple of workers. This generated some timeouts/resets in my testing, to avoid it readiness probes can be used to delay the “ready” state until the application is actually taking traffic.
-
-```
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          failureThreshold: 1
-          periodSeconds: 10
-          initialDelaySeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          periodSeconds: 5
-```
-
-* Keep in mind the [scalability thresholds](https://github.com/kubernetes/community/blob/master/sig-scalability/configs-and-limits/thresholds.md)there have previously been problems with delays in propagation of Pod states through the endpoints and IPtables rules. As the number of pods per service climbs the possibility of “stale” iptables rules increases.
-    * For this use case consider leveraging an Ingress and Headless service, as this removes the clusterIP/NodePort from the Kubernetes Service. Kube-proxy no longer tries to configure IPtables rules for inbound Nodeport traffic. The endpoints controller will still track the endpoints for Pods and the ingress controller is able to route traffic directly to those pods rather than the clusterIP/NodePort.
-        * Notes on my investigation and testing  [Headless Services in Kubernetes](https://quip-amazon.com/Y2gqArDrpRvD)
-        * The major drawback is the loss of the clusterIP for “east/west” or intra-cluster communication. Though DNS→IP still works and clients can consume those if they’ll handle round-robin’ing the IPs.
-    * updating to k8s version 1.21+ could also help as `EndpointSlice`s went GA and can limit the total size of the endpoints being monitored.
-* kube-proxy and instance type registration should in theory be able to handle a node draining fine, but i consistently caught timeouts/resets in my testing. I’m not positive but i believe this was a sort of race between the `NodePort`s closing on the node and the node receiving requests from other nodes (east/west or intra-cluster).
-
-
-
-
-
-
-
-## But how do I workaround this delay when i make a mistake?
-
-Imagine these steps happen with >1k pods as targets:
-
-1. human error causes a "bad" configuration to be deployed to the NLB Target pods. This deployment runs but is delayed +5min for each "batch" of pods that k8s cycles (due to the prestop hooks and NLB Deregistration time).
-2. We identify the problem and are ready to roll out a solution before the deployment in 1 is complete
-
-How do we quickly remediate the bad deployment in 1 with the solutions from 2?
-
-* To address this speed, as well as the rollback behavior, Kubernetes offers a few options that could help:
-    * By default [Kubernetes deployments will allow 25% ``maxUnavailable`` and 25%``maxSurge`` during a rolling update](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment). This means that your pods will be replaced in batches when making changes, and this also parallelizes the registration time. You can adjust these values on the Deployment resource to increase the size of batches that are replaced when making changes to increase the speed of the deployments. Keep in mind that this could increase the necessary compute capacity for the pods as you may create new replicas before all of the old replicas have completed the PreStop hook.
-    * [When there are multiple changes to a Deployment Kubernetes will respect the most recent revision](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rollover-aka-multiple-updates-in-flight). This means if you make a mistake on the manifest during an update and then apply a subsequent update that resolves the problem, kubernetes should scale up the replica set for the new version only.
-        * These operations **will** respect the preStop hook and wait the entire time. I have not tested this but my understanding is that you could [manually “force terminate” any bad pods](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination-forced). This would delete the object from the API server side and cause the kubelet to forcibly kill the containers. My understanding is that this should disregard the preStop hook and would trigger the NLB deregistration process immediately, however I have not had a chance to test this entire process so proceed with caution and test.
-            * This force-terminate is **expected** to generate errors and should really only be used when things are in an unrecoverable state already.
-        * You can also [pause and resume rollouts in k8s](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#pausing-and-resuming-a-deployment) so if you notice a problem you can pause the rollout and investigate or remediate the solution.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
