@@ -1,8 +1,8 @@
 # Avoiding Errors & Timeouts with Kubernetes Applications and AWS Load Balancers
 
-After creating the necessary Kubernetes resources (Service, Deployment, Ingress, etc), the pods should be able to receive traffic from your clients through an Elastic Load Balancer. However, you may find that errors, timeouts, or connection resets are being generated when you make changes to the application or Kubernetes environment. Those changes could be a deployment or a scaling action (either manual or automatic).
+After creating the necessary Kubernetes resources (Service, Deployment, Ingress, etc), your pods should be able to receive traffic from your clients through an Elastic Load Balancer. However, you may find that errors, timeouts, or connection resets are being generated when you make changes to the application or Kubernetes environment. Those changes could be an application deployment or a scaling action (either manual or automatic).
 
-Unfortunately, those errors may be generated even when your application is not logging problems. This is because the Kubernetes systems controlling the resources in your cluster may be running faster than the AWS systems that control the Load Balancer membership. The Pods may also be receiving traffic before your application has completed it’s startup operations and responding correctly.
+Unfortunately, those errors may be generated even when your application is not logging problems. This is because the Kubernetes systems controlling the resources in your cluster may be running faster than the AWS systems that control the Load Balancer target registration and health. Your Pods may also be receiving traffic before your application has completed it’s startup operations and responding correctly.
 
 Lets review the process through which a pod becomes Ready and how traffic can be routed into the pods.
 
@@ -21,7 +21,7 @@ When a pod that is a member of a NodePort Service is created, Kubernetes will go
 5. `kube-proxy` receives an update (via `watch`) that there is a new IP/Port to add to the iptables rules for the Service.
     1. The local iptables rules on the worker node will be updated with the additional target pod for the NodePort Service.
 
-***Note**: When using an Ingress resource and Ingress Controller step 5 is handled by the relevant controller instead of `kube-proxy`. The controller will then take the necessary configuration steps (such as registering/deregistering the target to a load balancer) to allow traffic to flow as expected.* 
+***Note**: When using an Ingress resource and Ingress Controller (like the AWS Load Balancer Controller) step 5 is handled by the relevant controller instead of `kube-proxy`. The controller will then take the necessary configuration steps (such as registering/deregistering the target to a load balancer) to allow traffic to flow as expected.* 
 
 [When a pod is terminated](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), or changes to a not ready state, a similar process occurs. The API server will receive either an update from a controller, kubelet, or kubectl client to terminate the pod. Steps 3-5 continue from there but will remove the Pod IP/Tuple from the endpoints list and iptables rules rather than insert.
 
@@ -77,7 +77,7 @@ To enable these you will need to:
 
 When a pod is terminated steps 4 and 5 from the pod readiness section occur at the same time that the container processes receive the termination signals. This means that if your container is able to shut down quickly it may shut down faster than the Load Balancer is able to deregister the target. To avoid this situation adjust the Pod spec with:
 
-    1. Add a `preStop` lifecycle hook to allow the application to deregister and gracefully close connections. This hook is called immediately before a container is terminated due to an API request or management event such as a liveness/startup probe failure, preemption, resource contention and others. Critically, [this hook is called and allowed to complete **before** the termination signals are sent](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), provided the grace period is long enough to accommodate the execution.
+1. Add a `preStop` lifecycle hook to allow the application to deregister and gracefully close connections. This hook is called immediately before a container is terminated due to an API request or management event such as a liveness/startup probe failure, preemption, resource contention and others. Critically, [this hook is called and allowed to complete **before** the termination signals are sent](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), provided the grace period is long enough to accommodate the execution.
 
 ```
         lifecycle:
@@ -88,7 +88,7 @@ When a pod is terminated steps 4 and 5 from the pod readiness section occur at t
 
 A simple sleep command like the one above can be used to introduce a short delay between when the pod is marked `Terminating` (and Load Balancer deregistration begins) and when the termination signal is sent to the container process. If needed this hook can also be leveraged for more advanced application termination/shutdown procedures.
 
-1. Extend the `terminationGracePeriodSeconds` to accommodate the entire `prestop` execution time, as well as the time your application takes to gracefully respond to the termination signal. In the example below the grace period is extended to 200s which allows the entire `sleep 180` command to complete and then an extra 20s just to be sure my app can shutdown gracefully.
+2. Extend the `terminationGracePeriodSeconds` to accommodate the entire `prestop` execution time, as well as the time your application takes to gracefully respond to the termination signal. In the example below the grace period is extended to 200s which allows the entire `sleep 180` command to complete and then an extra 20s just to be sure my app can shutdown gracefully.
 
 ```
     spec:
