@@ -1,8 +1,8 @@
 # Avoiding Errors & Timeouts with Kubernetes Applications and AWS Load Balancers
 
-After creating the necessary Kubernetes resources (Service, Deployment, Ingress, etc), your pods should be able to receive traffic from your clients through an Elastic Load Balancer. However, you may find that errors, timeouts, or connection resets are being generated when you make changes to the application or Kubernetes environment. Those changes could be an application deployment or a scaling action (either manual or automatic).
+After creating the necessary Kubernetes resources (Service, Deployment, Ingress, etc), your pods should be able to receive traffic from your clients through an Elastic Load Balancer. However, you may find that errors, timeouts, or connection resets are being generated when you make changes to the application or Kubernetes environment. Those changes could trigger an application deployment or a scaling action (either manual or automatic).
 
-Unfortunately, those errors may be generated even when your application is not logging problems. This is because the Kubernetes systems controlling the resources in your cluster may be running faster than the AWS systems that control the Load Balancer target registration and health. Your Pods may also be receiving traffic before your application has completed it’s startup operations and responding correctly.
+Unfortunately, those errors may be generated even when your application is not logging problems. This is because the Kubernetes systems controlling the resources in your cluster may be running faster than the AWS systems that control the Load Balancer's target registration and health. Your Pods may also start receiving traffic before your application is ready to receive requests.
 
 Lets review the process through which a pod becomes Ready and how traffic can be routed into the pods.
 
@@ -21,9 +21,10 @@ When a pod that is a member of a NodePort Service is created, Kubernetes will go
 5. `kube-proxy` receives an update (via `watch`) that there is a new IP/Port to add to the iptables rules for the Service.
     1. The local iptables rules on the worker node will be updated with the additional target pod for the NodePort Service.
 
-***Note**: When using an Ingress resource and Ingress Controller (like the AWS Load Balancer Controller) step 5 is handled by the relevant controller instead of `kube-proxy`. The controller will then take the necessary configuration steps (such as registering/deregistering the target to a load balancer) to allow traffic to flow as expected.* 
+!!! note
+    When using an Ingress resource and Ingress Controller (like the AWS Load Balancer Controller) step 5 is handled by the relevant controller instead of `kube-proxy`. The controller will then take the necessary configuration steps (such as registering/deregistering the target to a load balancer) to allow traffic to flow as expected.
 
-[When a pod is terminated](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), or changes to a not ready state, a similar process occurs. The API server will receive either an update from a controller, kubelet, or kubectl client to terminate the pod. Steps 3-5 continue from there but will remove the Pod IP/Tuple from the endpoints list and iptables rules rather than insert.
+[When a pod is terminated](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), or changes to a not-ready state, a similar process occurs. The API server will receive either an update from a controller, kubelet, or kubectl client to terminate the pod. Steps 3-5 continue from there but will remove the Pod IP/Tuple from the endpoints list and iptables rules rather than insert.
 
 ### Impact on Deployments
 
@@ -34,9 +35,9 @@ Of note in this diagram is that the second Pod will not be deployed until the fi
 
 This means that the actions to propagate the new pod status may still be in-progress when the Deployment controller moves on to the next pods. Since this process also terminates the older version of pods, this could lead to a situation where the pods have reached a Ready status but those changes are still being propagated and the older versions of the pod have been terminated. 
 
-This problem is exacerbated when working with load balancers from Cloud Providers like AWS as the Kubernetes systems described above do not, by default, take into account registration times or health checks on the Load Balancer. **This means the Deployment update could run and completely cycle the pods, but the Load Balancer has not completed health checks or registration for the new Pods, causing an outage.**
+This problem is exacerbated when working with load balancers from Cloud Providers like AWS as the Kubernetes systems described above do not, by default, take into account registration times or health checks on the Load Balancer. **This means the Deployment update could completely cycle through the pods, but the Load Balancer has not finished performing the health checks or registrating the new Pods which could cause an outage.**
 
-A similar problem occurs when a pod is terminated. Depending on the Load Balancer configuration the Pod may take a minute or two to complete deregistration and stop taking new requests. **Kubernetes does not delay rolling deployments for this deregistration, this can lead to a state where the Load Balancer is still sending traffic to the IP/port for a target Pod that has already been terminated.**
+A similar problem occurs when a pod is terminated. Depending on the Load Balancer configuration the Pod may take a minute or two to deregister and stop taking new requests. **Kubernetes does not delay rolling deployments for this deregistration, this can lead to a state where the Load Balancer is still sending traffic to the IP/port for a target Pod that has already been terminated.**
 
 To avoid these problems we can add configuration to ensure the Kubernetes systems take actions more in line with the AWS Load Balancer behavior.
 
@@ -44,7 +45,11 @@ To avoid these problems we can add configuration to ensure the Kubernetes system
 
 ### Use IP Target-Type Load Balancers
 
-When creating a `LoadBalancer` type service the traffic is sent from the load balancer to *any node in the cluster* via **Instance target type** registration. Each node then redirects the traffic from the `NodePort` to a Pod/IP tuple in the Service’s Endpoints array, this target could be running on a separate worker node (***Note:*** *Remember that array should only have “Ready” pods*):
+When creating a `LoadBalancer` type service the traffic is sent from the load balancer to *any node in the cluster* via **Instance target type** registration. Each node then redirects the traffic from the `NodePort` to a Pod/IP tuple in the Service’s Endpoints array, this target could be running on a separate worker node
+
+!!! note
+    Remember that array should only have “Ready” pods
+
 ![nodeport.png](nodeport.png)
 
 This adds an additional hop to your request, and adds complexity to the Load Balancer configuration. For example, if the Load Balancer above was configured with session affinity, that affinity could only hold between the load balancer and the backend node (depending on the affinity configuration). 
@@ -63,7 +68,6 @@ Using IP registration also allows us to control the timing and configuration of 
 
 
 >[[...] the AWS Load Balancer controller can set the readiness condition on the pods that constitute your ingress or service backend. The condition status on a pod will be set to `True` only when the corresponding target in the ALB/NLB target group shows a health state of »Healthy«. This prevents the rolling update of a deployment from terminating old pods until the newly created pods are »Healthy« in the ALB/NLB target group and ready to take traffic.](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/pod_readiness_gate/)
-
 
 The readiness gates ensure that Kubernetes doesn’t move “too fast” when creating new replicas during a deployment and avoids the situation where Kubernetes has completed the deployment but the new Pods have not completed registration.
 
@@ -109,7 +113,7 @@ When creating Pods in Kubernetes the default Readiness state is “Ready”, how
 
 Pods that are created with a `readinessProbe` defined start in a “NotReady” state, and only change to “Ready” when the `readinessProbe` is successful. This ensures that applications are not put “in-service” until the application has completed startup.
 
-Liveness probes are recommended to allow for application restarts when entering a broken state, however care should be taken with stateful applications as liveness failures will trigger a restart of the application. Startup probes can also be leveraged for applications that are slow to start.
+Liveness probes are recommended to allow for application restarts when entering a broken state, e.g. deadlocks, however care should be taken with stateful applications as liveness failures will trigger a restart of the application. [Startup probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-startup-probes) can also be leveraged for applications that are slow to start.
 
 The below probes use HTTP probes against port 80 to check when the web application becomes ready (the same probe configuration is also used for the liveness probe):
 
@@ -134,10 +138,12 @@ The below probes use HTTP probes against port 80 to check when the web applicati
 
 ### Configure a Pod Disruption Budget
 
->A [Pod Disruption Budget (PDB)](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets) limits the number of Pods of a replicated application that are down simultaneously from [voluntary disruptions](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#voluntary-and-involuntary-disruptions). For example, a quorum-based application would like to ensure that the number of replicas running is never brought below the number needed for a quorum. A web front end might want to ensure that the number of replicas serving load never falls below a certain percentage of the total.
+A [Pod Disruption Budget (PDB)](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets) limits the number of Pods of a replicated application that are down simultaneously from [voluntary disruptions](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#voluntary-and-involuntary-disruptions). For example, a quorum-based application would like to ensure that the number of replicas running is never brought below the number needed for a quorum. A web front end might want to ensure that the number of replicas serving load never falls below a certain percentage of the total.
 
+The PDB will protect the application against things like the nodes being drained, or application deployments. The PDB ensures that a minimum number or percentage of pods remain available while taking these actions. 
 
-The PDB will protect the application against things like the nodes being drained, or application deployments. The PDB ensures that a minimum number or percentage of pods remain available while taking these actions. **PDB’s will NOT protect the application against involuntary disruptions like a failure in the host OS or loss of network connectivity.** 
+!!! attention
+    PDB’s will NOT protect the application against involuntary disruptions like a failure in the host OS or loss of network connectivity. 
 
 The example below ensures that there is always at least 1 Pod available with the label `app: echoserver`. [You can configure the correct replica count for your application or use a percentage](https://kubernetes.io/docs/tasks/run-application/configure-pdb/#think-about-how-your-application-reacts-to-disruptions):
 
@@ -160,7 +166,8 @@ When a pod is Terminated the application running inside the container will recei
 
 These Signals are used by the container runtime to trigger your application to shutdown. The `SIGTERM` signal will also be sent **after** the `preStop` hook has executed. With the above configuration the `preStop` hook will ensure the pod has been deregistered from the Load Balancer, so the application can then gracefully closes any remaining open connections when the `SIGTERM` signal is received. 
 
-***Note:*** [*Signal handling in container environments can be complicated when using “wrapper scripts” for the entrypoint of your application*](https://petermalmgren.com/signal-handling-docker/) *as the script will be PID 1 and may not forward the signal to your application.*
+!!! note
+    [Signal handling in container environments can be complicated when using “wrapper scripts” for the entrypoint of your application](https://petermalmgren.com/signal-handling-docker/) as the script will be PID 1 and may not forward the signal to your application.
 
 
 ### Be Wary of the Deregistration Delay 
