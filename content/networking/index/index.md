@@ -43,4 +43,21 @@ Custom networking is one option to address the IPv4 address exhaustion problem, 
 
 EKS’s support for IPv6 is focused on solving the IP exhaustion problem caused by a limited IPv4 address space. In response to customer issues with IPv4 exhaustion, EKS has prioritized IPv6-only Pods over dual-stack Pods. That is, Pods may be able to access IPv4 resources, but they are not assigned an IPv4 address from VPC CIDR range. The VPC CNI assigns IPv6 addresses to Pods from the AWS managed VPC IPv6 CIDR block. 
 
+## Subnet Calculator
+
+This project includes a [Subnet Calculator Excel Document](../../../projects/subnet-calc/subnet-calc.xlsx). This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`. The document includes two sheets, a first for WarmE NI mode, and a second for Warm IP mode. Review the [VPC CNI guidance](../vpc-cni/index.md) for more information on these modes. 
+
+Inputs:
+- Subnet CIDR Size
+- Warm ENI Target *or* Warm IP Target
+- List of instances
+    - type, number, and number of workload pods scheduled per instance
+
+Outputs:
+- Total number of pods hosted
+- Number of Subnet IPs consumed
+- Number of Subnet IPs remaining
+- Instance Level Details
+    - Number of Warm IPs/ENIs per instance
+    - Number of Active IPs/ENIs per instance
 
