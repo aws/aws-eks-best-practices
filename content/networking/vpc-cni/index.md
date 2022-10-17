@@ -42,7 +42,7 @@ The number of ENIs and IP addresses in a pool are configured through environment
     * Example: Consider a newly launched instance. It has 1 ENI and each ENI supports 10 IP addresses. MINIMUM_IP_TARGET is set to 100. The ENI immediately attaches 9 more ENIs for a total of 100 addresses. This happens regardless of any WARM_IP_TARGET or WARM_ENI_TARGET values. 
 
 
-This project includes a [Subnet Calculator Excel Document](../../../projects/subnet-calc/subnet-calc.xlsx). This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`.
+This project includes a [Subnet Calculator Excel Document](../subnet-calc/subnet-calc.xlsx). This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`.
 
 ![illustration of components involved in assigning an IP address to a pod](./image-2.png)
 
@@ -185,7 +185,7 @@ You can also set [CloudWatch alarms](https://docs.aws.amazon.com/AmazonCloudWatc
 
 We strongly recommend to size your subnets for growth. Right sizing the subnets will prevent your subnets from running out of IP addresses as your Pods and nodes scale. You will not be able to create new Pods or nodes if the subnets don’t have enough available IP addresses. If you need to limit the IP addresses the CNI caches, then you can use warm pool CNI environment variables. If subnets in your VPC run out of available IP addresses, we suggest [creating a new subnet](https://docs.aws.amazon.com/vpc/latest/userguide/working-with-subnets.html#create-subnets) using the VPC’s original CIDR blocks.
 
-Use the [sample EKS Subnet Calculator](https://github.com/aws/aws-eks-best-practices/tree/master/projects/subnet-calc) spreadsheet to plan your network. The spreadsheet calculates IP usage based on workloads and VPC ENI configuration. The IP usage is compared to an IPv4 subnet to determine if the configuration and subnet size is sufficient for your workload. 
+Use the [sample EKS Subnet Calculator](../subnet-calc/subnet-calc.xlsx) spreadsheet to plan your network. The spreadsheet calculates IP usage based on workloads and VPC ENI configuration. The IP usage is compared to an IPv4 subnet to determine if the configuration and subnet size is sufficient for your workload. 
 
 ### Configure IP and ENI Target values in address constrained environments.
 

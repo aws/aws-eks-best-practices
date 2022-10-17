@@ -135,7 +135,7 @@ We suggest a private-only endpoint when you need security and network isolation.
 
 When you create a cluster, Amazon EKS creates up to 4 elastic network interfaces in the cluster subnets. When you upgrade the cluster, Amazon EKS creates new X-ENIs and deletes the old ones when the upgrade is successful. Amazon EKS recommends a netmask of /28 (16 IP addresses) for cluster subnets to accommodate upgrades of the cluster.
 
-Before building VPC and subnets, it is advised to work backwards from the required workload scale. When clusters are built using “ekstcl”, /19 subnets are created by default. A netmask of /19 is suitable for the majority of workload types. To learn about Pod IP allocations, refer [Amazon VPC CNI](../vpc-cni/index.md). Consider using [subnet-calc](https://github.com/aws/aws-eks-best-practices/blob/master/projects/subnet-calc/subnet-calc.xlsx), a tool developed by EKS to help with subnet sizing.
+Before building VPC and subnets, it is advised to work backwards from the required workload scale. When clusters are built using “ekstcl”, /19 subnets are created by default. A netmask of /19 is suitable for the majority of workload types. To learn about Pod IP allocations, refer [Amazon VPC CNI](../vpc-cni/index.md). Consider using [subnet-calc](../subnet-calc/subnet-calc.xlsx), a tool developed by EKS to help with subnet sizing.
 
 For IPv6 VPCs, a subnet's CIDR block has a fixed prefix length of `/64`. We recommend to deploy nodes and workloads to cluster subnets to maximize IP usage. 
 
