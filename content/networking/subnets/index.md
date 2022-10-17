@@ -45,6 +45,15 @@ There is no public access to your API server from the internet when only private
 
 Note that the cluster's API server endpoint is resolved by public DNS servers to a private IP address from the VPC. In the past, the endpoint could only be resolved from within the VPC.
 
+### Guidance on Designing Hyperscale VPCs
+
+An environment can be considered “Hyperscale” once it supports thousands of application endpoints and tens or hundreds of gigabits of traffic per second. 
+
+When operating at Hyperscale, additional planning is required for network connectivity, security, private IPv4 address scarcity and overlap. Hyperscale network design involves leveraging cell-based infrastructure units, and understanding the benefits and limitations of each of the various AWS networking services.
+
+Learn more about [Designing Hyperscale Amazon VPC networks](https://aws.amazon.com/blogs/networking-and-content-delivery/designing-hyperscale-amazon-vpc-networks/) on the AWS Networking & Content Delivery Blog. 
+
+
 ### VPC configurations
 
 Amazon VPC supports IPv4 and IPv6 addressing. Amazon EKS supports IPv4 by default. A VPC must have an IPv4 CIDR block associated with it. You can optionally associate multiple IPv4 [Classless Inter-Domain Routing](http://en.wikipedia.org/wiki/CIDR_notation) CIDR blocks and multiple IPv6 CIDR blocks to your VPC. When you create a VPC, you must specify an IPv4 CIDR block for the VPC from the private IPv4 address ranges as specified in [RFC 1918](http://www.faqs.org/rfcs/rfc1918.html). The allowed block size is between a `/16` prefix (65,536 IP addresses) and `/28` prefix (16 IP addresses). 
