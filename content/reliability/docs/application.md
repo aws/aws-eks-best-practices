@@ -23,7 +23,7 @@ You can further improve a typical application’s reliability by running it acro
 The manifest below tells Kubernetes scheduler to *prefer* to place pods on separate nodes and AZs. It doesn’t require distinct nodes or AZ because if it did, then Kubernetes will not be able to schedule any pods once there is a pod running in each AZ. If your application requires just three replicas, you can use `requiredDuringSchedulingIgnoredDuringExecution` for `topologyKey: topology.kubernetes.io/zone`, and Kubernetes scheduler will not schedule two pods in the same AZ.
 
 ```
-piVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spread-host-az
