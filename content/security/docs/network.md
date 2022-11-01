@@ -336,7 +336,7 @@ Deploy the Issuer you created.
 kubectl apply -f cluster-issuer.yaml
 ```
 
-Your EKS cluster is configured to request certificates from Private CA. You can now use cert-manager's `Certificate` resource to issue certificates by changing the `issuerRef` field's values to the Private CA Issuer you created above. For more details on how to specify and request Certificate resources, please check cert-manager's [Certificate Resources guide](https://cert-manager.io/docs/usage/certificate/). [See examples here](https://github.com/cert-manager/aws-privateca-issuer/tree/main/config/sample).
+Your EKS cluster is configured to request certificates from Private CA. You can now use cert-manager's `Certificate` resource to issue certificates by changing the `issuerRef` field's values to the Private CA Issuer you created above. For more details on how to specify and request Certificate resources, please check cert-manager's [Certificate Resources guide](https://cert-manager.io/docs/usage/certificate/). [See examples here](https://github.com/cert-manager/aws-privateca-issuer/tree/main/config/samples/).
 
 #### Additional Resources
 + [How to implement cert-manager and the ACM Private CA plugin to enable TLS in EKS](https://aws.amazon.com/blogs/security/tls-enabled-kubernetes-clusters-with-acm-private-ca-and-amazon-eks-2/).
