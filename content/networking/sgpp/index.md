@@ -47,8 +47,8 @@ In Strict Mode, only the branch ENI security groups are enforced. The source NAT
 
 In Standard Mode, the security groups associated with both the primary ENI and branch ENI (associated with the pod) are applied. Network traffic must comply with both security groups. 
 
-*!!! Warning*
-    Any mode change will only impact newly launched Pods. Existing Pods will use the mode that was configured when the Pod was created. Customers will need to recycle existing Pods with security groups if they want to change the traffic behavior. *
+!!! Warning
+    Any mode change will only impact newly launched Pods. Existing Pods will use the mode that was configured when the Pod was created. Customers will need to recycle existing Pods with security groups if they want to change the traffic behavior.
 
 ### Enforcing Mode: Use Strict mode for isolating pod and node traffic:
 
