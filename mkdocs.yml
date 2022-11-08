@@ -32,7 +32,6 @@ nav:
     - Applications: 'reliability/docs/application.md'
     - Control Plane: 'reliability/docs/controlplane.md'
     - Data Plane: 'reliability/docs/dataplane.md'
-    - Network: 'reliability/docs/networkmanagement.md'
   - Windows Containers: 
     - AMI Management: 'windows/docs/ami.md'
     - gMSA for Windows Containers: 'windows/docs/gmsa.md'
