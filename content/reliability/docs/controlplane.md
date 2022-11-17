@@ -147,6 +147,24 @@ users:
     token: <<super-admin sa’s secret>>
 ```
 
+## Admission Webhooks
+
+Kubernetes has two types of admission webhooks: [validating admission webhooks and mutating admission webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers). These allow a user to extend the kubernetes API and validate or mutate objects before they are accepted by the API. Poor configurations of these webhooks can distabilize the EKS control plane by blocking cluster critical operations.
+
+In order to avoid impacting cluster critical operations either avoid setting "catch-all" webhooks like the following:
+
+```
+- name: "pod-policy.example.com"
+  rules:
+  - apiGroups:   ["*"]
+    apiVersions: ["*"]
+    operations:  ["*"]
+    resources:   ["*"]
+    scope: "*"
+```
+
+Or make sure the webhook has a fail open policy with a timeout shorter than 30 seconds to ensure that if your webhook is unavailable it will not impair cluster critical workloads.
+
 ## Handling Cluster Upgrades
 Since April 2021, Kubernetes release cycle has been changed from four releases a year (once a quarter) to three releases a year. A new minor version (like 1.**21** or 1.**22**) is released approximately [every fifteen weeks](https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when). Starting with Kubernetes 1.19, each minor version is supported for approximately twelve months after it's first released.. Kubernetes supports compatibility between the control plane and worker nodes for at least two minor versions.
 
