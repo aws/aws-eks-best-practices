@@ -47,6 +47,7 @@ Consider monitoring these control plane metrics:
 |  `apiserver_request_total` | Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code. |
 | `apiserver_request_duration_seconds*`  | Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope, and component. |
 | `apiserver_admission_controller_admission_duration_seconds` | Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). |
+| `apiserver_admission_webhook_rejection_count` | Count of admission webhook rejections. Identified by name, operation, rejection_code, type (validating or admit), error_type (calling_webhook_error, apiserver_internal_error, no_error) |
 | `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
 | `rest_client_requests_total`  | Number of HTTP requests, partitioned by status code, method, and host. |
 
