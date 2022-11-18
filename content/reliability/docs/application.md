@@ -281,7 +281,7 @@ Monitoring tools allow you to create alerts that your operations team can subscr
 
 If you’re unclear on which metrics you should monitor, you can take inspiration from these methods:
 
-- [RED method](https://www.weave.works/docs/cloud/latest/tasks/monitor/best-instrumenting/). Stands for requests, errors, and duration. 
+- [RED method](https://www.weave.works/blog/a-practical-guide-from-instrumenting-code-to-specifying-alerts-with-the-red-method). Stands for requests, errors, and duration. 
 - [USE method](http://www.brendangregg.com/usemethod.html). Stands for utilization, saturation, and errors.  
 
 Sysdig’s post [Best practices for alerting on Kubernetes](https://sysdig.com/blog/alerting-kubernetes/) includes a comprehensive list of components that can impact the availability of your applications.
