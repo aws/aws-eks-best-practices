@@ -179,7 +179,7 @@ When your app needs additional time to startup, you can use the Startup Probe to
 
 Until the Startup Probe succeeds, all the other Probes are disabled. You can define the maximum time Kubernetes should wait for application startup. If, after the maximum configured time, the Pod still fails Startup Probes, it will be terminated, and a new Pod will be created. 
 
-The Startup Probe is similar to the Liveness Probe -- if they fail, the Pod is recreated. As Ricardo A. explains in his post [Fantastic Probes And How To Configure Them](https://medium.com/swlh/fantastic-probes-and-how-to-configure-them-fef7e030bd2f), Startup Probes should be used when the startup time of an application is unpredictable. If you know your application needs ten seconds to start, use should use Liveness/Readiness Probe with `initialDelaySeconds` instead.
+The Startup Probe is similar to the Liveness Probe -- if they fail, the Pod is recreated. As Ricardo A. explains in his post [Fantastic Probes And How To Configure Them](https://medium.com/swlh/fantastic-probes-and-how-to-configure-them-fef7e030bd2f), Startup Probes should be used when the startup time of an application is unpredictable. If you know your application needs ten seconds to start, you should use Liveness/Readiness Probe with `initialDelaySeconds` instead.
 
 ### Use Readiness Probe to detect partial unavailability
 
