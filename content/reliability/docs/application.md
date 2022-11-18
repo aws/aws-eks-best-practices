@@ -179,7 +179,7 @@ When your app needs additional time to startup, you can use the Startup Probe to
 
 Until the Startup Probe succeeds, all the other Probes are disabled. You can define the maximum time Kubernetes should wait for application startup. If, after the maximum configured time, the Pod still fails Startup Probes, it will be terminated, and a new Pod will be created. 
 
-The Startup Probe is similar to the Liveness Probe -- if they fail, the Pod is recreated. As Ricardo A. explains in his post [Fantastic Probes And How To Configure Them](https://medium.com/swlh/fantastic-probes-and-how-to-configure-them-fef7e030bd2f), Startup Probes should be used when the startup time of an application is unpredictable. If you know your application needs ten seconds to start, use should use Liveness/Readiness Probe with `initialDelaySeconds` instead.
+The Startup Probe is similar to the Liveness Probe -- if they fail, the Pod is recreated. As Ricardo A. explains in his post [Fantastic Probes And How To Configure Them](https://medium.com/swlh/fantastic-probes-and-how-to-configure-them-fef7e030bd2f), Startup Probes should be used when the startup time of an application is unpredictable. If you know your application needs ten seconds to start, you should use Liveness/Readiness Probe with `initialDelaySeconds` instead.
 
 ### Use Readiness Probe to detect partial unavailability
 
@@ -281,7 +281,7 @@ Monitoring tools allow you to create alerts that your operations team can subscr
 
 If you’re unclear on which metrics you should monitor, you can take inspiration from these methods:
 
-- [RED method](https://www.weave.works/docs/cloud/latest/tasks/monitor/best-instrumenting/). Stands for requests, errors, and duration. 
+- [RED method](https://www.weave.works/blog/a-practical-guide-from-instrumenting-code-to-specifying-alerts-with-the-red-method). Stands for requests, errors, and duration. 
 - [USE method](http://www.brendangregg.com/usemethod.html). Stands for utilization, saturation, and errors.  
 
 Sysdig’s post [Best practices for alerting on Kubernetes](https://sysdig.com/blog/alerting-kubernetes/) includes a comprehensive list of components that can impact the availability of your applications.
