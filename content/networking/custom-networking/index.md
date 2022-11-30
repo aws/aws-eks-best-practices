@@ -112,8 +112,6 @@ Enabling prefix attachments increases the number of Pods to 290.
 
 * (((3 ENIs - 1) * ((10 secondary IPs per ENI - 1) * 16)) + 2 = 290
 
-However we recommend setting max-pods to 110 instead of 290 is because the instance has a relatively low number of vCPUs. On larger instances EKS recommended value is 250. When using prefix attachments with smaller instance types (e.g, m5.large), you’re likely to exhaust the instance’s CPU and memory resources long before you exhaust its IP addresses.
-
 However, we suggest setting max-pods to 110 rather than 290 because the instance has a rather small number of virtual CPUs. On bigger instances, EKS recommends a max pods value of 250. When utilizing prefix attachments with smaller instance types (e.g. m5.large), it is possible that you will exhaust the instance's CPU and memory resources well before its IP addresses.
 
 !!! info
