@@ -57,6 +57,7 @@ nav:
     - Security Groups per Pod: 'networking/sgpp/index.md'
     - Custom Networking: 'networking/custom-networking/index.md'
     - Load Balancing: 'networking/loadbalancing/loadbalancing.md'
+    - Monitoring for DNS Throttling Issues: 'networking/CoreDNS/index.md
 markdown_extensions:
     - toc:
         permalink: true
