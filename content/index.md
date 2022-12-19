@@ -9,7 +9,7 @@ We currently have published guides for the following topics:
 * [Best Practices for Running Windows Containers](windows/docs/ami/)
 * [Best Practices for Networking](networking/index/)
 
-We also open sourced a Python based CLI (Command Line Interface) called [hardeneks](https://github.com/aws/aws-eks-best-practices) to check some of the recommendations from this guide.
+We also open sourced a Python based CLI (Command Line Interface) called [hardeneks](https://github.com/aws-samples/hardeneks) to check some of the recommendations from this guide.
 
 In the future we will be publishing best practices guidance for performance, cost optimization, and operational excellence. 
 
