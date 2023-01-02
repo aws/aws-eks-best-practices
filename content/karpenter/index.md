@@ -76,7 +76,7 @@ Since Karpenter v0.19.3 there is [native node termination handling](https://karp
 - Instance Terminating Events
 - Instance Stopping Events
 
-When Karpenter detects one of these events will occur to your nodes, it automatically cordons, drains, and terminates the node(s) ahead of the interruption event to give the maximum amount of time for workload cleanup prior to compute disruption. It is disadvised to use [AWS Node Termination Handler alongside Karpenter](https://karpenter.sh/v0.21.1/faq/#interruption-handling).
+When Karpenter detects one of these events will occur to your nodes, it automatically cordons, drains, and terminates the node(s) ahead of the interruption event to give the maximum amount of time for workload cleanup prior to compute disruption. It is disadvised to use AWS Node Termination Handler alongside Karpenter as explained [here](https://karpenter.sh/v0.21.1/faq/#interruption-handling).
 
 ### **Amazon EKS private cluster without outbound internet access**
 
