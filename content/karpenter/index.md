@@ -68,10 +68,13 @@ The following example shows how to avoid provisioning large Graviton instances.
       'c6g.16xlarge'
 ```
 
-### Install the AWS Node Termination Handler when using Spot
+### Enable Spot Interruption Handling
 
-At present, Karpenter does not handle the Spot Interruption Termination Notice (ITN) two-minute warning. In lieu of this, you can install [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) to gracefully cordon and drain your spot nodes when they are interrupted.
- Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown, will need NTH.
+Karpenter supports handling [Spot Interruption Termination Notices](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html) (ITNs) natively by monitoring an SQS queue for EventBridge events coming from the EC2 health and spot services. You can enable the interruption handling feature in [Karpenter settings](https://karpenter.sh/preview/concepts/settings/#configmap) by pointing Karpenter to your SQS queue.
+
+Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown, will need interruption handling.
+
+For more details on how Karpenter handles interruption notices and how to provision the appropriate infrastructure, view [Interruption](https://karpenter.sh/preview/concepts/deprovisioning/#interruption) in the Karpenter documentation.
 
 ### **Amazon EKS private cluster without outbound internet access**
 
