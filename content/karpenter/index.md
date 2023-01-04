@@ -68,7 +68,7 @@ The following example shows how to avoid provisioning large Graviton instances.
       'c6g.16xlarge'
 ```
 
-### Enable Interruption handling when using Spot
+### Enable Interruption Handling when using Spot
 
 As of Karpenter v0.19.3 there is [native node termination handling](https://karpenter.sh/v0.21.1/concepts/deprovisioning/#interruption) baked into Karpenter that watches for upcoming involuntary interruption events that would cause disruption to your workloads such as;
 - Spot Interruption Warnings
