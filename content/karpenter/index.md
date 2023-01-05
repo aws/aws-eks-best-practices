@@ -68,10 +68,17 @@ The following example shows how to avoid provisioning large Graviton instances.
       'c6g.16xlarge'
 ```
 
-### Install the AWS Node Termination Handler when using Spot
+### Enable Interruption Handling when using Spot
 
-At present, Karpenter does not handle the Spot Interruption Termination Notice (ITN) two-minute warning. In lieu of this, you can install [AWS Node Termination Handler](https://github.com/aws/aws-node-termination-handler) to gracefully cordon and drain your spot nodes when they are interrupted.
- Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown, will need NTH.
+Karpenter supports [native interruption handling](https://karpenter.sh/preview/concepts/deprovisioning/#interruption), enabled through the `aws.interrupionQueue` value in [Karpenter settings](https://karpenter.sh/preview/concepts/settings/#configmap). Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
+- Spot Interruption Warnings
+- Scheduled Change Health Events (Maintenance Events)
+- Instance Terminating Events
+- Instance Stopping Events
+
+When Karpenter detects one of these events will occur to your nodes, it automatically cordons, drains, and terminates the node(s) ahead of the interruption event to give the maximum amount of time for workload cleanup prior to interruption. It is not advised to use AWS Node Termination Handler alongside Karpenter as explained [here](https://karpenter.sh/preview/faq/#interruption-handling).
+
+Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown should enable Karpenter interruption handling in their clusters.
 
 ### **Amazon EKS private cluster without outbound internet access**
 
@@ -286,24 +293,6 @@ You may also want to enable Cost Anomaly Detection which is an AWS Cost Manageme
 If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/do-not-evict` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `do-not-evict` annotation is removed. See [Deprovisioning](https://karpenter.sh/preview/tasks/deprovisioning/#pod-set-to-do-not-evict) documentation for further information.
 
 If the only non-daemonset pods left on a node are those associated with jobs, Karpenter is able to target and terminate those nodes so long as the job status is succeed or failed.
-
-### Configure the Node Termination Handler to use queue processor mode
-Node Termination Handler operates in two modes, using Instance Metadata Services (IMDS) or using a Queue Processor. The IMDS service runs a pod on each node to monitor the events and act accordingly. Whereas the queue processor uses Amazon Simple Queue Service (Amazon SQS) to receive Auto Scaling Group (ASG) lifecycle events, EC2 status change events, Spot interruption termination notice events, and Spot rebalance recommendation events. These events can be configured to be published to Amazon EventBridge. In Karpenter’s case, Auto Scaling Group lifecycle events should not be considered because the instances provisioned using Karpenter are not part of an ASG.
-
-When following the [installation instructions](https://github.com/aws/aws-node-termination-handler#infrastructure-setup), you can skip the steps for **Set up a Termination Lifecycle Hook on an Auto Scaling group** and **Tag the Auto Scaling groups** because instances provisioned by Karpenter do not belong to an autoscaling group. In the step **Create Amazon Eventbridge Rules**, skip the step to create Auto Scaling event rules. If you are deploying the Helm chart for the Node Termination Handler Queue Processor, use the following values:
-
-```yaml
-## Queue processor values.yaml
-
-enableSqsTerminationDraining: true
-queueURL: "<specify your queue URl>"
-awsRegion: "<specify your region>"
-serviceAccount:
-  create: false
-  name: nth # <-- adjust to your service account
-checkASGTagBeforeDraining: false # <-- set to false as instances do not belong to any ASG
-enableSpotInterruptionDraining: true
-```
 
 ### Configure requests=limits for all non-CPU resources when using consolidation
 
