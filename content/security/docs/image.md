@@ -29,6 +29,7 @@ Knowing where images with vulnerabilities have been deployed is essential to kee
 + [Kubei](https://github.com/Portshift/kubei)
 + [Trivy](https://github.com/aquasecurity/trivy)
 + [Snyk](https://support.snyk.io/hc/en-us/articles/360003946917-Test-images-with-the-Snyk-Container-CLI)
++ [Wiz](https://www.wiz.io/solutions/container-and-kubernetes-security)
     
 A Kubernetes validation webhook could also be used to validate that images are free of critical vulnerabilities.  Validation webhooks are invoked prior to the Kubernetes API.  They are typically used to reject requests that don't comply with the validation criteria defined in the webhook.  [This](https://aws.amazon.com/blogs/containers/building-serverless-admission-webhooks-for-kubernetes-with-aws-sam/) is an example of a serverless webhook that calls the ECR describeImageScanFindings API to determine whether a pod is pulling an image with critical vulnerabilities.  If vulnerabilities are found, the pod is rejected and a message with list of CVEs is returned as an Event.
 
