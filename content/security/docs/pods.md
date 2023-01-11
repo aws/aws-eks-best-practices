@@ -69,6 +69,7 @@ There are several open source PAC solutions available for Kubernetes. These solu
 + [Kyverno](https://kyverno.io/)
 + [Kubewarden](https://www.kubewarden.io/)
 + [jsPolicy](https://www.jspolicy.com/)
++ [Datree](https://github.com/datreeio/datree)
 
 For further information about PAC solutions and how to help you select the appropriate solution for your needs, see the links below.
 
