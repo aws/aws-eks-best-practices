@@ -319,9 +319,33 @@ As mentioned, containers that run as privileged inherit all of the Linux capabil
 
 ### Do not run processes in containers as root
 
-All containers run as root by default.  This could be problematic if an attacker is able to exploit a vulnerability in the application and get shell access to the running container.  You can mitigate this risk a variety of ways.  First, by removing the shell from the container image.  Second, adding the USER directive to your Dockerfile or running the containers in the pod as a non-root user.  The Kubernetes podSpec includes a set of fields, under `spec.securityContext`, that let you specify the user and/or group under which to run your application.  These fields are `runAsUser` and `runAsGroup` respectively.  
+Containers run as root by default. While convenient, this is not considered a best practice due to the security risk. If an attacker were able to exploit a vulnerability in the application and get shell access it is possible for them to act as root on the node, not just the container.
 
-To enforce the use of the `spec.securityContext`, and its associated elements, within the Kubernetes podSpec, policy-as-code or Pod Security Standards can be added to clusters. These solutions allow you to write and/or use policies or profiles that can validate inbound Kubernetes API server request payloads, before they are persisted into etcd. Furthermore, policy-as-code solutions can mutate inbound requests, and in some cases, generate new requests.
+Instead you can mitigate this risk by having the application run as a non-root user. This can be done by a `USER` directive in your Dockerfile, or at deploy time by settings in the Pod `securityContext`. 
+
+In the following example, all processes within the Pod will run under the user ID specified in the `runAsUser` field. The UID of `1000` is arbitrary; you can pick what suits your application.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 3000
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: [ "sh", "-c", "sleep 1h" ]
+```
+
+!!! note
+    If your cluster is Kubernetes 1.18 or earlier you'll need to take one more step. IRSA service account tokens are assigned `0600 root` permissions by default, and will not be readable by the non-root user. If you update the `securityContext` for your container to include `fsgroup=65534` (Nobody) it will allow the container to read the token. In Kubernetes 1.19+ this change is no longer required.
+
+There are several ways to enforce this usage of `securityContext` attributes. While Pod Security Policies are deprecated as of Kubernetes 1.21+, the new method allows specifying [Pod Security Standards enforced by an Admission Controller](#pod-security-standards-pss-and-pod-security-admission-psa). The `restricted` profile for PSS includes rules preventing containers from running as root.
+
+There are also [Policy-As-Code solutions](#policy-as-code-pac) available from the community that can be used to enforce custom rules before resources are allowed to be created in your Kubernetes cluster.
 
 ### Never run Docker in Docker or mount the socket in the container
 
