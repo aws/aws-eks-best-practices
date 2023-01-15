@@ -1,0 +1,28 @@
+name: Prevent pods from becoming unschedulable
+uniqueName: EKS_INVALID_VALUE_DONOOTSCHEDULE
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/prevent-pods-becoming-unschedulable"
+messageOnFailure: "Incorrect value for key `whenUnsatisfiable` - use a different value to ensure your pod does not become unschedulable"
+category: EKS
+complexity: easy
+impact: Setting `whenUnsatisfiable` to `DoNotSchedule` will cause pods to be “unschedulable” if the topology spread constraint can't be fulfilled
+schema:
+  definitions:
+    specConstraintsPattern:
+      properties:
+        spec:
+          properties:
+            topologySpreadConstraints:
+              type: array
+              items:
+                properties:
+                  whenUnsatisfiable:
+                    not:
+                      enum:
+                        - DoNotSchedule
+  allOf:
+    - $ref: "#/definitions/specConstraintsPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

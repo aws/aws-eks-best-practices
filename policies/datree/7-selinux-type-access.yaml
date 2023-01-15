@@ -1,0 +1,27 @@
+name: Prevent SELinux containers from running with unnecessary privileges
+uniqueName: EKS_INVALID_SELINUXOPTIONS_TYPE_VALUE
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-unnecessary-privileges"
+messageOnFailure: "Invalid value for key `type` - set to a predefined type to prevent unnecessary privileges"
+category: EKS
+complexity: medium
+impact: Using a different type than the allowed ones may grant attackers access to sensitive components
+schema:
+  definitions:
+    selinuxTypePattern:
+      properties:
+        securityContext:
+          properties:
+            seLinuxOptions:
+              properties:
+                type:
+                  enum:
+                    - container_t
+                    - container_init_t
+                    - container_kvm_t
+  allOf:
+    - $ref: "#/definitions/selinuxTypePattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

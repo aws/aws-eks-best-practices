@@ -1,0 +1,26 @@
+name: Ensure container memory request and memory limit are equal
+uniqueName: EKS_INVALID_MEMORY_REQUEST_LIMIT
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/ensure-memory-request-limit-equal"
+messageOnFailure: "Invalid value for memory request and/or memory limit - ensure they are equal to prevent unpredictable behavior"
+category: EKS
+complexity: easy
+impact: Setting memory request and limit to different values may cause unpredictable behavior
+schema:
+  definitions:
+    containerResourcesPattern:
+      properties:
+        spec:
+          properties:
+            containers:
+              items:
+                properties:
+                  resources:
+                    customKeyRule81:
+                      type: string
+  allOf:
+    - $ref: "#/definitions/containerResourcesPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

@@ -1,0 +1,51 @@
+name: "Prevent containers from mounting Docker socket"
+uniqueName: "CONTAINERS_INCORRECT_PATH_VALUE_DOCKERSOCKET"
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/prevent-mounting-docker-socket"
+messageOnFailure: "Incorrect value for key `path` - avoid mounting the docker.socket because it can allow container breakout"
+category: Containers
+complexity: medium
+impact: When a container has access to the Docker socket, it can effectively manage other containers on the host
+schema:
+definitions:
+  specContainers:
+    if: *standardKinds
+    then:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  volumeMounts:
+                    type: array
+                    items:
+                      properties:
+                        mountPath:
+                          not:
+                            enum:
+                              - "/var/run/docker.sock"
+  specVolumes:
+    if: *standardKinds
+    then:
+      properties:
+        spec:
+          properties:
+            volumes:
+              type: array
+              items:
+                properties:
+                  hostPath:
+                    properties:
+                      path:
+                        not:
+                          enum:
+                            - "/var/run/docker.sock"
+allOf:
+  - $ref: "#/definitions/specContainers"
+  - $ref: "#/definitions/specVolumes"
+additionalProperties:
+  $ref: "#"
+items:
+  $ref: "#"

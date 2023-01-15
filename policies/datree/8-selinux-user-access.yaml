@@ -1,0 +1,24 @@
+name: Prevent SELinux containers from setting a user
+uniqueName: EKS_INVALID_SELINUXOPTIONS_USER_VALUE
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/prevent-selinux-containers-user"
+messageOnFailure: "Invalid key `user` - refrain from setting this key to prevent potential access to the host filesystem"
+category: EKS
+complexity: easy
+impact: Setting an SELinux user may grant attackers access to sensitive components
+schema:
+  definitions:
+    selinuxUserPattern:
+      properties:
+        securityContext:
+          properties:
+            seLinuxOptions:
+              not:
+                required:
+                  - user
+  allOf:
+    - $ref: "#/definitions/selinuxUserPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

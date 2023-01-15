@@ -1,0 +1,23 @@
+name: Prevent Windows containers from running with unnecessary privileges
+uniqueName: EKS_INVALID_HOSTPROCESS_VALUE
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/prevent-windows-containers-unnecessary-privileges"
+messageOnFailure: "Incorrect value for key `hostProcess` - don't set or set to false to prevent unnecessary privileges"
+category: EKS
+complexity: easy
+impact: Setting `hostProcess` to `true` will cause pods to be “unschedulable” if the topology spread constraint can't be fulfilled
+schema:
+  definitions:
+    hostProcessPattern:
+      properties:
+        windowsOptions:
+          properties:
+            hostProcess:
+              enum:
+                - false
+  allOf:
+    - $ref: "#/definitions/hostProcessPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

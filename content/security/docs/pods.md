@@ -67,6 +67,7 @@ There are several open source PAC solutions available for Kubernetes. These solu
 + [OPA/Gatekeeper](https://open-policy-agent.github.io/gatekeeper/website/docs/)
 + [Open Policy Agent (OPA)](https://www.openpolicyagent.org/)
 + [Kyverno](https://kyverno.io/)
++ [Datree](https://www.datree.io/)
 + [Kubewarden](https://www.kubewarden.io/)
 + [jsPolicy](https://www.jspolicy.com/)
 
@@ -478,6 +479,8 @@ Policy-as-code and Pod Security Standards can be used to enforce this behavior.
 + [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitute for PSPs.
 + [Kyverno Policy Library](https://kyverno.io/policies/)
 + A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
++ [Datree built-in rules](https://hub.datree.io/built-in-rules).
++ [Datree built-in rules for EKS](https://hub.datree.io/built-in-rules/rules/#EKS)
 + [Policy based countermeasures: part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
 + [Policy based countermeasures: part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
 + [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) a tool that converts PSPs to OPA/Gatekeeper, KubeWarden, or Kyverno policies 

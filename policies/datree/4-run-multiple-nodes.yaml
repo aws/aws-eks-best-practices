@@ -1,0 +1,54 @@
+name: Ensure multiple replicas run on different nodes
+uniqueName: EKS_MISSING_KEY_TOPOLOGYKEY
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/ensure-replicas-different-nodes"
+messageOnFailure: "Missing key `topologyKey` - add it to ensure replicas are spread across multiple nodes"
+category: EKS
+complexity: medium
+impact: Running multiple replicas on the same node may cause downtime if the node becomes unavailable
+schema:
+definitions:
+  antiAffinityPreferredPattern:
+    properties:
+      spec:
+        properties:
+          affinity:
+            properties:
+              podAntiAffinity:
+                properties:
+                  preferredDuringSchedulingIgnoredDuringExecution:
+                    type: array
+                    items:
+                      properties:
+                        podAffinityTerm:
+                          properties:
+                            topologyKey:
+                              type: string
+                          required:
+                            - topologyKey
+  antiAffinityRequiredPattern:
+    properties:
+      spec:
+        properties:
+          affinity:
+            properties:
+              podAntiAffinity:
+                properties:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    type: array
+                    items:
+                      properties:
+                        podAffinityTerm:
+                          properties:
+                            topologyKey:
+                              type: string
+                          required:
+                            - topologyKey
+
+allOf:
+  - $ref: "#/definitions/antiAffinityPreferredPattern"
+  - $ref: "#/definitions/antiAffinityRequiredPattern"
+additionalProperties:
+  $ref: "#"
+items:
+  $ref: "#"

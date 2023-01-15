@@ -1,0 +1,32 @@
+name: Prevent containers from escalating privileges
+uniqueName: CONTAINERS_MISSING_KEY_ALLOWPRIVILEGEESCALATION
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/prevent-escalating-privileges"
+messageOnFailure: Missing key `allowPrivilegeEscalation` - set to false to prevent attackers from exploiting escalated container privileges
+category: NSA
+complexity: easy
+impact: In their default state, containers allow privilege escalation. Attackers may use this to manipulate the application and to gain more permissions than they should have
+schema:
+  definitions:
+    specContainerPattern:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  securityContext:
+                    properties:
+                      allowPrivilegeEscalation:
+                        const: false
+                    required:
+                      - allowPrivilegeEscalation
+                required:
+                  - securityContext
+  allOf:
+    - $ref: "#/definitions/specContainerPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

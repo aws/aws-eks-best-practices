@@ -50,6 +50,11 @@ Policy can be thought of as a set of rules for governing behaviors, i.e. behavio
 
 [Kyverno](https://kyverno.io/) is a policy engine designed for Kubernetes. With Kyverno, policies are managed as Kubernetes resources and no new language is required to write policies. This allows using familiar tools such as kubectl, git, and kustomize to manage policies. Kyverno policies can validate, mutate, and generate Kubernetes resources plus ensure OCI image supply chain security. The [Kyverno CLI](https://kyverno.io/docs/kyverno-cli/) can be used to test policies and validate resources as part of a CI/CD pipeline. All the Kyverno community policies can be found on the [Kyverno website](https://kyverno.io/policies/), and for examples using the Kyverno CLI to write tests in pipelines, see the [policies repository](https://github.com/kyverno/policies).
 
+[Datree](https://github.com/datreeio/datree) is a native Kubernetes solution for centralized policy management. When K8s resources are pushed into a cluster, Datree checks their configurations against pre-defined policies. As soon as misconfigurations are detected, Datree displays a detailed output of their location and impact, along with instructions on how to fix them and based on its settings, Datree can both audit and prevent resources that contains violations from being applied.
+Additionally, Datree can be integrated into the CI pipeline as a “shift-left” tool for development teams. By identifying misconfigurations in the early stages of the development cycle and providing guidelines for fixing them Datree helps dev teams comply with new policies and ensures that only configurations that meet the desired standards are included in the codebase.
+You can use Datree to regularly scan the cluster for policy violations, monitor and enforce pod and network security policies, build a policy that runs pods from different tenants on different instances, and make sure you follow other EKS best practices.
+Several examples are included in the [GitHub repository](https://github.com/datreeio/datree/tree/main/examples) of this project, and many others are included in the [Datree built-in policy for EKS](https://hub.datree.io/built-in-rules/rules/#EKS).
+
 ## Tools and resources
 
 + [kube-bench](https://github.com/aquasecurity/kube-bench)

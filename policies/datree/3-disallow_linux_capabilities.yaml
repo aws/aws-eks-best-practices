@@ -1,0 +1,46 @@
+id: 82
+name: Ensure containers have limited capabilities
+uniqueName: EKS_INVALID_CAPABILITIES_EKS
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/ensure-containers-limited-capabilities"
+messageOnFailure: "Incorrect value for key `add` - refrain from using insecure capabilities to prevent access to sensitive components"
+category: EKS
+complexity: medium
+impact: Giving containers unnecessary capabilities may compromise them and allow attackers access to sensitive components
+schema:
+  definitions:
+    specContainerPattern:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  securityContext:
+                    properties:
+                      capabilities:
+                        properties:
+                          add:
+                            type: array
+                            items:
+                              enum:
+                                - "AUDIT_WRITE"
+                                - "CHOWN"
+                                - "DAC_OVERRIDE"
+                                - "FOWNER"
+                                - "FSETID"
+                                - "KILL"
+                                - "MKNOD"
+                                - "NET_BIND_SERVICE"
+                                - "SETFCAP"
+                                - "SETGID"
+                                - "SETPCAP"
+                                - "SETUID"
+                                - "SYS_CHROOT"
+  allOf:
+    - $ref: "#/definitions/specContainerPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

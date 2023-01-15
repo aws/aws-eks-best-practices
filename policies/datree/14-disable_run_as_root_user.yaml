@@ -1,0 +1,44 @@
+name: Prevent containers from accessing host files by using high GIDs
+uniqueName: CONTAINERS_INCORRECT_RUNASGROUP_VALUE_LOWGID
+enabledByDefault: false
+documentationUrl: "https://hub.datree.io/built-in-rules/prevent-accessing-host-files-by-using-high-gids"
+messageOnFailure: "Invalid value for key `runAsGroup` - must be greater than 999 to ensure container is running with non-root group membership"
+category: NSA
+complexity: medium
+impact: With a high GID number, a container is blocked from accessing host-based files even if it manages to gain access to a host's file system
+schema:
+  definitions:
+    specContainerPattern:
+      properties:
+        spec:
+          properties:
+            containers:
+              type: array
+              items:
+                properties:
+                  securityContext:
+                    properties:
+                      runAsGroup:
+                        minimum: 1000
+    podSecurityContextPattern:
+      if:
+        properties:
+          kind:
+            enum:
+              - Pod
+      then:
+        properties:
+          spec:
+            properties:
+              securityContext:
+                properties:
+                  runAsGroup:
+                    minimum: 1000
+
+  allOf:
+    - $ref: "#/definitions/specContainerPattern"
+    - $ref: "#/definitions/podSecurityContextPattern"
+  additionalProperties:
+    $ref: "#"
+  items:
+    $ref: "#"

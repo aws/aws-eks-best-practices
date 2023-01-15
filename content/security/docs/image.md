@@ -34,6 +34,7 @@ A Kubernetes validation webhook could also be used to validate that images are f
 
 ### Create IAM policies for ECR repositories
 Nowadays, it is not uncommon for an organization to have multiple development teams operating independently within a shared AWS account.  If these teams don't need to share assets, you may want to create a set of IAM policies that restrict access to the repositories each team can interact with.  A good way to implement this is by using ECR [namespaces](https://docs.aws.amazon.com/AmazonECR/latest/userguide/Repositories.html#repository-concepts). Namespaces are a way to group similar repositories together.  For example, all of the registries for team A can be prefaced with the team-a/ while those for team B can use the team-b/ prefix. The policy to restrict access might look like the following: 
+
 ```json
 {
   "Version": "2012-10-17",
@@ -172,6 +173,7 @@ RUN apt-get update && apt-get install -y \
 + [hadolint](https://github.com/hadolint/hadolint) A smart dockerfile linter
 + [Gatekeeper and OPA](https://github.com/open-policy-agent/gatekeeper) A policy based admission controller
 + [Kyverno](https://kyverno.io/) A Kubernetes-native policy engine
++ [Datree](https://github.com/datreeio/datree) A native Kubernetes solution for centralized policy management.
 + [in-toto](https://in-toto.io/) Allows the user to verify if a step in the supply chain was intended to be performed, and if the step was performed by the right actor
 + [Notary](https://github.com/theupdateframework/notary) A project for signing container images
 + [Notary v2](https://github.com/notaryproject/nv2)
