@@ -107,4 +107,51 @@ Pods that are assigned security groups must be run on nodes that are deployed on
 
 Ensure that `terminationGracePeriodSeconds` is non-zero in your Pod specification file (default 30 seconds). This is essential in order for Amazon VPC CNI to delete the Pod network from the worker node. When set to zero, the CNI plugin does not remove the Pod network from the host, and the branch ENI is not effectively cleaned up.
 
+### Using Security Groups for Pods with Fargate
+
+Security groups for Pods that run on Fargate work very similarly to Pods that run on EC2 worker nodes. For example, you have to create the security group before referencing it in the SecurityGroupPolicy you associate with your Fargate Pod. By default, the [cluster security group](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html) is assiged to all Fargate Pods when you don't explicitly assign a SecurityGroupPolicy to a Fargate Pod. For simplicity's sake, you may want to add the cluster security group to a Fagate Pod's SecurityGroupPolicy otherwise you will have to add the minimum security group rules to your security group. You can find the cluster security group using the describe-cluster API.
+
+```bash
+ aws eks describe-cluster --name CLUSTER_NAME --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId'
+```
+
+```bash
+cat >my-fargate-sg-policy.yaml <<EOF
+apiVersion: vpcresources.k8s.aws/v1beta1
+kind: SecurityGroupPolicy
+metadata:
+  name: my-fargate-sg-policy
+  namespace: my-fargate-namespace
+spec:
+  podSelector: 
+    matchLabels:
+      role: my-fargate-role
+  securityGroups:
+    groupIds:
+      - cluster_security_group_id
+      - my_fargate_pod_security_group_id
+EOF
+```
+
+The minimum security group rules are listed [here](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html). These rules allow Fargate Pods to communicate with in-cluster services like kube-apiserver, kubelet, and CoreDNS. You also need add rules to allow inbound and outbound connections to and from your Fargate Pod. This will allow your Pod to communicate with other Pods or resources in your VPC. Additionally, you have to include rules for Fargate to pull container images from Amazon ECR or other container registries such as DockerHub. For more information, see AWS IP address ranges in the [AWS General Reference](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html). 
+
+You can use the below commands to find the security groups applied to a Fargate Pod. 
+
+```bash
+kubectl get pod FARGATE_POD -o jsonpath='{.metadata.annotations.vpc\.amazonaws\.com/pod-eni}{"\n"}'
+```
+
+Note down the eniId from above command. 
+
+```bash
+aws ec2 describe-network-interfaces --network-interface-ids ENI_ID --query 'NetworkInterfaces[*].Groups[*]'
+```
+
+Existing Fargate pods must be deleted and recreated in order for new security groups to be applied. For instance, the following command initiates the deployment of the example-app. To update specific pods, you can change the namespace and deployment name in the below command.
+
+```bash
+kubectl rollout restart -n example-ns deployment example-pod
+```
+
+
 
