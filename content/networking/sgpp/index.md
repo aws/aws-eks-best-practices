@@ -109,7 +109,7 @@ Ensure that `terminationGracePeriodSeconds` is non-zero in your Pod specificatio
 
 ### Using Security Groups for Pods with Fargate
 
-Security groups for Pods running on Fargate work very similarly to Pods on Amazon EC2 nodes. To use security groups for Fargate, you must have an existing security group and deploy an Amazon EKS SecurityGroupPolicy to your cluster. The cluster security group is applied by default for all the Fargate Pods when not using security groups for Pods. You may consider specifying the cluster security group inside of SecurityGroupPolicy for Fargate Pods along with the security group you have already created. You can find the cluster security group using the describe-cluster API.
+Security groups for Pods that run on Fargate work very similarly to Pods that run on EC2 worker nodes. For example, you have to create the security group before you can referencing it in the SecurityGroupPolicy you associate with your Fargate Pod. Be default, the [cluster security group](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html) is assiged to Fargate Pods when you don't explicitly assign a SecurityGroupPolicy to a Fargate Pod. For simplicity's sake, you may want to add the cluster security group to a Fagate Pod's SecurityGroupPolicy otherwise you will have to add the minimum security group rules to you security group. You can find the cluster security group using the describe-cluster API.
 
 ```bash
  aws eks describe-cluster --name CLUSTER_NAME --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId'
@@ -132,7 +132,8 @@ spec:
       - my_fargate_pod_security_group_id
 EOF
 ```
-Amazon EKS recommends adding the minimum security group rules specified [here](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html) to your Fargate Pod security group if you need to restrict the traffic for your Pod and not add cluster security group directly. The minimum security group rules allow for the Fargate Pods to communicate with cluster services like kube-apiserver, kubelet, and CoreDNS. You must allow necessary inbound and outbound rules for your Fargate Pod security group to communicate with other Pods in the cluster. You must also enable access for Fargate to pull container images from Amazon ECR or other container registries APIs that they need to pull images from, such as DockerHub. For more information, see AWS IP address ranges in the [AWS General Reference](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html). 
+
+The minimum security group rules are listed [here](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html). These rules allow Fargate Pods to communicate with in-cluster services like kube-apiserver, kubelet, and CoreDNS. You also need add rules to allow inbound and outbound connections to and from your Fargate Pod. This will allow your Pod to communicate with other Pods or resources in your VPC. Additionally, you have to include rules that allow Fargate to pull container images from Amazon ECR or other container registries such as DockerHub. For more information, see AWS IP address ranges in the [AWS General Reference](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html). 
 
 You can use the below commands to find the security groups applied to a Fargate Pod. 
 
