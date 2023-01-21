@@ -8,6 +8,7 @@ theme:
     repo: fontawesome/brands/github
   features: 
     - tabs
+    - content.code.copy
 nav:
   - Guides: 
     - Introduction: 'index.md'
@@ -63,6 +64,11 @@ markdown_extensions:
         permalink: true
     - admonition
     - codehilite
+    - pymdownx.highlight:
+        anchor_linenums: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences
 plugins: 
     - search
 extra:
