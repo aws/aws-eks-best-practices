@@ -12,12 +12,12 @@ theme:
   palette: 
     - scheme: default
       toggle: 
-      icon: material/brightness-7
-      name: switch to dark mode
+        icon: material/brightness-7
+        name: switch to dark mode
     - scheme: slate
       toggle: 
-      icon: material/brightness-4
-      name: switch to light mode
+        icon: material/brightness-4
+        name: switch to light mode
 nav:
   - Guides: 
     - Introduction: 'index.md'
