@@ -283,6 +283,21 @@ You can block access to instance metadata by requiring the instance to use IMDSv
 aws ec2 modify-instance-metadata-options --instance-id <value> --http-tokens required --http-put-response-hop-limit 1
 ```
 
+If you are using Terraform to create launch templates for use with Managed Node Groups, add the metadata block to configure the hop count as seen in this code snippet: 
+
+``` tf hl_lines="7"
+resource "aws_launch_template" "foo" {
+  name = "foo"
+  ...
+    metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "enabled"
+  }
+  ...
+```
+
 You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [Limiting access to the instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access).
 
 If you have an application that is using an older version of the AWS SDK that doesn't support IRSA, and you want the pod to inherit the role assigned to the instance, consider using Kubernetes network policies to **selectively** allow access EC2 metadata.
