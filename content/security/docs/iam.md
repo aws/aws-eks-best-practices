@@ -103,12 +103,12 @@ ConfigMap.
 
 View CLI Help:
 
-```
+```bash
 eksctl create iamidentitymapping --help
 ```
 
 Make an IAM Role a Cluster Admin:
-```
+```bash
  eksctl create iamidentitymapping --cluster  <clusterName> --region=<region> --arn arn:aws:iam::123456:role/testing --group system:masters --username admin
 ```
 
@@ -383,7 +383,7 @@ spec:
 
 When you run a container as a non-root user, it prevents the container from reading the IRSA service account token because the token is assigned 0600 [root] permissions by default. If you update the securityContext for your container to include fsgroup=65534 [Nobody] it will allow the container to read the token.
 
-```
+```yaml
 spec:
   securityContext:
     fsGroup: 65534
@@ -459,7 +459,7 @@ If system:unauthenticated group is bound to system:discovery and/or system:basic
 kubectl edit clusterrolebindings system:discovery
 ```
 The above command will open the current definition of system:discovery ClusterRoleBinding in an editor as shown below:
-```
+```yaml
 # Please edit the object below. Lines beginning with a '#' will be ignored,
 # and an empty file will abort the edit. If an error occurs while saving this file will be
 # reopened with the relevant failures.
