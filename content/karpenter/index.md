@@ -36,20 +36,14 @@ You need features that are still being developed in Karpenter. Because Karpenter
 
 ### Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
-Karpenter is installed using a [Helm chart](https://karpenter.sh/v0.10.0/getting-started/). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
+Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-started/). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
 
 ### Avoid using custom launch templates with Karpenter
 
 Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s provisioners while others are ignored by Karpenter, e.g. subnets and instance types.
 
-You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [Customer User Data and Ami](https://karpenter.sh/preview/aws/user-data/).
+You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [Node Templates](https://karpenter.sh/conceps/node-templates).
 
-Granted, there may be times when you will want to use your own custom launch template, rather than using what Karpenter uses by default. The reasons to create custom launch templates may include the need to:
-
-* Integrate with existing infrastructure.
-* Meet compliance requirements.
-
-To learn more, see [Launch Templates and Custom Images](https://karpenter.sh/preview/aws/launch-templates/) in the Karpenter documentation. For background on building custom AMIs, see [Amazon EKS AMI Build using EC2 Image Builder](https://www.sufle.io/blog/custom-amazon-eks-ami-build), [Packer scripts](https://github.com/awslabs/amazon-eks-ami), and [Create custom Amazon Linux AMIs for Amazon EKS](https://aws.amazon.com/premiumsupport/knowledge-center/eks-custom-linux-ami/).
 
 ### Exclude instance types that do not fit your workload
 
@@ -70,13 +64,13 @@ The following example shows how to avoid provisioning large Graviton instances.
 
 ### Enable Interruption Handling when using Spot
 
-Karpenter supports [native interruption handling](https://karpenter.sh/preview/concepts/deprovisioning/#interruption), enabled through the `aws.interrupionQueue` value in [Karpenter settings](https://karpenter.sh/preview/concepts/settings/#configmap). Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
+Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/deprovisioning/#interruption), enabled through the `aws.interrupionQueue` value in [Karpenter settings](https://karpenter.sh/docs/concepts/settings/#configmap). Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
 - Spot Interruption Warnings
 - Scheduled Change Health Events (Maintenance Events)
 - Instance Terminating Events
 - Instance Stopping Events
 
-When Karpenter detects one of these events will occur to your nodes, it automatically cordons, drains, and terminates the node(s) ahead of the interruption event to give the maximum amount of time for workload cleanup prior to interruption. It is not advised to use AWS Node Termination Handler alongside Karpenter as explained [here](https://karpenter.sh/preview/faq/#interruption-handling).
+When Karpenter detects one of these events will occur to your nodes, it automatically cordons, drains, and terminates the node(s) ahead of the interruption event to give the maximum amount of time for workload cleanup prior to interruption. It is not advised to use AWS Node Termination Handler alongside Karpenter as explained [here](https://karpenter.sh/docs/faq/#interruption-handling).
 
 Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown should enable Karpenter interruption handling in their clusters.
 
@@ -227,7 +221,7 @@ spec:
 
 ### Use timers (TTL) to automatically delete nodes from the cluster
 
-You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [How Karpenter nodes are deprovisioned](https://karpenter.sh/preview/tasks/deprovisioning/#how-karpenter-nodes-are-deprovisioned) in the Karpenter documentation for information on using  **`ttlSecondsUntilExpired`** and **`ttlSecondsAfterEmpty`** to deprovision nodes.
+You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [How Karpenter nodes are deprovisioned](https://karpenter.sh/docs/concepts/deprovisioning) in the Karpenter documentation for information on using  **`ttlSecondsUntilExpired`** and **`ttlSecondsAfterEmpty`** to deprovision nodes.
 
 ### Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
@@ -253,14 +247,14 @@ The following best practices relate to deploying pods In a cluster using Karpent
 
 ### Follow EKS best practices for high availability
 
-If you need to run highly available applications, follow general EKS best practice [recommendations](https://aws.github.io/aws-eks-best-practices/reliability/docs/application/#recommendations). See [Topology Spread](https://karpenter.sh/preview/tasks/scheduling/#topology-spread) in Karpenter documentation for details on how to spread pods across nodes and zones. Use [Disruption Budgets](https://karpenter.sh/preview/tasks/deprovisioning/#disruption-budgets) to set the minimum available pods that need to be maintained, in case there are attempts to evict or delete pods.
+If you need to run highly available applications, follow general EKS best practice [recommendations](https://aws.github.io/aws-eks-best-practices/reliability/docs/application/#recommendations). See [Topology Spread](https://karpenter.sh/preview/tasks/scheduling/#topology-spread) in Karpenter documentation for details on how to spread pods across nodes and zones. Use [Disruption Budgets](https://karpenter.sh/docs/troubleshooting/#disruption-budgets) to set the minimum available pods that need to be maintained, in case there are attempts to evict or delete pods.
 
 ### Use layered Constraints to constrain the compute features available from your cloud provider
 
 Karpenter’s model of layered constraints allows you to create a complex set of provisioner and pod deployment constraints to get the best possible matches for pod scheduling. Examples of constraints that a pod spec can request include the following:
 
-* Needing to run in availability zones where only particular applications are available. Say, for example, you have pod that has to communicate with another application that runs on an EC2 instance residing in a particular availability zone. If your aim is to reduce cross-AZ traffic in your VPC, you may want to co-locate the pods in the AZ where the EC2 instance is located. This sort of targeting is often accomplished using node selectors. For additional information on [Node selectors](https://karpenter.sh/preview/tasks/scheduling/#node-selectors), please refer to the Kubernetes documentation.
-* Requiring certain kinds of processors or other hardware. See the [Accelerators](https://karpenter.sh/v0.6.1/aws/provisioning/#accelerators-gpu) section of the Karpenter docs for a podspec example that requires the pod to run on a GPU processor.
+* Needing to run in availability zones where only particular applications are available. Say, for example, you have pod that has to communicate with another application that runs on an EC2 instance residing in a particular availability zone. If your aim is to reduce cross-AZ traffic in your VPC, you may want to co-locate the pods in the AZ where the EC2 instance is located. This sort of targeting is often accomplished using node selectors. For additional information on [Node selectors](https://karpenter.sh/docs/concepts/scheduling/#selecting-nodes), please refer to the Kubernetes documentation.
+* Requiring certain kinds of processors or other hardware. See the [Accelerators](https://karpenter.sh/docs/concepts/scheduling/#acceleratorsgpu-resources) section of the Karpenter docs for a podspec example that requires the pod to run on a GPU.
 
 ### Create billing alarms to monitor your compute spend
 
@@ -271,7 +265,7 @@ When you configure your cluster to automatically scale, you should create billin
 
 The snippet below tells Karpenter to only provision a maximum of 1000 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only when the limit is met or exceeded. When a limit is exceeded the Karpenter controller will write `memory resource usage of 1001 exceeds limit of 1000` or a similar looking message to the controller’s logs. If you are routing your container logs to CloudWatch logs, you can create a [metrics filter](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html) to look for specific patterns or terms in your logs and then create a [CloudWatch alarm](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to alert you when your configured metrics threshold is breached.
 
-For further information using limits with Karpenter, see [Setting Resource Limits](https://karpenter.sh/preview/tasks/set-resource-limits/) in the Karpenter documentation.
+For further information using limits with Karpenter, see [Setting Resource Limits](https://karpenter.sh/docs/concepts/provisioners/#speclimitsresources) in the Karpenter documentation.
 
 ```yaml
 spec:
@@ -281,16 +275,13 @@ spec:
       memory: 1000Gi
 ```
 
-!!! note
-    Setting GPU limits is not supported at this time.
-
 If you don’t use limits or constrain the instance types that Karpenter can provision, Karpenter will continue adding compute capacity to your cluster as needed. While configuring Karpenter in this way allows your cluster to scale freely, it can also have significant cost implications. It is for this reason that we recommend that configuring billing alarms. Billing alarms allow you to be alerted and proactively notified when the calculated estimated charges in your account(s) exceed a defined threshold. See [Setting up an Amazon CloudWatch Billing Alarm to Proactively Monitor Estimated Charges](https://aws.amazon.com/blogs/mt/setting-up-an-amazon-cloudwatch-billing-alarm-to-proactively-monitor-estimated-charges/) for additional information.
 
 You may also want to enable Cost Anomaly Detection which is an AWS Cost Management feature that uses machine learning to continuously monitor your cost and usage to detect unusual spends. Further information can be found in the [AWS Cost Anomaly Detection Getting Started](https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html) guide. If you’ve gone so far as to create a budget in AWS Budgets, you can also configure an action to notify you when a specific threshold has been breached. With budget actions you can send an email, post a message to an SNS topic, or send a message to a chatbot like Slack. For further information see [Configuring AWS Budgets actions](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html).
 
 ### Use the do-not-evict annotation to prevent Karpenter from deprovisioning a node
 
-If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/do-not-evict` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `do-not-evict` annotation is removed. See [Deprovisioning](https://karpenter.sh/preview/tasks/deprovisioning/#pod-set-to-do-not-evict) documentation for further information.
+If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/do-not-evict` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `do-not-evict` annotation is removed. See [Deprovisioning](https://karpenter.sh/docs/concepts/deprovisioning/#disabling-deprovisioning) documentation for further information.
 
 If the only non-daemonset pods left on a node are those associated with jobs, Karpenter is able to target and terminate those nodes so long as the job status is succeed or failed.
 
