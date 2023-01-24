@@ -12,6 +12,8 @@ Using [IPv6 in your cluster](https://docs.aws.amazon.com/eks/latest/userguide/cn
 
 ## Limit number of services per namespace
 
+The maximum number of services in a namespaces is 5,000 and 10,000  in a single cluster. To help organize workloads and services, increase performance, and to avoid cascading impact for namespace scoped resources we recommend limiting the number of services per namespace to 500.
+
 The number of IP tables rules that are created per node with kube-proxy grows with the total number of services in the cluster. Generating thousands of IP tables rules and routing packets through those rules have a performance impact on the nodes and add network latency.
 
 Create Kubernetes namespaces that encompass a single application environment so long as the number of services per namespace is under 500. This will keep service discovery small enough to avoid service discovery limits and can also help you avoid service naming collisions. Applications environments (e.g. dev, test, prod) should use separate EKS clusters instead of namespaces.

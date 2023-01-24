@@ -1,29 +1,14 @@
 # Kubernetes Control Plane
 
-The Kubernetes control plane is the Kubernetes components such as the API Server, kubelet, and Kubernetes Controller Manager. Scalability limits of these components are different depending on what you’re running in the cluster, but the areas with the biggest impact to scale include the Kubernetes version, utilization, and individual Node scaling.
+The Kubernetes control plane is the Kubernetes components such as the Kubernetes API Server, Kubernetes Controller Manager, and other components that are required for Kubernetes to funciton. Scalability limits of these components are different depending on what you’re running in the cluster, but the areas with the biggest impact to scale include the Kubernetes version, utilization, and individual Node scaling.
 
 ## Use EKS 1.24 or above
 
 EKS 1.24 introduced a number of changes and switches the default container runtime to [containerd](https://containerd.io/) instead of docker. Containerd helps clusters scale by increasing individual node performance by limiting container runtime features to closely align with Kubernetes’ needs. Containerd is available in every supported version of EKS and if you would like to switch to containerd in versions prior to 1.24 please read the documentation about [Dockershim deprecation](https://docs.aws.amazon.com/eks/latest/userguide/dockershim-deprecation.html).
 
-## Automate Amazon Machine Image (AMI) updates
-
-It is recommended that you use the latest [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) or [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html) for your node image. Karpenter will automatically use the [latest available AMI](https://karpenter.sh/v0.19.0/aws/provisioning/#amazon-machine-image-ami-family) to provision new nodes in the cluster. Managed node groups will update the AMI during a [node group update](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) but will not update the AMI ID at node provisioning time.
-
-For Managed Node Groups you need to update the Auto Scaling Group (ASG) launch template with new AMI IDs when they are available for patch releases. AMI minor versions (e.g. 1.23.5 to 1.24.3) will be available in the EKS console and API as [upgrades for the node group](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html). Patch release versions (e.g. 1.23.5 to 1.23.6) will not be presented as upgrades for the node groups. If you want to keep your node group up to date with AMI patch releases you need to create new launch template version and let the node group replace instances with the new AMI release.
-
-You can find the latest available AMI from [this page](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) or use the AWS CLI.
-
-```
-aws ssm get-parameter \
-  --name /aws/service/eks/optimized-ami/1.24/amazon-linux-2/recommended/image_id \
-  --query "Parameter.Value" \
-  --output text
-```
-
 ## Limit workload and node bursting
 
-The EKS control plane will automatically scale as your cluster grows, but there are limits on how fast it will scale. When you first create an EKS cluster the Control Plane will not immediately be able to scale to hundreds of nodes or thousands of pods. To avoid reaching API limits on the control plane you should limit scaling spikes that increase cluster size by double digit percentages at a time (e.g. 1000 nodes to 1100 nodes or 4000 to 4500 pods at once).
+The EKS control plane will automatically scale as your cluster grows, but there are limits on how fast it will scale. When you first create an EKS cluster the Control Plane will not immediately be able to scale to hundreds of nodes or thousands of pods. To avoid reaching API limits on the control plane you should limit scaling spikes that increase cluster size by double digit percentages at a time (e.g. 1000 nodes to 1100 nodes or 4000 to 4500 pods at once). To read more about how EKS has made scaling improvements see [this blog post](https://aws.amazon.com/blogs/containers/amazon-eks-control-plane-auto-scaling-enhancements-improve-speed-by-4x/).
 
 Scaling large applications requires infrastructure to adapt to become fully ready (e.g. warming load balancers). To control the speed of scaling make sure you are scaling based on the right metrics for your application. CPU and memory scaling may not accurately predict your application constraints and using custom metrics (e.g. requests per second) in Kubernetes Horizontal Pod Autoscaler](hPA) may be a more accurate scaling option.
 
@@ -33,15 +18,17 @@ To use a custom metric see the examples in the [Kubernetes documentation](https:
 
 Use Karpenter’s [time to live (TTL)](https://aws.github.io/aws-eks-best-practices/karpenter/#use-timers-ttl-to-automatically-delete-nodes-from-the-cluster) settings to replace instances after they’ve been running for a specified amount of time. Self managed node groups can use the `max-instance-lifetime` setting to cycle nodes automatically. Managed node groups do not currently have this feature but you can track the request [here on GitHub](https://github.com/aws/containers-roadmap/issues/1190).
 
-Remove nodes when they have no running workloads using scale down settings in the Kubernetes Cluster Autoscaler and Karpenter. Set Pod Disruption budgets (PDB) on your workloads to avoid application outages when nodes are removed. Consider enabling [consolidation](https://aws.github.io/aws-eks-best-practices/karpenter/#configure-requestslimits-for-all-non-cpu-resources-when-using-consolidation) in your Karpenter provisioner to replace nodes that are not fully utilized.
+You can remove nodes when they have no running workloads using the scale down threshold in the Kubernetes Cluster Autoscaler with the [`--scale-down-utilization-threshold`](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-does-scale-down-work) or in Karpenter you can use the `ttlSecondsAfterEmpty` provisioner setting.
 
-You can set the node scale down threshold in the Kubernetes Cluster Autoscaler with the [`--scale-down-utilization-threshold`](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-does-scale-down-work) or in Karpenter you can use the ttlSecondsAfterEmpty provisioner setting.
+Removing pods and nodes from a Kubernetes cluster requires controllers to make updates to multiple resources (e.g. EndpointSlices). Doing this frequently or too quickly can cause API server throttling and application outages as changes propogate to controllers. If you don't have Pod Disruption Budgets set for workloads you may have multiple instances removed before replacement pods are available.
 
 ## Use Client-Side Cache when running Kubectl
 
-Using the kubectl command, you can add additional load to the Kubernetes control plane. You should avoid running scripts or automation that uses kubectl repeatedly (e.g. in a for loop) because each command makes dozens or hundreds of calls to the API server.
+Using the kubectl command inefficiently can add additional load to the Kubernetes API Server. You should avoid running scripts or automation that uses kubectl repeatedly (e.g. in a for loop) or running commands without a local cache.
 
-This can be especially impactful if you run kubectl from a container without a client-side cache. The client-side cache is a local file that caches information from the cluster about APIs available and Custom Resources (CR). Refreshing the cache happens by default every 10 minutes when kubectl is run and will make hundreds of API calls. You’re likely to run into API throttling issues if you run kubectl commands frequently without a local cache.
+`kubectl` has a client-side cache that caches discovery information from the cluster to reduce the amount of API calls required. The cache is enabled by default and is refreshed every 10 minutes.
+
+If you run kubectl from a container or without a client-side cache you may run into API throttling issues. It is recommended to retain your cluster cache by mounting the `--cache-dir` to avoid making uncessesary API calls.
 
 ## Disable kubectl Compression
 
@@ -85,80 +72,4 @@ autoscalingGroups:
 - name: eks-data_m7-20220824130553921000000009-96c167fa-ca91-d767-0427-91c879ddf5af
   maxSize: 450
   minSize: 2
-```
-
-## Use multiple EBS volumes for containers
-
-EBS volumes have input/output (I/O) quota based on the type of volume (e.g. gp3) and the size of the disk. If your applications share a single EBS root volume with the host this can exhaust the disk quota for the entire host and cause other applications to wait for available capacity. Applications write to disk if they write files to their overlay partition, mount a local volume from the host, and also when they log to standard out (STDOUT) depending on the logging agent used.
-
-To avoid disk I/O exhaustion you should mount a second volume to the container state folder (e.g. /run/containerd), use separate EBS volumes for workload storage, and disable unnecessary local logging.
-
-To mount a second volume to your EC2 instances using [eksctl](https://eksctl.io/) you can use a node group with this configuration:
-
-```
-managedNodeGroups:
-  - name: al2-workers
-    amiFamily: AmazonLinux2
-    desiredCapacity: 2
-    volumeSize: 80
-    additionalVolumes:
-      - volumeName: '/dev/sdz'
-        volumeSize: 100
-    preBootstrapCommands:
-      - "systemctl stop containerd"
-      - "mkfs -t ext4 /dev/nvme1n1"
-      - "rm -rf /var/lib/containerd/*"
-      - "mount /dev/nvme1n1 /var/lib/containerd/"
-      - "systemctl start containerd"
-```
-
-If you are using terraform to provision your node groups please see examples in [EKS Blueprints for terraform](https://github.com/aws-ia/terraform-aws-eks-blueprints/blob/main/examples/node-groups/managed-node-groups/main.tf). If you are using Karpenter to provision nodes you can use [`blockDeviceMappings`](https://karpenter.sh/v0.20.0/concepts/node-templates/#block-device-mappings) with node user-data to add additional volumes.
-
-To mount an EBS volume directly to your pod you should use the [AWS EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver) and consume a volume with a storage class.
-
-```
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: ebs-sc
-provisioner: ebs.csi.aws.com
-volumeBindingMode: WaitForFirstConsumer
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: ebs-claim
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: ebs-sc
-  resources:
-    requests:
-      storage: 4Gi
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: app
-spec:
-  containers:
-  - name: app
-    image: public.ecr.aws/docker/library/nginx
-    volumeMounts:
-    - name: persistent-storage
-      mountPath: /data
-  volumes:
-  - name: persistent-storage
-    persistentVolumeClaim:
-      claimName: ebs-claim
-```
-
-## Disable unnecessary logging to disk
-
-Avoid unnecessary local logging by not running your applications with debug logging in production and disabling logging that reads and writes to disk frequently. Journald is the local logging service that keeps a log buffer in memory and flushes to disk periodically. Journald is preferred over syslog which logs every line immediately to disk. Disabling syslog also lowers the total amount of storage you need and avoids needing complicated log rotation rules. To disable syslog you can add the following snippet to your cloud-init configuration:
-
-```
-runcmd:
-  - [ systemctl, disable, --now, syslog.service ]
 ```

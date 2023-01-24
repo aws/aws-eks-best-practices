@@ -1,6 +1,6 @@
 # Supporting Infrastructure
 
-Supporting infrastructure is resources outside of your cluster but required for your workloads to run. It includes EC2 instances, load balancers, external storage, and other APIs used by the Kubernetes control plane. For simplicity, we won’t address APIs that workloads use because that could be every API.
+Supporting infrastructure is resources required for your workloads to run and be accessible. It includes EC2 instances, load balancers, external storage, and other APIs used by the Kubernetes control plane. For simplicity, we won’t address APIs that workloads use because that could be every API.
 
 Helping EKS clusters scale to large sizes requires using the supporting infrastructure wisely. There are multiple areas you need to consider in planning before they become a problem. The main concerns are for compute availability and network routing.
 
@@ -8,17 +8,17 @@ Helping EKS clusters scale to large sizes requires using the supporting infrastr
 
 Selecting your EC2 instance types is possibly one of the hardest decisions customers face because in clusters with multiple different workloads there is no one-size-fits all solution. Here are some tips to help you avoid common pitfalls.
 
-## Use Karpenter for node autoscaling
+### Use Karpenter for node autoscaling
 
 [Karpenter](https://karpenter.sh/) is a workload-native node autoscaler created by AWS. It can scale nodes in a cluster based on the workload requirements for resources (e.g. GPU) and taints and tolerations (e.g. zone spread) without needing to manage node groups for each workload requirement. Nodes are created directly from EC2 instead of using Auto Scaling Groups (ASG) which avoids default node group quotas—450 nodes per group—and provides greater instance selection flexibility with less operational overhead.
 
 We highly recommend customers use Karpenter when possible. It optimizes clusters for cost and scalability and has many features that were built to help customers reduce operational overhead and increase cluster scalability.
 
-## Use many different EC2 instance types
+### Use many different EC2 instance types
 
 Each AWS region has a limited number of available instances per instance type. If you create a cluster that uses only one instance type and scale the number of nodes beyond the capacity of the region you will receive an error that no instances are available. To avoid this issue you should not arbitrarily limit the type of instances that can be use in your cluster.
 
-Karpenter will use a broad set of compatible instance types by default and will pick an instance at provisioning time based on pending workload requirements, availability, and cost. You can broaden the list of instance types used in the `karpenter.k8s.aws/instance-category` key of [the provisioner](https://karpenter.sh/v0.20.0/concepts/provisioning/).
+Karpenter will use a broad set of compatible instance types by default and will pick an instance at provisioning time based on pending workload requirements, availability, and cost. You can broaden the list of instance types used in the `karpenter.k8s.aws/instance-category` key of [the provisioner](https://karpenter.sh/docs/concepts/provisioners/#instance-types).
 
 The Kubernetes Cluster Autoscaler requires node groups to be similarly sized so they can be consistently scaled. You should create multiple groups based on CPU and memory size and scale them independently. Use the [ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector) to identify instances that are similarly sized for your node groups.
 
@@ -38,11 +38,11 @@ c5.9xlarge
 c5.metal
 ```
 
-## Prefer larger nodes to reduce control plane load
+### Prefer larger nodes to reduce control plane load
 
-When deciding what instance types to use, fewer large nodes will put less load on the Kubernetes control plane because there will be fewer kubelets and DaemonSets running. However, large nodes may not be utilized the same as smaller nodes depending on your workloads. Node sizes should be evaluated based on your workload availability and scale requirements.
+When deciding what instance types to use, fewer, large nodes will put less load on the Kubernetes Control Plane because there will be fewer kubelets and DaemonSets running. However, large nodes may not be utilized fully like smaller nodes. Node sizes should be evaluated based on your workload availability and scale requirements.
 
-If you run a cluster with three u-24tb1.metal instances (24 TB memory and 448 cores) you would have 3 kublets, but you would be limited to 110 pods per node by default. If your pods use 4 cores each then this might be expected (4 cores x 110 = 440 cores/node). With a 3 node cluster your ability to handle an instance incident would be low. You should specify node requirements and pod spread directly in your workloads so the Kubernetes scheduler can place workloads properly and Karpenter can provision the best node.
+A cluster with three u-24tb1.metal instances (24 TB memory and 448 cores) has 3 kublets, and would be limited to 110 pods per node by default. If your pods use 4 cores each then this might be expected (4 cores x 110 = 440 cores/node). With a 3 node cluster your ability to handle an instance incident would be low because 1 instance outage could impact 1/3 of the cluster. You should specify node requirements and pod spread in your workloads so the Kubernetes scheduler can place workloads properly.
 
 Workloads should define the resources they need and the availability required via taints, tolerations, and [PodTopologySpread](https://kubernetes.io/blog/2020/05/introducing-podtopologyspread/). They should prefer the largest nodes that can be fully utilized and meet availability goals to reduce control plane load, lower operations, and reduce cost.
 
@@ -65,11 +65,11 @@ spec:
           dev: my-deployment
 ```
 
-## Avoid instances with burstable CPUs
+### Avoid instances with burstable CPUs
 
 Avoid instance types that use burstable CPUs like T series instances. Workloads should define what size nodes they need to be run on to allow consistent performance and predictable scaling. A workload requesting 500m CPU will perform differently on an instance with 4 cores vs one with 16 cores.
 
-A workload being scheduled in a cluster with Karpenter can use the [supported labels](https://karpenter.sh/v0.19.3/tasks/scheduling/#supported-labels) to target specific instances sizes.
+A workload being scheduled in a cluster with Karpenter can use the [supported labels](https://karpenter.sh/docs/concepts/scheduling/#labels) to target specific instances sizes.
 
 ```
 kind: deployment
@@ -97,19 +97,111 @@ spec:
             - 8-core-node-group    # match your node group name
 ```
 
-## Avoid instances with low EBS attach limits if workloads use EBS volumes
+### Use compute resources efficiently
+
+Compute resources include EC2 instances and availability zones. Using compute resources effectively will increase your scalability, availability, performance, and reduce your total cost. Predicting what instance types your cluster will need is an extremely difficult problem which is why we recommend not trying to predict every use case when you create a cluster. Instead of predicting and creating node groups you should use [Karpenter](https://karpenter.sh/) to provision workload instances on-demand based on the workload needs.
+
+Karpenter allows you to take advantage of all EKS compatible EC2 instance types as well as their different capacity types (e.g. on-demand, spot). This allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints only for specific workloads. Please see the [Karpenter best practices](https://aws.github.io/aws-eks-best-practices/karpenter/) for more information. Consider enabling [consolidation](https://aws.github.io/aws-eks-best-practices/karpenter/#configure-requestslimits-for-all-non-cpu-resources-when-using-consolidation) in your Karpenter provisioner to replace nodes that are not fully utilized.
+
+Review the guide for setting up [highly-available applications](https://aws.github.io/aws-eks-best-practices/reliability/docs/application/) to make sure you have enough replicas to handle incidents.
+
+### Automate Amazon Machine Image (AMI) updates
+
+Keeping worker node components up to date will make sure you have the latest security patches and compatible features with the Kubernetes API. Updating the kublet is the most important component for Kubernetes functionality, but automating OS, kernel, and locally installed application patches will reduce maintenance as you scale.
+
+It is recommended that you use the latest [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) or [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html) for your node image. Karpenter will automatically use the [latest available AMI](https://karpenter.sh/docs/concepts/provisioners/#instance-types) to provision new nodes in the cluster. Managed node groups will update the AMI during a [node group update](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) but will not update the AMI ID at node provisioning time.
+
+For Managed Node Groups you need to update the Auto Scaling Group (ASG) launch template with new AMI IDs when they are available for patch releases. AMI minor versions (e.g. 1.23.5 to 1.24.3) will be available in the EKS console and API as [upgrades for the node group](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html). Patch release versions (e.g. 1.23.5 to 1.23.6) will not be presented as upgrades for the node groups. If you want to keep your node group up to date with AMI patch releases you need to create new launch template version and let the node group replace instances with the new AMI release.
+
+You can find the latest available AMI from [this page](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) or use the AWS CLI.
+
+```
+aws ssm get-parameter \
+  --name /aws/service/eks/optimized-ami/1.24/amazon-linux-2/recommended/image_id \
+  --query "Parameter.Value" \
+  --output text
+```
+### Use multiple EBS volumes for containers
+
+EBS volumes have input/output (I/O) quota based on the type of volume (e.g. gp3) and the size of the disk. If your applications share a single EBS root volume with the host this can exhaust the disk quota for the entire host and cause other applications to wait for available capacity. Applications write to disk if they write files to their overlay partition, mount a local volume from the host, and also when they log to standard out (STDOUT) depending on the logging agent used.
+
+To avoid disk I/O exhaustion you should mount a second volume to the container state folder (e.g. /run/containerd), use separate EBS volumes for workload storage, and disable unnecessary local logging.
+
+To mount a second volume to your EC2 instances using [eksctl](https://eksctl.io/) you can use a node group with this configuration:
+
+```
+managedNodeGroups:
+  - name: al2-workers
+    amiFamily: AmazonLinux2
+    desiredCapacity: 2
+    volumeSize: 80
+    additionalVolumes:
+      - volumeName: '/dev/sdz'
+        volumeSize: 100
+    preBootstrapCommands:
+      - "systemctl stop containerd"
+      - "mkfs -t ext4 /dev/nvme1n1"
+      - "rm -rf /var/lib/containerd/*"
+      - "mount /dev/nvme1n1 /var/lib/containerd/"
+      - "systemctl start containerd"
+```
+
+If you are using terraform to provision your node groups please see examples in [EKS Blueprints for terraform](https://github.com/aws-ia/terraform-aws-eks-blueprints/blob/main/examples/node-groups/managed-node-groups/main.tf). If you are using Karpenter to provision nodes you can use [`blockDeviceMappings`](https://karpenter.sh/docs/concepts/node-templates/#specblockdevicemappings) with node user-data to add additional volumes.
+
+To mount an EBS volume directly to your pod you should use the [AWS EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver) and consume a volume with a storage class.
+
+```
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ebs-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  containers:
+  - name: app
+    image: public.ecr.aws/docker/library/nginx
+    volumeMounts:
+    - name: persistent-storage
+      mountPath: /data
+  volumes:
+  - name: persistent-storage
+    persistentVolumeClaim:
+      claimName: ebs-claim
+```
+
+### Avoid instances with low EBS attach limits if workloads use EBS volumes
 
 EBS is one of the easiest ways for workloads to have persistent storage, but it also comes with scalability limitations. Each instance type has a maximum number of [EBS volumes that can be attached](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/volume_limits.html). Workloads need to declare what instance types they should run on and limit the number of replicas on a single instance with Kubernetes taints.
 
 EBS volumes are only available within a single Availability Zone (AZ). Workloads that consume a volume will be limited to run within the AZ where the volume is available. If you ‘re using node groups you will need to add AZ specific tolerations to your workload definition after the volume has been created. If you are using Karpenter, nodes will automatically be provisioned in the correct AZ where the volume was created.
 
-## Use compute resources efficiently
+### Disable unnecessary logging to disk
 
-Compute resources include EC2 instances and availability zones. Using compute resources effectively will increase your scalability, availability, performance, and reduce your total cost. Predicting what instance types your cluster will need is an extremely difficult problem which is why we recommend not trying to predict every use case when you create a cluster. Instead of predicting and creating node groups you should use [Karpenter](https://karpenter.sh/) to provision workload instances on-demand based on the workload needs.
+Avoid unnecessary local logging by not running your applications with debug logging in production and disabling logging that reads and writes to disk frequently. Journald is the local logging service that keeps a log buffer in memory and flushes to disk periodically. Journald is preferred over syslog which logs every line immediately to disk. Disabling syslog also lowers the total amount of storage you need and avoids needing complicated log rotation rules. To disable syslog you can add the following snippet to your cloud-init configuration:
 
-Karpenter allows you to take advantage of all EKS compatible EC2 instance types as well as their different capacity types (e.g. on-demand, spot). This allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints only for specific workloads. Please see the [Karpenter best practices](https://aws.github.io/aws-eks-best-practices/karpenter/) for more information.
-
-Review the guide for setting up [highly-available applications](https://aws.github.io/aws-eks-best-practices/reliability/docs/application/) to make sure you have enough replicas to handle incidents.
+```
+runcmd:
+  - [ systemctl, disable, --now, syslog.service ]
+```
 
 ## Split large services into multiple load balancers
 
@@ -129,6 +221,8 @@ To patch a Linux host it takes seconds to install a package which can be run in 
 
 To replace an instance you first need to create, validate, and distribute new AMIs. The instance needs to have a replacement created, and the old instance needs to be cordoned and drained. Then workloads need to be created on the new instance, verified, and repeated for all instances that need to be patched. It takes hours, days, or weeks to replace all instances in a large cluster safely without disrupting workloads.
 
-Amazon recommends using immutable infrastructure that is built, tested, and promoted from an automated, declarative system, but if you have clusters larger than 300 nodes and you have a requirement to patch systems in 24 hours or less then you will likely need to patch existing systems in place. Because of the large time differential between patching and replacing systems we recommend using [AWS Systems Manager Patch Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html) to automate patching nodes when required to do so. This will allow you to quickly roll out security updates and replace the instances on a regular schedule after your base AMI has been patched. If you are using Bottlerocket we recommend using the [Bottlerocket update operator](https://github.com/bottlerocket-os/bottlerocket-update-operator) to keep your nodes up to date.
+Amazon recommends using immutable infrastructure that is built, tested, and promoted from an automated, declarative system, but if you have a requirement to patch systems quickly then you will likely need to patch existing systems in place. Because of the large time differential between patching and replacing systems we recommend using [AWS Systems Manager Patch Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html) to automate patching nodes when required to do so.
+
+Patching nodes will allow you to quickly roll out security updates and replace the instances on a regular schedule after your base AMI has been updated and promoted. If you are using Bottlerocket we recommend using the [Bottlerocket update operator](https://github.com/bottlerocket-os/bottlerocket-update-operator) to keep your nodes up to date.
 
 Replacing nodes in a cluster can take days or weeks depending on how many instances you replace at once. With managed node groups you can increase the number of nodes to replace at once in the [node group configuration](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html). With Karpenter you should use *ttlSecondsUntilExpired* to make sure nodes are regularly replaced. If you are performing cluster upgrades with thousands of nodes it is advised to upgrade your control plane and then use node cycling replace and upgrade your worker nodes.
