@@ -1,8 +1,8 @@
 # Cluster Services
 
-Cluster services run inside an EKS cluster, but they are not user workloads. If you have a Linux server you often need to run services like NTP, syslog, and a container runtime to support your workloads. Cluster services are similar, supporting services that help you automate and operate your cluster. In Kubernetes these are usually run in the kube-system namespace and some are run as DaemonSets.
+Cluster services run inside an EKS cluster, but they are not user workloads. If you have a Linux server you often need to run services like NTP, syslog, and a container runtime to support your workloads. Cluster services are similar, supporting services that help you automate and operate your cluster. In Kubernetes these are usually run in the kube-system namespace and some are run as [DaemonSets](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/).
 
-Cluster services are expected to have a high up-time and are often critical during outages and for troubleshooting. They should run on dedicated compute instances such as a separate node group or AWS Fargate. This will ensure that the cluster services are not impacted on shared instances by workloads that may be scaling up or using more resources.
+Cluster services are expected to have a high up-time and are often critical during outages and for troubleshooting. If a core cluster service is not available you may lose access to data that can help recover or prevent an outage (e.g. high disk utilization). They should run on dedicated compute instances such as a separate node group or AWS Fargate. This will ensure that the cluster services are not impacted on shared instances by workloads that may be scaling up or using more resources.
 
 ## Scale CoreDNS
 
@@ -10,7 +10,16 @@ Scaling CoreDNS has two primary mechanisms. Reducing the number of calls to the 
 
 ### Reduce external queries by lowering ndots
 
-The ndots setting specifies how many periods in a domain name are considered enough to avoid querying DNS. If your application has an ndots setting of 5 (default) and you request resources from api.example.com (http://api.example.com/) (2 dots) then CoreDNS will be queried for each search domain defined in /etc/resolv.conf for a more specific domain (e.g. api.example.com.namespace.svc.) until all searches are exhausted or a match is found.
+The ndots setting specifies how many periods (a.k.a. "dots") in a domain name are considered enough to avoid querying DNS. If your application has an ndots setting of 5 (default) and you request resources from an external domain such as api.example.com (2 dots) then CoreDNS will be queried for each search domain defined in /etc/resolv.conf for a more specific domain. By default the following domains will be searched before making an external request.
+
+```
+api.example.<namespace>.svc.cluster.local
+api.example.svc.cluster.local
+api.example.cluster.local
+api.example.<region>.compute.internal
+```
+
+The `namespace` and `region` values will be replaced with your workloads namespace and your compute region. You may have additional search domains based on your cluster settings.
 
 You can reduce the number of requests to CoreDNS by lowering the ndots option (https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) of your workload or fully qualifying your domain requests by including a trailing . (e.g. api.example.com.). If your workload connects to external services via DNS we recommend setting ndots to 2 so workloads do not make unnecessary, cluster DNS queries inside the cluster. You can set a different DNS server and search domain if the workload doesn’t require access to services inside the cluster.
 
@@ -28,15 +37,15 @@ If you lower ndots to a value that is too low or the domains you are connecting 
 
 ### Scale CoreDNS Horizontally 
 
-CoreDNS instances can scale using a horizontal pod autoscaler rule or you can use [NodeLocal DNS](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/). Scaling replicas horizontally is a good option to avoid failed DNS requests. NodeLocal DNS will require more compute resources in the cluster, but it will avoid failed DNS requests and increase the response time for DNS queries in the cluster.
+CoreDNS instances can scale by adding additional replicas to the deployment. It's recommended you use [NodeLocal DNS](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/) or the [cluster proportional autoscaler](https://github.com/kubernetes-sigs/cluster-proportional-autoscaler) to scale CoreDNS.
 
-You can also use the [horizontal proportional scaler](https://github.com/kubernetes-sigs/cluster-proportional-autoscaler) to scale CoreDNS based on the number of nodes or cores in the cluster. This isn’t a direct correlation to request queries, but can be useful depending on your workloads. 
+NodeLocal DNS will require run one instance per node—as a DaemonSet—which requires more compute resources in the cluster, but it will avoid failed DNS requests and decrease the response time for DNS queries in the cluster. The cluster proportional autoscaler will scale CoreDNS based on the number of nodes or cores in the cluster. This isn’t a direct correlation to request queries, but can be useful depending on your workloads and cluster size. The default proportional scale is to add an additional replica for every 256 cores or 16 nodes in the cluster—whichever happens first.
 
 ## Scale Kubernetes Metrics Server Vertically
 
 The Kubernetes Metrics Server supports horizontal and vertical scaling. By horizontally scaling the Metrics Server it will be highly available, but it will not scale horizontally to handle more cluster metrics. You will need to vertically scale the Metrics Server based on [their recommendations](https://kubernetes-sigs.github.io/metrics-server/#scaling) as nodes and collected metrics are added to the cluster.
 
-The Metrics Server keeps the data it collects, aggregates, and serves in memory. As a cluster grows, the amount of data the Metrics Server stores increases. In large clusters the Metrics Server will require more compute resources than the memory and CPU reservation specified in the default installation. You can use [Addon Resizer](https://github.com/kubernetes/autoscaler/tree/master/addon-resizer) to scale the Metrics Server vertically in proportion to the size of your worker nodes. 
+The Metrics Server keeps the data it collects, aggregates, and serves in memory. As a cluster grows, the amount of data the Metrics Server stores increases. In large clusters the Metrics Server will require more compute resources than the memory and CPU reservation specified in the default installation. You can use the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) (VPA) or [Addon Resizer](https://github.com/kubernetes/autoscaler/tree/master/addon-resizer) to scale the Metrics Server. The Addon Resizer scales vertically in proportion to worker nodes and VPA scales based on CPU and memory usage.
 
 ## Logging and monitoring agents
 
@@ -49,9 +58,9 @@ Scaling monitoring and logging has two general options:
 * Disable integrations
 * Sampling and filtering
 
-Disabling integrations is often not an option because you lose log metadata. This eliminates the API scaling problem, but it will introduce other issues by not having the required data when needed.
+Disabling integrations is often not an option because you lose log metadata. This eliminates the API scaling problem, but it will introduce other issues by not having the required metadata when needed.
 
-Sampling and filtering reduces the number of metrics and logs that are collected. This will lower the amount of requests to the Kubernetes API, but it will also reduce the amount of storage needed for the metrics and logs that are collected. Reducing the storage costs will lower the cost for the overall system.
+Sampling and filtering reduces the number of metrics and logs that are collected. This will lower the amount of requests to the Kubernetes API, and it will reduce the amount of storage needed for the metrics and logs that are collected. Reducing the storage costs will lower the cost for the overall system.
 
 Sampling support depends on the agent software and can be implemented at different points of ingestion. It’s important to add sampling as close to the agent as possible because that is likely where the API server calls happen. Contact your provider to find out more about sampling support.
 

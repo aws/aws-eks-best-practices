@@ -12,7 +12,7 @@ Using [IPv6 in your cluster](https://docs.aws.amazon.com/eks/latest/userguide/cn
 
 ## Limit number of services per namespace
 
-The maximum number of services in a namespaces is 5,000 and 10,000  in a single cluster. To help organize workloads and services, increase performance, and to avoid cascading impact for namespace scoped resources we recommend limiting the number of services per namespace to 500.
+The maximum number of [services in a namespaces is 5,000 and the maximum number of services in a cluster is 10,000](https://github.com/kubernetes/community/blob/master/sig-scalability/configs-and-limits/thresholds.md). To help organize workloads and services, increase performance, and to avoid cascading impact for namespace scoped resources we recommend limiting the number of services per namespace to 500.
 
 The number of IP tables rules that are created per node with kube-proxy grows with the total number of services in the cluster. Generating thousands of IP tables rules and routing packets through those rules have a performance impact on the nodes and add network latency.
 
@@ -22,15 +22,15 @@ Create Kubernetes namespaces that encompass a single application environment so 
 
 When creating your services consider what type of load balancing you will use (e.g. Network Load Balancer (NLB) or Application Load Balancer (ALB)). Each load balancer type provides different functionality and have [different quotas](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html). Some of the default quotas can be adjusted, but there are some quota maximums which cannot be changed. To view your account quotas and usage view the [Service Quotas dashboard](http://console.aws.amazon.com/servicequotas) in the AWS console.
 
-For example, the default ALB targets is 1000. If you have a service with more than 1000 endpoints you will need to increase the quota or split the service across multiple ALBs or use Kubernetes Ingress. The default NLB targets is 3000, but is limited to 500 targets per AZ. If your cluster runs more than 500 pods for an NLB service you will need to use more AZs or request a quota increase.
+For example, the default ALB targets is 1000. If you have a service with more than 1000 endpoints you will need to increase the quota or split the service across multiple ALBs or use Kubernetes Ingress. The default NLB targets is 3000, but is limited to 500 targets per AZ. If your cluster runs more than 500 pods for an NLB service you will need to use multiple AZs or request a quota limit increase.
 
-Kubernetes ingress allows you to expose multiple Kubernetes services from a single load balancer by running a proxy inside your cluster. You can read more about ingress options in the [Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
+An alternative to using a load balancer coupled to a service is to use an [ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/). The AWS Load Balancer controller can create ALBs for ingress resources, but you may consider running a dedicated controller in your cluster. An in-cluster ingress controller allows you to expose multiple Kubernetes services from a single load balancer by running a reverse proxy inside your cluster. Controllers have different features such as support for the [Gateway API](https://gateway-api.sigs.k8s.io/) which may have benefits depending on how many and how large your workloads are.
 
 ## Use EndpointSlices instead of Endpoints
 
 When discovering pods that match a service label you should use [EndpointSlices](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/) instead of Endpoints. Endpoints were a simple way to expose services at small scales but large services that automatically scale or have updates causes a lot of traffic on the Kubernetes control plane. EndpointSlices have automatic grouping which enable things like topology aware hints.
 
-Not all controllers use EndpointSlices by default. You should verify your controller settings and enable it if needed. For the [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/configurations/#controller-command-line-flags) you should enable the --enable-endpoint-slices optional flag to use EndpointSlices.
+Not all controllers use EndpointSlices by default. You should verify your controller settings and enable it if needed. For the [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/configurations/#controller-command-line-flags) you should enable the `--enable-endpoint-slices` optional flag to use EndpointSlices.
 
 ## Use immutable and external secrets if possible
 
@@ -51,23 +51,23 @@ metadata:
 automountServiceAccountToken: true
 ```
 
-Monitor the number of secrets in the cluster before it exceeds the limit of 10,000. You can get a total count of secrets in a cluster with the following commend.
+Monitor the number of secrets in the cluster before it exceeds the limit of 10,000. You can see a total count of secrets in a cluster with the following command. You should monitor this limit through your cluster monitoring tooling.
 
 ```
 kubectl get secrets -A | wc -l
 ```
 
-You should set up monitoring to alert a cluster admin before this limit is reached. Consider using external secrets management options such as [AWS Key Management Service (AWS KMS)](https://aws.amazon.com/kms/) or [Hashicorp Vault](https://www.vaultproject.io/).
+You should set up monitoring to alert a cluster admin before this limit is reached. Consider using external secrets management options such as [AWS Key Management Service (AWS KMS)](https://aws.amazon.com/kms/), [Secrets Store CSI driver](https://secrets-store-csi-driver.sigs.k8s.io/), or [Hashicorp Vault](https://www.vaultproject.io/).
 
 ## Limit Deployment history
 
 Pods can be slow when creating, updating, or deleting because old objects are still tracked in the cluster. You can reduce `therevisionHistoryLimit` of [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy) to cleanup older ReplicaSets which will lower to total amount of objects tracked by the Kubernetes Controller Manager. The default history limit for Deployments in 10.
 
-If your cluster creates a lot of job objects through CronJobs or other mechanisms you should use the ttlSecondsAfterFinished setting to automatically clean up old pods in the cluster.
+If your cluster creates a lot of job objects through CronJobs or other mechanisms you should use the [`ttlSecondsAfterFinished` setting](https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/) to automatically clean up old pods in the cluster. This will remove successfully executed jobs from the job history after a specified amount of time.
 
 ## Disable enableServiceLinks by default
 
-When a Pod runs on a Node, the kubelet adds a set of environment variables for each active Service. Linux processes have a maximum size for their environment which can fill up if you have too many services in your namespace. The number of services per namespace should not exceed 5,000. After this, the number of service environment variables outgrows shell limits, causing Pods to crash on startup. 
+When a Pod runs on a Node, the kubelet adds a set of environment variables for each active Service. Linux processes have a maximum size for their environment which can be reached if you have too many services in your namespace. The number of services per namespace should not exceed 5,000. After this, the number of service environment variables outgrows shell limits, causing Pods to crash on startup. 
 
 There are other reasons pods should not use service environment variables for service discovery. Environment variable name clashes, leaking service names, and total environment size are a few. You should use CoreDNS for discovering service endpoints.
 
