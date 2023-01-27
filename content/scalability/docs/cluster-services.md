@@ -62,7 +62,7 @@ Disabling integrations is often not an option because you lose log metadata. Thi
 
 Sampling and filtering reduces the number of metrics and logs that are collected. This will lower the amount of requests to the Kubernetes API, and it will reduce the amount of storage needed for the metrics and logs that are collected. Reducing the storage costs will lower the cost for the overall system.
 
-Sampling support depends on the agent software and can be implemented at different points of ingestion. It’s important to add sampling as close to the agent as possible because that is likely where the API server calls happen. Contact your provider to find out more about sampling support.
+The ability to configure sampling depends on the agent software and can be implemented at different points of ingestion. It’s important to add sampling as close to the agent as possible because that is likely where the API server calls happen. Contact your provider to find out more about sampling support.
 
 If you are using CloudWatch and CloudWatch Logs you can add agent filtering using patterns [described in the documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html).
 
