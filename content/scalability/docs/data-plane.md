@@ -1,16 +1,16 @@
-# Supporting Infrastructure
+# Kubernetes Data Plane
 
-Supporting infrastructure is resources required for your workloads to run and be accessible. It includes EC2 instances, load balancers, external storage, and other APIs used by the Kubernetes control plane. For simplicity, we won’t address APIs that workloads use because that could be every API.
+The Kubernetes Data Plane includes EC2 instances, load balancers, storage, and other APIs used by the Kubernetes Control Plane. For organization purposes we grouped [cluster services](./cluster-services.md) in a separate page and load balancer scaling can be found in the [workloads section](./workloads.md). This section will focus on scaling compute resources.
 
-Helping EKS clusters scale to large sizes requires using the supporting infrastructure wisely. There are multiple areas you need to consider in planning before they become a problem. The main concerns are for compute availability and network routing. Load balancing is addressed in the [workload section of this guide](./workloads.md).
+Selecting EC2 instance types is possibly one of the hardest decisions customers face because in clusters with multiple workloads. There is no one-size-fits all solution. Here are some tips to help you avoid common pitfalls with scaling compute.
 
-Selecting EC2 instance types is possibly one of the hardest decisions customers face because in clusters with multiple workloads there is no one-size-fits all solution. Here are some tips to help you avoid common pitfalls and scaling limits.
+## Automatic node autoscaling
 
-## Use Karpenter for node autoscaling
+We recommend you use node autoscaling that reduces toil and integrates deeply with Kubernetes. [Managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) and [Karpenter](https://karpenter.sh/) are recomended for large scale clusters.
 
-[Karpenter](https://karpenter.sh/) is a workload-native node autoscaler created by AWS. It can scale nodes in a cluster based on the workload requirements for resources (e.g. GPU) and taints and tolerations (e.g. zone spread) without needing to manage node groups for each workload requirement. Nodes are created directly from EC2 instead of using Auto Scaling Groups (ASG) which avoids default node group quotas—450 nodes per group—and provides greater instance selection flexibility with less operational overhead.
+Managed node groups will give you the flexibility of Amazon EC2 Auto Scaling groups with added benefits for managed upgrades and configuration. It can be scaled with the [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) and is a common option for clusters that have a variety of compute needs.
 
-We highly recommend customers use Karpenter when possible. It optimizes clusters for cost and scalability and has many features that were built to help customers reduce operational overhead and increase cluster scalability.
+Karpenter is an open source, workload-native node autoscaler created by AWS. It scales nodes in a cluster based on the workload requirements for resources (e.g. GPU) and taints and tolerations (e.g. zone spread) without managing node groups. Nodes are created directly from EC2 which avoids default node group quotas—450 nodes per group—and provides greater instance selection flexibility with less operational overhead. We recommend customers use Karpenter when possible.
 
 ## Use many different EC2 instance types
 
@@ -36,7 +36,7 @@ c5.9xlarge
 c5.metal
 ```
 
-## Prefer larger nodes to reduce control plane load
+## Prefer larger nodes to reduce API server load
 
 When deciding what instance types to use, fewer, large nodes will put less load on the Kubernetes Control Plane because there will be fewer kubelets and DaemonSets running. However, large nodes may not be utilized fully like smaller nodes. Node sizes should be evaluated based on your workload availability and scale requirements.
 
@@ -209,4 +209,4 @@ To replace an instance you first need to create, validate, and distribute new AM
 
 Amazon recommends using immutable infrastructure that is built, tested, and promoted from an automated, declarative system, but if you have a requirement to patch systems quickly then you will likely need to patch existing systems in place. Because of the large time differential between patching and replacing systems we recommend using [AWS Systems Manager Patch Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html) to automate patching nodes when required to do so.
 
-Patching nodes will allow you to quickly roll out security updates and replace the instances on a regular schedule after your AMI has been updated. If you are using [Bottlerocket OS](https://github.com/bottlerocket-os/bottlerocket) we recommend using the [Bottlerocket update operator](https://github.com/bottlerocket-os/bottlerocket-update-operator) to keep your nodes up to date automatically.
+Patching nodes will allow you to quickly roll out security updates and replace the instances on a regular schedule after your AMI has been updated. If you are using an operating system with a read-only root file system like [Flatcar Container Linux](https://flatcar-linux.org/) or [Bottlerocket OS](https://github.com/bottlerocket-os/bottlerocket) we recommend using the update operators that work with those operating systems. The [Flatcar Linux update operator](https://github.com/flatcar/flatcar-linux-update-operator) and [Bottlerocket update operator](https://github.com/bottlerocket-os/bottlerocket-update-operator) will reboot instances to keep nodes up to date automatically.

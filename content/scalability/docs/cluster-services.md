@@ -21,7 +21,7 @@ api.example.<region>.compute.internal
 
 The `namespace` and `region` values will be replaced with your workloads namespace and your compute region. You may have additional search domains based on your cluster settings.
 
-You can reduce the number of requests to CoreDNS by lowering the ndots option (https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) of your workload or fully qualifying your domain requests by including a trailing . (e.g. api.example.com.). If your workload connects to external services via DNS we recommend setting ndots to 2 so workloads do not make unnecessary, cluster DNS queries inside the cluster. You can set a different DNS server and search domain if the workload doesn’t require access to services inside the cluster.
+You can reduce the number of requests to CoreDNS by lowering the ndots option (https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) of your workload or fully qualifying your domain requests by including a trailing . (e.g. `api.example.com.` ). If your workload connects to external services via DNS we recommend setting ndots to 2 so workloads do not make unnecessary, cluster DNS queries inside the cluster. You can set a different DNS server and search domain if the workload doesn’t require access to services inside the cluster.
 
 ```
 spec:

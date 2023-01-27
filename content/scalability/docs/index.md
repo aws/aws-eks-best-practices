@@ -12,17 +12,17 @@ Scalability is different from performance and [reliability](https://aws.github.i
 Scaling in Kubernetes is multi-dimensional and there are no specific settings or recommendations that work in every situation. The main areas areas where we can provide guidance for scaling include:
 
 * [Kubernetes Control Plane](control-plane)
-* [Supporting Infrastructure](supporting-infrastructure)
+* [Kubernetes Data Plane](data-plane)
 * [Cluster Services](cluster-services)
 * [Workloads](workloads)
 
 **Kubernetes Control Plane** in an EKS cluster includes all of the services AWS runs and scales for you automatically (e.g. Kubernetes API server). Scaling the Control Plane is AWS's responsibility, but using the Control Plane responsibly is your responsibility.
 
-**Supporting infrastructure** scaling deals with AWS resources that are required for your cluster and workloads, but they are outside of the EKS Control Plane. Resources such as EC2—including kublet, load balancers, and storage should all be scaled as your cluster scales.
+**Kubernetes Data Plane** scaling deals with AWS resources that are required for your cluster and workloads, but they are outside of the EKS Control Plane. Resources including EC2 instances, kublet, and storage all need to be scaled as your cluster scales.
 
 **Cluster services** are Kubernetes controllers and applications that run inside the cluster and provide functionality for your cluster and workloads. These can be [EKS Add-ons](https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html) and also other services or Helm charts you install for compliance and integrations. These services are often depended on by workloads and as your workloads scale your cluster services will need to scale with them.
 
 **Workloads** are the reason you have a cluster and should scale horizontally with the cluster. There are integrations and settings that workloads have in Kubernetes that can help the cluster scale. There are also architectural considerations with Kubernetes abstractions such as namespaces and services.
 
-## Feedback
-This guide is being released on GitHub so as to collect direct feedback and suggestions from the broader EKS/Kubernetes community. If you have a best practice that you feel we ought to include in the guide, please file an issue or submit a PR in the GitHub repository. Our intention is to update the guide periodically as new features are added to the service or when a new best practice evolves.
+## Extra large scaling
+If you are scaling a single cluster beyond 1000 nodes or 50,000 pods we would love to talk to you. We recommend reaching out to your support team or technical account manager to get in touch with specialists who can help you plan and scale beyond the information provided in this guide.

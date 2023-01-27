@@ -71,7 +71,7 @@ nav:
   - Scalability:
       - Home: "scalability/docs/index.md"
       - Control Plane: "scalability/docs/control-plane.md"
-      - Supporting Infrastructure: "scalability/docs/supporting-infrastructure.md"
+      - Data Plane: "scalability/docs/data-plane.md"
       - Cluster Services: "scalability/docs/cluster-services.md"
       - Workloads: "scalability/docs/workloads.md"
 markdown_extensions:
