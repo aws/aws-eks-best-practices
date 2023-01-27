@@ -64,7 +64,7 @@ The following example shows how to avoid provisioning large Graviton instances.
 
 ### Enable Interruption Handling when using Spot
 
-Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/deprovisioning/#interruption), enabled through the `aws.interrupionQueue` value in [Karpenter settings](https://karpenter.sh/docs/concepts/settings/#configmap). Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
+Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/deprovisioning/#interruption), enabled through the `aws.interruptionQueue` value in [Karpenter settings](https://karpenter.sh/docs/concepts/settings/#configmap). Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
 - Spot Interruption Warnings
 - Scheduled Change Health Events (Maintenance Events)
 - Instance Terminating Events
