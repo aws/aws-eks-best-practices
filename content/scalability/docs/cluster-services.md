@@ -21,7 +21,7 @@ api.example.<region>.compute.internal
 
 The `namespace` and `region` values will be replaced with your workloads namespace and your compute region. You may have additional search domains based on your cluster settings.
 
-You can reduce the number of requests to CoreDNS by lowering the ndots option (https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) of your workload or fully qualifying your domain requests by including a trailing . (e.g. `api.example.com.` ). If your workload connects to external services via DNS we recommend setting ndots to 2 so workloads do not make unnecessary, cluster DNS queries inside the cluster. You can set a different DNS server and search domain if the workload doesn’t require access to services inside the cluster.
+You can reduce the number of requests to CoreDNS by [lowering the ndots option](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) of your workload or fully qualifying your domain requests by including a trailing . (e.g. `api.example.com.` ). If your workload connects to external services via DNS we recommend setting ndots to 2 so workloads do not make unnecessary, cluster DNS queries inside the cluster. You can set a different DNS server and search domain if the workload doesn’t require access to services inside the cluster.
 
 ```
 spec:
@@ -51,7 +51,7 @@ The Metrics Server keeps the data it collects, aggregates, and serves in memory.
 
 Logging and monitoring agents can add significant load to your cluster control plane because the agents query the API server to enrich logs and metrics with workload metadata. The agent on a node only has access to the local node resources to see things like container and process name. Querying the API server it can add more details such as Kubernetes deployment name and labels. This can be extremely helpful for troubleshooting but detrimental to scaling.
 
-Because there are so many different options for logging and monitoring we cannot show examples for every provider. With [fluentbit](https://docs.fluentbit.io/manual/pipeline/filters/kubernetes) we recommend enabling Use_Kubelet to fetch metadata from the local kubelet instead of the Kubernetes API Server and set Kube_Meta_Cache_TTL to a number that reduces repeated calls when data can be cached (e.g. 60).
+Because there are so many different options for logging and monitoring we cannot show examples for every provider. With [fluentbit](https://docs.fluentbit.io/manual/pipeline/filters/kubernetes) we recommend enabling Use_Kubelet to fetch metadata from the local kubelet instead of the Kubernetes API Server and set `Kube_Meta_Cache_TTL` to a number that reduces repeated calls when data can be cached (e.g. 60).
 
 Scaling monitoring and logging has two general options:
 

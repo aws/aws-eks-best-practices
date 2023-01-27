@@ -190,8 +190,6 @@ spec:
 
 EBS is one of the easiest ways for workloads to have persistent storage, but it also comes with scalability limitations. Each instance type has a maximum number of [EBS volumes that can be attached](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/volume_limits.html). Workloads need to declare what instance types they should run on and limit the number of replicas on a single instance with Kubernetes taints.
 
-EBS volumes are only available within a single Availability Zone (AZ). Workloads that consume a volume will be limited to run within the AZ where the volume is available. If you ‘re using node groups you will need to add AZ specific tolerations to your workload definition after the volume has been created. If you are using Karpenter, nodes will automatically be provisioned in the correct AZ where the volume was created.
-
 ## Disable unnecessary logging to disk
 
 Avoid unnecessary local logging by not running your applications with debug logging in production and disabling logging that reads and writes to disk frequently. Journald is the local logging service that keeps a log buffer in memory and flushes to disk periodically. Journald is preferred over syslog which logs every line immediately to disk. Disabling syslog also lowers the total amount of storage you need and avoids needing complicated log rotation rules. To disable syslog you can add the following snippet to your cloud-init configuration:
@@ -201,12 +199,12 @@ runcmd:
   - [ systemctl, disable, --now, syslog.service ]
 ```
 
-## Use AWS Systems Manager Patch Manager to patch nodes
+## Patch instances for large clusters
 
 It takes seconds to install a package on an existing Linux host without disrupting containerized workloads. The package can be installed and validated without cordoning, draining, or replacing the instance.
 
 To replace an instance you first need to create, validate, and distribute new AMIs. The instance needs to have a replacement created, and the old instance needs to be cordoned and drained. Then workloads need to be created on the new instance, verified, and repeated for all instances that need to be patched. It takes hours, days, or weeks to replace instances safely without disrupting workloads.
 
-Amazon recommends using immutable infrastructure that is built, tested, and promoted from an automated, declarative system, but if you have a requirement to patch systems quickly then you will likely need to patch existing systems in place. Because of the large time differential between patching and replacing systems we recommend using [AWS Systems Manager Patch Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html) to automate patching nodes when required to do so.
+Amazon recommends using immutable infrastructure that is built, tested, and promoted from an automated, declarative system, but if you have a requirement to patch systems quickly then you will need to patch systems in place and replace them as new AMIs are made available. Because of the large time differential between patching and replacing systems we recommend using [AWS Systems Manager Patch Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html) to automate patching nodes when required to do so.
 
 Patching nodes will allow you to quickly roll out security updates and replace the instances on a regular schedule after your AMI has been updated. If you are using an operating system with a read-only root file system like [Flatcar Container Linux](https://flatcar-linux.org/) or [Bottlerocket OS](https://github.com/bottlerocket-os/bottlerocket) we recommend using the update operators that work with those operating systems. The [Flatcar Linux update operator](https://github.com/flatcar/flatcar-linux-update-operator) and [Bottlerocket update operator](https://github.com/bottlerocket-os/bottlerocket-update-operator) will reboot instances to keep nodes up to date automatically.

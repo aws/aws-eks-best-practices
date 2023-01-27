@@ -8,9 +8,12 @@ EKS 1.24 introduced a number of changes and switches the container runtime to [c
 
 ## Limit workload and node bursting
 
-The EKS control plane will automatically scale as your cluster grows, but there are limits on how fast it will scale. When you first create an EKS cluster the Control Plane will not immediately be able to scale to hundreds of nodes or thousands of pods. To avoid reaching API limits on the control plane you should limit scaling spikes that increase cluster size by double digit percentages at a time (e.g. 1000 nodes to 1100 nodes or 4000 to 4500 pods at once). To read more about how EKS has made scaling improvements see [this blog post](https://aws.amazon.com/blogs/containers/amazon-eks-control-plane-auto-scaling-enhancements-improve-speed-by-4x/).
+!!! Attention
+    To avoid reaching API limits on the control plane you should limit scaling spikes that increase cluster size by double digit percentages at a time (e.g. 1000 nodes to 1100 nodes or 4000 to 4500 pods at once).
 
-Scaling large applications requires infrastructure to adapt to become fully ready (e.g. warming load balancers). To control the speed of scaling make sure you are scaling based on the right metrics for your application. CPU and memory scaling may not accurately predict your application constraints and using custom metrics (e.g. requests per second) in Kubernetes Horizontal Pod Autoscaler(HPA) may be a more better scaling option.
+The EKS control plane will automatically scale as your cluster grows, but there are limits on how fast it will scale. When you first create an EKS cluster the Control Plane will not immediately be able to scale to hundreds of nodes or thousands of pods. To read more about how EKS has made scaling improvements see [this blog post](https://aws.amazon.com/blogs/containers/amazon-eks-control-plane-auto-scaling-enhancements-improve-speed-by-4x/).
+
+Scaling large applications requires infrastructure to adapt to become fully ready (e.g. warming load balancers). To control the speed of scaling make sure you are scaling based on the right metrics for your application. CPU and memory scaling may not accurately predict your application constraints and using custom metrics (e.g. requests per second) in Kubernetes Horizontal Pod Autoscaler (HPA) may be a better scaling option.
 
 To use a custom metric see the examples in the [Kubernetes documentation](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
 
@@ -29,8 +32,6 @@ You can remove nodes when they have no running workloads using the scale down th
 ### Use pod disruption budgets and safe node shutdown
 
 Removing pods and nodes from a Kubernetes cluster requires controllers to make updates to multiple resources (e.g. EndpointSlices). Doing this frequently or too quickly can cause API server throttling and application outages as changes propogate to controllers. [Pod Disruption Budgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/) are a best practice to slow down churn to protect workload availability as nodes are removed or rescheduled in a cluster.
-
-As pods are being removed it's important that your nodes are terminated safely. The [AWS node termination handler](https://github.com/aws/aws-node-termination-handler) will watch for termination events (e.g. EC2 Spot interruptions) and cordon and drain your node properly to be replaced. If you're using Karpenter for node provisioning you [may not need to run a separate termination handler](https://karpenter.sh/docs/concepts/deprovisioning/).
 
 ## Use Client-Side Cache when running Kubectl
 
