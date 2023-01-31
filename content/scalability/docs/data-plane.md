@@ -199,7 +199,10 @@ runcmd:
   - [ systemctl, disable, --now, syslog.service ]
 ```
 
-## Patch instances for large clusters
+## Patch instances in place when OS update speed is a necessity
+
+!!! Attention
+    Patching instances in place should only be done when required. Amazon recommends treating infrastructure as immutable and thoroughly testing updates that are promoted through lower environments the same way applications are. This section applies when that is not possible.
 
 It takes seconds to install a package on an existing Linux host without disrupting containerized workloads. The package can be installed and validated without cordoning, draining, or replacing the instance.
 
