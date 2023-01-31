@@ -49,7 +49,7 @@ The kubelet keeps a cache of the current keys and values for the Secrets that ar
 There are two strategies to reduce the number of watches on Secrets:
 
 * For applications that don’t need access to Kubernetes resources, you can disable auto-mounting service account secrets by setting automountServiceAccountToken: false
-* If your application’s secrets are static and will not be modified in the future, mark the [Secret as Immutable](https://kubernetes.io/docs/concepts/configuration/secret/#secret-immutable). The kubelet does not need maintain a watch for immutable secrets.
+* If your application’s secrets are static and will not be modified in the future, mark the [secret as immutable](https://kubernetes.io/docs/concepts/configuration/secret/#secret-immutable). The kubelet does not maintain an API watch for immutable secrets.
 
 To disable automatically mounting a service account to pods you can use the following setting in your workload. You can override these settings if specific workloads need a service account.
 
@@ -67,7 +67,7 @@ Monitor the number of secrets in the cluster before it exceeds the limit of 10,0
 kubectl get secrets -A | wc -l
 ```
 
-You should set up monitoring to alert a cluster admin before this limit is reached. Consider using external secrets management options such as [AWS Key Management Service (AWS KMS)](https://aws.amazon.com/kms/), [Secrets Store CSI driver](https://secrets-store-csi-driver.sigs.k8s.io/), or [Hashicorp Vault](https://www.vaultproject.io/).
+You should set up monitoring to alert a cluster admin before this limit is reached. Consider using external secrets management options such as [AWS Key Management Service (AWS KMS)](https://aws.amazon.com/kms/) or [Hashicorp Vault](https://www.vaultproject.io/) with the [Secrets Store CSI driver](https://secrets-store-csi-driver.sigs.k8s.io/).
 
 ## Limit Deployment history
 
