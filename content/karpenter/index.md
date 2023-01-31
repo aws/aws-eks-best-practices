@@ -42,7 +42,7 @@ Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-st
 
 Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s provisioners while others are ignored by Karpenter, e.g. subnets and instance types.
 
-You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [Node Templates](https://karpenter.sh/conceps/node-templates).
+You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [Node Templates](https://karpenter.sh/docs/concepts/node-templates).
 
 
 ### Exclude instance types that do not fit your workload
@@ -247,7 +247,7 @@ The following best practices relate to deploying pods In a cluster using Karpent
 
 ### Follow EKS best practices for high availability
 
-If you need to run highly available applications, follow general EKS best practice [recommendations](https://aws.github.io/aws-eks-best-practices/reliability/docs/application/#recommendations). See [Topology Spread](https://karpenter.sh/preview/tasks/scheduling/#topology-spread) in Karpenter documentation for details on how to spread pods across nodes and zones. Use [Disruption Budgets](https://karpenter.sh/docs/troubleshooting/#disruption-budgets) to set the minimum available pods that need to be maintained, in case there are attempts to evict or delete pods.
+If you need to run highly available applications, follow general EKS best practice [recommendations](https://aws.github.io/aws-eks-best-practices/reliability/docs/application/#recommendations). See [Topology Spread](https://karpenter.sh/docs/concepts/scheduling/#topology-spread) in Karpenter documentation for details on how to spread pods across nodes and zones. Use [Disruption Budgets](https://karpenter.sh/docs/troubleshooting/#disruption-budgets) to set the minimum available pods that need to be maintained, in case there are attempts to evict or delete pods.
 
 ### Use layered Constraints to constrain the compute features available from your cloud provider
 
