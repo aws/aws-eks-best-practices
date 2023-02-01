@@ -66,7 +66,8 @@ This will prevents a Cluster Autoscaler running in one cluster from modifying no
                 "autoscaling:DescribeAutoScalingGroups",
                 "ec2:DescribeLaunchTemplateVersions",
                 "autoscaling:DescribeTags",
-                "autoscaling:DescribeLaunchConfigurations"
+                "autoscaling:DescribeLaunchConfigurations",
+                "ec2:DescribeInstanceTypes"
             ],
             "Resource": "*"
         }
