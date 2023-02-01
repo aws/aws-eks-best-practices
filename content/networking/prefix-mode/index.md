@@ -45,7 +45,7 @@ In prefix mode, the security group assigned to the worker nodes is shared by the
 
 ### Use Similar Instance Types in the same Node Group
 
-Your node group may contain instances of many types. If an instance has a low maximum pod count, that value is applied to all nodes in the node group. Consider using similar instance types in a node group to maximize node use. We recommend configuring [node.kubernetes.io/instance-type](https://karpenter.sh/docs/concepts/provisioners/) in the requirements part of the provisioner API if you are using Karpenter for automated node scaling.
+Your node group may contain instances of many types. If an instance has a low maximum pod count, that value is applied to all nodes in the node group. Consider using similar instance types in a node group to maximize node use. We recommend configuring [node.kubernetes.io/instance-type](https://karpenter.sh/v0.13.2/provisioner/) in the requirements part of the provisioner API if you are using Karpenter for automated node scaling.
 
 !!! warning 
     The maximum pod count for all nodes in a particular node group is defined by the *lowest* maximum pod count of any single instance type in the node group.

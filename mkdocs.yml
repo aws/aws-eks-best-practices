@@ -2,85 +2,83 @@ site_name: EKS Best Practices Guides
 repo_name: "aws/aws-eks-best-practices"
 repo_url: "https://github.com/aws/aws-eks-best-practices"
 docs_dir: "content"
-theme:
+theme: 
   name: material
-  icon:
+  icon: 
     repo: fontawesome/brands/github
-  features:
+  features: 
     - tabs
     - content.code.copy
-  palette:
+  palette: 
     - scheme: default
-      toggle:
+      toggle: 
         icon: material/brightness-7
         name: switch to dark mode
     - scheme: slate
-      toggle:
+      toggle: 
         icon: material/brightness-4
         name: switch to light mode
 nav:
-  - Guides:
-      - Introduction: "index.md"
+  - Guides: 
+    - Introduction: 'index.md'
   - Security:
-      - Home: "security/docs/index.md"
-      - Identity and Access Management: "security/docs/iam.md"
-      - Pod Security: "security/docs/pods.md"
-      - Multi-tenancy: "security/docs/multitenancy.md"
-      - Detective Controls: "security/docs/detective.md"
-      - Network Security: "security/docs/network.md"
-      - Data Encryption and Secrets Management: "security/docs/data.md"
-      - Runtime Security: "security/docs/runtime.md"
-      - Infrastructure Security: "security/docs/hosts.md"
-      - Regulatory Compliance: "security/docs/compliance.md"
-      - Incident Response and Forensics: "security/docs/incidents.md"
-      - Image Security: "security/docs/image.md"
-  - Cluster Autoscaling:
-      - Karpenter: "karpenter/index.md"
-      - Cluster-Autoscaler: "cluster-autoscaling/index.md"
+    - Home: 'security/docs/index.md'
+    - Identity and Access Management: 'security/docs/iam.md'
+    - Pod Security: 'security/docs/pods.md'
+    - Multi-tenancy: 'security/docs/multitenancy.md'
+    - Detective Controls: 'security/docs/detective.md'
+    - Network Security: 'security/docs/network.md'
+    - Data Encryption and Secrets Management: 'security/docs/data.md'
+    - Runtime Security: 'security/docs/runtime.md'
+    - Infrastructure Security: 'security/docs/hosts.md'
+    - Regulatory Compliance: 'security/docs/compliance.md'
+    - Incident Response and Forensics: 'security/docs/incidents.md'
+    - Image Security: 'security/docs/image.md'
+  - Cluster Autoscaling: 
+    - Karpenter: 'karpenter/index.md'
+    - Cluster-Autoscaler: 'cluster-autoscaling/index.md'
   - Reliability:
-      - Home: "reliability/docs/index.md"
-      - Applications: "reliability/docs/application.md"
-      - Control Plane: "reliability/docs/controlplane.md"
-      - Data Plane: "reliability/docs/dataplane.md"
-      - Network: "reliability/docs/networkmanagement.md"
-  - Windows Containers:
-      - AMI Management: "windows/docs/ami.md"
-      - gMSA for Windows Containers: "windows/docs/gmsa.md"
-      - Windows Server Hardening: "windows/docs/hardening.md"
-      - Running Mixed Workloads: "windows/docs/heterogeneous.md"
-      - Scanning Windows Images: "windows/docs/images.md"
-      - Windows Versions and Licensing: "windows/docs/licensing.md"
-      - Logging: "windows/docs/logging.md"
-      - Monitoring Windows Containers: "windows/docs/monitoring.md"
-      - Windows Networking: "windows/docs/networking.md"
-      - Memory and Systems Management: "windows/docs/oom.md"
-      - Infrastructure Management: "windows/docs/patching.md"
-      - Scheduling: "windows/docs/scheduling.md"
-      - Pod Security for Windows Containers: "windows/docs/security.md"
-      - Storage Options: "windows/docs/storage.md"
+    - Home: 'reliability/docs/index.md'
+    - Applications: 'reliability/docs/application.md'
+    - Control Plane: 'reliability/docs/controlplane.md'
+    - Data Plane: 'reliability/docs/dataplane.md'
+  - Windows Containers: 
+    - AMI Management: 'windows/docs/ami.md'
+    - gMSA for Windows Containers: 'windows/docs/gmsa.md'
+    - Windows Server Hardening: 'windows/docs/hardening.md'
+    - Running Mixed Workloads: 'windows/docs/heterogeneous.md'
+    - Scanning Windows Images: 'windows/docs/images.md'
+    - Windows Versions and Licensing: 'windows/docs/licensing.md'
+    - Logging: 'windows/docs/logging.md'
+    - Monitoring Windows Containers: 'windows/docs/monitoring.md'
+    - Windows Networking: 'windows/docs/networking.md'
+    - Memory and Systems Management: 'windows/docs/oom.md'
+    - Infrastructure Management: 'windows/docs/patching.md'
+    - Scheduling: 'windows/docs/scheduling.md'
+    - Pod Security for Windows Containers: 'windows/docs/security.md'
+    - Storage Options: 'windows/docs/storage.md'
   - Networking:
-      - Home: "networking/index/index.md"
-      - VPC and Subnet Considerations: "networking/subnets/index.md"
-      - Amazon VPC CNI: "networking/vpc-cni/index.md"
-      - Prefix Mode: "networking/prefix-mode/index.md"
-      - Running IPv6 Clusters: "networking/ipv6/index.md"
-      - Security Groups per Pod: "networking/sgpp/index.md"
-      - Custom Networking: "networking/custom-networking/index.md"
-      - Load Balancing: "networking/loadbalancing/loadbalancing.md"
-      - Monitoring for DNS Throttling Issues: "networking/CoreDNS/index.md"
-  - Scalability:
-      - Home: "scalability/docs/index.md"
-      - Control Plane: "scalability/docs/control-plane.md"
-      - Data Plane: "scalability/docs/data-plane.md"
-      - Cluster Services: "scalability/docs/cluster-services.md"
-      - Workloads: "scalability/docs/workloads.md"
+    - Home: 'networking/index/index.md'
+    - VPC and Subnet Considerations: 'networking/subnets/index.md'
+    - Amazon VPC CNI: 'networking/vpc-cni/index.md'
+    - Prefix Mode: 'networking/prefix-mode/index.md'
+    - Running IPv6 Clusters: 'networking/ipv6/index.md'
+    - Security Groups per Pod: 'networking/sgpp/index.md'
+    - Custom Networking: 'networking/custom-networking/index.md'
+    - Load Balancing: 'networking/loadbalancing/loadbalancing.md'
+    - Monitoring for DNS Throttling Issues: 'networking/CoreDNS/index.md'
 markdown_extensions:
-  - toc:
-      permalink: true
-  - admonition
-  - codehilite
-plugins:
-  - search
+    - toc:
+        permalink: true
+    - admonition
+    - codehilite
+    - pymdownx.highlight:
+        anchor_linenums: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences
+plugins: 
+    - search
 extra:
   analytics:
     provider: google
