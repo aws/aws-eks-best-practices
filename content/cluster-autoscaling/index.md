@@ -64,6 +64,7 @@ This will prevents a Cluster Autoscaler running in one cluster from modifying no
             "Action": [
                 "autoscaling:DescribeAutoScalingInstances",
                 "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeScalingActivities",
                 "ec2:DescribeLaunchTemplateVersions",
                 "autoscaling:DescribeTags",
                 "autoscaling:DescribeLaunchConfigurations",
