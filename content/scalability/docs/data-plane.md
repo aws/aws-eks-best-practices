@@ -99,7 +99,7 @@ spec:
 
 ## Use compute resources efficiently
 
-Compute resources include EC2 instances and availability zones. Using compute resources effectively will increase your scalability, availability, performance, and reduce your total cost. Efficient resourse usage is extremely difficult to predict in an autoscaling environment with multiple applications. [Karpenter](https://karpenter.sh/) was created to provision instances on-demand based on the workload needs to maximize utilization and flexibility.
+Compute resources include EC2 instances and availability zones. Using compute resources effectively will increase your scalability, availability, performance, and reduce your total cost. Efficient resource usage is extremely difficult to predict in an autoscaling environment with multiple applications. [Karpenter](https://karpenter.sh/) was created to provision instances on-demand based on the workload needs to maximize utilization and flexibility.
 
 Karpenter allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints for specific nodes. See the [Karpenter best practices](https://aws.github.io/aws-eks-best-practices/karpenter/) for more information. Consider enabling [consolidation](https://aws.github.io/aws-eks-best-practices/karpenter/#configure-requestslimits-for-all-non-cpu-resources-when-using-consolidation) in your Karpenter provisioner to replace nodes that are under utilized.
 
