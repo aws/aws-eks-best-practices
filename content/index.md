@@ -8,6 +8,7 @@ We currently have published guides for the following topics:
 * Best Practices for Cluster Autoscaling: [karpenter](karpenter/), [cluster-autoscaler](cluster-autoscaling/)
 * [Best Practices for Running Windows Containers](windows/docs/ami/)
 * [Best Practices for Networking](networking/index/)
+* [Best Practices for Scalability](scalability/docs/)
 
 We also open sourced a Python based CLI (Command Line Interface) called [hardeneks](https://github.com/aws-samples/hardeneks) to check some of the recommendations from this guide.
 
