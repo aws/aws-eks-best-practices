@@ -1,8 +1,9 @@
 # Guidelines for contributing
 
-Thank you for your interest in contributing to AWS documentation! We greatly value feedback and contributions from our community.
+We're so excited to have you join us and help make the Amazon EKS Best Practices project even better! Whether you're adding new content, code samples, or improving what's already here, there are just a few guidelines to follow. 
 
-Please read through this document before you submit any pull requests or issues. It will help us work together more effectively.
+## Goal and target audience
+It's important to note that our [open-source software (OSS) community](https://aws.amazon.com/what-is/open-source/) values our content most because it's openly governed and vendor-neutral in its guidance. Unless a vendor's product or service has an open source component and/or is widely recognized as a standard, we limit contributions to open source guidance and best practices, exclusively.
 
 ## What to expect when you contribute
 
