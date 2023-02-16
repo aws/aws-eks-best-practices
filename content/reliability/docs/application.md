@@ -16,9 +16,11 @@ Running multiple replicas Pods of an app using a Deployment helps it run in a hi
 
 ### Schedule replicas across nodes
 
-Running multiple replicas won’t be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity to spread replicas of a Deployment across multiple worker nodes. 
+Running multiple replicas won’t be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity or pod topology spread constraintsto spread replicas of a Deployment across multiple worker nodes. 
 
 You can further improve a typical application’s reliability by running it across multiple AZs. 
+
+#### Using Pod anti-affinity rules
 
 The manifest below tells Kubernetes scheduler to *prefer* to place pods on separate nodes and AZs. It doesn’t require distinct nodes or AZ because if it did, then Kubernetes will not be able to schedule any pods once there is a pod running in each AZ. If your application requires just three replicas, you can use `requiredDuringSchedulingIgnoredDuringExecution` for `topologyKey: topology.kubernetes.io/zone`, and Kubernetes scheduler will not schedule two pods in the same AZ.
 
@@ -65,7 +67,49 @@ spec:
         image: nginx:1.16-alpine
 ```
 
-In version 1.18, Kubernetes introduced [pod topology spread constraints](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/), which allows you to spread Pods across AZs automatically.
+#### Using Pod topology spread constraints
+
+Similar to pod anti-affinity rules, pod topology spread constraints allow you to make your application available across different failure (or topology) domains like hosts or AZs. This approach works very well when you're trying to ensure fault tolerance as well as availability by having multiple replicas in each of the different topology domains. Pod anti-affinity rules, on the other hand, can easily produce a result where you have a single replica in a topology domain because the pods with an anti-affinity toward each other have a repelling effect. In such cases, a single replica on a dedicated node isn't ideal for fault tolerance nor is it a good use of resources. With topology spread constraints, you have more control over the spread or distribution that the scheduler should try to apply across the topology domains. Here are some important properties to use in this approach:
+1. The `maxSkew` is used to control or determine the maximum point to which things can be uneven across the topology domains. For example, if an application has 10 replicas and is deployed across 3 AZs, you can't get an even spread, but you can influence how uneven the distribution will be. In this case, the `maxSkew` can be anything between 1 and 10. A value of 1 means you can potentially end up with a spread like `4,3,3`, `3,4,3` or `3,3,4` across the 3 AZs. In contrast, a value of 10 means you can potentially end up with a spread like `10,0,0`, `0,10,0` or `0,0,10` across 3 AZs.
+2. The `topologyKey` is a key for one of the node labels and defines the type of topology domain that should be used for the pod distribution. For example, a zonal spread would have the following key-value pair:
+```
+topologyKey: "topology.kubernetes.io/zone"
+```
+3. The `whenUnsatisfiable` property is used to determine how you want the scheduler to respond if the desired constraints can't be satisfied.
+4. The `labelSelector` is used to find matching pods so that the scheduler can be aware of them when deciding where to place pods in accordance with the constraints that you specify.
+
+In addition to these above, there are other fields that you can read about further in the [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/).
+
+![Pod topology spread constraints across 3 AZs](./images/pod-topology-spread-constraints.jpg)
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spread-host-az
+  labels:
+    app: web-server
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: web-server
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: "topology.kubernetes.io/zone"
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: express-test
+      containers:
+      - name: web-app
+        image: nginx:1.16-alpine
+```
 
 ### Run Kubernetes Metrics Server
 
