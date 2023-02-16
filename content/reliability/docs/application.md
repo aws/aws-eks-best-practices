@@ -16,7 +16,7 @@ Running multiple replicas Pods of an app using a Deployment helps it run in a hi
 
 ### Schedule replicas across nodes
 
-Running multiple replicas won’t be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity or pod topology spread constraintsto spread replicas of a Deployment across multiple worker nodes. 
+Running multiple replicas won’t be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity or pod topology spread constraints to spread replicas of a Deployment across multiple worker nodes. 
 
 You can further improve a typical application’s reliability by running it across multiple AZs. 
 
