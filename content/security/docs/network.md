@@ -338,6 +338,119 @@ kubectl apply -f cluster-issuer.yaml
 
 Your EKS cluster is configured to request certificates from Private CA. You can now use cert-manager's `Certificate` resource to issue certificates by changing the `issuerRef` field's values to the Private CA Issuer you created above. For more details on how to specify and request Certificate resources, please check cert-manager's [Certificate Resources guide](https://cert-manager.io/docs/usage/certificate/). [See examples here](https://github.com/cert-manager/aws-privateca-issuer/tree/main/config/samples/).
 
+### ACM Private CA with Istio and cert-manager
+If you are running Istio in your EKS cluster, you can disable the Istio control plane (specifically `istiod`) from functioning as the root Certificate Authority (CA), and configure ACM Private CA as the root CA. 
+
+#### How Certificate Signing Works in Istio (Default)
+Workloads in Kubernetes are identified using service accounts. If you don't specify a service account, Kubernetes will automatically assign one to your workload. Also, service accounts automatically mount an associated token. This token is used by the service account for workloads to authenticate against the Kubernetes API. The service account may be sufficient as an identity for Kubernetes but Istio has it's own identity management system and CA. When a workload starts up with its envoy sidecar proxy, it needs an identity assigned from Istio in order for it to be deemed as a trustworthy and allowed to communicate with other services in the mesh.
+
+To get this identity from Istio, the `istio-agent` sends a request known as a certificate signing request (or CSR) to the Istio control plane. This CSR contains the service account token so that the workload's identity can be verified before being processed. This verification process is handled by `istiod`, which acts as both the Registration Authority (or RA) and the CA. The RA serves as a gatekeeper that makes sure only verified CSR makes it through to the CA. Once the CSR is verified, it will be forwarded to the CA which will then issue a certificate containing a [SPIFFE](https://spiffe.io/) identity with the service account. This certificate is called a SPIFFE verifiable identity document (or SVID). The SVID is assigned to the requesting service for identification purposes and to encrypt the traffic in transit between the communicating services.
+
+![Default flow for Istio Certificate Signing Requests](./images/default-istio-csr-flow.png)
+
+#### How Certificate Signing Works in Istio with ACM Private CA
+You can use a cert-manager add-on called the Istio Certificate Signing Request agent ([istio-csr](https://cert-manager.io/docs/projects/istio-csr/)) to integrate Istio with ACM Private CA. This agent allows Istio workloads and control plane components to be secured with cert manager issuers, in this case ACM Private CA. The *istio-csr* agent exposes the same service that *istiod* serves in the default config of validating incoming CSRs. Except, after verification, it will convert the requests into resources that cert manager supports (i.e. integrations with external CA issuers). 
+
+Whenever there's a CSR from a workload, it will be forwarded to *istio-csr*, which will request certificates from ACM Private CA. This communication between *istio-csr* and ACM Private CA is enabled by the [AWS Private CA issuer plugin](https://github.com/cert-manager/aws-privateca-issuer). Cert manager uses this plugin to request TLS certificates from ACM Private CA. The issuer plugin will communicate with the ACM Private CA service to request a signed certificate for the workload. Once the certificate has been signed, it will be returned to *istio-csr*, which will read the signed request, and return it to the workload that initiated the CSR.
+
+![Flow for Istio Certificate Signing Requests with istio-csr](./images/istio-csr-with-acm-private-ca.png)
+
+
+#### Setup Instructions
+1. Start by following the same [setup instructions](https://aws.github.io/aws-eks-best-practices/security/docs/network/#setup-instructions) outlined above to complete the following:
+* Create a Private CA
+* Install cert-manager
+* Install the issuer plugin
+* Set permissions and create an issuer. The issuer represents the CA and is used to sign `istiod` and mesh workload certificates. It will communicate with ACM Private CA.
+2. Create an `istio-system` namespace. This is where the `istiod certificate` and other Istio resources will be deployed.
+3. Install Istio CSR configured with AWS Private CA Issuer Plugin. You can preserve the certificate signing requests for workloads to verify that they get approved and signed (`preserveCertificateRequests=true`).
+
+```
+helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-csr \
+	--set "app.certmanager.issuer.group=awspca.cert-manager.io" \
+	--set "app.certmanager.issuer.kind=AWSPCAClusterIssuer" \
+	--set "app.certmanager.issuer.name=<the-name-of-the-issuer-you-created>" \
+	--set "app.certmanager.preserveCertificateRequests=true" \
+	--set "app.server.maxCertificateDuration=48h" \
+	--set "app.tls.certificateDuration=24h" \
+	--set "app.tls.istiodCertificateDuration=24h" \
+	--set "app.tls.rootCAFile=/var/run/secrets/istio-csr/ca.pem" \
+	--set "volumeMounts[0].name=root-ca" \
+	--set "volumeMounts[0].mountPath=/var/run/secrets/istio-csr" \
+	--set "volumes[0].name=root-ca" \
+	--set "volumes[0].secret.secretName=istio-root-ca"
+```
+4. Install Istio with custom configurations to replace `istiod` with `cert-manager istio-csr` as the certificate provider for the mesh. This process can be carried out using the [Istio Operator](https://tetrate.io/blog/what-is-istio-operator/). 
+
+```
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio
+  namespace: istio-system
+spec:
+  profile: "demo"
+  hub: gcr.io/istio-release
+  values:
+   global:
+     # Change certificate provider to cert-manager istio agent for istio agent
+    caAddress: cert-manager-istio-csr.cert-manager.svc:443
+  components:
+    pilot:
+      k8s:
+        env:
+          # Disable istiod CA Sever functionality
+        - name: ENABLE_CA_SERVER
+          value: "false"
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: istiod
+          patches:
+
+            # Mount istiod serving and webhook certificate from Secret mount
+          - path: spec.template.spec.containers.[name:discovery].args[7]
+            value: "--tlsCertFile=/etc/cert-manager/tls/tls.crt"
+          - path: spec.template.spec.containers.[name:discovery].args[8]
+            value: "--tlsKeyFile=/etc/cert-manager/tls/tls.key"
+          - path: spec.template.spec.containers.[name:discovery].args[9]
+            value: "--caCertFile=/etc/cert-manager/ca/root-cert.pem"
+
+          - path: spec.template.spec.containers.[name:discovery].volumeMounts[6]
+            value:
+              name: cert-manager
+              mountPath: "/etc/cert-manager/tls"
+              readOnly: true
+          - path: spec.template.spec.containers.[name:discovery].volumeMounts[7]
+            value:
+              name: ca-root-cert
+              mountPath: "/etc/cert-manager/ca"
+              readOnly: true
+
+          - path: spec.template.spec.volumes[6]
+            value:
+              name: cert-manager
+              secret:
+                secretName: istiod-tls
+          - path: spec.template.spec.volumes[7]
+            value:
+              name: ca-root-cert
+              configMap:
+                defaultMode: 420
+                name: istio-ca-root-cert
+```
+
+5. Deploy the above custom resource you created.
+
+```
+istioctl operator init
+kubectl apply -f istio-custom-config.yaml
+```
+
+6. Now you can deploy a workload to the mesh in your EKS cluster and [enforce mTLS](https://istio.io/latest/docs/reference/config/security/peer_authentication/). 
+
+![Istio certificate signing requests](./images/istio-csr-requests.png)
+
 #### Additional Resources
 + [How to implement cert-manager and the ACM Private CA plugin to enable TLS in EKS](https://aws.amazon.com/blogs/security/tls-enabled-kubernetes-clusters-with-acm-private-ca-and-amazon-eks-2/).
 + [Setting up end-to-end TLS encryption on Amazon EKS with the new AWS Load Balancer Controller and ACM Private CA](https://aws.amazon.com/blogs/containers/setting-up-end-to-end-tls-encryption-on-amazon-eks-with-the-new-aws-load-balancer-controller/).
