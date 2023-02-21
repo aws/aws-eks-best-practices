@@ -84,10 +84,10 @@ Since EKS pulls images for kube-proxy, coredns, and aws-node from ECR, you will 
   | Account Number | Region |
   | -------------- | ------ |
   | 602401143452 | All commercial regions except for those listed below |
-  | 800184023465 | HKG | 
-  | 558608220178 | BAH |
-  | 918309763551 | BJS | 
-  | 961992271922 | ZHY |
+  | 800184023465 | ap-east-1 - Asia Pacific (Hong Kong) |
+  | 558608220178 | me-south-1 - Middle East (Bahrain) |
+  | 918309763551 | cn-north-1 - China (Beijing) |
+  | 961992271922 | cn-northwest-1 - China (Ningxia) |
 
 For further information about using endpoint policies, see [Using VPC endpoint policies to control Amazon ECR access](https://aws.amazon.com/blogs/containers/using-vpc-endpoint-policies-to-control-amazon-ecr-access/). 
 
