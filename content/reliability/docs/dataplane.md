@@ -235,3 +235,56 @@ Nodes and the aggregate of CPU cores in the nodes are the two metrics with which
 ```
 linear: '{"coresPerReplica":256,"min":1,"nodesPerReplica":16}'
 ```
+
+### Choosing an AMI with Node Group
+EKS provides optimized EC2 AMIs that are used by customers to create both self-managed and managed nodegroups. These AMIs are published in every region for every supported Kubernetes version. EKS marks these AMIs as deprecated when any CVEs or bugs are discovered. Hence, the recommendation is not to consume deprecated AMIs while choosing an AMI for the node group.
+
+Deprecated AMIs can be filtered using Ec2 describe-images api using below command:
+
+```
+aws ec2 describe-images --image-id ami-0d551c4f633e7679c --no-include-deprecated
+```
+
+You can also recognize a deprecated AMI by verifying if the describe-image output contains a DeprecationTime as a field. For ex:
+
+```
+aws ec2 describe-images --image-id ami-xxx --no-include-deprecated
+{
+    "Images": [
+        {
+            "Architecture": "x86_64",
+            "CreationDate": "2022-07-13T15:54:06.000Z",
+            "ImageId": "ami-xxx",
+            "ImageLocation": "123456789012/eks_xxx",
+            "ImageType": "machine",
+            "Public": false,
+            "OwnerId": "123456789012",
+            "PlatformDetails": "Linux/UNIX",
+            "UsageOperation": "RunInstances",
+            "State": "available",
+            "BlockDeviceMappings": [
+                {
+                    "DeviceName": "/dev/xvda",
+                    "Ebs": {
+                        "DeleteOnTermination": true,
+                        "SnapshotId": "snap-0993a2fc4bbf4f7f4",
+                        "VolumeSize": 20,
+                        "VolumeType": "gp2",
+                        "Encrypted": false
+                    }
+                }
+            ],
+            "Description": "EKS Kubernetes Worker AMI with AmazonLinux2 image, (k8s: 1.19.15, docker: 20.10.13-2.amzn2, containerd: 1.4.13-3.amzn2)",
+            "EnaSupport": true,
+            "Hypervisor": "xen",
+            "Name": "aws_eks_optimized_xxx",
+            "RootDeviceName": "/dev/xvda",
+            "RootDeviceType": "ebs",
+            "SriovNetSupport": "simple",
+            "VirtualizationType": "hvm",
+            "DeprecationTime": "2023-02-09T19:41:00.000Z"
+        }
+    ]
+}
+```
+
