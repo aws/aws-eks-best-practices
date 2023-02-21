@@ -442,7 +442,7 @@ spec:
 
 5. Deploy the above custom resource you created.
 
-```
+```bash
 istioctl operator init
 kubectl apply -f istio-custom-config.yaml
 ```
