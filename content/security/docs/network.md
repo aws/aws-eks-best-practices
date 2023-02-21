@@ -365,7 +365,7 @@ Whenever there's a CSR from a workload, it will be forwarded to *istio-csr*, whi
 2. Create an `istio-system` namespace. This is where the `istiod certificate` and other Istio resources will be deployed.
 3. Install Istio CSR configured with AWS Private CA Issuer Plugin. You can preserve the certificate signing requests for workloads to verify that they get approved and signed (`preserveCertificateRequests=true`).
 
-```
+```bash
 helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-csr \
 	--set "app.certmanager.issuer.group=awspca.cert-manager.io" \
 	--set "app.certmanager.issuer.kind=AWSPCAClusterIssuer" \
