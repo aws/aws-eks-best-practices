@@ -382,7 +382,7 @@ helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-
 ```
 4. Install Istio with custom configurations to replace `istiod` with `cert-manager istio-csr` as the certificate provider for the mesh. This process can be carried out using the [Istio Operator](https://tetrate.io/blog/what-is-istio-operator/). 
 
-```
+```yaml
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
