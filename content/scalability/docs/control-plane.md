@@ -43,14 +43,15 @@ If you run kubectl from a container or without a client-side cache you may run i
 
 ## Disable kubectl Compression
 
-Disabling kubectl compression in your kubeconfig file can reduce API and client CPU usage. By default the server will compress data sent to the client to optimize network bandwidth. This adds CPU load on the client and server for every request and disabling compression can reduce the overhead and latency if you have adequate bandwidth. To disable compression you can use the --disable-compression flag or set DisableCompression: false in your kubeconfig file.
+Disabling kubectl compression in your kubeconfig file can reduce API and client CPU usage. By default the server will compress data sent to the client to optimize network bandwidth. This adds CPU load on the client and server for every request and disabling compression can reduce the overhead and latency if you have adequate bandwidth. To disable compression you can use the `--disable-compression=true` flag or set `disable-compression: true` in your kubeconfig file.
 
 ```
 apiVersion: v1
-contexts:
-- context:
+clusters:
+- cluster:
+    server: serverURL
+    disable-compression: true
   name: cluster
-  disable-compression: true
 ```
 
 ## Shard Cluster Autoscaler
