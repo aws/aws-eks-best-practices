@@ -292,7 +292,10 @@ An ingress controller can be configured to terminate SSL/TLS connections. An exa
     Some Ingresses, like the ALB ingress controller, implement the SSL/TLS using Annotations instead of as part of the Ingress Spec.
 
 ### ACM Private CA with cert-manager
-You can enable TLS and mTLS to secure your EKS application workloads at the ingress, on the pod, and between pods using ACM Private Certificate Authority (CA) and [cert-manager](https://cert-manager.io/), a popular Kubernetes add-on to distribute, renew, and revoke certificates. ACM Private CA is a highly-available, secure, managed CA without the upfront and maintenance costs of managing your own CA. If you are using the default Kubernetes certificate authority, there is an opportunity to improve your security and meet compliance requirements with ACM Private CA. ACM Private CA secures private keys in FIPS 140-2 Level 3 hardware security modules (very secure), compared with the default CA storing keys encoded in memory (less secure). A centralized CA also gives you more control and improved auditability for private certificates both inside and outside of a Kubernetes environment. [Learn more about ACM Private CA and its benefits here](https://aws.amazon.com/certificate-manager/private-certificate-authority/).
+You can enable TLS and mTLS to secure your EKS application workloads at the ingress, on the pod, and between pods using ACM Private Certificate Authority (CA) and [cert-manager](https://cert-manager.io/), a popular Kubernetes add-on to distribute, renew, and revoke certificates. ACM Private CA is a highly-available, secure, managed CA without the upfront and maintenance costs of managing your own CA. If you are using the default Kubernetes certificate authority, there is an opportunity to improve your security and meet compliance requirements with ACM Private CA. ACM Private CA secures private keys in FIPS 140-2 Level 3 hardware security modules (very secure), compared with the default CA storing keys encoded in memory (less secure). A centralized CA also gives you more control and improved auditability for private certificates both inside and outside of a Kubernetes environment. 
+
+#### Short-Lived CA Mode for Mutual TLS Between Workloads
+When using ACM Private CA for mTLS in EKS, it is recommended that you use short lived certificates with *short-lived CA mode*. Although it is possible to issue out short-lived certificates in the general-purpose CA mode, using short-lived CA mode works out more cost-effective (~75% cheaper than general mode) for use cases where new certificates need to be issued frequently. In addition to this, you should try to align the validity period of the private certificates with the lifetime of the pods in your EKS cluster. [Learn more about ACM Private CA and its benefits here](https://aws.amazon.com/certificate-manager/private-certificate-authority/).
 
 #### Setup Instructions
 Start by creating a Private CA by following procedures provided in the [ACM Private CA tech docs](https://docs.aws.amazon.com/acm-pca/latest/userguide/create-CA.html). Once you have a Private CA, install cert-manager using [regular installation instructions](https://cert-manager.io/docs/installation/). After installing cert-manager, install the Private CA Kubernetes cert-manager plugin by following the [setup instructions in GitHub](https://github.com/cert-manager/aws-privateca-issuer#setup). The plugin lets cert-manager request private certificates from ACM Private CA.
@@ -338,11 +341,125 @@ kubectl apply -f cluster-issuer.yaml
 
 Your EKS cluster is configured to request certificates from Private CA. You can now use cert-manager's `Certificate` resource to issue certificates by changing the `issuerRef` field's values to the Private CA Issuer you created above. For more details on how to specify and request Certificate resources, please check cert-manager's [Certificate Resources guide](https://cert-manager.io/docs/usage/certificate/). [See examples here](https://github.com/cert-manager/aws-privateca-issuer/tree/main/config/samples/).
 
+### ACM Private CA with Istio and cert-manager
+If you are running Istio in your EKS cluster, you can disable the Istio control plane (specifically `istiod`) from functioning as the root Certificate Authority (CA), and configure ACM Private CA as the root CA for mTLS between workloads. If you're going with this approach, consider using the *short-lived CA mode* in ACM Private CA. Refer to the [previous section](#short-lived-ca-mode-for-mutual-tls-between-workloads) and this [blog post](https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode) for more details.
+
+#### How Certificate Signing Works in Istio (Default)
+Workloads in Kubernetes are identified using service accounts. If you don't specify a service account, Kubernetes will automatically assign one to your workload. Also, service accounts automatically mount an associated token. This token is used by the service account for workloads to authenticate against the Kubernetes API. The service account may be sufficient as an identity for Kubernetes but Istio has its own identity management system and CA. When a workload starts up with its envoy sidecar proxy, it needs an identity assigned from Istio in order for it to be deemed as trustworthy and allowed to communicate with other services in the mesh.
+
+To get this identity from Istio, the `istio-agent` sends a request known as a certificate signing request (or CSR) to the Istio control plane. This CSR contains the service account token so that the workload's identity can be verified before being processed. This verification process is handled by `istiod`, which acts as both the Registration Authority (or RA) and the CA. The RA serves as a gatekeeper that makes sure only verified CSR makes it through to the CA. Once the CSR is verified, it will be forwarded to the CA which will then issue a certificate containing a [SPIFFE](https://spiffe.io/) identity with the service account. This certificate is called a SPIFFE verifiable identity document (or SVID). The SVID is assigned to the requesting service for identification purposes and to encrypt the traffic in transit between the communicating services.
+
+![Default flow for Istio Certificate Signing Requests](./images/default-istio-csr-flow.png)
+
+#### How Certificate Signing Works in Istio with ACM Private CA
+You can use a cert-manager add-on called the Istio Certificate Signing Request agent ([istio-csr](https://cert-manager.io/docs/projects/istio-csr/)) to integrate Istio with ACM Private CA. This agent allows Istio workloads and control plane components to be secured with cert manager issuers, in this case ACM Private CA. The *istio-csr* agent exposes the same service that *istiod* serves in the default config of validating incoming CSRs. Except, after verification, it will convert the requests into resources that cert manager supports (i.e. integrations with external CA issuers). 
+
+Whenever there's a CSR from a workload, it will be forwarded to *istio-csr*, which will request certificates from ACM Private CA. This communication between *istio-csr* and ACM Private CA is enabled by the [AWS Private CA issuer plugin](https://github.com/cert-manager/aws-privateca-issuer). Cert manager uses this plugin to request TLS certificates from ACM Private CA. The issuer plugin will communicate with the ACM Private CA service to request a signed certificate for the workload. Once the certificate has been signed, it will be returned to *istio-csr*, which will read the signed request, and return it to the workload that initiated the CSR.
+
+![Flow for Istio Certificate Signing Requests with istio-csr](./images/istio-csr-with-acm-private-ca.png)
+
+
+#### Setup Instructions
+1. Start by following the same [setup instructions in this section](#acm-private-ca-with-cert-manager) to complete the following:
+* Create a Private CA
+* Install cert-manager
+* Install the issuer plugin
+* Set permissions and create an issuer. The issuer represents the CA and is used to sign `istiod` and mesh workload certificates. It will communicate with ACM Private CA.
+2. Create an `istio-system` namespace. This is where the `istiod certificate` and other Istio resources will be deployed.
+3. Install Istio CSR configured with AWS Private CA Issuer Plugin. You can preserve the certificate signing requests for workloads to verify that they get approved and signed (`preserveCertificateRequests=true`).
+
+```bash
+helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-csr \
+	--set "app.certmanager.issuer.group=awspca.cert-manager.io" \
+	--set "app.certmanager.issuer.kind=AWSPCAClusterIssuer" \
+	--set "app.certmanager.issuer.name=<the-name-of-the-issuer-you-created>" \
+	--set "app.certmanager.preserveCertificateRequests=true" \
+	--set "app.server.maxCertificateDuration=48h" \
+	--set "app.tls.certificateDuration=24h" \
+	--set "app.tls.istiodCertificateDuration=24h" \
+	--set "app.tls.rootCAFile=/var/run/secrets/istio-csr/ca.pem" \
+	--set "volumeMounts[0].name=root-ca" \
+	--set "volumeMounts[0].mountPath=/var/run/secrets/istio-csr" \
+	--set "volumes[0].name=root-ca" \
+	--set "volumes[0].secret.secretName=istio-root-ca"
+```
+4. Install Istio with custom configurations to replace `istiod` with `cert-manager istio-csr` as the certificate provider for the mesh. This process can be carried out using the [Istio Operator](https://tetrate.io/blog/what-is-istio-operator/). 
+
+```yaml
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio
+  namespace: istio-system
+spec:
+  profile: "demo"
+  hub: gcr.io/istio-release
+  values:
+   global:
+     # Change certificate provider to cert-manager istio agent for istio agent
+    caAddress: cert-manager-istio-csr.cert-manager.svc:443
+  components:
+    pilot:
+      k8s:
+        env:
+          # Disable istiod CA Sever functionality
+        - name: ENABLE_CA_SERVER
+          value: "false"
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: istiod
+          patches:
+
+            # Mount istiod serving and webhook certificate from Secret mount
+          - path: spec.template.spec.containers.[name:discovery].args[7]
+            value: "--tlsCertFile=/etc/cert-manager/tls/tls.crt"
+          - path: spec.template.spec.containers.[name:discovery].args[8]
+            value: "--tlsKeyFile=/etc/cert-manager/tls/tls.key"
+          - path: spec.template.spec.containers.[name:discovery].args[9]
+            value: "--caCertFile=/etc/cert-manager/ca/root-cert.pem"
+
+          - path: spec.template.spec.containers.[name:discovery].volumeMounts[6]
+            value:
+              name: cert-manager
+              mountPath: "/etc/cert-manager/tls"
+              readOnly: true
+          - path: spec.template.spec.containers.[name:discovery].volumeMounts[7]
+            value:
+              name: ca-root-cert
+              mountPath: "/etc/cert-manager/ca"
+              readOnly: true
+
+          - path: spec.template.spec.volumes[6]
+            value:
+              name: cert-manager
+              secret:
+                secretName: istiod-tls
+          - path: spec.template.spec.volumes[7]
+            value:
+              name: ca-root-cert
+              configMap:
+                defaultMode: 420
+                name: istio-ca-root-cert
+```
+
+5. Deploy the above custom resource you created.
+
+```bash
+istioctl operator init
+kubectl apply -f istio-custom-config.yaml
+```
+
+6. Now you can deploy a workload to the mesh in your EKS cluster and [enforce mTLS](https://istio.io/latest/docs/reference/config/security/peer_authentication/). 
+
+![Istio certificate signing requests](./images/istio-csr-requests.png)
+
 #### Additional Resources
 + [How to implement cert-manager and the ACM Private CA plugin to enable TLS in EKS](https://aws.amazon.com/blogs/security/tls-enabled-kubernetes-clusters-with-acm-private-ca-and-amazon-eks-2/).
 + [Setting up end-to-end TLS encryption on Amazon EKS with the new AWS Load Balancer Controller and ACM Private CA](https://aws.amazon.com/blogs/containers/setting-up-end-to-end-tls-encryption-on-amazon-eks-with-the-new-aws-load-balancer-controller/).
 + [Private CA Kubernetes cert-manager plugin on Github](https://github.com/cert-manager/aws-privateca-issuer).
 + [Private CA Kubernetes cert-manager plugin user guide](https://docs.aws.amazon.com/acm-pca/latest/userguide/PcaKubernetes.html).
++ [How to use AWS Private Certificate Authority short-lived certificate mode](https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode)
 
 ## Tooling
 + [Verifying Service Mesh TLS in Kubernetes, Using ksniff and Wireshark](https://itnext.io/verifying-service-mesh-tls-in-kubernetes-using-ksniff-and-wireshark-2e993b26bf95)
