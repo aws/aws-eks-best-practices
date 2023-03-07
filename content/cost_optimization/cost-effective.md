@@ -148,7 +148,7 @@ As part of controlling costs Down-Scaling resources that are not in-use can also
 
 *Installation of kube-downscaler*:
 ```
-git clone https://github.com/hjacobs/kube-downscaler
+git clone https://codeberg.org/hjacobs/kube-downscaler.git
 cd kube-downscaler
 kubectl apply -k deploy/
 ```
