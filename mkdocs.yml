@@ -4,11 +4,14 @@ repo_url: "https://github.com/aws/aws-eks-best-practices"
 docs_dir: "content"
 theme:
   name: material
+  custom_dir: overrides
   icon:
     repo: fontawesome/brands/github
   features:
     - tabs
     - content.code.copy
+    - announce.dismiss
+    - header.autohide
   palette:
     - scheme: default
       toggle:
