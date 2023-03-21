@@ -23,4 +23,32 @@ And the following containers:
 
 The policies are set to enforce mode, by can be set to warn/audit modes.
 
+## Sigstore/policy-controller
 
+By default, the Sigstore policy-controller requires to label every namespace where a container image policy wants to be enforced. For these labeled namespaces, the policy-controller will reject any container image that does not match any of the existing policies. 
+
+These are the default settings although the policy-controller allows to configure a different behavior such as warning when an image does not match any policy, or to enforce policies on all namespaces. To do so, you just need to apply the following commands when installing the policy-controller on your cluster:
+
+```shell
+cat > values.yaml <<EOF
+policywebhook:
+  configData:
+    no-match-policy: warn
+webhook:
+  namespaceSelector:
+    matchExpressions:
+      - key: policy.sigstore.dev/exclude
+        operator: NotIn
+        values: ["true"]
+EOF
+```
+
+The `values.yaml` file sets a namespace selector for the webhook to only label namespaces that we want to exclude from the admission verifications. It also configures the policy-controller to warn whenever a container image does not match any policy with `no-match-policy: warn`.
+
+For its installation, we recommend using the [helm chart](https://github.com/sigstore/helm-charts/tree/main/charts/policy-controller):
+
+```shell
+helm install policy-controller -n cosign-system sigstore/policy-controller --devel --create-namespace --values=values.yaml
+
+kubectl label ns cosign-system policy.sigstore.dev/exclude=true
+```
