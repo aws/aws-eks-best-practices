@@ -1,0 +1,28 @@
+apiVersion: policy.sigstore.dev/v1beta1
+kind: ClusterImagePolicy
+metadata:
+  name: deprecated-k8s-grc-io-registry
+  annotations:
+    title: Deprecated registry
+    description: Warn of a registry deprecation
+    learnMoreLink: https://kubernetes.io/blog/2023/02/06/k8s-gcr-io-freeze-announcement/
+spec:
+  mode: enforce # For warnings, use 'mode: warn'
+  images:
+  - glob: "k8s.gcr.io/**"
+  authorities:
+  - name: k8s-deprecated
+    static:
+      action: pass
+  policy:
+    type: rego
+    data: |
+      package sigstore
+      isCompliant[response] {
+        response := {
+          "result" : true,
+          "error" : "",
+          "warning" : "This repo has been deprecated: https://kubernetes.io/blog/2023/02/06/k8s-gcr-io-freeze-announcement/"
+        }
+      }
+
