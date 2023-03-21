@@ -93,3 +93,141 @@ autoscalingGroups:
   maxSize: 450
   minSize: 2
 ```
+## API Priority and Fairness
+
+![](../images/APF.jpg)
+
+### Overview:
+
+To protect itself from being overloaded during periods of increased requests, the API Server limits the number of inflight requests it can have outstanding at a given time. Once this limit is exceeded, the API Server will start rejecting requests and return a 429 HTTP response code for "Too Many Requests" back to clients. The server dropping requests and having clients try again later is preferable to having no server-side limits on the number of requests and overloading the control plane, which could result in degraded performance or unavailability.
+
+The mechanism used by Kubernetes to configure how these inflights requests are divided among different request types is called [API Priority and Fairness](https://kubernetes.io/docs/concepts/cluster-administration/flow-control/). The API Server configures the total number of inflight requests it can accept by summing together the values specified by the ```--max-requests-inflight``` and ```--max-mutating-requests-inflight``` flags. EKS uses the default values of 400 and 200 requests for these flags, allowing a total of 600 requests to be dispatched at a given time. APF specifies how these 600 requests are divided among different request types. Note that EKS control planes are highly available with at least 2 API Servers registered to each cluster. This increases the total number of inflight requests across the cluster to 1200.
+
+Two kinds of Kubernetes objects, called PriorityLevelConfigurations and FlowSchemas, configure how the total number of requests is divided between different request types. These objects are maintained by the API Server automatically and EKS uses the default configuration of these objects for the given Kubernetes minor version. PriorityLevelConfigurations represent a fraction of the total number of allowed requests. For example, the workload-high PriorityLevelConfiguration is allocated 98 out of the total of 600 requests. The sum of requests allocated to all PriorityLevelConfigurations will equal 600 (or slightly above 600 because the API Server will round up if a given level is granted a fraction of a request). To check the PriorityLevelConfigurations in your cluster and the number of requests allocated to each, you can run the following command. These are the defaults on EKS 1.24:
+```
+$ kubectl get --raw /metrics | grep apiserver_flowcontrol_request_concurrency_limit
+apiserver_flowcontrol_request_concurrency_limit{priority_level="catch-all"} 13
+apiserver_flowcontrol_request_concurrency_limit{priority_level="global-default"} 49
+apiserver_flowcontrol_request_concurrency_limit{priority_level="leader-election"} 25
+apiserver_flowcontrol_request_concurrency_limit{priority_level="node-high"} 98
+apiserver_flowcontrol_request_concurrency_limit{priority_level="system"} 74
+apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-high"} 98
+apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-low"} 245
+```
+
+The second type of object are FlowSchemas. API Server requests with a given set of properties are classified under the same FlowSchema. These properties include either the authenticated user or attributes of the request, such as the API group, namespace, or resource. A FlowSchema also specifies which PriorityLevelConfiguration this type of request should map to. The two objects together say, "I want this type of request to count towards this share of inflight requests." When a request hits the API Server, it will check each of its FlowSchemas until it finds one that matches all the required properties. If multiple FlowSchemas match a request, the API Server will choose the FlowSchema with the smallest matching precedence which is specified as a property in the object.
+
+The mapping of FlowSchemas to PriorityLevelConfigurations can be viewed using this command:
+```
+$ kubectl get flowschemas
+NAME                           PRIORITYLEVEL     MATCHINGPRECEDENCE   DISTINGUISHERMETHOD   AGE   MISSINGPL
+exempt                         exempt            1                    <none>                3d    False
+probes                         exempt            2                    <none>                3d    False
+system-leader-election         leader-election   100                  ByUser                3d    False
+endpoint-controller            workload-high     150                  ByUser                3d    False
+workload-leader-election       leader-election   200                  ByUser                3d    False
+system-node-high               node-high         400                  ByUser                3d    False
+system-nodes                   system            500                  ByUser                3d    False
+kube-controller-manager        workload-high     800                  ByNamespace           3d    False
+kube-scheduler                 workload-high     800                  ByNamespace           3d    False
+kube-system-service-accounts   workload-high     900                  ByNamespace           3d    False
+service-accounts               workload-low      9000                 ByUser                3d    False
+global-default                 global-default    9900                 ByUser                3d    False
+catch-all                      catch-all         10000                ByUser                3d    False
+```
+PriorityLevelConfigurations can have a type of Queue, Reject, or Exempt. For types Queue and Reject, a limit is enforced on the maximum number of inflight requests for that priority level, however, the behavior differs when that limit is reached. For example, the workload-high PriorityLevelConfiguration uses type Queue and has 98 requests available for use by the controller-manager, endpoint-controller, scheduler, and from pods running in the kube-system namespace. Since type Queue is used, the API Server will attempt to keep requests in memory and hope that the number of inflight requests drops below 98 before these requests time out. If a given request times out in the queue or if too many requests are already queued, the API Server has no choice but to drop the request and return the client a 429. Note that queuing may prevent a request from receiving a 429, but it comes with the tradeoff of increased end-to-end latency on the request. 
+
+Now consider the catch-all FlowSchema that maps to the catch-all PriorityLevelConfiguration with type Reject. If clients reach the limit of 13 inflight requests, the API Server will not exercise queuing and will drop the requests instantly with a 429 response code. Finally, requests mapping to a PriorityLevelConfiguration with type Exempt will never receive a 429 and always be dispatched immediately. This is used for high-priority requests such as healthz requests or requests coming from the system:masters group.  
+
+### Monitoring APF and Dropped Requests:
+
+To confirm if any requests are being dropped due to APF, the API Server metrics for ```apiserver_flowcontrol_rejected_requests_total``` can be monitored to check the impacted FlowSchemas and PriorityLevelConfigurations. For example, this metric shows that 100 requests from the service-accounts FlowSchema were dropped due to requests timing out in workload-low queues:
+
+```
+% kubectl get --raw /metrics | grep apiserver_flowcontrol_rejected_requests_total
+apiserver_flowcontrol_rejected_requests_total{flow_schema="service-accounts",priority_level="workload-low",reason="time-out"} 100
+```
+To check how close a given PriorityLevelConfiguration is to receiving 429s or experiencing increased latency due to queuing, you can compare the difference between the concurrency limit and the concurrency in use. In this example, we have a buffer of 100 requests.
+
+```
+% kubectl get --raw /metrics | grep 'apiserver_flowcontrol_request_concurrency_limit.*workload-low'
+apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-low"} 245
+
+% kubectl get --raw /metrics | grep 'apiserver_flowcontrol_request_concurrency_in_use.*workload-low'
+apiserver_flowcontrol_request_concurrency_in_use{flow_schema="service-accounts",priority_level="workload-low"} 145
+```
+To check if a given PriorityLevelConfiguration is experiencing queuing but not necessarily dropped requests, the metric for ```apiserver_flowcontrol_current_inqueue_requests``` can be referenced:
+```
+% kubectl get --raw /metrics | grep 'apiserver_flowcontrol_current_inqueue_requests.*workload-low'
+apiserver_flowcontrol_current_inqueue_requests{flow_schema="service-accounts",priority_level="workload-low"} 10
+```
+
+Other useful Prometheus metrics include:
+- apiserver_flowcontrol_dispatched_requests_total
+- apiserver_flowcontrol_request_execution_seconds
+- apiserver_flowcontrol_request_wait_duration_seconds
+
+See the upstream documentation for a complete list of [APF metrics](https://kubernetes.io/docs/concepts/cluster-administration/flow-control/#observability).
+
+### Preventing Dropped Requests:
+
+#### Prevent 429s by changing your workload:
+
+When APF is dropping requests due to a given PriorityLevelConfiguration exceeding its maximum number of allowed inflight requests, clients in the affected FlowSchemas can decrease the number of requests executing at a given time. This can be accomplished by reducing the total number of requests made over the period where 429s are occurring. Note that long-running requests such as expensive list calls are especially problematic because they count as an inflight request for the entire duration they are executing. Reducing the number of these expensive requests or optimizing the latency of these list calls (for example, by reducing the number of objects fetched per request or switching to using a watch request) can help reduce the total concurrency required by the given workload.
+
+#### Prevent 429s by changing your APF settings:
+
+!!! Attention
+    Only change default APF settings if you know what you are doing. Misconfigured APF settings can result in dropped API Server requests and significant workload disruptions.
+
+One other approach for preventing dropped requests is changing the default FlowSchemas or PriorityLevelConfigurations installed on EKS clusters. EKS installs the upstream default settings for FlowSchemas and PriorityLevelConfigurations for the given Kubernetes minor version. The API Server will automatically reconcile these objects back to their defaults if modified unless the following annotation on the objects is set to false:
+```
+  metadata:
+    annotations:
+      apf.kubernetes.io/autoupdate-spec: "false"
+```
+At a high-level, APF settings can be modified to either:
+- Allocate more inflight capacity to requests you care about.
+- Isolate non-essential or expensive requests that can starve capacity for other request types.
+
+This can be accomplished by either changing the default FlowSchemas and PriorityLevelConfigurations or by creating new objects of these types. Operators can increase the values for assuredConcurrencyShares for the relevant PriorityLevelConfigurations objects to increase the fraction of inflight requests they are allocated. Additionally, the number of requests that can be queued at a given time can also be increased if the application can handle the additional latency caused by requests being queued before they are dispatched. 
+
+Alternatively, new FlowSchema and PriorityLevelConfigurations objects can be created that are specific to the customer's workload. Be aware that allocating more assuredConcurrencyShares to either existing PriorityLevelConfigurations or to new PriorityLevelConfigurations will cause the number of requests that can be handled by other buckets to be reduced as the overall limit will stay as 600 inflight per API Server. 
+
+When making changes to APF defaults, these metrics should be monitored on a non-production cluster to ensure changing the settings do not cause unintended 429s:
+1. The metric for ```apiserver_flowcontrol_rejected_requests_total``` should be monitored for all FlowSchemas to ensure that no buckets start to drop requests. 
+2. The values for ```apiserver_flowcontrol_request_concurrency_limit``` and ```apiserver_flowcontrol_request_concurrency_in_use``` should be compared to ensure that the concurrency in use is not at risk for breaching the limit for that priority level.
+
+One common use-case for defining a new FlowSchema and PriorityLevelConfiguration is for isolation. Suppose we want to isolate long-running list event calls from pods to their own share of requests. This will prevent important requests from pods using the existing service-accounts FlowSchema from receiving 429s and being starved of request capacity. Recall that the total number of inflight requests is finite, however, this example shows APF settings can be modified to better divide request capacity for the given workload: 
+
+Example FlowSchema object to isolate list event requests:
+```
+apiVersion: flowcontrol.apiserver.k8s.io/v1beta1
+kind: FlowSchema
+metadata:
+  name: list-events-default-service-accounts
+spec:
+  distinguisherMethod:
+    type: ByUser
+  matchingPrecedence: 8000
+  priorityLevelConfiguration:
+    name: catch-all
+  rules:
+  - resourceRules:
+    - apiGroups:
+      - '*'
+      namespaces:
+      - default
+      resources:
+      - events
+      verbs:
+      - list
+    subjects:
+    - kind: ServiceAccount
+      serviceAccount:
+        name: default
+        namespace: default
+```
+- This FlowSchema captures all list event calls made by service accounts in the default namespace.
+- The matching precedence 8000 is lower than the value of 9000 used by the existing service-accounts FlowSchema so these list event calls will match list-events-default-service-accounts rather than service-accounts.
+- We're using the catch-all PriorityLevelConfiguration to isolate these requests. This bucket only allows 13 inflight requests to be used by these long-running list event calls. Pods will start to receive 429s as soon they try to issue more than 13 of these requests concurrently. 
