@@ -65,10 +65,11 @@ The following example shows how to avoid provisioning large Graviton instances.
 ### Enable Interruption Handling when using Spot
 
 Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/deprovisioning/#interruption), enabled through the `aws.interruptionQueue` value in [Karpenter settings](https://karpenter.sh/docs/concepts/settings/#configmap). Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
-- Spot Interruption Warnings
-- Scheduled Change Health Events (Maintenance Events)
-- Instance Terminating Events
-- Instance Stopping Events
+
+* Spot Interruption Warnings
+* Scheduled Change Health Events (Maintenance Events)
+* Instance Terminating Events
+* Instance Stopping Events
 
 When Karpenter detects one of these events will occur to your nodes, it automatically cordons, drains, and terminates the node(s) ahead of the interruption event to give the maximum amount of time for workload cleanup prior to interruption. It is not advised to use AWS Node Termination Handler alongside Karpenter as explained [here](https://karpenter.sh/docs/faq/#interruption-handling).
 
