@@ -188,7 +188,7 @@ data:
       - .*p3-node-group.*
 ```
 
-Cluster Autoscaler will try to scale up the EC2 Auto Scaling group matching the name *p2-node-group*. If this operation does not succeed within `--max-node-provision-time`, it will attempt to scale an EC2 Auto Scaling group matching the name *p3-node-group*.
+Cluster Autoscaler will try to scale up the EC2 Auto Scaling group matching the name *p3-node-group*. If this operation does not succeed within `--max-node-provision-time`, it will attempt to scale an EC2 Auto Scaling group matching the name *p2-node-group*.
 This value defaults to 15 minutes and can be reduced for more responsive node group selection, though if the value is too low, it can cause unnecessary scale outs.
 
 ### Overprovisioning
