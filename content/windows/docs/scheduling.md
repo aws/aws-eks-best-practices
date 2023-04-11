@@ -132,6 +132,17 @@ spec:
       - name: iis
 ```
 
+## Managed Node Group Support
+To help customers run their Windows applications in a more streamlined manner, AWS launched the support for Amazon [EKS Managed Node Group (MNG) support for Windows containers](https://aws.amazon.com/about-aws/whats-new/2022/12/amazon-eks-automated-provisioning-lifecycle-management-windows-containers/) on December 15, 2022. To help align operations teams, [Windows MNGs](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) are enabled using the same workflows and tools as [Linux MNGs](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html). Full and core AMI (Amazon Machine Image) family versions of Windows Server 2019 and 2022 are supported. 
+
+Following AMI families are supported for Managed Node Groups(MNG)s.
+
+| AMI Family |
+| ---------   | 
+| WINDOWS_CORE_2019_x86_64    | 
+| WINDOWS_FULL_2019_x86_64    | 
+| WINDOWS_CORE_2022_x86_64    | 
+| WINDOWS_FULL_2022_x86_64    | 
 
 ## Additional documentations
 
