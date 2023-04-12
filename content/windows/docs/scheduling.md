@@ -149,3 +149,6 @@ AWS Official Documentation:
 https://docs.aws.amazon.com/eks/latest/userguide/windows-support.html
 
 To better understand how Pod Networking (CNI) works, check the following link: https://docs.aws.amazon.com/eks/latest/userguide/pod-networking.html
+
+AWS Blog on Deploying Managed Node Group for Windows on EKS:
+https://aws.amazon.com/blogs/containers/deploying-amazon-eks-windows-managed-node-groups/
