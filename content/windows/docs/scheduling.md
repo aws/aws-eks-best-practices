@@ -20,10 +20,10 @@ If you are using EKS, eksctl offers ways to apply taints through clusterConfig:
 ```yaml
 NodeGroups:
   - name: windows-ng
-    amiFamily: WindowsServer2019FullContainer
+    amiFamily: WindowsServer2022FullContainer
     ...
     labels:
-      nodeclass: windows2019
+      nodeclass: windows2022
     taints:
       os: "windows:NoSchedule"
 ```
@@ -48,26 +48,27 @@ Kubernetes 1.17 automatically adds a new label **node.kubernetes.io/windows-buil
 
 This label reflects the Windows major, minor, and build number that need to match for compatibility. Below are values used today for each Windows Server version.
 
+It's important to note that Windows Server is moving to the Long-Term Servicing Channel (LTSC) as the primary release channel. The Windows Server Semi-Annual Channel (SAC) was retired on August 9, 2022. There will be no future SAC releases of Windows Server.
+
 
 | Product Name | Build Number(s) |
 | -------- | -------- |
+| Server full 2022 LTSC    | 10.0.20348    |
 | Server core 2019 LTSC    | 10.0.17763    |
-| Server core 2004 SAC     | 10.0.19041    |
-| Server core 20H2 SAC | 10.0.19042 |
 
 It is possible to check the OS build version through the following command:
 
 ```bash    
-kubectl get pods -o wide
+kubectl get nodes -o wide
 ```
 
 The KERNEL-VERSION output matches the Windows OS build version.
 
 ```bash 
-NAME                           STATUS   ROLES    AGE   VERSION              INTERNAL-IP    EXTERNAL-IP     OS-IMAGE                         KERNEL-VERSION                  CONTAINER-RUNTIME
-ip-172-31-20-44.ec2.internal   Ready    <none>   42d   v1.18.9-eks-d1db3c   172.31.20.44   3.237.46.98     Windows Server 2019 Datacenter   10.0.17763.1697                 docker://19.3.13
-ip-172-31-44-38.ec2.internal   Ready    <none>   42d   v1.18.9-eks-d1db3c   172.31.44.38   54.91.221.109   Amazon Linux 2                   4.14.209-160.339.amzn2.x86_64   docker://19.3.6
-ip-172-31-5-245.ec2.internal   Ready    <none>   31d   v1.18.9-eks-d1db3c   172.31.5.245   3.236.151.236   Windows Server Datacenter        10.0.19041.685                  docker://19.3.14
+NAME                          STATUS   ROLES    AGE   VERSION                INTERNAL-IP   EXTERNAL-IP     OS-IMAGE                         KERNEL-VERSION                  CONTAINER-RUNTIME
+ip-10-10-2-235.ec2.internal   Ready    <none>   23m   v1.24.7-eks-fb459a0    10.10.2.235   3.236.30.157    Windows Server 2022 Datacenter   10.0.20348.1607                 containerd://1.6.6
+ip-10-10-31-27.ec2.internal   Ready    <none>   23m   v1.24.7-eks-fb459a0    10.10.31.27   44.204.218.24   Windows Server 2019 Datacenter   10.0.17763.4131                 containerd://1.6.6
+ip-10-10-7-54.ec2.internal    Ready    <none>   31m   v1.24.11-eks-a59e1f0   10.10.7.54    3.227.8.172     Amazon Linux 2                   5.10.173-154.642.amzn2.x86_64   containerd://1.6.19
 ```
 
 The example below applies an additional nodeSelector to the pod manifest in order to match the correct Windows-build version when running different Windows node groups OS versions.
@@ -75,7 +76,7 @@ The example below applies an additional nodeSelector to the pod manifest in orde
 ```yaml
 nodeSelector:
     kubernetes.io/os: windows
-    node.kubernetes.io/windows-build: '10.0.17763'
+    node.kubernetes.io/windows-build: '10.0.20348'
 tolerations:
     - key: "os"
     operator: "Equal"
@@ -93,13 +94,13 @@ Create a RuntimeClass by running the following manifest:
 apiVersion: node.k8s.io/v1beta1
 kind: RuntimeClass
 metadata:
-  name: windows-2019
+  name: windows-2022
 handler: 'docker'
 scheduling:
   nodeSelector:
     kubernetes.io/os: 'windows'
     kubernetes.io/arch: 'amd64'
-    node.kubernetes.io/windows-build: '10.0.17763'
+    node.kubernetes.io/windows-build: '10.0.20348'
   tolerations:
   - effect: NoSchedule
     key: os
@@ -113,22 +114,33 @@ Once the Runtimeclass is created, assign it using as a Spec on the Pod manifest:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iis-2019
+  name: iis-2022
   labels:
-    app: iis-2019
+    app: iis-2022
 spec:
   replicas: 1
   template:
     metadata:
-      name: iis-2019
+      name: iis-2022
       labels:
-        app: iis-2019
+        app: iis-2022
     spec:
-      runtimeClassName: windows-2019
+      runtimeClassName: windows-2022
       containers:
       - name: iis
 ```
 
+## Managed Node Group Support
+To help customers run their Windows applications in a more streamlined manner, AWS launched the support for Amazon [EKS Managed Node Group (MNG) support for Windows containers](https://aws.amazon.com/about-aws/whats-new/2022/12/amazon-eks-automated-provisioning-lifecycle-management-windows-containers/) on December 15, 2022. To help align operations teams, [Windows MNGs](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) are enabled using the same workflows and tools as [Linux MNGs](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html). Full and core AMI (Amazon Machine Image) family versions of Windows Server 2019 and 2022 are supported. 
+
+Following AMI families are supported for Managed Node Groups(MNG)s.
+
+| AMI Family |
+| ---------   | 
+| WINDOWS_CORE_2019_x86_64    | 
+| WINDOWS_FULL_2019_x86_64    | 
+| WINDOWS_CORE_2022_x86_64    | 
+| WINDOWS_FULL_2022_x86_64    | 
 
 ## Additional documentations
 
@@ -137,3 +149,6 @@ AWS Official Documentation:
 https://docs.aws.amazon.com/eks/latest/userguide/windows-support.html
 
 To better understand how Pod Networking (CNI) works, check the following link: https://docs.aws.amazon.com/eks/latest/userguide/pod-networking.html
+
+AWS Blog on Deploying Managed Node Group for Windows on EKS:
+https://aws.amazon.com/blogs/containers/deploying-amazon-eks-windows-managed-node-groups/
