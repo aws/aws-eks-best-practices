@@ -1,4 +1,4 @@
-# Monitoring EKS workloads for Network performance issues
+# Monitoring CoreDNS traffic for DNS throttling issues
 
 Running DNS intensive workloads can sometimes experience intermittent CoreDNS failures due to DNS throttling, and this can impact applications where you may encounter occasional UnknownHostException errors.
 
