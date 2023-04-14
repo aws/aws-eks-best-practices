@@ -166,6 +166,18 @@ In order to avoid impacting cluster critical operations either avoid setting "ca
 
 Or make sure the webhook has a fail open policy with a timeout shorter than 30 seconds to ensure that if your webhook is unavailable it will not impair cluster critical workloads.
 
+### Block Pods with unsafe `sysctls`
+
+`Sysctl` is a Linux utility that allows users to modify kernel parameters during runtime. These kernel parameters control various aspects of the operating system's behavior, such as network, file system, virtual memory, and process management.
+
+Kubernetes allows assigning `sysctl` profiles for Pods. Kubernetes categorizes `systcls` as safe and unsafe. Safe `sysctls` are namespaced in the container or Pod, and setting them doesn’t impact other Pods on the node or the node itself. In contrast, unsafe sysctls are disabled by default since they can potentially disrupt other Pods or make the node unstable.
+
+As unsafe `sysctls` are disabled by default, the kubelet will not create a Pod with unsafe `sysctl` profile. If you create such a Pod, the scheduler will repeatedly assign such Pods to nodes, while the node fails to launch it. This infinite loop ultimately strains the cluster control plane, making the cluster unstable.
+
+Consider using [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper-library/blob/377cb915dba2db10702c25ef1ee374b4aa8d347a/src/pod-security-policy/forbidden-sysctls/constraint.tmpl) or [Kyverno](https://kyverno.io/policies/pod-security/baseline/restrict-sysctls/restrict-sysctls/) to reject of Pods with unsafe `sysctls`.
+
+
+
 ## Handling Cluster Upgrades
 Since April 2021, Kubernetes release cycle has been changed from four releases a year (once a quarter) to three releases a year. A new minor version (like 1.**21** or 1.**22**) is released approximately [every fifteen weeks](https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when). Starting with Kubernetes 1.19, each minor version is supported for approximately twelve months after it's first released.. Kubernetes supports compatibility between the control plane and worker nodes for at least two minor versions.
 
