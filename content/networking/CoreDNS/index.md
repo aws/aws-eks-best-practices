@@ -11,7 +11,23 @@ The Deployment for CoreDNS has an anti-affinity policy that instructs the Kubern
 
 ## Capturing the metrics to identify throttling issues
 
-An easy way to identify the DNS throttling issues in worker nodes is by capturing few key network performance metrics. The Elastic Network Adapter (ENA ) driver publishes network performance metrics from the instances where they are enabled. You can troubleshoot DNS throttling using the `linklocal_allowance_exceeded` metric. The [linklocal_allowance_exceeded](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent) is number of packets dropped because the PPS of the traffic to local proxy services exceeded the maximum for the network interface. This impacts traffic to the DNS service, the Instance Metadata Service, and the Amazon Time Sync Service. Instead of tracking this event real-time, we can stream this metric to [Amazon Managed Service for Prometheus](https://aws.amazon.com/prometheus/) and have them visualized in [Amazon Managed Grafana](https://aws.amazon.com/grafana/)
+An easy way to identify the DNS throttling issues in worker nodes is by capturing few key network performance metrics. The Elastic Network Adapter (ENA ) driver publishes network performance metrics from the instances where they are enabled. All the network performance metrics can be published to CloudWatch using the CloudWatch agent. Please refer to the [blog](https://aws.amazon.com/blogs/networking-and-content-delivery/amazon-ec2-instance-level-network-performance-metrics-uncover-new-insights/) for more information.
+The first metric we will discuss to troubleshoot DNS throttling is the `linklocal_allowance_exceeded` metric. The [linklocal_allowance_exceeded](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent) is number of packets dropped because the PPS of the traffic to local proxy services exceeded the maximum for the network interface. This impacts traffic to the DNS service, the Instance Metadata Service, and the Amazon Time Sync Service. Instead of tracking this event real-time, we can stream this metric to [Amazon Managed Service for Prometheus](https://aws.amazon.com/prometheus/) as well and can have them visualized in [Amazon Managed Grafana](https://aws.amazon.com/grafana/)
+
+Another metric that can help in monitoring the CoreDNS throttling / query delay are `conntrack_allowance_available` and `conntrack_allowance_exceeded`.
+Connectivity failures caused by exceeding Connections Tracked allowances can have a larger impact than those resulting from exceeding other allowances. When relying on TCP to transfer data, packets that are queued or dropped due to exceeding EC2 instance network allowances, such as Bandwidth, PPS, etc., are typically handled gracefully thanks to TCP’s congestion control capabilities. Impacted flows will be slowed down, and lost packets will be retransmitted. However, when an instance exceeds its Connections Tracked allowance, no new connections can be established until some of the existing ones are closed to make room for new connections. 
+
+`conntrack_allowance_available` and `conntrack_allowance_exceeded` helps customers in monitoring the connections tracked allowance which varies for every instance. These network performance metrics give customers visibility into the number of packets queued or dropped when an instance’s networking allowances, such as Network Bandwidth, Packets-Per-Second (PPS), Connections Tracked, and Link-local service access (Amazon DNS, Instance Meta Data Service, Amazon Time Sync) are exceeded
+
+`conntrack_allowance_available` is the number of tracked connections that can be established by the instance before hitting the Connections Tracked allowance of that instance type (supported for nitro-based instance only). 
+`conntrack_allowance_exceeded` is the number of packets dropped because connection tracking exceeded the maximum for the instance and new connections could not be established. 
+
+Other important network performance metrics include:
+`bw_in_allowance_exceeded` (ideal value of the metric should be zero) is the number of packets queued and/or dropped because the inbound aggregate bandwidth exceeded the maximum for the instance
+`bw_out_allowance_exceeded` (ideal value of the metric should be zero) is the number of packets queued and/or dropped because the outbound aggregate bandwidth exceeded the maximum for the instance
+`pps_allowance_exceeded` (ideal value of the metric should be zero) is the number of packets queued and/or dropped because the bidirectional PPS exceeded the maximum for the instance
+
+Let's now capture the metrics discussed above, store them in Amazon Managed Service for Prometheus and visualize using Amazon Managed Grafana
 
 ## Prerequisites
 * ethtool - Ensure the worker nodes have ethtool installed
@@ -54,7 +70,7 @@ kubectl apply -f collector-config-amp.yaml
 Once the adot collector is deployed, the metrics will be stored successfully in Amazon Prometheus
 
 ## Configure alert manager in Amazon Managed Service for Prometheus to send notifications
-Let's configure recording rules and alerting rules to check for the metric captured `linklocal_allowance_exceeded`. The `linklocal_allowance_exceeded` denotes the number of packets dropped due to PPS rate allowance exceeded for local services such as Route 53 DNS Resolver, Instance Metadata Service, Amazon Time Sync Service. You should receive alerts the moment it exceeds the value 0, meaning there shouldn't be any packet drops.
+Let's configure recording rules and alerting rules to check for the metrics discussed so far. 
 
 We will use the [ACK Controller for Amazon Managed Service for Prometheus](https://github.com/aws-controllers-k8s/prometheusservice-controller) to provision the alerting and recording rules.
 
@@ -95,7 +111,55 @@ spec:
    name: default-rule
    configuration: |
      groups:
-     - name: example
+     - name: ppsallowance
+       rules:
+       - record: metric:pps_allowance_exceeded
+         expr: rate(node_net_ethtool{device="eth0",type="pps_allowance_exceeded"}[30s])
+       - alert: PPSAllowanceExceeded
+         expr: rate(node_net_ethtool{device="eth0",type="pps_allowance_exceeded"} [30s]) > 0
+         labels:
+           severity: critical
+           
+         annotations:
+           summary: Connections dropped due to total allowance exceeding for the  (instance {{ $labels.instance }})
+           description: "PPSAllowanceExceeded is greater than 0"
+     - name: bw_in
+       rules:
+       - record: metric:bw_in_allowance_exceeded
+         expr: rate(node_net_ethtool{device="eth0",type="bw_in_allowance_exceeded"}[30s])
+       - alert: BWINAllowanceExceeded
+         expr: rate(node_net_ethtool{device="eth0",type="bw_in_allowance_exceeded"} [30s]) > 0
+         labels:
+           severity: critical
+           
+         annotations:
+           summary: Connections dropped due to total allowance exceeding for the  (instance {{ $labels.instance }})
+           description: "BWInAllowanceExceeded is greater than 0"
+     - name: bw_out
+       rules:
+       - record: metric:bw_out_allowance_exceeded
+         expr: rate(node_net_ethtool{device="eth0",type="bw_out_allowance_exceeded"}[30s])
+       - alert: BWOutAllowanceExceeded
+         expr: rate(node_net_ethtool{device="eth0",type="bw_out_allowance_exceeded"} [30s]) > 0
+         labels:
+           severity: critical
+           
+         annotations:
+           summary: Connections dropped due to total allowance exceeding for the  (instance {{ $labels.instance }})
+           description: "BWoutAllowanceExceeded is greater than 0"            
+     - name: conntrack
+       rules:
+       - record: metric:conntrack_allowance_exceeded
+         expr: rate(node_net_ethtool{device="eth0",type="conntrack_allowance_exceeded"}[30s])
+       - alert: ConntrackAllowanceExceeded
+         expr: rate(node_net_ethtool{device="eth0",type="conntrack_allowance_exceeded"} [30s]) > 0
+         labels:
+           severity: critical
+           
+         annotations:
+           summary: Connections dropped due to total allowance exceeding for the  (instance {{ $labels.instance }})
+           description: "ConnTrackAllowanceExceeded is greater than 0"
+     - name: linklocal
        rules:
        - record: metric:linklocal_allowance_exceeded
          expr: rate(node_net_ethtool{device="eth0",type="linklocal_allowance_exceeded"}[30s])
@@ -139,7 +203,7 @@ Replace You WORKSPACE-ID with the Workspace ID of the new workspace, TOPIC-ARN w
 
   
 ## Visualize ethtool metrics in Amazon Managed Grafana
-Let's visualize the linklocal_allowance_exceeded within the Amazon Managed Grafana and build a dashboard. Configure the Amazon Managed Service for Prometheus as a datasource inside the Amazon Managed Grafana console. For instructions, see [Add Amazon Prometheus as a datasource](https://docs.aws.amazon.com/grafana/latest/userguide/AMP-adding-AWS-config.html)
+Let's visualize the metrics within the Amazon Managed Grafana and build a dashboard. Configure the Amazon Managed Service for Prometheus as a datasource inside the Amazon Managed Grafana console. For instructions, see [Add Amazon Prometheus as a datasource](https://docs.aws.amazon.com/grafana/latest/userguide/AMP-adding-AWS-config.html)
 
 Let's explore the metrics in Amazon Managed Grafana now:
 Click the explore button, and search for ethtool:
@@ -150,74 +214,15 @@ Let's build a dashboard for the linklocal_allowance_exceeded metric by using the
 
 ![linklocal_allowance_exceeded dashboard](./linklocal.png)
 
-We can clearly see that there were no packets dropped as the value is zero. You can further extend this by configuring alerts in Amazon Managed Grafana to send notifications to Slack, SNS, Pagerduty etc.
-
-
-# Monitoring EC2 Connection Tracking utilization to avoid CoreDNS query delays
-
-Another metric that can help in monitoring the CoreDNS throttling / query delay are `conntrack_allowance_available` and `conntrack_allowance_exceeded`.
-Connectivity failures caused by exceeding Connections Tracked allowances can have a larger impact than those resulting from exceeding other allowances. When relying on TCP to transfer data, packets that are queued or dropped due to exceeding EC2 instance network allowances, such as Bandwidth, PPS, etc., are typically handled gracefully thanks to TCP’s congestion control capabilities. Impacted flows will be slowed down, and lost packets will be retransmitted. However, when an instance exceeds its Connections Tracked allowance, no new connections can be established until some of the existing ones are closed to make room for new connections. 
-
-`conntrack_allowance_available` and `conntrack_allowance_exceeded` helps customers in monitoring the connections tracked allowance which varies for every instance. These network performance metrics give customers visibility into the number of packets queued or dropped when an instance’s networking allowances, such as Network Bandwidth, Packets-Per-Second (PPS), Connections Tracked, and Link-local service access (Amazon DNS, Instance Meta Data Service, Amazon Time Sync) are exceeded
-
-conntrack_allowance_available is the number of tracked connections that can be established by the instance before hitting the Connections Tracked allowance of that instance type (supported for nitro-based instance only). conntrack_allowance_exceeded is the number of packets dropped because connection tracking exceeded the maximum for the instance and new connections could not be established. 
-
-Both these metrics are available through Operating system tools and you can use the `ethtool-exporter` deployed in the previous section to scrape them and store them in Amazon Managed Service for Prometheus.
-
-A sample output of the metrics looks like below :
-```
-ethtool -S eth0 | grep conntrack
-     conntrack_allowance_available: 272548
-     conntrack_allowance_exceeded: 0
-```
-The metrics are also made available using ENA driver and Amazon CloudWatch agent if you are using CloudWatch to monitor. Please refer to the [blog](https://aws.amazon.com/blogs/networking-and-content-delivery/amazon-ec2-instance-level-network-performance-metrics-uncover-new-insights/) for more information.
-
-
-
-## Configure alert manager in Amazon Managed Service for Prometheus to send notifications
-Let's configure recording rules and alerting rules to check for the metric captured `conntrack_allowance_exceeded` . The rules have been configured to send notifications when the value exceeds 0, meaning you will get notifications the moment you exceed the number of connections allowed for the specific instance type.
-
-Let's now create a yaml file for provisioning the alert manager defnition and rule groups.
-Save the below file as `rulegroup.yaml`
-
-```
-apiVersion: prometheusservice.services.k8s.aws/v1alpha1
-kind: RuleGroupsNamespace
-metadata:
-   name: default-rule
-spec:
-   workspaceID: <Your WORKSPACE-ID>
-   name: default-rule
-   configuration: |
-     groups:
-     - name: example
-       rules:
-       - record: metric:conntrack_allowance_exceeded
-         expr: rate(node_net_ethtool{device="eth0",type="conntrack_allowance_exceeded"}[30s])
-       - alert: ConntrackAllowanceExceeded
-         expr: rate(node_net_ethtool{device="eth0",type="conntrack_allowance_exceeded"} [30s]) > 0
-         labels:
-           severity: critical
-           
-         annotations:
-           summary: Connections dropped due to total allowance exceeding for the  (instance {{ $labels.instance }})
-           description: "ConnTrackAllowanceExceeded is greater than 0"
-```
-
-## Visualize Conntrack_allowance metrics in Amazon Managed Grafana & CloudWatch
-The metric can be visualized in CloudWatch, provided you run a cloudwatch agent as described [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-network-performance.html). The resulting dashboard in CloudWatch will look like below:
-
-![CW_NW_Performance](./cw_metrics.png)
-
-
-Alternatively, using the setup described for the "LinkLocalAllowance" metrics above, you can visualize the conntrack metrics as shown below:
-
-Click the explore button, and search for ethtool:
-
-![Node_ethtool metrics](./explore_metrics.png)
+We can clearly see that there were no packets dropped as the value is zero. 
 
 Let's build a dashboard for the conntrack_allowance_exceeded metric by using the query `rate(node_net_ethtool{device="eth0",type="conntrack_allowance_exceeded"}[30s])`. It will result in the below dashboard. 
 
 ![conntrack_allowance_exceeded dashboard](./conntrack.png)
 
+The metric `conntrack_allowance_exceeded` can be visualized in CloudWatch, provided you run a cloudwatch agent as described [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-network-performance.html). The resulting dashboard in CloudWatch will look like below:
+
+![CW_NW_Performance](./cw_metrics.png)
+
 We can clearly see that there were no packets dropped as the value is zero. If you are using Nitro-based instances, you can create a similar dashboard for `conntrack_allowance_available` and pro-actively monitor the connections in your EC2 instance. You can further extend this by configuring alerts in Amazon Managed Grafana to send notifications to Slack, SNS, Pagerduty etc.
+
