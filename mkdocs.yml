@@ -69,7 +69,7 @@ nav:
       - Security Groups per Pod: "networking/sgpp/index.md"
       - Custom Networking: "networking/custom-networking/index.md"
       - Load Balancing: "networking/loadbalancing/loadbalancing.md"
-      - Monitoring for DNS Throttling Issues: "networking/CoreDNS/index.md"
+      - Monitoring for Network performance issues: "networking/monitoring/index.md"
   - Scalability:
       - Home: "scalability/docs/index.md"
       - Control Plane: "scalability/docs/control-plane.md"
