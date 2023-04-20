@@ -261,7 +261,7 @@ When calling the Kubernetes API with custom controllers or automation it's impor
 It is recommended that you use the watch argument whenever possible. With no arguments the default behavior is to list objects. To use watch instead of list you can append `?watch=true` to the end of your API request. For example, to get all pods with a watch use:
 
 ```
-/api/v1/pods?watch=true
+/api/v1/namespaces/default/pods?watch=true
 ```
 
 If you are listing objects you should limit the scope of what you are listing. The `fieldSelector` argument and `/namespace/` path can be useful to make sure your lists are as narrowly scoped as needed. For example, to list only running pods in the default namespace use:
