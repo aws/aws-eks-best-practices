@@ -252,7 +252,7 @@ When building controllers and automation that integrate with the Kubernetes API 
 
 Using an [informer](https://pkg.go.dev/k8s.io/client-go/informers) from the client-go library will give you benefits of watching for changes to the resources based on events instead of polling for changes. Informers further reduce the load by using shared cache for the events and changes so multiple controllers watching the same resources do not add additional load.
 
-Polling resources without including labels or namespace scope is especially difficult in large clusters. Each un-filtered poll can require a lot of unnecessary data to be sent from etcd through the API server to be filtered in your controller. By filtering based on labels and namespaces you can reduce the amount of work the API server needs to perform to fullfil the request and data sent to the client.
+Controllers should avoid polling cluster wide resources without labels and field selectors especially in large clusters. Each un-filtered poll requires a lot of unnecessary data to be sent from etcd through the API server to be filtered by the client. By filtering based on labels and namespaces you can reduce the amount of work the API server needs to perform to fullfil the request and data sent to the client.
 
 ## Optimize Kubernetes API usage
 
