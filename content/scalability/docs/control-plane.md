@@ -250,7 +250,7 @@ spec:
 
 Getting information from the API server is an expected behavior for clusters of any size. As you scale the number of resources in the cluster the frequency of requests and volume of data can quickly become a bottleneck for the control plane and will lead to API latency and slowness. Depending on the severity of the latency it cause unexpected downtime if you are not careful.
 
-Being aware of what you are requesting and how often are the first steps to avoiding these types of problems. Here is guidance to limit the volume of queries based on the scaling best practices.
+Being aware of what you are requesting and how often are the first steps to avoiding these types of problems. Here is guidance to limit the volume of queries based on the scaling best practices. Suggestions in this section are provided in order starting with the options that are known to scale the best.
 
 ### Use Shared Informers
 
@@ -264,35 +264,33 @@ Controllers should avoid polling cluster wide resources without labels and field
 
 When calling the Kubernetes API with custom controllers or automation it's important that you limit the calls to only the resources you need. Without limits you can cause unneeded load on the API server and etcd.
 
-It is recommended that you use the watch argument whenever possible. With no arguments the default behavior is to list objects. To use watch instead of list you can append `?watch=true` to the end of your API request. For example, to get all pods with a watch use:
+It is recommended that you use the watch argument whenever possible. With no arguments the default behavior is to list objects. To use watch instead of list you can append `?watch=true` to the end of your API request. For example, to get all pods in the default namespace with a watch use:
 
 ```
 /api/v1/namespaces/default/pods?watch=true
 ```
 
-If you are listing objects you should limit the scope of what you are listing. The `fieldSelector` argument and `/namespace/` path can be useful to make sure your lists are as narrowly scoped as needed. For example, to list only running pods in the default namespace use:
+If you are listing objects you should limit the scope of what you are listing and the amount of data returned. You can limit the returned data by adding `limit=500` argument to requests. The `fieldSelector` argument and `/namespace/` path can be useful to make sure your lists are as narrowly scoped as needed. For example, to list only running pods in the default namespace use the following API path and arguments.
 
 ```
-/api/v1/namespaces/default/pods?fieldSelector=status.phase=Running
+/api/v1/namespaces/default/pods?fieldSelector=status.phase=Running&limit=500
 ```
 
 Or list all pods that are running with:
 
 ```
-/api/v1/pods?fieldSelector=status.phase=Running
+/api/v1/pods?fieldSelector=status.phase=Running&limit=500
 ```
 
-You should use a resourceVersion and pagination to further limit lists and reduce load. You can read about [resourceVersions in the Kubernetes documentation](https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions). Without a resourceVersion argument you will receive the most recent version available which requires an etcd quorum read which is the most expensive and slowest read for the database. The resourceVersion depends on what resources you are trying to query and can be found in the `metadata.resourseVersion` field.
+Another option to limit listed objects is to use [`resourceVersions` which you can read about in the Kubernetes documentation](https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions). Without a `resourceVersion` argument you will receive the most recent version available which requires an etcd quorum read which is the most expensive and slowest read for the database. The resourceVersion depends on what resources you are trying to query and can be found in the `metadata.resourseVersion` field.
 
-You should limit your page returns to no more than 500 by appending `limit=500` to your API queries. To list 500 pods that are newer than version 1000 you can use:
+There is a special `resourceVersion=0` available that will return results from the API server cache. This can reduce etcd load but it does not support pagination.
 
 ```
-/api/v1/pods/?limit=500&resourceVersionMatch=NotOlderThan&resourceVersion=1000
+/api/v1/namespaces/default/pods?resourceVersion=0
 ```
 
-There is a special `resourceVersion=0` available that will return any available version in the API server cache. This can reduce etcd load but it does not support pagination.
-
-If you use the API without any arguments it will be the most resource intensive for the API server and etcd. This call will get all pods without pagination or limiting the scope.
+If you call the API without any arguments it will be the most resource intensive for the API server and etcd. This call will get all pods in all namespaces without pagination or limiting the scope and require a quorum read from etcd.
 
 ```
 /api/v1/pods
