@@ -54,7 +54,7 @@ This will prevents a Cluster Autoscaler running in one cluster from modifying no
             "Resource": "*",
             "Condition": {
                 "StringEquals": {
-                    "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/enabled": "true",
+                    "aws:ResourceTag/k8s.io/cluster-autoscaler/enabled": "true",
                     "aws:ResourceTag/k8s.io/cluster-autoscaler/<my-cluster>": "owned"
                 }
             }
