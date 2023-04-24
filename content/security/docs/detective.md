@@ -254,3 +254,4 @@ The following commercial and open source projects can be used to assess your clu
 + [Starboard](https://github.com/aquasecurity/starboard)
 + [kAudit](https://github.com/alcideio/kaudit)
 + [Snyk](https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview)
++ [Kubescape](https://github.com/kubescape/kubescape) Kubescape is an open source kubernetes security tool that scans clusters, YAML files, and Helm charts. It detects misconfigurations according to multiple frameworks (including [NSA-CISA](https://www.armosec.io/blog/kubernetes-hardening-guidance-summary-by-armo/?utm_source=github&utm_medium=repository) and [MITRE ATT&CK®](https://www.microsoft.com/security/blog/2021/03/23/secure-containerized-environments-with-updated-threat-matrix-for-kubernetes/).)
