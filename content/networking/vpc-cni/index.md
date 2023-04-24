@@ -4,7 +4,7 @@ Amazon EKS implements cluster networking through the [Amazon VPC Container Netwo
 
 Amazon VPC CNI has two components:
 
-* CNI Binary, which will setup Pod network to enable Pod-to-Pod communication. The CNI binary runs on a node root file system and is invoked by the kubelet when a new Pod gets added to, or an existing Pod removed from the node. 
+* CNI Binary, which will setup Pod network to enable Pod-to-Pod communication. The CNI binary runs on a node root file system and is invoked by the Container Runtime when a new Pod gets added to, or an existing Pod removed from the node. 
 * ipamd, a long-running node-local IP Address Management (IPAM) daemon and is responsible for:
     * managing ENIs on a node, and 
     * maintaining a warm-pool of available IP addresses or prefix 
