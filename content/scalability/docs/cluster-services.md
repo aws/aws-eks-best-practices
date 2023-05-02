@@ -47,6 +47,16 @@ The Kubernetes Metrics Server supports horizontal and vertical scaling. By horiz
 
 The Metrics Server keeps the data it collects, aggregates, and serves in memory. As a cluster grows, the amount of data the Metrics Server stores increases. In large clusters the Metrics Server will require more compute resources than the memory and CPU reservation specified in the default installation. You can use the [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) (VPA) or [Addon Resizer](https://github.com/kubernetes/autoscaler/tree/master/addon-resizer) to scale the Metrics Server. The Addon Resizer scales vertically in proportion to worker nodes and VPA scales based on CPU and memory usage.
 
+## CoreDNS lameduck duration
+
+Pods use the `kube-dns` Service for name resolution. Kubernetes uses destination NAT (DNAT) to redirect `kube-dns` traffic from nodes to CoreDNS backend pods. As you scale the CoreDNS Deployment, `kube-proxy` updates iptables rules and chains on nodes to redirect DNS traffic to CoreDNS pods. Propagating new endpoints when you scale up and deleting rules when you scale down CoreDNS can take between 1 to 10 seconds depending on the size of the cluster. 
+
+This propagation delay can cause DNS lookup failures when a CoreDNS pod gets terminated yet the node’s iptables rules haven’t been updated. In this scenario, the node may continue to send DNS queries to a terminated CoreDNS Pod. 
+
+You can reduce DNS lookup failures by setting a [lameduck](https://coredns.io/plugins/health/) duration in your CoreDNS pods. While in lameduck mode, CoreDNS will continue to respond to in-flight requests. Setting a lameduck duration will delay the CoreDNS shutdown process, allowing nodes the time they need to update their iptables rules and chains. 
+
+We recommend setting CoreDNS lameduck duration to 30 seconds. 
+
 ## Logging and monitoring agents
 
 Logging and monitoring agents can add significant load to your cluster control plane because the agents query the API server to enrich logs and metrics with workload metadata. The agent on a node only has access to the local node resources to see things like container and process name. Querying the API server it can add more details such as Kubernetes deployment name and labels. This can be extremely helpful for troubleshooting but detrimental to scaling.
