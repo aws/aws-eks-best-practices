@@ -49,7 +49,6 @@ nav:
       - AMI Management: "windows/docs/ami.md"
       - gMSA for Windows Containers: "windows/docs/gmsa.md"
       - Windows Server Hardening: "windows/docs/hardening.md"
-      - Running Mixed Workloads: "windows/docs/heterogeneous.md"
       - Scanning Windows Images: "windows/docs/images.md"
       - Windows Versions and Licensing: "windows/docs/licensing.md"
       - Logging: "windows/docs/logging.md"
