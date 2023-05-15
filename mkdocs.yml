@@ -75,6 +75,7 @@ nav:
       - Data Plane: "scalability/docs/data-plane.md"
       - Cluster Services: "scalability/docs/cluster-services.md"
       - Workloads: "scalability/docs/workloads.md"
+  - Cluster Upgrades: "upgrades/index.md"
 markdown_extensions:
   - toc:
       permalink: true
