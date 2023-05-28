@@ -215,7 +215,7 @@ CoreDNS fulfills name resolution and service discovery functions in Kubernetes. 
 
 ## Recommendations
 ### Monitor CoreDNS metrics
-CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_response_rcode_count_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption.
+CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_responses_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption.
 
 For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
 
