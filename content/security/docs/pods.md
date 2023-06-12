@@ -51,12 +51,14 @@ In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/pol
 
 ### Migrating to a new pod security solution
 
-Since PSPs are scheduled to be removed and are no longer under active development, cluster administrators and operators must replace those security controls. Two solutions can fill this need:
+Since PSPs have been removed as of Kubernetes v1.25, cluster administrators and operators must replace those security controls. Two solutions can fill this need:
 
 + Policy-as-code (PAC) solutions from the Kubernetes ecosystem
 + Kubernetes [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
 
 Both the PAC and PSS solutions can coexist with PSP; they can be used in clusters before PSP is removed. This eases adoption when migrating from PSP. Please see this [document](https://kubernetes.io/docs/tasks/configure-pod-container/migrate-from-psp/) when considering migrating from PSP to PSS.
+
+Kyverno, one of the PAC solutions outlined below, has specific guidance outlined in a [blog post](https://kyverno.io/blog/2023/05/24/podsecuritypolicy-migration-with-kyverno/) when migrating from PSPs to its solution including analogous policies, feature comparisons, and a migration procedure. Additional information and guidance on migration to Kyverno with respect to Pod Security Admission (PSA) has been published on the AWS blog [here](https://aws.amazon.com/blogs/containers/managing-pod-security-on-amazon-eks-with-kyverno/).
 
 ### Policy-as-code (PAC)
 
