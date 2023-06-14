@@ -7,20 +7,34 @@ Windows containers are fundamentally different than Linux containers. Linux cont
 
 From a networking perspective, HCS and HNS make Windows containers function like virtual machines. For example, each container has a virtual network adapter (vNIC) that is connected to a Hyper-V virtual switch (vSwitch) as shown in the diagram above.
 
-## IP Management
-Windows Server uses an Elastic Network Interface (ENI) to connect to an AWS VPC network. The EKS Container Network Interface (CNI) for Windows currently supports only one ENI per worker node. The number of pods that a Windows worker node can support is dictated by the size and type of the instance. You can calculate max pods using the following formula: 
+## IP Address Management
+A node in Amazon EKS uses it's Elastic Network Interface (ENI) to connect to an AWS VPC network. Presently, **only a single ENI per Windows worker node is supported**. The IP address management for Windows nodes is performed by [VPC Resource Controller](https://github.com/aws/amazon-vpc-resource-controller-k8s) which runs in control plane. More details about the workflow for IP address management of Windows nodes can be found [here](https://github.com/aws/amazon-vpc-resource-controller-k8s#windows-ipv4-address-management).
 
-_(number of primary ENIs * IP Addresses per Interface) - 3 = Total IP addresses available for Pods_
+The number of pods that a Windows worker node can support is dictated by the size of the node and the number of available IPv4 addresses. You can calculate the IPv4 address available on the node as below:
+- By default, only secondary IPv4 addresses are assigned to the ENI. In such a case-
+  ```
+  Total IPv4 addresses available for Pods = Number of supported IPv4 addresses per interface - 1
+  ```
+  We subtract one from the total count since one IPv4 addresses will be used as the primary address of the ENI and hence cannot be allocated to the Pods.
+- If the cluster has been configured for high pod density by enabling [prefix delegation feature](../../networking/prefix-mode/index_windows.md) then-
+  ```
+  Total IPv4 addresses available for Pods = (Number of supported IPv4 addresses per interface - 1) * 16
+  ```
+  Here, instead of allocating secondary IPv4 addresses, VPC Resource Controller will allocate `/28 prefixes` and therefore, the overall number of available IPv4 addresses will be boosted 16 times.
 
-We subtract 3 IP addresses from the total because the worker node requires one IP for itself, one for the VPC CNI, and one more for kube-proxy. 
-
-Using the formula above, we can calculate max pods for an m5.large instance. 
-
-_(1 primary ENI * 10 secondary IPs per ENI) - 3 = 7_
-
-**Note: The reason it only support 7 is because the VPC CNI for Windows only allows us to use the worker node's primary ENI. Also each ENI on an m5.large supports 10 secondary IP addresses, so we subtract 3 from 10 to get our total of 7 IP addresses.**
+Using the formula above, we can calculate max pods for an m5.large instance as below-
+- By default, when running in secondary IP mode-
+  ```
+  10 secondary IPv4 addresses per ENI - 1 = 9 available IPv4 addresses
+  ```
+- When using `prefix delegation`-
+  ```
+  (10 secondary IPv4 addresses per ENI - 1) * 16 = 144 available IPv4 addresses
+  ```
 
 For more information on how many IP addresses an instance type can support, see [IP addresses per network interface per instance type](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI). 
+
+---
 
 Another key consideration is the flow of network traffic. With Windows there is a risk of port exhaustion on nodes with more than 100 services. When this condition arises, the nodes will start throwing errors with the following message:
 
