@@ -20,7 +20,7 @@ The maximum number of network interfaces, and the maximum number of slots that y
 
 ## Overview
 
-Secondary IP mode is the default mode for VPC CNI. This guide provides a generic overview of VPC CNI behavior when Secondary IP mode is enabled. The functionality of ipamd (allocation of IP addresses) may vary depending on the configuration settings for VPC CNI, such as [Prefix Mode](../prefix-mode/index.md), [Security Groups Per Pod](../sgpp/index.md), and [Custom Networking](../custom-networking/index.md). 
+Secondary IP mode is the default mode for VPC CNI. This guide provides a generic overview of VPC CNI behavior when Secondary IP mode is enabled. The functionality of ipamd (allocation of IP addresses) may vary depending on the configuration settings for VPC CNI, such as [Prefix Mode](../prefix-mode/index_linux.md), [Security Groups Per Pod](../sgpp/index.md), and [Custom Networking](../custom-networking/index.md). 
 
 The Amazon VPC CNI is deployed as a Kubernetes Daemonset named aws-node on worker nodes. When a worker node is provisioned, it has a default ENI, called the primary ENI, attached to it. The CNI allocates a warm pool of ENIs and secondary IP addresses from the subnet attached to the node’s primary ENI. By default, ipamd attempts to allocate an additional ENI to the node. The IPAMD allocates additional ENI when a single Pod is scheduled and assigned a secondary IP address from the primary ENI. This "warm" ENI enables faster Pod networking. As the pool of secondary IP addresses runs out, the CNI adds another ENI to assign more.
 
