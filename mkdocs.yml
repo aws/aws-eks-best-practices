@@ -64,7 +64,7 @@ nav:
       - VPC and Subnet Considerations: "networking/subnets/index.md"
       - Amazon VPC CNI: "networking/vpc-cni/index.md"
       - Prefix Mode for Linux: "networking/prefix-mode/index_linux.md"
-      - Prefix Mode for Windows: "networking/prefix-mode/index_windows.md"
+      #- Prefix Mode for Windows: "networking/prefix-mode/index_windows.md"
       - Running IPv6 Clusters: "networking/ipv6/index.md"
       - Security Groups per Pod: "networking/sgpp/index.md"
       - Custom Networking: "networking/custom-networking/index.md"
