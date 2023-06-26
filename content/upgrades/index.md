@@ -47,11 +47,12 @@ To upgrade a cluster you will need to take the following actions:
 
 1. [Review the Kubernetes and EKS release notes.](#use-the-eks-documentation-to-create-an-upgrade-checklist)
 2. [Take a backup of the cluster. (optional)](#backup-the-cluster-before-upgrading)
-3. [Review add-on compatibility.](#upgrade-add-ons-and-components-using-the-kubernetes-api) Upgrade your Kubernetes add-ons and custom controllers, as required. 
-4. [Identify and remediate deprecated and removed API usage in your workloads.](#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane)
+3. [Identify and remediate deprecated and removed API usage in your workloads.](#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane)
+4. [Ensure Managed Node Groups, if used, are on the same Kubernetes version as the control plane.](#track-the-version-skew-of-nodes-ensure-managed-node-groups-are-on-the-same-version-as-the-control-plane-before-upgrading) EKS managed node groups and nodes created by EKS Fargate Profiles only support 1 minor version skew between the control plane and data plane.
 5. [Upgrade the cluster control plane using the AWS console or cli.](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html)
-6. [Update kubectl.](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
-7. [Upgrade the cluster data plane.](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html)  Upgrade your nodes to the same Kubernetes minor version as your upgraded cluster. 
+6. [Review add-on compatibility.](#upgrade-add-ons-and-components-using-the-kubernetes-api) Upgrade your Kubernetes add-ons and custom controllers, as required. 
+7. [Update kubectl.](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
+8. [Upgrade the cluster data plane.](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html)  Upgrade your nodes to the same Kubernetes minor version as your upgraded cluster. 
 
 ## Use the EKS Documentation to create an upgrade checklist
 
