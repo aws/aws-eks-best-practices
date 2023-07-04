@@ -331,7 +331,7 @@ Managed node groups automate the provisioning and lifecycle management of nodes.
 
 In the default configuration, Karpenter automatically creates new nodes using the latest compatible EKS Optimized AMI. As EKS releases updated EKS Optimized AMIs or the cluster is upgraded, Karpenter will automatically start using these images. [Karpenter also implements Node Expiry to update nodes.](#enable-node-expiry-for-karpenter-managed-nodes)
 
-[Karpenter can be configured to use custom AMIs.](https://karpenter.sh/preview/concepts/node-templates/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
+[Karpenter can be configured to use custom AMIs.](https://karpenter.sh/docs/concepts/node-templates/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
 
 ## Track the version skew of nodes. Ensure Managed Node Groups are on the same version as the control plane before upgrading
 
@@ -341,11 +341,17 @@ This version skew is different for EKS managed node groups and nodes created by 
 
 ## Enable node expiry for Karpenter managed nodes
 
-Karpenter implements node upgrades using the concept of node expiry. This reduces the planning required for node upgrades. When you set a value for **ttlSecondsUntilExpired **in your provisioner, this activates node expiry. After nodes reach the defined age in seconds, they’re safely drained and deleted. This is true even if they’re in use, allowing you to replace nodes with newly provisioned upgraded instances. When a node is replaced, Karpenter uses the latest EKS-optimized AMIs. For more information, see [Deprovisioning](https://karpenter.sh/preview/concepts/deprovisioning/#methods) on the Karpenter website.
+One way Karpenter implements node upgrades is using the concept of node expiry. This reduces the planning required for node upgrades. When you set a value for **ttlSecondsUntilExpired **in your provisioner, this activates node expiry. After nodes reach the defined age in seconds, they’re safely drained and deleted. This is true even if they’re in use, allowing you to replace nodes with newly provisioned upgraded instances. When a node is replaced, Karpenter uses the latest EKS-optimized AMIs. For more information, see [Deprovisioning](https://karpenter.sh/docs/concepts/deprovisioning/#methods) on the Karpenter website.
 
 Karpenter doesn’t automatically add jitter to this value. To prevent excessive workload disruption, define a [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/), as shown in Kubernetes documentation.
 
-If you configure **ttlSecondsUntilExpired **on a provisioner, this applies to existing nodes associated with the provisioner. 
+If you configure **ttlSecondsUntilExpired **on a provisioner, this applies to existing nodes associated with the provisioner.
+
+## Use Drift feature for Karpenter managed nodes
+
+[Karpenter's Drift feature](https://karpenter.sh/docs/concepts/deprovisioning/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Karpenter Drift currently needs to be enabled using a [feature gate](https://karpenter.sh/docs/concepts/settings/#feature-gates). Karpenter's default configuration uses the latest EKS-Optimized AMI for the same major and minor version as the EKS cluster's control plane.
+
+After an EKS Cluster upgrade completes, Karpenter's Drift feature will detect that the Karpenter-provisioned nodes are using EKS-Optimized AMIs for the previous cluster version, and automatically cordon, drain, and replace those nodes. To support pods moving to new nodes, follow Kubernetes best practices by setting appropriate pod [resource quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/), and using [pod disruption budgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/) (PDB). Karpenter's deprovisioning will pre-spin up replacement nodes based on the pod resource requests, and will respect the PDBs when deprovisioning nodes.
 
 ## Use eksctl to automate upgrades for self-managed node groups
 
