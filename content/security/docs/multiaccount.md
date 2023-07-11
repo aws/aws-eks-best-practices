@@ -71,7 +71,7 @@ You would utilize [IAM roles for Service Accounts (IRSA)](https://docs.aws.amazo
 
 ## Centralized vs De-centralized EKS clusters
 
-The decision to run with a Centralized or De-centralized will depend on your requirements. This table demonstrates the considerations.
+The decision to run with a Centralized or De-centralized will depend on your requirements. This table demonstrates the key differences with each strategy.
 
 
 |# |Centralized EKS cluster | De-centralized EKS clusters |
