@@ -82,7 +82,7 @@ An attacker may attempt to erase their misdeeds by terminating an affected node.
 This will serve as a warning to cluster administrators not to tamper with the affected Pods/Nodes until the investigation is complete. 
 
 ### Capture volatile artifacts on the worker node
-+ **Capture the operating system memory**. This will capture the Docker daemon and its subprocess per container.  [MargaritaShotgun](https://github.com/ThreatResponse/margaritashotgun), a remote memory acquisition tool, can aid in this effort. 
++ **Capture the operating system memory**. This will capture the Docker daemon and its subprocess per container.
 + **Perform a netstat tree dump of the processes running and the open ports**. This will capture the docker daemon and its subprocess per container. 
 + **Run docker commands before evidence is altered on the worker node**.
     + `docker container top CONTAINER` for processes running.
@@ -116,7 +116,6 @@ Periodically attacking your own cluster can help you discover vulnerabilities an
 ## Tools
 + [kube-hunter](https://github.com/aquasecurity/kube-hunter), a penetration testing tool for Kubernetes. 
 + [Gremlin](https://www.gremlin.com/product/#kubernetes), a chaos engineering toolkit that you can use to simulate attacks against your applications and infrastructure. 
-+ [kube-forensics](https://github.com/keikoproj/kube-forensics), a Kubernetes controller that triggers a job that collects the state of a running pod and dumps it in an S3 bucket. 
 + [Attacking and Defending Kubernetes Installations](https://github.com/kubernetes/sig-security/blob/main/sig-security-external-audit/security-audit-2019/findings/AtredisPartners_Attacking_Kubernetes-v1.0.pdf)
 + [kubesploit](https://www.cyberark.com/resources/threat-research-blog/kubesploit-a-new-offensive-tool-for-testing-containerized-environments)
 

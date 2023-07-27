@@ -246,12 +246,9 @@ Yet another option might be to store the audit logs in S3 and use the SageMaker 
 The following commercial and open source projects can be used to assess your cluster's alignment with established best practices:
 
 + [kubeaudit](https://github.com/Shopify/kubeaudit)
-+ [MKIT](https://github.com/darkbitio/mkit)
 + [kube-scan](https://github.com/octarinesec/kube-scan) Assigns a risk score to the workloads running in your cluster in accordance with the Kubernetes Common Configuration Scoring System framework
-+ [amicontained](https://github.com/genuinetools/amicontained) Reveals which Capabilities are allowed and syscalls that are blocked by the container runtime
 + [kubesec.io](https://kubesec.io/)
 + [polaris](https://github.com/FairwindsOps/polaris)
 + [Starboard](https://github.com/aquasecurity/starboard)
-+ [kAudit](https://github.com/alcideio/kaudit)
 + [Snyk](https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview)
 + [Kubescape](https://github.com/kubescape/kubescape) Kubescape is an open source kubernetes security tool that scans clusters, YAML files, and Helm charts. It detects misconfigurations according to multiple frameworks (including [NSA-CISA](https://www.armosec.io/blog/kubernetes-hardening-guidance-summary-by-armo/?utm_source=github&utm_medium=repository) and [MITRE ATT&CK®](https://www.microsoft.com/security/blog/2021/03/23/secure-containerized-environments-with-updated-threat-matrix-for-kubernetes/).)
