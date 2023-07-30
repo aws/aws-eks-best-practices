@@ -93,9 +93,7 @@ VPC connectivity is best achieved when using non-overlapping IP ranges for each 
 
 ### Sharing VPC across multiple accounts
 
-Customers can share subnets with other AWS accounts inside the same AWS Organization via [VPC sharing](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html). Sharing a VPC is advised for larger organizations aiming to achieve separation of roles. VPC sharing is beneficial for a central networking team administering a centrally managed VPC, routing, and IP address allocation, while letting application owners to retain ownership over their own resources, accounts, and security groups. Consider VPC sharing to save costs by reusing NAT gateways, VPC interface endpoints, and intra-Availability Zone traffic. You may increase subnet density and prevent subnet fragmentation with VPC sharing.
-
-You can use VPC sharing with EKS clusters. We propose creating distinct subnets and EKS clusters for each application team. Please refer to this [blog](https://aws.amazon.com/blogs/networking-and-content-delivery/vpc-sharing-a-new-approach-to-multiple-accounts-and-vpc-management/) post to learn more about VPC sharing.
+Currently EKS does not support creating or managing EKS resources in shared VPCs or shared subnets.
 
 ### Security Groups 
 
