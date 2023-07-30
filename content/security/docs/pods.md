@@ -202,7 +202,7 @@ metadata:
   namespace: pod-security-webhook
 data:
   podsecurityconfiguration.yaml: |
-    apiVersion: pod-security.admission.config.k8s.io/v1beta1
+    apiVersion: pod-security.admission.config.k8s.io/v1
     kind: PodSecurityConfiguration
     defaults:
       enforce: "restricted"
@@ -242,7 +242,7 @@ webhooks:
 
 !!! Attention 
     
-    As of Kubernetes versions _1.22_ and _1.23_, the Pod Security Admission feature is _alpha_ and _beta_ status, respectively. At least until GA, the current admission controller can be used via a validating webhook, configured from [these instructions](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
+    Pod Security Admissions graduated to stable in Kubernetes v1.25. If you wanted to use the Pod Security Admission feature prior to it being enabled by default, you needed to install the dynamic admission controller (mutating webhook). The instructions for installing and configuring the webhook can be found [here](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
 
 ### Choosing between policy-as-code and Pod Security Standards
 
