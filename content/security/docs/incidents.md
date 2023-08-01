@@ -82,13 +82,15 @@ An attacker may attempt to erase their misdeeds by terminating an affected node.
 This will serve as a warning to cluster administrators not to tamper with the affected Pods/Nodes until the investigation is complete. 
 
 ### Capture volatile artifacts on the worker node
-+ **Capture the operating system memory**. This will capture the Docker daemon and its subprocess per container.
++ **Capture the operating system memory**. This will capture the Docker daemon (or other container runtime) and its subprocesses per container. This can be accomplished using tools like [LiME](https://github.com/504ensicsLabs/LiME) and [Volatility](https://www.volatilityfoundation.org/), or through higher-level tools such as [Automated Forensics Orchestrator for Amazon EC2](https://aws.amazon.com/solutions/implementations/automated-forensics-orchestrator-for-amazon-ec2/) that build on top of them.
 + **Perform a netstat tree dump of the processes running and the open ports**. This will capture the docker daemon and its subprocess per container. 
-+ **Run docker commands before evidence is altered on the worker node**.
-    + `docker container top CONTAINER` for processes running.
-    + `docker container logs CONTAINER` for daemon level held logs.
-    + `docker container port CONTAINER` for list of open ports.
-    + `docker container diff CONTAINER` to capture changes to files and directories to container's  filesystem since its initial launch.   
++ **Run commands to save container-level state before evidence is altered**. You can use capabilities of the container runtime to capture information about currently running containers. For example, with Docker, you could do the following:
+    + `docker top CONTAINER` for processes running.
+    + `docker logs CONTAINER` for daemon level held logs.
+    + `docker inspect CONTAINER` for various information about the container.
+
+    The same could be achieved with containerd using the [nerdctl](https://github.com/containerd/nerdctl) CLI, in place of `docker` (e.g. `nerdctl inspect`). Some additional commands are available depending on the container runtime. For example, Docker has `docker diff` to see changes to the container filesystem or `docker checkpoint` to save all container state including volatile memory (RAM). See [this Kubernetes blog post](https://kubernetes.io/blog/2022/12/05/forensic-container-checkpointing-alpha/) for discussion of similar capabilities with containerd or CRI-O runtimes.
+
 + **Pause the container for forensic capture**.
 + **Snapshot the instance's EBS volumes**.
 
