@@ -48,7 +48,6 @@ Pod Security Policies offer a lot of different ways to improve your security pos
 + [7 things you should know before you start](https://itnext.io/seccomp-in-kubernetes-part-i-7-things-you-should-know-before-you-even-start-97502ad6b6d6)
 + [AppArmor Loader](https://github.com/kubernetes/kubernetes/tree/master/test/images/apparmor-loader)
 + [Setting up nodes with profiles](https://kubernetes.io/docs/tutorials/clusters/apparmor/#setting-up-nodes-with-profiles)
-+ [zaz](https://github.com/pjbgf/zaz) A command-line tool to assist on assessing container security requirements and generating seccomp profiles
 + [seccomp-operator](https://github.com/kubernetes-sigs/seccomp-operator) Is similar to the AppArmor Loader, only instead of AppArmor profiles, it creates a seccomp profiles on each host 
 
 ## Tools

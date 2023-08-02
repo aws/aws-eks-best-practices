@@ -98,8 +98,6 @@ Your chief concern as an administrator of a multi-tenant environment is preventi
 
 Sandboxing is a technique by which each container is run in its own isolated virtual machine. Technologies that perform pod sandboxing include [Firecracker](https://firecracker-microvm.github.io/) and Weave's [Firekube](https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite).
 
-If you are building your own self-managed Kubernetes cluster on AWS, you may be able to configure alternate container runtimes such as [Kata Containers](https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support).
-
 For additional information about the effort to make Firecracker a supported runtime for EKS, see
 [https://threadreaderapp.com/thread/1238496944684597248.html](https://threadreaderapp.com/thread/1238496944684597248.html). 
 

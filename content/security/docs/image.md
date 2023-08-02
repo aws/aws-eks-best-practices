@@ -165,7 +165,6 @@ RUN apt-get update && apt-get install -y \
 ```
 
 ## Tools
-+ [Bane](https://github.com/genuinetools/bane) An AppArmor profile generator for Docker containers
 + [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images
 + [dockle](https://github.com/goodwithtech/dockle) Verifies that your Dockerfile aligns with best practices for creating secure images
 + [dockerfile-lint](https://github.com/projectatomic/dockerfile_lint) Rule based linter for Dockerfiles
