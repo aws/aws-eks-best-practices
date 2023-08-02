@@ -21,7 +21,7 @@ You can adopt the following approaches when implementing EKS Multi account strat
 
 ## Centralized EKS Cluster
 
-In this approach, your EKS Cluster will be deployed in a single AWS account called the `Cluster Account`. Using [IAM roles for Service Accounts (IRSA)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) and [AWS Resource Access Manager (RAM)](https://aws.amazon.com/ram/) you can adapt a multi account strategy for your multi tenant EKS cluster. The cluster account will contain the VPC, subnets, EKS cluster, EC2/Fargate compute resources, and any additional networking or configurations needed to run your EKS cluster.
+In this approach, your EKS Cluster will be deployed in a single AWS account called the `Cluster Account`. Using [IAM roles for Service Accounts (IRSA)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) and [AWS Resource Access Manager (RAM)](https://aws.amazon.com/ram/) you can adapt a multi account strategy for your multi tenant EKS cluster. The cluster account will contain the VPC, subnets, EKS cluster, EC2/Fargate compute resources(nodes), and any additional networking or configurations needed to run your EKS cluster.
 
 In a multi workload account strategy for multi tenant cluster, AWS accounts typically align with [kubernetes namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) as a mechanism for isolating groups of resources. [Best practices for tenant isolation](/security/docs/multitenancy/) within an EKS cluster should still be followed when implementing a multi account strategy for multi tenant EKS clusters.
 
