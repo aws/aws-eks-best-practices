@@ -53,14 +53,14 @@ Consider monitoring these control plane metrics:
 
 ### etcd
 
-| Metric | Description  |
+| Metric | Description  
 |:--|:--|
 | `etcd_request_duration_seconds` | Etcd request latency in seconds for each operation and object type. |
-| `etcd_db_total_size_in_bytes` | Etcd database size. |
+| `etcd_db_total_size_in_bytes` or <br />`apiserver_storage_db_total_size_in_bytes` (starting with EKS v1.26) | Etcd database size. |
 
 Consider using the [Kubernetes Monitoring Overview Dashboard](https://grafana.com/grafana/dashboards/14623) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics.
 
-The following Prometheus query can be used to monitor the current size of etcd. The query assumes there is job called `kube-apiserver` for scraping metrics from API metrics endpoint. 
+The following Prometheus query can be used to monitor the current size of etcd. The query assumes there is job called `kube-apiserver` for scraping metrics from API metrics endpoint and the EKS version is below v1.26. 
 
 ```text
 max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
