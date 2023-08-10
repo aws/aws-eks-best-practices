@@ -9,7 +9,7 @@ The webhook authentication strategy calls a webhook that verifies bearer tokens.
 To manually generate a authentication token, type the following command in a terminal window: 
 
 ```bash
-aws eks get-token --cluster <cluster_name>
+aws eks get-token --cluster-name <cluster_name>
 ```
 
 You can also get a token programmatically. Below is an example written in Go: 
