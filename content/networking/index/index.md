@@ -45,7 +45,7 @@ EKS’s support for IPv6 is focused on solving the IP exhaustion problem caused 
 
 ## Subnet Calculator
 
-This project includes a [Subnet Calculator Excel Document](../subnet-calc/subnet-calc.xlsx). This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`. The document includes two sheets, a first for WarmE NI mode, and a second for Warm IP mode. Review the [VPC CNI guidance](../vpc-cni/index.md) for more information on these modes. 
+This project includes a [Subnet Calculator Excel Document](../subnet-calc/subnet-calc.xlsx). This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`. The document includes two sheets, a first for Warm ENI mode, and a second for Warm IP mode. Review the [VPC CNI guidance](../vpc-cni/index.md) for more information on these modes. 
 
 Inputs:
 - Subnet CIDR Size
