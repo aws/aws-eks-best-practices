@@ -1,5 +1,7 @@
 # Kubernetes Cluster Autoscaler
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/FIBc8GkjFU0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Overview
 
 [The Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) is a popular Cluster Autoscaling solution maintained by [SIG Autoscaling](https://github.com/kubernetes/community/tree/master/sig-autoscaling). It is responsible for ensuring that your cluster has enough nodes to schedule your pods without wasting resources. It watches for pods that fail to schedule and for nodes that are underutilized. It then simulates the addition or removal of nodes before applying the change to your cluster. The AWS Cloud Provider implementation within Cluster Autoscaler controls the `.DesiredReplicas` field of your EC2 Auto Scaling Groups.
@@ -83,10 +85,10 @@ Effective autoscaling starts with correctly configuring a set of Node Groups for
 Ensure that:
 
 * Each Node in a Node Group has identical scheduling properties, such as Labels, Taints, and Resources.
-    * For MixedInstancePolicies, the Instance Types must be of the same shape for CPU, Memory, and GPU
-    * The first Instance Type specified in the policy will be used to simulate scheduling.
-    * If your policy has additional Instance Types with more resources, resources may be wasted after scale out.
-    * If your policy has additional Instance Types with less resources, pods may fail to schedule on the instances.
+  * For MixedInstancePolicies, the Instance Types must be of the same shape for CPU, Memory, and GPU
+  * The first Instance Type specified in the policy will be used to simulate scheduling.
+  * If your policy has additional Instance Types with more resources, resources may be wasted after scale out.
+  * If your policy has additional Instance Types with less resources, pods may fail to schedule on the instances.
 * Node Groups with many nodes are preferred over many Node Groups with fewer nodes. This will have the biggest impact on scalability.
 * Wherever possible, prefer EC2 features when both systems provide support (e.g. Regions, MixedInstancePolicy)
 
@@ -111,9 +113,9 @@ Minimizing the number of node groups is one way to ensure that the Cluster Autos
 Ensure that:
 
 * Pod isolation is done using Namespaces rather than Node Groups.
-    * This may not be possible in low-trust multi-tenant clusters.
-    * Pod ResourceRequests and ResourceLimits are properly set to avoid resource contention.
-    * Larger instance types will result in more optimal bin packing and reduced system pod overhead.
+  * This may not be possible in low-trust multi-tenant clusters.
+  * Pod ResourceRequests and ResourceLimits are properly set to avoid resource contention.
+  * Larger instance types will result in more optimal bin packing and reduced system pod overhead.
 * NodeTaints or NodeSelectors are used to schedule pods as the exception, not as the rule.
 * Regional resources are defined as a single EC2 Auto Scaling Group with multiple Availability Zones.
 
@@ -228,9 +230,9 @@ Ensure that:
 
 * Node group balancing is enabled by setting `balance-similar-node-groups=false`
 * [Node Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) and/or [Pod Preemption](https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/) is used when clusters include both Regional and Zonal Node Groups.
-    * Use [Node Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) to force or encourage regional pods to avoid zonal Node Groups, and vice versa.
-    * If zonal pods schedule onto regional node groups, this will result in imbalanced capacity for your regional pods.
-    * If your zonal workloads can tolerate disruption and relocation, configure [Pod Preemption](https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/) to enable regionally scaled pods to force preemption and rescheduling on a less contested zone.
+  * Use [Node Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) to force or encourage regional pods to avoid zonal Node Groups, and vice versa.
+  * If zonal pods schedule onto regional node groups, this will result in imbalanced capacity for your regional pods.
+  * If your zonal workloads can tolerate disruption and relocation, configure [Pod Preemption](https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/) to enable regionally scaled pods to force preemption and rescheduling on a less contested zone.
 
 ### Accelerators
 
@@ -295,6 +297,3 @@ This page contains a list of Cluster Autoscaler presentations and demos. If you'
 * [https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md)
 * [https://github.com/aws/amazon-ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector)
 * [https://github.com/aws/aws-node-termination-handler](https://github.com/aws/aws-node-termination-handler)
-
-
-
