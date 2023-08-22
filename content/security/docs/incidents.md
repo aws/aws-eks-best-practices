@@ -120,6 +120,7 @@ Periodically attacking your own cluster can help you discover vulnerabilities an
 + [Gremlin](https://www.gremlin.com/product/#kubernetes), a chaos engineering toolkit that you can use to simulate attacks against your applications and infrastructure. 
 + [Attacking and Defending Kubernetes Installations](https://github.com/kubernetes/sig-security/blob/main/sig-security-external-audit/security-audit-2019/findings/AtredisPartners_Attacking_Kubernetes-v1.0.pdf)
 + [kubesploit](https://www.cyberark.com/resources/threat-research-blog/kubesploit-a-new-offensive-tool-for-testing-containerized-environments)
++ [NeuVector by SUSE](https://www.suse.com/neuvector/) open source, zero-trust container security platform, provides vulnerability- and risk reporting as well as security event notification
 
 ## Videos
 + [Advanced Persistent Threats](https://www.youtube.com/watch?v=CH7S5rE3j8w)
