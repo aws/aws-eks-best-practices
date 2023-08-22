@@ -100,6 +100,8 @@ autoscalingGroups:
 
 ### Overview
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YnPPHBawhE0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 To protect itself from being overloaded during periods of increased requests, the API Server limits the number of inflight requests it can have outstanding at a given time. Once this limit is exceeded, the API Server will start rejecting requests and return a 429 HTTP response code for "Too Many Requests" back to clients. The server dropping requests and having clients try again later is preferable to having no server-side limits on the number of requests and overloading the control plane, which could result in degraded performance or unavailability.
 
 The mechanism used by Kubernetes to configure how these inflights requests are divided among different request types is called [API Priority and Fairness](https://kubernetes.io/docs/concepts/cluster-administration/flow-control/). The API Server configures the total number of inflight requests it can accept by summing together the values specified by the `--max-requests-inflight` and `--max-mutating-requests-inflight` flags. EKS uses the default values of 400 and 200 requests for these flags, allowing a total of 600 requests to be dispatched at a given time. APF specifies how these 600 requests are divided among different request types. Note that EKS control planes are highly available with at least 2 API Servers registered to each cluster. This increases the total number of inflight requests across the cluster to 1200.
