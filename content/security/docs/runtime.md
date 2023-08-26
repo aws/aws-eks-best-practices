@@ -19,7 +19,9 @@ securityContext:
 It's also possible to create your own profiles for things that require additional privileges.  
 
 !!! caution
-    seccomp profiles are a Kubelet alpha feature.  You'll need to add the `--seccomp-profile-root` flag to the Kubelet arguments to make use of this feature. 
+    seccomp profiles are a Kubelet alpha feature, before 1.22.  You'll need to add the `--seccomp-profile-root` flag to the Kubelet arguments to make use of this feature.
+
+As of 1.22 (in alpha, stable as of 1.27), the above `RuntimeDefault` can be used for all Pods on a Node using a [single kubelet flag](https://kubernetes.io/docs/tutorials/security/seccomp/#enable-the-use-of-runtimedefault-as-the-default-seccomp-profile-for-all-workloads), `--seccomp-default`. The annotation is no longer needed, and the `securityContext` profile is only needed for other profiles.
 
 AppArmor is similar to seccomp, only it restricts an container's capabilities including accessing parts of the file system. It can be run in either enforcement or complain mode. Since building Apparmor profiles can be challenging, it is recommended you use a tool like [bane](https://github.com/genuinetools/bane) instead. 
 
