@@ -8,8 +8,12 @@ from .checks import RepoStats
 
 class Client:
 
-    def __init__(self, token):
-        self._pygh = Github(auth=Auth.Token(token))
+    def __init__(self, token=None):
+        if token:
+            self._pygh = Github(auth=Auth.Token(token))
+        else:
+            print('WARNING: Making unauthenticated calls to GitHub API...')
+            self._pygh = Github()
 
     @staticmethod
     def repo_full_name_from_url(url):
