@@ -17,7 +17,8 @@ class LinkBotConfig:
             self.dry_run = os.environ.get('LINKBOT_DRY_RUN', 'false').lower() == 'true'
             # GH login info used for creating issues
             self.gh_user = os.environ['LINKBOT_GH_USER']
-            self.gh_token = os.environ['LINKBOT_GH_TOKEN']
+            # Allow unauthenticated use, handy for e.g. testing rate limits
+            self.gh_token = os.environ.get('LINKBOT_GH_TOKEN')
         except KeyError as e:
             print('Error: %s is a required config value' % e)
             exit(1)
