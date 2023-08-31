@@ -109,3 +109,16 @@ For additional information about the AWS Secrets & Configuration Provider (ASCP)
 + [Integrating Secrets Manager secrets with Kubernetes Secrets Store CSI Driver](https://docs.aws.amazon.com/secretsmanager/latest/userguide/integrating_csi_driver.html)
 
 [external-secrets](https://github.com/external-secrets/external-secrets) is yet another way to use an external secret store with Kubernetes. Like the CSI Driver, external-secrets works against a variety of different backends, including AWS Secrets Manager. The difference is, rather than retrieving secrets from the external secret store, external-secrets copies secrets from these backends to Kubernetes as Secrets.  This lets you manage secrets using your preferred secret store and interact with secrets in a Kubernetes-native way. 
+
+### Cryptographically sign your container images in Amazon ECR with AWS Signer
+Amazon ECR integrates with AWS Signer to provide a way for you to sign your container images. You can store both your container images and the signatures in your private repositories.
+
+#### Considerations
+* The following should be considered when using Amazon ECR image signing.
+* Signatures stored in your repository count against the service quota for the maximum number of images per repository. For more information, see Amazon ECR service quotas.
+* When using Amazon ECR lifecycle policies, any action by a rule to expire or delete an OCI image index will result in Amazon ECR deleting any signatures referenced by that image index within 24 hours.
+
+
+
+
+
