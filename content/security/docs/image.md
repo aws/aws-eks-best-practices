@@ -182,13 +182,13 @@ For example we can write a policy that cryptographically verifies the signature 
 
 Examples of admission controller include:
 
-* [https://kyverno.io/](Kyverno)
-* [https://github.com/open-policy-agent/gatekeeper](OPA Gatekeeper)
-* [https://github.com/IBM/portieris](Portieris)
-* [https://github.com/deislabs/ratify](Ratify)
-* [https://github.com/grafeas/kritis](Kritis)
-* [https://github.com/kelseyhightower/grafeas-tutorial](Grafeas tutorial)
-* [https://github.com/Shopify/voucher](Voucher)
+* [Kyverno](https://kyverno.io/)
+* [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper)
+* [Portieris](https://github.com/IBM/portieris)
+* [Ratify](https://github.com/deislabs/ratify)
+* [Kritis](https://github.com/grafeas/kritis)
+* [Grafeas tutorial](https://github.com/kelseyhightower/grafeas-tutorial)
+* [Voucher](https://github.com/Shopify/voucher)
 
 ### Update the packages in your container images
 You should include RUN `apt-get update && apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security updates.
