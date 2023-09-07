@@ -129,7 +129,7 @@ Each ECR repository can have a lifecycle policy that sets rules for when images 
 * Filtering by tagged or untagged images
 * Filtering by image tags, either in multiple rules or a single rule
 
-???+ warning 
+???+ warning
     If the image for long running application is purged from ECR, it can cause an image pull errors when the application is redeployed or scaled horizontally. When using image lifecycle policies, be sure you have good CI/CD practices in place to keep deployments and the images that they reference up to date and always create [image] expiry rules that account for how often you do releases/deployments.
 
 ### Create a set of curated images
@@ -182,13 +182,13 @@ For example we can write a policy that cryptographically verifies the signature 
 
 Examples of admission controller include:
 
-* https://kyverno.io/
-* https://github.com/open-policy-agent/gatekeeper
-* https://github.com/IBM/portieris
-* https://github.com/deislabs/ratify
-* https://github.com/grafeas/kritis
-* https://github.com/kelseyhightower/grafeas-tutorial
-* https://github.com/Shopify/voucher
+* [https://kyverno.io/](Kyverno)
+* [https://github.com/open-policy-agent/gatekeeper](OPA Gatekeeper)
+* [https://github.com/IBM/portieris](Portieris)
+* [https://github.com/deislabs/ratify](Ratify)
+* [https://github.com/grafeas/kritis](Kritis)
+* [https://github.com/kelseyhightower/grafeas-tutorial](Grafeas tutorial)
+* [https://github.com/Shopify/voucher](Voucher)
 
 ### Update the packages in your container images
 You should include RUN `apt-get update && apt-get upgrade` in your Dockerfiles to upgrade the packages in your images. Although upgrading requires you to run as root, this occurs during image build phase. The application doesn't need to run as root. You can install the updates and then switch to a different user with the USER directive. If your base image runs as a non-root user, switch to root and back; don't solely rely on the maintainers of the base image to install the latest security updates.
