@@ -1,6 +1,6 @@
 # Kubernetes Cluster Autoscaler
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/FIBc8GkjFU0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+[![Kubernetes Cluster Autoscaler Youtube](https://img.youtube.com/vi/FIBc8GkjFU0/0.jpg)](https://www.youtube.com/embed/FIBc8GkjFU0)
 
 ## Overview
 
