@@ -58,7 +58,7 @@ The following diagram depict an internet IPv4 user accessing an EKS/IPv6 Ingress
 
 ![Internet IPv4 user to EKS/IPv6 Ingress service](./ipv4-internet-to-eks-ipv6.png)
 
-**Note: The above pattern requires to deploy the [most recent version](https://kubernetes-sigs.github.io/aws-load-balancer-controller) of the AWS load balancer controller**
+> Note: The above pattern requires to deploy the [most recent version](https://kubernetes-sigs.github.io/aws-load-balancer-controller) of the AWS load balancer controller
 
 ### EKS Control Plane <-> Data Plane communication
 
@@ -94,7 +94,7 @@ EKS supports IPv6 for Pods running on Fargate. Pods running on Fargate will cons
 
 ### Deploy the AWS Load Balancer Controller (LBC)
 
-**The upstream in-tree Kubernetes service controller does not support IPv6**. We recommend using the [most recent version](https://kubernetes-sigs.github.io/aws-load-balancer-controller) of the AWS Load Balancer Controller add-on. The LBC will only deploy a dual-stack NLB or a dual-stack ALB upon consuming corresponding kubernetes service/ingress definition annotated with: "alb.ingress.kubernetes.io/ip-address-type: dualstack" and "alb.ingress.kubernetes.io/target-type: ip" 
+**The upstream in-tree Kubernetes service controller does not support IPv6**. We recommend using the [most recent version](https://kubernetes-sigs.github.io/aws-load-balancer-controller) of the AWS Load Balancer Controller add-on. The LBC will only deploy a dual-stack NLB or a dual-stack ALB upon consuming corresponding kubernetes service/ingress definition annotated with: `"alb.ingress.kubernetes.io/ip-address-type: dualstack"` and `"alb.ingress.kubernetes.io/target-type: ip"` 
 
 AWS Network Load Balancer does not support dual-stack UDP protocol address types. If you have strong requirements for low-latency, real-time streaming, online gaming, and IoT, we recommend running IPv4 clusters. To learn more about managing health checks for UDP services, please refer to [“How to route UDP traffic into Kubernetes”](https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/).
 
