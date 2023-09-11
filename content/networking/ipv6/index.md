@@ -12,7 +12,7 @@ Amazon EKS IPv6 support leverages the native VPC IPv6 capabilities. Each VPC is 
 ![Dual Stack VPC, mandatory foundation for EKS cluster in IPv6 mode](./eks-ipv6-foundation.png)
 
 In the IPv6 world, every address is internet routable. By default, VPC allocates IPv6 CIDR from the public GUA range. VPCs do not support assigning private IPv6 addresses from the [Unique Local Address (ULA)](https://en.wikipedia.org/wiki/Unique_local_address) range as defined by RFC 4193 (fd00::/8 or fc00::/8). This is true even when you would like to assign an IPv6 CIDR owned by you. Egressing to the internet from Private Subnets is supported by implementing an egress-only internet gateway (EIGW) in a VPC, allowing outbound traffic while blocking all incoming traffic. 
-the following diagram depicts a Pod IPv6 Internet egress flow inside an EKS/IPv6 cluster:
+The following diagram depicts a Pod IPv6 Internet egress flow inside an EKS/IPv6 cluster:
 
 ![Dual Stack VPC, EKS Cluster in IPv6 Mode, Pods in private subnets egressing to Internet IPv6 endpoints](./eks-egress-ipv6.png)
 
@@ -46,7 +46,7 @@ When the IPv6 based Pod requires to connect to an internet IPv4 endpoint, an add
 
 Any Pod-to-Pod communication across the nodes always uses an IPv6 address. VPC CNI configures iptables to handle IPv6 while blocking any IPv4 connections.
 
-Kubernetes services will receive only IPv6 addresses (ClusterIP) from Unique [Local IPv6 Unicast Addresses (ULA)](https://datatracker.ietf.org/doc/html/rfc4193). The ULA Service CIDR for an IPv6 cluster is automatically assigned during EKS cluster creation stage and cannot be modified. The following digram depicts the Pod to Kubernetes Service flow:
+Kubernetes services will receive only IPv6 addresses (ClusterIP) from Unique [Local IPv6 Unicast Addresses (ULA)](https://datatracker.ietf.org/doc/html/rfc4193). The ULA Service CIDR for an IPv6 cluster is automatically assigned during EKS cluster creation stage and cannot be modified. The following diagram depicts the Pod to Kubernetes Service flow:
 
 ![EKS/IPv6, IPv6 Pod to IPv6 k8s service (ClusterIP ULA) flow](./Pod-to-service-ipv6.png)
 
