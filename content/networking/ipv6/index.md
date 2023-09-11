@@ -50,7 +50,7 @@ Kubernetes services will receive only IPv6 addresses (ClusterIP) from Unique [Lo
 
 ![EKS/IPv6, IPv6 Pod to IPv6 k8s service (ClusterIP ULA) flow](./Pod-to-service-ipv6.png)
 
-Services are exposed to the internet using an AWS load balancer. The load balancer receives public IPv4 and IPv6 addresses, a.k.a dual-stack loadd balancer. For IPv4 clients accessing IPv6 cluster services, the load balancer does IPv4 to IPv6 translation.
+Services are exposed to the internet using an AWS load balancer. The load balancer receives public IPv4 and IPv6 addresses, a.k.a dual-stack load balancer. For IPv4 clients accessing IPv6 cluster kubernetes services, the load balancer does IPv4 to IPv6 translation.
 
 Amazon EKS recommends running worker nodes and Pods in private subnets. You can create public load balancers in the public subnets that load balance traffic to Pods running on nodes that are in private subnets.
 The following diagram depicts an internet IPv4 user accessing an EKS/IPv6 Ingress based service:
