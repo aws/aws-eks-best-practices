@@ -53,10 +53,10 @@ Consider monitoring these control plane metrics:
 
 ### etcd
 
-| Metric | Description  
-|:--|:--|
-| `etcd_request_duration_seconds` | Etcd request latency in seconds for each operation and object type. |
-| `etcd_db_total_size_in_bytes` or <br />`apiserver_storage_db_total_size_in_bytes` (starting with EKS v1.26) | Etcd database size. |
+| Metric                                                                                                                                                                                    | Description  
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--|
+| `etcd_request_duration_seconds`                                                                                                                                                           | Etcd request latency in seconds for each operation and object type. |
+| `etcd_db_total_size_in_bytes` or <br />`apiserver_storage_db_total_size_in_bytes` (starting with EKS v1.26) or <br />`apiserver_storage_size_bytes` (starting with EKS v1.28) | Etcd database size. |
 
 Consider using the [Kubernetes Monitoring Overview Dashboard](https://grafana.com/grafana/dashboards/14623) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics.
 
