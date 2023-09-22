@@ -7,13 +7,13 @@ Using node sizes that are slightly larger (4-12xlarge) increases the available s
 !!! note
     Since k8s scales horizontally as a general rule, for most applications it does not make sense to take the performance impact of NUMA sizes nodes, thus the recommendation of a range below that node size.
 
-![Node size](/content/scalability/images/node-size.png)
+![Node size](../images/node-size.png)
 
 Large nodes sizes allow us to have a higher percentage of usable space per node. However, this model can be taken to to the extreme by packing the node with so many pods that it causes errors or saturates the node. Monitoring node saturation is key to successfully using larger node sizes. 
 
 Node selection is rarely a one-size-fits-all proposition. Often it is best to split workloads with dramatically different churn rates into different node groups. Small batch workloads with a high churn rate would be best served by the the 4xlarge family of instances, while a large scale application such as Kafka which takes 8 vCPU and has a low churn rate would be better served by the 12xlarge family.   
 
-![Churn rate](/content/scalability/images/churn-rate.png)
+![Churn rate](../images/churn-rate.png)
 
 !!! tip
     Another factor to consider with very large node sizes is since CGROUPS do not hide the total number of vCPU from the containerized application. Dynamic runtimes can often spawn an unintentional number of OS threads, creating latency that is difficult to troubleshoot. For these application [CPU pinning](https://kubernetes.io/docs/tasks/administer-cluster/cpu-management-policies/#static-policy) is recommend. For a deeper exploration of topic please see the following video https://www.youtube.com/watch?v=NqtfDy_KAqg
@@ -27,22 +27,22 @@ After Kubernetes scheduler is finished, a new set of rules takes over, the Linux
 ### Thinking in Cores 
 The confusion starts because the Kubernetes scheduler does have the concept of cores. From a Kubernetes scheduler perspective if we looked at a node with 4 NGINX pods, each with a request of one core set, the node would look like this.
 
-![](/content/scalability/images/cores-1.png)
+![](../images/cores-1.png)
 
 However, let’s do a thought experiment on how different this looks from a Linux CFS perspective. The most important thing to remember when using the Linux CFS system is: busy containers (CGROUPS) are the only containers that count toward the share system. In this case, only the first container is busy so it is allowed to use all 4 cores on the node.
 
-![](/content/scalability/images/cores-2.png)
+![](../images/cores-2.png)
 
 Why does this matter? Let’s say we ran our performance testing in a development cluster where an NGINX application was the only busy container on that node. When we move the app to production, the following would happen: the NGINX application wants 4 vCPU of resources however, because all the other pods on the node are busy, our app’s performance is constrained. 
 
-![](/content/scalability/images/cores-3.png)
+![](../images/cores-3.png)
 
 This situation would lead us to add more containers unnecessarily because we were not allowing our applications scale to their “sweet spot“. Let's explore this important concept of a ”sweet spot“ in a bit more detail.
 
 ### Application right sizing
 Each application has a certain point where it can not take anymore traffic. Going above this point can increase processing times and even drop traffic when pushed well beyond this point. This is known as the application’s saturation point. To avoid scaling issues, we should attempt to scale the application **before** it reaches its saturation point. Let’s call this point the sweet spot. 
 
-![The sweet spot](/content/scalability/images/sweet-spot.png)
+![The sweet spot](../images/sweet-spot.png)
 
 We need to test each of our applications to understand its sweet spot. There will be no universal guidance here as each application is different. During this testing we are trying to understand the best metric that shows our applications saturation point. Oftentimes, utilization metrics are used to indicate an application is saturated but this can quickly lead to scaling issues (We will explore this topic in detail in a later section). Once we have this “sweet spot“ we can use it to efficiently scale our workloads.
 
@@ -51,25 +51,25 @@ Conversely, what would happen if we scale up well before the sweet spot and crea
 ### Pod sprawl 
 To see how creating unnecessary pods could quickly get out of hand, let's look at the first example on the left. The correct vertical scale of this container takes up about two vCPUs worth of utilization when handling 100 requests a second. However, If we were to under-provision the requests value by setting requests to half a core, we would now need 4 pods for each one pods we actually needed. Exacerbating this problem further, if our [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) was set at the default of 50% CPU, those pods would scale half empty, creating an 8:1 ratio. 
 
-![](/content/scalability/images/scaling-ratio.png)
+![](../images/scaling-ratio.png)
 
 Scaling this problem up we can quickly see how this can get out of hand. A deployment of ten pods whose sweet spot was set incorrectly could quickly spiral to 80 pods and the additional infrastructure needed to run them. 
 
-![](/content/scalability/images/bad-sweetspot.png)
+![](../images/bad-sweetspot.png)
 
 Now that we understand the impact of not allowing applications to operate in their sweet spot, let’s return to the node level and ask why this difference between the Kubernetes scheduler and Linux CFS so important?
 
 When scaling up and down with HPA, we can have a scenario where we have a lot of space to allocate more pods. This would be a bad decision because the node depicted on the left is already at 100% CPU utilization. In a unrealistic but theoretically possible scenario, we could have the other extreme where our node is completely full, yet our CPU utilization is zero. 
 
-![](/content/scalability/images/hpa-utilization.png)
+![](../images/hpa-utilization.png)
 ### Setting Requests
 It would tempting to set the request at the “sweet spot” value for that application, however this would cause inefficiencies as pictured in the diagram below.  Here we have set the request value to 2 vCPU, however the average utilization of these pods runs only 1 CPU most of the time. This setting would cause us to waste 50% of our CPU cycles, which would be unacceptable. 
 
-![](/content/scalability/images/requests-1.png)
+![](../images/requests-1.png)
 
 This bring us to the complex answer to problem. Container utilization cannot be thought of in a vacuum; one must take into account the other applications running on the node. In the following example containers that are bursty in nature are mixed in with two low CPU utilization containers that might be memory constrained. In this way we allow the containers to hit their sweet spot without taxing the node.   
 
-![](/content/scalability/images/requests-2.png)
+![](../images/requests-2.png)
 
 The important concept to take away from all this is that using Kubernetes scheduler concept of cores to understand Linux container performance can lead to poor decision making as they are not related. 
 
@@ -81,14 +81,14 @@ A common mistake in application scaling is only using CPU utilization for your s
 
 In real world applications, it’s likely that some of those requests will be getting serviced by a database layer or an authentication layer, etc. In this more common case, notice CPU is not tracking with saturation as the request is being serviced by other entities. In this case CPU is a very poor indicator for saturation.
 
-![](/content/scalability/images/util-vs-saturation-1.png)
+![](../images/util-vs-saturation-1.png)
 
 Using the wrong metric in application performance is the number one reason for unnecessary and unpredictable scaling in Kubernetes. Great care must be taken in picking the correct saturation metric for the type of application that you're using. It is important to note that there is not a one size fits all recommendation that can be given. Depending on the language used and the type of application in question, there is a diverse set of metrics for saturation.
 
 We might think this problem is only with CPU Utilization, however other common metrics such as request per second can also fall into the exact same problem as discussed above.  Notice the request can also go to DB layers, auth layers, not being directly serviced by our web server, thus it’s a poor metric for true saturation of the web server itself.
 
 
-![](/content/scalability/images/util-vs-saturation-2.png)
+![](../images/util-vs-saturation-2.png)
 
 Unfortunately there are no easy answers when it comes to picking the right saturation metric. Here are some guidelines to take into consideration: 
 
@@ -106,7 +106,7 @@ The vCPU on the left is 100% utilized, however no other tasks are waiting to run
 
 Not only would we not see this problem if we where just looking at utilization, but we might attribute this latency to something unrelated such as networking which would lead us down the wrong path. 
 
-![](/content/scalability/images/node-saturation.png)
+![](../images/node-saturation.png)
 
 It is important to view saturation metrics, not just utilization metrics when increasing the total number of pods running on a node at any given time as we can easily miss the fact we have over-saturated a node. For this task we can use pressure stall information metrics as seen in the below chart.
 
@@ -116,7 +116,7 @@ PromQL - Stalled I/O
 topk(3, ((irate(node_pressure_io_stalled_seconds_total[1m])) * 100))
 ```
 
-![](/content/scalability/images/stalled-io.png)
+![](../images/stalled-io.png)
 
 !!! note
     For more on Pressure stall metrics, see https://facebookmicrosites.github.io/psi/docs/overview*
@@ -184,15 +184,15 @@ For example, we can look at the active thread queue count in Apache. This often 
 
 We can use this thread exhaustion as a signal to create a new pod with a fully available thread pool. This also gives us control over how big a buffer we want in the application to absorb during times of heavy traffic. For example, if we had a total thread pool of 10, scaling at 4 threads used vs. 8 threads used would have a major impact on the buffer we have available when scaling the application. A setting of 4 would make sense for an application that needs to rapidly scale under heavy load, where a setting of 8 would be more efficient with our resources if we had plenty of time to scale due to the number of requests increasing slowly vs. sharply over time. 
 
-![](/content/scalability/images/thread-pool.png)
+![](../images/thread-pool.png)
 
 What do we mean by the term “smooth” when it comes to scaling? Notice the below chart where we are using CPU as a metric. The pods in this deployment are spiking in a short period for from 50 pods, all the way up to 250 pods only to immediately scale down again. This is highly inefficient scaling is the leading cause on churn on clusters.
 
-![](/content/scalability/images/spiky-scaling.png)
+![](../images/spiky-scaling.png)
 
 Notice how after we change to a metric that reflects the correct sweet spot of our application (mid-part of chart), we are able to scale smoothly. Our scaling is now efficient, and our pods are allowed to fully scale with the headroom we provided by adjusting requests settings. Now a smaller group of pods are doing the work the hundreds of pods were doing before.  Real world data shows that this is the number one factor in scalability of Kubernetes clusters. 
 
-![](/content/scalability/images/smooth-scaling.png)
+![](../images/smooth-scaling.png)
 
 The key takeaway is CPU utilization is only one dimension of both application and node performance. Using CPU utilization as a sole health indicator for our nodes and applications creates problems in scaling, performance and cost which are all tightly linked concepts. The more performant the application and nodes are, the less that you need to scale, which in turn lowers your costs. 
 
@@ -201,7 +201,7 @@ Finding and using the correct saturation metrics for scaling your particular app
 ## Setting CPU Limits
 To round out this section on misunderstood topics, we will cover CPU limits. In short, limits are metadata associated with the container that has a counter that resets every 100ms. This helps Linux keep track of how many CPU resources are used node-wide by a specific container in a 100ms period of time. 
 
-![Image: image.png]()
+![CPU limits](../images/cpu-limits.png)
 
 A common error with setting limits is assuming that the application is single threaded and only running on it’s “assigned“ vCPU. In the above section we learned that CFS doesn’t assign cores, and in reality a container running large thread pools will schedule on all available vCPU’s on the box. 
 
@@ -217,7 +217,7 @@ PromQL query:
 topk(3, max by (pod, container)(rate(container_cpu_usage_seconds_total{image!="", instance="$instance"}[$__rate_interval]))) / 10
 ```
 
-![](/content/scalability/images/cpu-1.png)
+![](../images/cpu-1.png)
 
 Once we feel we have the right value, we can put the limit in production. It then becomes necessary to see if our application is being throttled due to something unexpected. We can do this by looking at  `container_cpu_throttled_seconds_total`
 
@@ -225,7 +225,7 @@ Once we feel we have the right value, we can put the limit in production. It the
 topk(3, max by (pod, container)(rate(container_cpu_cfs_throttled_seconds_total{image!=``""``, instance=``"$instance"``}[$__rate_interval]))) / 10
 ```
 
-![](/content/scalability/images/cpu-2.png)
+![](../images/cpu-2.png)
 ### Memory 
 The memory allocation is another example where it is easy to confuse Kubernetes scheduling behavior for Linux CGroup behavior. This is a more nuanced topic as there have been major changes in the way that CGroup v2 handles memory in Linux and Kubernetes has changed its syntax to reflect this; read this [blog](https://kubernetes.io/blog/2021/11/26/qos-memory-resources/) for further details.
 
