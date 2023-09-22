@@ -19,7 +19,7 @@ Great care must be taken when changing these QPS settings. Removing one bottlene
 ## Scaling Distributed Components
 Since EKS is a managed service, let’s split the Kubernetes components into two categories: AWS managed components which include etcd, Kube Controller Manager, and the Scheduler (on the left part of diagram), and customer configurable components such as the Kubelet, Container Runtime, and the various operators that call AWS APIs such as the Networking and Storage drivers (on the right part of diagram). We leave the API server in the middle even though it is AWS managed, as the settings for API Priority and Fairness can be configured by customers. 
 
-![Kubernetes components](/content/scalability/images/k8s-components.png)
+![Kubernetes components](../images/k8s-components.png)
 
 ## Upstream and Downstream Bottlenecks
 As we monitor each service, it’s important to look at metrics in both directions to look for bottlenecks. Let’s learn how to do this by using Kubelet as an example. Kubelet talks both to the API server and the container runtime; **how** and **what** do we need to monitor to detect whether either component is experiencing an issue?
@@ -32,15 +32,15 @@ When we look at scaling numbers, such as how many pods can run on a node, we cou
 
 However, your workload is likely more complex than what was tested in a scalability test in Upstream. To ensure we can service the number of pods we want to run in production, let’s make sure that the Kubelet is “keeping up” with the Containerd runtime. 
 
-![Keeping up](/content/scalability/images/keeping-up.png)
+![Keeping up](../images/keeping-up.png)
 
 To oversimplify, the Kubelet is getting the status of the pods from the container runtime (in our case Containerd). What if we had too many pods changing status too quickly? If the rate of change is too high, requests [to the container runtime] can timeout.
 
 !!! note 
     Kubernetes is constantly evolving, this subsystem is currently undergoing changes. https://github.com/kubernetes/enhancements/issues/3386
 
-![Flow](/content/scalability/images/flow.png)
-![PLEG duration](/content/scalability/images/PLEG-duration.png)
+![Flow](../images/flow.png)
+![PLEG duration](../images/PLEG-duration.png)
 
 In the graph above, we see a flat line indicating we have just hit the timeout value for the pod lifecycle event generation duration metric. If you would like to see this in your own cluster you could use the following PromQL syntax.
 
@@ -58,11 +58,11 @@ A common pattern that could get us into trouble is focusing on the first metric 
 
 Downstream of the Kubelet would be the Containerd runtime (pod errors), DaemonSets such as the storage driver (CSI) and the network driver (CNI) that talk to the EC2 API, etc. 
 
-![Flow add-ons](/content/scalability/images/flow-addons.png)
+![Flow add-ons](../images/flow-addons.png)
 
 Let’s continue our earlier example of the Kubelet not keeping up with the runtime. There are a number of points where we could bin pack a node so densely that it triggers errors. 
 
-![Bottlenecks](/content/scalability/images/bottlenecks.png)
+![Bottlenecks](../images/bottlenecks.png)
 
 When designing the right node size for our workloads these are easy-to-overlook signals that might be putting unnecessary pressure on the system thus limiting both our scale and performance.
 
