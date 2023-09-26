@@ -76,6 +76,9 @@ nav:
       - Data Plane: "scalability/docs/data-plane.md"
       - Cluster Services: "scalability/docs/cluster-services.md"
       - Workloads: "scalability/docs/workloads.md"
+      - The theory behind scaling: "scalability/docs/scaling_theory.md"
+      - Control plane monitoring: "scalability/docs/kcp_monitoring.md"
+      - Node efficiency and scaling: "scalability/docs/node_efficiency.md"
   - Cluster Upgrades: "upgrades/index.md"
 markdown_extensions:
   - toc:
