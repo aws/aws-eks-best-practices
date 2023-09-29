@@ -6,7 +6,7 @@ authors:
 # Cost Optimization - Introduction
 AWS Cloud Economics is a discipline that helps customers increase efficiency and reduce their costs through the adoption of modern compute technologies like Amazon EKS. The discipline recommends following a methodology called the “Cloud Financial Management (CFM) framework” which consists of 4 pillars: 
 
-![CFM Framework](/content/images/cfm_framework.png)
+![CFM Framework](../images/cfm_framework.png)
 
 ## The See pillar: Measurement and accountability 
 The See pillar is a foundational set of activities and technologies that define how to measure, monitor and create accountability for cloud spend. It is often referred to as “Observability”, “Instrumentation”, or “Telemetry”. The capabilities and limitations of the “Observability” infrastructure dictate what can be optimized. Obtaining a clear picture of your costs is a critical first step in cost optimization as you need to know where you are starting from. This type of visibility will also guide the types of activities you will need to do to further optimize your environment.  
@@ -51,7 +51,7 @@ Once the recommendations in the See pillar are implemented, clusters are optimiz
 
 Cost optimization is a continuous process and involves a flywheel of incremental improvements: 
 
-![Cost optimization flywheel](/content/images/flywheel.png)
+![Cost optimization flywheel](../images/flywheel.png)
 
 Securing executive sponsorship for these types of activities is crucial for integrating EKS cluster optimization into the organization’s “FinOps” efforts. It allows stakeholder alignment through a shared understanding of EKS cluster costs, implementation of EKS cluster cost guardrails, and ensuring that the tooling, automation, and activities evolve with the organization’s needs. 
 
