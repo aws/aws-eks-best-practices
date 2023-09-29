@@ -1,3 +1,8 @@
+---
+date: 2023-09-22
+authors: 
+  - Florian Daniel Otel
+---
 # Cost Optimization - Introduction
 AWS Cloud Economics is a discipline that helps customers increase efficiency and reduce their costs through the adoption of modern compute technologies like Amazon EKS. The discipline recommends following a methodology called the “Cloud Financial Management (CFM) framework” which consists of 4 pillars: 
 

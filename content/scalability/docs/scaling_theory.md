@@ -1,3 +1,8 @@
+---
+date: 2023-09-22
+authors: 
+  - Shane Corbett
+---
 # Kubernetes Scaling Theory
 
 ## Nodes vs. Churn Rate
