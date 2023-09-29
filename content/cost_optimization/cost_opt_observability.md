@@ -215,7 +215,7 @@ Cardinality refers to the uniqueness of the data values in combination with its 
 
 In the high cardinality example below, we see that the Metric, Latency, has Dimensions, RequestID, CustomerID, and Service and each Dimension has many unique values. Cardinality is the measure of the combination of the number of possible values per Dimension. In Prometheus, each set of unique dimensions/labels are consider as a new metric, therefore high cardinality means more metrics. 
 
-![high cardinality](/content/images/high-cardinality.png)
+![high cardinality](../images/high-cardinality.png)
 
 In EKS environments with many metrics and dimensions/labels per metric (Cluster, Namespace, Service, Pod, Container, etc), the cardinality tends to grow. In order to optimize cost, consider the cardinality of the metrics you are collecting carefully. For example, if you are aggregating a specific metric for visualization at the cluster level, then you can drop additional labels that are at a lower layer such as the namespace label. 
 
@@ -308,7 +308,7 @@ For example, you have java application that you want to debug the traces of all 
 
 **Via the Console**
 
-![console](/content/images/console.png)
+![console](../images/console.png)
 
 ### Apply Tail Sampling with AWS Distro for OpenTelemetry (ADOT)
 
@@ -351,6 +351,3 @@ For example, if you have traces that are 90 days old, [Amazon S3 Intelligent-Tie
 * https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/best-practices-metrics-collection/
 * AWS re:Invent 2022 - Observability best practices at Amazon (COP343) - https://www.youtube.com/watch?v=zZPzXEBW4P8
 * AWS re:Invent 2022 - Observability: Best practices for modern applications (COP344) - https://www.youtube.com/watch?v=YiegAlC_yyc
-
-
-
