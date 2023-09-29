@@ -80,6 +80,12 @@ nav:
       - Control plane monitoring: "scalability/docs/kcp_monitoring.md"
       - Node efficiency and scaling: "scalability/docs/node_efficiency.md"
   - Cluster Upgrades: "upgrades/index.md"
+  - Cost Optimization:
+      - Cloud Financial Management Framework: "cost_optimization/cfm_framework.md"
+      - Compute: "cost_optimization/cost_opt_compute.md"
+      - Network: "cost_optimization/cost_opt_networking.md"
+      #- Storage: "cost_optimization/cost_opt_storage.md"
+      - Observability: "cost_optimization/cost_opt_observability.md"
 markdown_extensions:
   - toc:
       permalink: true
