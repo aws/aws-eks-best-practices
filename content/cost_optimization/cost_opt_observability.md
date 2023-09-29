@@ -4,7 +4,7 @@ authors:
   - Rachel Leekin
   - Nirmal Mehta
 ---
-# Cost Optimization - Observability (v2)
+# Cost Optimization - Observability
 
 ## Introduction 
 
@@ -16,7 +16,7 @@ Logging plays a vital role in monitoring and troubleshooting the applications in
 
 ## EKS Control Plane
 
-### **Optimize Your Control Plane Logs
+### Optimize Your Control Plane Logs
 
 The Kubernetes control plane is a [set of components](https://kubernetes.io/docs/concepts/overview/components/#control-plane-components) that manage the clusters and these components send different types of information as log streams to a log group in [Amazon CloudWatch](https://aws.amazon.com/cloudwatch/). While there are benefits to enabling all control plane log types, you should be aware of the information in each log and the associated costs to storing all the log telemetry. You are charged for the standard [CloudWatch Logs data ingestion and storage costs for logs](https://aws.amazon.com/cloudwatch/pricing/) sent to Amazon CloudWatch Logs from your clusters. Before enabling them, evaluate whether each log stream is necessary. 
 
@@ -178,7 +178,7 @@ The `[INPUT]` section above is ingesting all the container logs. This can genera
 
 [Metrics](https://aws-observability.github.io/observability-best-practices/signals/metrics/) provide valuable information regarding the performance of your system. By consolidating all system-related or available resource metrics in a centralized location, you gain the capability to compare and analyze performance data. This centralized approach enables you to make more informed strategic decisions, such as scaling up or scaling down resources. Additionally, metrics play a crucial role in assessing the health of resources, allowing you to take proactive measures when necessary. Generally observability costs scale with telemetry data collection and retention. Below are a few strategies you can implement to reduce the cost of metric telemetry: collecting only metrics that matter, reducing the cardinality of your telemetry data, and fine tuning the granularity of your telemetry data collection. 
 
-### Monitor what matters and c**ollect only what you need**
+### Monitor what matters and collect only what you need
 
 The first cost reduction strategy is to reduce the number of metrics you are collecting and in turn, reduce retention costs. 
 
@@ -347,7 +347,7 @@ For example, if you have traces that are 90 days old, [Amazon S3 Intelligent-Tie
 
 ## Additional Resources:
 
-* https://aws-observability.github.io/observability-best-practices/guides/
-* https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/best-practices-metrics-collection/
-* AWS re:Invent 2022 - Observability best practices at Amazon (COP343) - https://www.youtube.com/watch?v=zZPzXEBW4P8
-* AWS re:Invent 2022 - Observability: Best practices for modern applications (COP344) - https://www.youtube.com/watch?v=YiegAlC_yyc
+* [Observability Best Practices Guide](https://aws-observability.github.io/observability-best-practices/guides/)
+* [Best Practices Metrics Collection](https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/)best-practices-metrics-collection/
+* [AWS re:Invent 2022 - Observability best practices at Amazon (COP343)](https://www.youtube.com/watch?v=zZPzXEBW4P8)
+* [AWS re:Invent 2022 - Observability: Best practices for modern applications (COP344)](https://www.youtube.com/watch?v=YiegAlC_yyc)
