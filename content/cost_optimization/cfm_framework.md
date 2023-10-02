@@ -20,7 +20,7 @@ Here is a brief overview of our best practices for the See pillar:
 * Allocate cloud costs to applications, Lines of Business (LoBs), and revenue streams.
 * Define, measure, and circulate efficiency/value KPIs with business stakeholders. For example, create a “unit metric” KPI that measures the cost per transaction, e.g. a ride sharing services might have a KPI for “cost per ride”.  
 
-For more details on the recommended technologies and activities associated with this pillar, please see the [Cost Optimization - Observability](/content/cost_optimization/cost_opt_observability.md) section of this guide. 
+For more details on the recommended technologies and activities associated with this pillar, please see the [Cost Optimization - Observability](./cost_optimization/) section of this guide. 
 
 ## The Save pillar: Cost optimization 
 
@@ -35,9 +35,9 @@ Since these activities are operational, they are highly dependent on your enviro
 
 Below is a prioritized list of the most common cost drivers for EKS clusters:
 
-1. **Compute costs:** Combining multiple types of instance families, purchasing options, and balancing scalability with availability require careful consideration. For further information, see the recommendations in the [Cost Optimization - Compute](/content/cost_optimization/cost_opt_compute.md) section of this guide. 
-2. **Networking costs:** using 3 AZs for EKS clusters can potentially increase inter-AZ traffic costs. For our recommendations on how to balance HA requirements with keeping network traffic costs down, please consult the [Cost Optimization - Networking](/content/cost_optimization/cost_opt_networking.md) section of this guide. 
-3. **Storage costs:** Depending on the stateful/stateless nature of the workloads in the EKS clusters, and how the different storage types are used, storage can be considered as part of the workload. For considerations relating to EKS storage costs, please consult the [Cost Optimization - Storage](/content/cost_optimization/cost_opt_storage.md) section of this guide.
+1. **Compute costs:** Combining multiple types of instance families, purchasing options, and balancing scalability with availability require careful consideration. For further information, see the recommendations in the [Cost Optimization - Compute](./cost_opt_compute.md) section of this guide. 
+2. **Networking costs:** using 3 AZs for EKS clusters can potentially increase inter-AZ traffic costs. For our recommendations on how to balance HA requirements with keeping network traffic costs down, please consult the [Cost Optimization - Networking](./cost_opt_networking.md) section of this guide. 
+3. **Storage costs:** Depending on the stateful/stateless nature of the workloads in the EKS clusters, and how the different storage types are used, storage can be considered as part of the workload. For considerations relating to EKS storage costs, please consult the [Cost Optimization - Storage](./cost_opt_storage.md) section of this guide.
 
 ## The Plan pillar:  Planning and forecasting
 
