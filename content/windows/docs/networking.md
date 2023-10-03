@@ -66,7 +66,7 @@ In order to utilize DSR in Windows Server 2019 and above, you will need to speci
 </powershell>
 ```
 
-DSR enablement can be verified following the instructions in the [Microsoft Networking blog](https://techcommunity.microsoft.com/t5/networking-blog/direct-server-return-dsr-in-a-nutshell/ba-p/693710) and the [Windows Containers on AWS Lab](https://catalog.us-east-1.prod.workshops.aws/v2/workshops/1de8014a-d598-4cb5-a119-801576492564/en-US/lab3-add-win-worker-node/lab3-5-check-dsr-status).
+DSR enablement can be verified following the instructions in the [Microsoft Networking blog](https://techcommunity.microsoft.com/t5/networking-blog/direct-server-return-dsr-in-a-nutshell/ba-p/693710) and the [Windows Containers on AWS Lab](https://catalog.us-east-1.prod.workshops.aws/workshops/1de8014a-d598-4cb5-a119-801576492564/en-US/module1-eks/lab3-handling-mixed-clusters).
 
 ![](./images/dsr.png)
 
