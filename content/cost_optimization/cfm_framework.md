@@ -20,7 +20,7 @@ Here is a brief overview of our best practices for the See pillar:
 * Allocate cloud costs to applications, Lines of Business (LoBs), and revenue streams.
 * Define, measure, and circulate efficiency/value KPIs with business stakeholders. For example, create a “unit metric” KPI that measures the cost per transaction, e.g. a ride sharing services might have a KPI for “cost per ride”.  
 
-For more details on the recommended technologies and activities associated with this pillar, please see the [Cost Optimization - Observability](./cost_optimization/) section of this guide. 
+For more details on the recommended technologies and activities associated with this pillar, please see the [Cost Optimization - Observability](./cost_opt_observability.md) section of this guide. 
 
 ## The Save pillar: Cost optimization 
 
