@@ -258,6 +258,47 @@ NAME             KIND                VERSION          REPLACEMENT   REMOVED   DE
 eks.privileged   PodSecurityPolicy   policy/v1beta1                 false     true         true
 ```
 
+### Resources
+
+To verify that your cluster don't use deprecated APIs before the upgrade, you should monitor:
+
+* metric `apiserver_requested_deprecated_apis` since Kubernetes v1.19:
+
+```
+kubectl get --raw /metrics | grep apiserver_requested_deprecated_apis
+
+apiserver_requested_deprecated_apis{group="policy",removed_release="1.25",resource="podsecuritypolicies",subresource="",version="v1beta1"} 1
+```
+
+* events in the [audit logs](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html) with `k8s.io/deprecated` set to `true`:
+
+```
+CLUSTER="<cluster_name>"
+QUERY_ID=$(aws logs start-query \
+ --log-group-name /aws/eks/${CLUSTER}/cluster \
+ --start-time $(date -u --date="-30 minutes" "+%s") # or date -v-30M "+%s" on MacOS \
+ --end-time $(date "+%s") \
+ --query-string 'fields @message | filter `annotations.k8s.io/deprecated`="true"' \
+ --query queryId --output text)
+
+echo "Query started (query id: $QUERY_ID), please hold ..." && sleep 5 # give it some time to query
+
+aws logs get-query-results --query-id $QUERY_ID
+```
+
+Which will output lines if deprecated APIs are in use:
+
+```
+{
+    "results": [
+        [
+            {
+                "field": "@message",
+                "value": "{\"kind\":\"Event\",\"apiVersion\":\"audit.k8s.io/v1\",\"level\":\"Request\",\"auditID\":\"8f7883c6-b3d5-42d7-967a-1121c6f22f01\",\"stage\":\"ResponseComplete\",\"requestURI\":\"/apis/policy/v1beta1/podsecuritypolicies?allowWatchBookmarks=true\\u0026resourceVersion=4131\\u0026timeout=9m19s\\u0026timeoutSeconds=559\\u0026watch=true\",\"verb\":\"watch\",\"user\":{\"username\":\"system:apiserver\",\"uid\":\"8aabfade-da52-47da-83b4-46b16cab30fa\",\"groups\":[\"system:masters\"]},\"sourceIPs\":[\"::1\"],\"userAgent\":\"kube-apiserver/v1.24.16 (linux/amd64) kubernetes/af930c1\",\"objectRef\":{\"resource\":\"podsecuritypolicies\",\"apiGroup\":\"policy\",\"apiVersion\":\"v1beta1\"},\"responseStatus\":{\"metadata\":{},\"code\":200},\"requestReceivedTimestamp\":\"2023-10-04T12:36:11.849075Z\",\"stageTimestamp\":\"2023-10-04T12:45:30.850483Z\",\"annotations\":{\"authorization.k8s.io/decision\":\"allow\",\"authorization.k8s.io/reason\":\"\",\"k8s.io/deprecated\":\"true\",\"k8s.io/removed-release\":\"1.25\"}}"
+            },
+[...]
+```
+
 ## Update Kubernetes workloads. Use kubectl-convert to update manifests
 
 After you have identified what workloads and manifests need to be updated, you may need to change the resource type in your manifest files (e.g. PodSecurityPolicies to PodSecurityStandards). This will require updating the resource specification and additional research depending on what resource is being replaced.
