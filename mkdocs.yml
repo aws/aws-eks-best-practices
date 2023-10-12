@@ -152,6 +152,13 @@ plugins:
             Custom Networking: 'Custom Networking'
             Load Balancing: '로드 밸런싱'
             Monitoring for DNS Throttling Issues: 'DNS 쓰로틀링 모니터링'
+            Scalability : '확장성'
+            Cluster Services: '클러스터 서비스'
+            Workloads: '워크로드'
+            The theory behind scaling: '확장에 대한 이론'
+            Control plane monitoring: '컨트롤 플레인 모니터링'
+            Node efficiency and scaling: '노드 및 워크로드 효율성'
+
 
 extra:
   analytics:
