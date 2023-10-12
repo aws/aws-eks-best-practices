@@ -1,114 +1,123 @@
-# Node and Workload Efficiency
-Being efficient with our workloads and nodes reduces complexity/cost while increasing performance and scale. There are many factors to consider when planning this efficiency, and it’s easiest to think in terms of trade offs vs. one best practice setting for each feature. Let’s explore these tradeoffs in depth in the following section.     
+#  노드 및 워크로드 효율성
 
-## Node Selection
-Using node sizes that are slightly larger (4-12xlarge) increases the available space that we have for running pods due to the fact it reduces the percentage of the node used for “overhead” such as [DaemonSets](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) and [Reserves](https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/) for system components. In the diagram below we see the difference between the usable space on a 2xlarge vs. a 8xlarge system with just a moderate number of DaemonSets. 
+워크로드와 노드를 효율적으로 사용하면 복잡성과 비용을 줄이는 동시에 성능과 규모를 높일 수 있습니다. 이러한 효율성을 계획할 때는 여러 가지 요소를 고려해야 하며, 각 기능에 대한 하나의 모범 사례 설정과 절충점을 기준으로 생각하는 것이 가장 쉽습니다. 다음 섹션에서 이러한 장단점을 자세히 살펴보겠습니다.       
+
+## 노드 선택
+
+약간 큰 노드 크기(4-12xlarge) 를 사용하면 시스템 구성 요소의 [DaemonSets](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) 및 [Reserves](https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/)와 같은 “오버헤드”에 사용되는 노드의 비율이 줄어들기 때문에 파드를 실행하는 데 사용할 수 있는 공간이 늘어납니다. 아래 다이어그램에서 2xlarge 시스템의 사용 가능한 공간과 적당한 수의 데몬셋을 포함하는 8xlarge 시스템의 사용 가능한 공간 차이를 확인할 수 있습니다. 
 
 !!! note
-    Since k8s scales horizontally as a general rule, for most applications it does not make sense to take the performance impact of NUMA sizes nodes, thus the recommendation of a range below that node size.
+    K8s는 일반적으로 수평으로 확장되므로 대부분의 애플리케이션에서 NUMA 크기 노드의 성능 영향을 고려하는 것이 합리적이지 않으므로 해당 노드 크기보다 낮은 범위를 권장합니다.
 
 ![Node size](../images/node-size.png)
 
-Large nodes sizes allow us to have a higher percentage of usable space per node. However, this model can be taken to to the extreme by packing the node with so many pods that it causes errors or saturates the node. Monitoring node saturation is key to successfully using larger node sizes. 
+노드 크기가 크면 노드당 사용 가능한 공간 비율을 높일 수 있습니다. 하지만 이 모델은 노드를 너무 많이 파드로 가득 채워 오류를 일으키거나 노드를 포화 상태로 만들면 극단적인 상황까지 갈 수 있습니다. 더 큰 노드 크기를 성공적으로 사용하려면 노드 포화 상태를 모니터링하는 것이 중요합니다. 
 
-Node selection is rarely a one-size-fits-all proposition. Often it is best to split workloads with dramatically different churn rates into different node groups. Small batch workloads with a high churn rate would be best served by the the 4xlarge family of instances, while a large scale application such as Kafka which takes 8 vCPU and has a low churn rate would be better served by the 12xlarge family.   
+노드 선택은 모든 경우에 적용되는 것은 아닙니다. 이탈률이 극적으로 다른 워크로드를 서로 다른 노드 그룹으로 분할하는 것이 가장 좋은 경우가 많습니다. 이탈률이 높은 소규모 배치 워크로드에는 4xlarge 인스턴스 패밀리가 가장 적합하고, 8vCPU를 사용하고 이탈률이 낮은 Kafka와 같은 대규모 애플리케이션은 12xlarge 제품군이 더 적합합니다.
 
 ![Churn rate](../images/churn-rate.png)
 
 !!! tip
-    Another factor to consider with very large node sizes is since CGROUPS do not hide the total number of vCPU from the containerized application. Dynamic runtimes can often spawn an unintentional number of OS threads, creating latency that is difficult to troubleshoot. For these application [CPU pinning](https://kubernetes.io/docs/tasks/administer-cluster/cpu-management-policies/#static-policy) is recommend. For a deeper exploration of topic please see the following video https://www.youtube.com/watch?v=NqtfDy_KAqg
+    노드 크기가 매우 클 경우 고려해야 할 또 다른 요소는 CGROUPS가 컨테이너화된 애플리케이션에서 vCPU의 총 수를 숨기지 않기 때문입니다. 동적 런타임으로 인해 의도하지 않은 수의 OS 스레드가 생성되어 지연 시간이 발생하여 문제를 해결하기 어려운 경우가 많습니다. 이러한 애플리케이션의 경우 [CPU pinning](https://kubernetes.io/docs/tasks/administer-cluster/cpu-management-policies/#static-policy)을 사용하는 것이 좋습니다. 주제에 대해 더 자세히 알아보려면 다음 비디오를 참고하세요. https://www.youtube.com/watch?v=NqtfDy_KAqg
 
-## Node Bin-packing
-### Kubernetes vs. Linux Rules
-There are two sets of rules we need to be mindful of when dealing with workloads on Kubernetes. The rules of the Kubernetes Scheduler, which uses the request value to schedule pods on a node, and then what happens after the pod is scheduled, which is the realm of Linux, not Kubernetes.
+## 노드 빈패킹(Bin-packing)
+### Kubernetes vs. Linux 규칙
 
-After Kubernetes scheduler is finished, a new set of rules takes over, the Linux Completely Fair Scheduler (CFS). The key take away is that Linux CFS doesn’t have a the concept of a core. We will discuss why thinking in cores can lead to major problems with optimizing workloads for scale.  
+쿠버네티스에서 워크로드를 다룰 때 염두에 두어야 할 두 가지 규칙 세트가 있습니다. 요청 값을 사용하여 노드에서 파드를 스케줄링하는 쿠버네티스 스케줄러의 규칙과 파드가 스케줄링된 후 일어나는 일은 쿠버네티스가 아닌 리눅스의 영역입니다.
 
-### Thinking in Cores 
-The confusion starts because the Kubernetes scheduler does have the concept of cores. From a Kubernetes scheduler perspective if we looked at a node with 4 NGINX pods, each with a request of one core set, the node would look like this.
+Kubernetes 스케줄러가 완료된 후에는 새로운 규칙 집합이 인계되는데, 이는 Linux Completely Fair Scheduler (CFS)입니다. 주요 포인트는 Linux CFS가 코어라는 개념을 가지고 있지 않다는 것입니다. 우리는 코어로 생각하는 것이 스케일에 최적화된 작업 부하를 주요 문제로 이어질 수 있는 이유에 대해 논의할 것입니다.
+
+### 코어로 생각하기
+
+쿠버네티스 스케줄러가 코어라는 개념을 가지고 있기 때문에 혼란이 시작됩니다. Kubernetes 스케줄러 관점에서 코어 요청이 1로 설정된 4개의 NGINX 파드가 있는 노드를 살펴보면, 노드는 다음과 같이 보일 것입니다.
 
 ![](../images/cores-1.png)
 
-However, let’s do a thought experiment on how different this looks from a Linux CFS perspective. The most important thing to remember when using the Linux CFS system is: busy containers (CGROUPS) are the only containers that count toward the share system. In this case, only the first container is busy so it is allowed to use all 4 cores on the node.
+그러나, Linux CFS 관점에서 이것이 얼마나 다르게 보이는지에 대한 생각 실험을 해보겠습니다. Linux CFS 시스템을 사용할 때 기억해야 할 가장 중요한 것은 바쁜 컨테이너들(CGROUPS)만이 공유 시스템에 포함되는 유일한 컨테이너들이라는 것입니다. 이 경우, 첫 번째 컨테이너만이 바쁘므로 노드의 모든 4개의 코어를 사용할 수 있습니다.
 
 ![](../images/cores-2.png)
 
-Why does this matter? Let’s say we ran our performance testing in a development cluster where an NGINX application was the only busy container on that node. When we move the app to production, the following would happen: the NGINX application wants 4 vCPU of resources however, because all the other pods on the node are busy, our app’s performance is constrained. 
+이것이 왜 중요한가요? 개발 클러스터에서 성능 테스팅을 실행하였고, NGINX 애플리케이션이 해당 노드에서 유일하게 바쁜 컨테이너였다고 가정해봅시다. 우리가 앱을 프로덕션으로 옮기면 다음과 같은 일이 발생할 것입니다. NGINX 애플리케이션은 4 vCPU의 자원을 원하지만, 노드의 다른 모든 파드가 바쁜 상태이기 때문에 앱의 성능이 제한됩니다.
 
 ![](../images/cores-3.png)
 
-This situation would lead us to add more containers unnecessarily because we were not allowing our applications scale to their “sweet spot“. Let's explore this important concept of a ”sweet spot“ in a bit more detail.
+이러한 상황은 우리 애플리케이션의 "스위트 스팟(sweet spot)"까지 스케일을 허용하지 않기 때문에 불필요하게 더 많은 컨테이너를 추가하게 될 것입니다. 이 "스위트 스팟"이라는 중요한 개념을 좀 더 자세히 살펴보겠습니다.
 
-### Application right sizing
-Each application has a certain point where it can not take anymore traffic. Going above this point can increase processing times and even drop traffic when pushed well beyond this point. This is known as the application’s saturation point. To avoid scaling issues, we should attempt to scale the application **before** it reaches its saturation point. Let’s call this point the sweet spot. 
+### 애플리케이션 적정 크기
+
+각 응용 프로그램에는 더 이상 트래픽을 처리할 수 없는 특정 지점이 있습니다. 이 지점을 초과하면 처리 시간이 늘어나고 이 시점을 훨씬 넘으면 트래픽이 감소할 수도 있습니다. 이를 애플리케이션의 포화 지점이라고 합니다. 크기 조정 문제를 방지하려면 응용 프로그램이 포화 지점에 도달하기 **이전**에 응용 프로그램 크기를 조정해야 합니다. 이 지점을 스위트 스팟이라고 부르겠습니다. 
 
 ![The sweet spot](../images/sweet-spot.png)
 
-We need to test each of our applications to understand its sweet spot. There will be no universal guidance here as each application is different. During this testing we are trying to understand the best metric that shows our applications saturation point. Oftentimes, utilization metrics are used to indicate an application is saturated but this can quickly lead to scaling issues (We will explore this topic in detail in a later section). Once we have this “sweet spot“ we can use it to efficiently scale our workloads.
+스위트 스팟을 이해하려면 각 애플리케이션을 테스트해야 합니다.애플리케이션마다 다르기 때문에 여기서는 보편적인 지침을 제공할 수 없습니다. 이 테스트에서는 애플리케이션 포화점을 보여주는 최상의 지표를 파악하기 위해 노력하고 있습니다. 사용률 지표는 애플리케이션이 포화 상태임을 나타내는 데 사용되는 경우가 많지만, 이로 인해 규모 조정 문제가 빠르게 발생할 수 있습니다(이 주제에 대해서는 이후 섹션에서 자세히 설명하겠습니다). 이 “스위트 스팟”을 확보하면 이를 사용하여 워크로드를 효율적으로 확장할 수 있습니다.
 
-Conversely, what would happen if we scale up well before the sweet spot and created unnecessary pods? Let’s explore that in the next section. 
+반대로, 스위트 스팟보다 훨씬 먼저 규모를 확장하여 불필요한 파드를 만들면 어떻게 될까요?다음 섹션에서 살펴보도록 하겠습니다.
 
-### Pod sprawl 
-To see how creating unnecessary pods could quickly get out of hand, let's look at the first example on the left. The correct vertical scale of this container takes up about two vCPUs worth of utilization when handling 100 requests a second. However, If we were to under-provision the requests value by setting requests to half a core, we would now need 4 pods for each one pods we actually needed. Exacerbating this problem further, if our [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) was set at the default of 50% CPU, those pods would scale half empty, creating an 8:1 ratio. 
+### Pod 확산 
+
+불필요한 파드를 만들면 어떻게 빠르게 제어가 힘들어질 수 있는지 보기 위해, 왼쪽의 첫 번째 예제를 살펴보겠습니다. 이 컨테이너의 올바른 수직 스케일은 초당 100개의 요청을 처리할 때 약 2개의 vCPU 사용량을 차지합니다. 하지만 요청을 하프 코어로 설정하여 요청 값을 과소 프로비저닝하려면 이제 실제로 필요한 파드 하나당 파드 4개가 필요합니다. 이 문제를 더욱 악화시키는 것은 [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)를 기본값인 50% CPU로 설정하면 해당 파드가 절반만 비어 있는 상태로 확장되어 8:1 비율이 된다는 점입니다. 
 
 ![](../images/scaling-ratio.png)
 
-Scaling this problem up we can quickly see how this can get out of hand. A deployment of ten pods whose sweet spot was set incorrectly could quickly spiral to 80 pods and the additional infrastructure needed to run them. 
+이 문제를 확대해보면 이 문제가 어떻게 해결될 수 있는지 금방 알 수 있습니다. 스위트 스팟이 잘못 설정된 10개의 파드를 배포하면 빠르게 80개의 파드로 늘어나고 이를 실행하는 데 필요한 추가 인프라가 생길 수 있습니다. 
 
 ![](../images/bad-sweetspot.png)
 
-Now that we understand the impact of not allowing applications to operate in their sweet spot, let’s return to the node level and ask why this difference between the Kubernetes scheduler and Linux CFS so important?
+애플리케이션이 최적의 위치에서 작동하지 않도록 하는 것이 미치는 영향을 이해했으니 이제 노드 수준으로 돌아가서 Kubernetes 스케줄러와 Linux CFS 간의 이러한 차이가 왜 그렇게 중요한지 물어보도록 하겠습니다.
 
-When scaling up and down with HPA, we can have a scenario where we have a lot of space to allocate more pods. This would be a bad decision because the node depicted on the left is already at 100% CPU utilization. In a unrealistic but theoretically possible scenario, we could have the other extreme where our node is completely full, yet our CPU utilization is zero. 
+HPA로 스케일링을 확장하고 축소할 때, 더 많은 파드를 할당할 많은 공간이 있는 시나리오가 있을 수 있습니다. 이것은 좋지 않은 결정일 것입니다. 왼쪽에 그려진 노드는 이미 100% CPU 사용률에 있기 때문입니다. 현실적이지는 않지만 이론적으로 가능한 시나리오에서는 우리 노드가 완전히 가득 차 있지만, CPU 사용률은 0%일 수 있습니다.
 
 ![](../images/hpa-utilization.png)
-### Setting Requests
-It would tempting to set the request at the “sweet spot” value for that application, however this would cause inefficiencies as pictured in the diagram below.  Here we have set the request value to 2 vCPU, however the average utilization of these pods runs only 1 CPU most of the time. This setting would cause us to waste 50% of our CPU cycles, which would be unacceptable. 
+
+### Requests 설정
+
+request 값을 해당 애플리케이션의 “스위트 스팟” 값으로 설정하고 싶을 수도 있지만, 이렇게 하면 아래 다이어그램과 같이 비효율성이 발생할 수 있습니다. 여기서는 요청 값을 2vCPU로 설정했지만 이 파드들의 평균 사용률은 대부분의 시간 동안 1 CPU만 실행됩니다. 이 설정은 CPU 주기의 50%를 낭비하게 되어, 이는 허용할 수 없습니다.
 
 ![](../images/requests-1.png)
-
-This bring us to the complex answer to problem. Container utilization cannot be thought of in a vacuum; one must take into account the other applications running on the node. In the following example containers that are bursty in nature are mixed in with two low CPU utilization containers that might be memory constrained. In this way we allow the containers to hit their sweet spot without taxing the node.   
+  
+이것은 문제에 대한 복잡한 답변을 가져옵니다. 컨테이너 활용은 진공 상태에서는 생각할 수 없습니다. 노드에서 실행되는 다른 애플리케이션을 고려해야 합니다. 음 예에서는 성질상 버스티한 컨테이너들이 메모리에 제약이 있을 수 있는 두 개의 낮은 CPU 사용 컨테이너와 섞여 있습니다. 이렇게 하면 노드에 부담을 주지 않고도 컨테이너가 스위트 스팟에 도달할 수 있습니다. 
 
 ![](../images/requests-2.png)
 
-The important concept to take away from all this is that using Kubernetes scheduler concept of cores to understand Linux container performance can lead to poor decision making as they are not related. 
+이 모든 것에서 얻을 수 있는 중요한 개념은, 리눅스 컨테이너 성능을 이해하기 위해 Kubernetes 스케줄러의 코어 개념을 사용하는 것이 그들 사이에 관련이 없기 때문에 잘못된 결정을 내릴 수 있다는 것입니다.
 
 !!! tip
-    Linux CFS has its strong points. This is especially true for I/O based workloads. However, if your application uses full cores without sidecars, and has no I/O requirements, CPU pinning can remove a great deal of complexity from this process and is encouraged with those caveats.
+    Linux CFS는 그 자체로 강점이 있습니다. 이는 I/O 기반 작업 부하에 대해 특히 그렇습니다. 그러나 애플리케이션이 사이드카 없이 전체 코어를 사용하고 I/O 요구사항이 없다면, CPU 핀닝은 이 과정에서 많은 복잡성을 제거할 수 있으며, 그런 사항들로 인해 권장됩니다.
 
-## Utilization vs. Saturation
-A common mistake in application scaling is only using CPU utilization for your scaling metric. In complex applications this is almost always a poor indicator that an application is actually saturated with requests. In the example on the left, we see all of our requests are actually hitting the web server, so CPU utilization is tracking well with saturation. 
+## 이용률(Utilization) vs. 포화도(Saturation)  
 
-In real world applications, it’s likely that some of those requests will be getting serviced by a database layer or an authentication layer, etc. In this more common case, notice CPU is not tracking with saturation as the request is being serviced by other entities. In this case CPU is a very poor indicator for saturation.
+애플리케이션 스케일링에서 흔히 발생하는 실수는 스케일링 지표에 CPU 사용률만 사용하는 것입니다. 복잡한 애플리케이션에서 이는 애플리케이션이 실제로 요청으로 가득 차 있다는 잘못된 지표인 경우가 거의 대부분입니다. 왼쪽 예에서는 모든 요청이 실제로 웹 서버에 도달하고 있는 것을 볼 수 있으므로 CPU 사용률이 포화 상태에서도 잘 추적되고 있습니다. 
+
+실제 응용 프로그램에서는 이러한 요청 중 일부가 데이터베이스 계층이나 인증 계층 등에서 처리될 가능성이 높지만, 이 보다 일반적인 경우에는 다른 엔티티에서 요청을 처리하고 있기 때문에 CPU가 포화 상태로 추적되지 않습니다. 이 경우 CPU는 포화도를 제대로 나타내지 못합니다.
 
 ![](../images/util-vs-saturation-1.png)
 
-Using the wrong metric in application performance is the number one reason for unnecessary and unpredictable scaling in Kubernetes. Great care must be taken in picking the correct saturation metric for the type of application that you're using. It is important to note that there is not a one size fits all recommendation that can be given. Depending on the language used and the type of application in question, there is a diverse set of metrics for saturation.
+Kubernetes에서 불필요하고 예측할 수 없는 스케일링이 발생하는 가장 큰 이유는 애플리케이션 성능에서 잘못된 지표를 사용하는 것입니다.사용 중인 애플리케이션 유형에 맞는 올바른 채도 지표를 선택할 때는 각별한 주의를 기울여야 합니다.한 가지 주의할 점은 모든 사람에게 맞는 한 가지 권장 사항이 없다는 것입니다.사용되는 언어와 해당 애플리케이션 유형에 따라 채도에 대한 다양한 지표가 있습니다.
 
-We might think this problem is only with CPU Utilization, however other common metrics such as request per second can also fall into the exact same problem as discussed above.  Notice the request can also go to DB layers, auth layers, not being directly serviced by our web server, thus it’s a poor metric for true saturation of the web server itself.
-
+이 문제는 CPU 사용률에만 국한된 것으로 생각할 수도 있지만, 초당 요청 수와 같은 다른 일반적인 지표도 위에서 설명한 것과 똑같은 문제에 빠질 수 있습니다. 참고로 요청은 웹 서버에서 직접 처리되지 않는 DB 계층, 인증 계층에도 전달될 수 있으므로 웹 서버 자체의 실제 채도를 평가하는 지표로는 부족합니다.
 
 ![](../images/util-vs-saturation-2.png)
 
-Unfortunately there are no easy answers when it comes to picking the right saturation metric. Here are some guidelines to take into consideration: 
+안타깝게도 올바른 채도 측정법을 선택하는 데 있어 쉬운 해답은 없습니다. 고려해야 할 몇 가지 지침은 다음과 같습니다. 
 
-* Understand your language runtime - languages with multiple OS threads will react differently than single threaded applications, thus impacting the node differently.
-* Understand the correct vertical scale - how much buffer do you want in your applications vertical scale before scaling a new pod?  
-* What metrics truly reflect the saturation of your application - The saturation metric for a Kafka Producer would be quite different than a complex web application. 
-* How do all the other applications on the node effect each other - Application performance is not done in a vacuum the other workloads on the node have a major impact.
+* 언어 런타임을 이해하세요. 여러 OS 스레드가 있는 언어는 단일 스레드 응용 프로그램과 다르게 반응하므로 노드에 미치는 영향이 다릅니다.
+* 올바른 수직 스케일을 이해하세요. 새 파드를 스케일링하기 전에 애플리케이션의 수직 스케일에 얼마나 많은 버퍼를 적용하길 원하시나요? 
+* 애플리케이션의 채도를 실제로 반영하는 지표는 무엇인가요? - Kafka Producer의 포화 지표는 복잡한 웹 애플리케이션과는 상당히 다릅니다. 
+* 노드의 다른 모든 애플리케이션은 서로 어떤 영향을 미치나요? - 애플리케이션 성능은 진공 상태에서 이루어지지 않으므로 노드의 다른 워크로드가 큰 영향을 미칩니다.
 
-To close out this section, it would be easy to dismiss the above as overly complex and unnecessary. It can often be the case that we are experiencing an issue but we are unaware of the true nature of the problem because we are looking at the wrong metrics. In the next section we will look at how that could happen. 
+이 섹션을 마무리하며, 위의 내용을 과도하게 복잡하고 불필요하다고 생각하기 쉽습니다. 종종 우리는 문제를 겪고 있지만, 잘못된 지표를 보고 있기 때문에 문제의 진정한 성격을 모르고 있을 수 있습니다. 다음 섹션에서는 어떻게 이런 일이 일어날 수 있는지 살펴보겠습니다. 
 
-### Node Saturation 
-Now that we have explored application saturation, let’s look at this same concept from a node point of view. Let’s take two CPUs that are 100% utilized to see the difference between utilization vs. saturation. 
+### 노드 포화도 
 
-The vCPU on the left is 100% utilized, however no other tasks are waiting to run on this vCPU, so in a purely theoretical sense, this is quite efficient. Meanwhile, we have 20 single threaded applications waiting to get processed by a vCPU in the second example. All 20 applications now will experience some type of latency while they're waiting their turn to be processed by the vCPU. In other words, the vCPU on the right is saturated.  
+이제 애플리케이션 포화에 대해 살펴보았으니 노드 관점에서 이와 동일한 개념을 살펴보겠습니다. 사용률이 100% 인 두 개의 CPU를 예로 들어 사용률과 포화도 간의 차이를 확인해 보겠습니다. 
 
-Not only would we not see this problem if we where just looking at utilization, but we might attribute this latency to something unrelated such as networking which would lead us down the wrong path. 
+왼쪽의 vCPU는 100% 사용되지만 이 vCPU에서 실행되기를 기다리는 다른 작업은 없습니다. 따라서 순전히 이론적인 의미에서는 상당히 효율적입니다. 한편, 두 번째 예에서는 20개의 단일 스레드 애플리케이션이 vCPU에서 처리되기를 기다리고 있습니다. 이제 20개 애플리케이션 모두 vCPU에서 순서가 처리되기를 기다리는 동안 어느 정도의 지연 시간이 발생합니다. 즉, 오른쪽에 있는 vCPU가 포화 상태입니다. 
+
+사용률만 보면 이 문제가 발생하지 않을 뿐만 아니라 네트워킹과 같이 관련이 없는 문제가 지연되어 잘못된 길로 가게 될 수도 있습니다. 
 
 ![](../images/node-saturation.png)
 
-It is important to view saturation metrics, not just utilization metrics when increasing the total number of pods running on a node at any given time as we can easily miss the fact we have over-saturated a node. For this task we can use pressure stall information metrics as seen in the below chart.
+특정 시점에 노드에서 실행되는 총 포드 수를 늘릴 때는 사용률 지표뿐만 아니라 포화 지표를 보는 것이 중요합니다. 노드가 과포화 상태라는 사실을 쉽게 놓칠 수 있기 때문입니다. 이 작업에는 아래 차트에서 볼 수 있는 것처럼 압력 포화 정보 지표를 사용할 수 있습니다.
 
 PromQL - Stalled I/O
 
@@ -120,24 +129,26 @@ topk(3, ((irate(node_pressure_io_stalled_seconds_total[1m])) * 100))
 
 !!! note
     For more on Pressure stall metrics, see https://facebookmicrosites.github.io/psi/docs/overview*
+    압력 정체 지표에 대한 자세한 내용은 https://facebookmicrosites.github.io/psi/docs/overview *을 참조하십시오.
 
-With these metrics we can tell if threads are waiting on CPU, or even if every thread on the box is stalled waiting on resource like memory or I/O. For example, we could see what percentage every thread on the instance was stalled waiting on I/O over the period of 1 min.  
+이 측정치를 통해 스레드가 CPU에서 대기 중인지, 아니면 모든 스레드가 메모리 또는 I/O와 같은 리소스를 기다리는 동안 중단되었는지를 알 수 있습니다. 예를 들어 인스턴스의 모든 스레드가 1분 동안 I/O를 기다리는 동안 중단된 비율을 확인할 수 있습니다.  
 
 ```
 topk(3, ((irate(node_pressure_io_stalled_seconds_total[1m])) * 100))
 ```
 
-Using this metric, we can see in the above chart every thread on the box was stalled 45% of the time waiting on I/O at the high water mark, meaning we were throwing away all of those CPU cycles in that minute. Understanding that this is happening can help us reclaim a significant amount of vCPU time, thus making scaling more efficient. 
+이 지표를 사용하면 위의 차트에서 박스상의 모든 스레드가 하이 워터마크에서 I/O를 기다릴 때 45% 의 시간 동안 중단된 것을 확인할 수 있습니다. 즉, 1분 동안 CPU 사이클을 모두 낭비하고 있다는 뜻입니다. 이런 일이 일어나고 있다는 것을 이해하면 상당한 양의 vCPU 시간을 회수하여 스케일링의 효율성을 높일 수 있습니다. 
 
 ### HPA V2
-It is recommended to use the autoscaling/v2 version of the HPA API. The older versions of the HPA API could get stuck scaling in certain edge cases. It was also limited to pods only doubling during each scaling step, which created issues for small deployments that needed to scale rapidly.  
 
-Autoscaling/v2 allows us more flexibility to include mutliple criteria to scale on and allows us a great deal of flexiblity when using custom and external metrics (non K8s metrics).
+HPA API의 autoscaling/v2 버전을 사용하는 것이 좋습니다. 이전 버전의 HPA API는 특정 엣지 케이스에서 크기 조정이 중단될 수 있습니다. 또한 각 확장 단계에서 포드가 두 배만 증가하는 것으로 제한되었으므로 소규모 배포에서는 빠르게 확장해야 하는 문제가 발생했습니다. 
 
-As an example, we can scaling on the highest of three values (see below). We scale if the average utilization of all the pods are over 50%, if custom metrics the packets per second of the ingress exceed an average of 1,000, or ingress object exceeds 10K request per second.
+autoscaling/v2를 사용하면 규모를 확대하기 위한 여러 기준을 더 유연하게 포함할 수 있으며, 사용자 지정 및 외부 지표 (K8s 지표가 아님) 을 사용할 때 유연성이 크게 향상되었습니다.
+
+예를 들어 세 가지 값 중 가장 높은 값을 기준으로 확장할 수 있습니다(아래 참조). 모든 파드의 평균 사용률이 50% 를 넘거나, 커스텀 지표인 경우 인그레스 초당 패킷이 평균 1,000개를 초과하거나, 인그레스 오브젝트가 초당 요청 10,000건을 초과할 경우 규모를 조정합니다.
 
 !!! note
-    This is just to show the flexibility of the auto-scaling API, we recommend against overly complex rules that can be difficult to troubleshoot in production. 
+    이는 Auto Scaling API의 유연성을 보여주기 위한 것이므로 프로덕션 환경에서 문제를 해결하기 어려울 수 있는 지나치게 복잡한 규칙은 피하는 것이 좋습니다. 
 
 ```yaml
 apiVersion: autoscaling/v2
@@ -178,40 +189,41 @@ spec:
         value: 10k
 ```
 
-However, we learned the danger of using such metrics for complex web applications. In this case we would be better served by using custom or external metric that accurately reflects the saturation of our application vs. the utilization. HPAv2 allows for this by having the ability to scale according to any metric, however we still need to find and export that metric to Kubernetes for use.
+하지만 복잡한 웹 애플리케이션에 이러한 지표를 사용하는 것이 위험하다는 것을 알게 되었습니다. 이 경우 애플리케이션의 포화도와 사용률을 정확하게 반영하는 사용자 지정 또는 외부 지표를 사용하는 것이 더 나은 서비스를 제공할 수 있습니다. HPaV2는 모든 지표에 따라 확장할 수 있어 이를 가능하게 하지만, 사용하려면 해당 지표를 찾아서 Kubernetes로 익스포트해야 합니다.
 
-For example, we can look at the active thread queue count in Apache. This often creates a “smoother” scaling profile (more on that term soon). If a thread is active, it doesn’t matter if that thread is waiting on a database layer or servicing a request locally, if all of the applications threads are being used, it’s a great indication that application is saturated. 
+예를 들어, Apache에서 활성 스레드 대기열 수를 살펴볼 수 있습니다. 이렇게 하면 스케일링 프로필이 “더 매끄럽게” 만들어지는 경우가 많습니다(이 용어에 대해서는 곧 설명하겠습니다). 스레드가 활성 상태이면 해당 스레드가 데이터베이스 계층에서 대기 중이든 로컬에서 요청을 처리하든 상관 없습니다. 모든 애플리케이션 스레드가 사용되고 있다면 애플리케이션이 포화 상태임을 나타내는 좋은 지표입니다. 
 
-We can use this thread exhaustion as a signal to create a new pod with a fully available thread pool. This also gives us control over how big a buffer we want in the application to absorb during times of heavy traffic. For example, if we had a total thread pool of 10, scaling at 4 threads used vs. 8 threads used would have a major impact on the buffer we have available when scaling the application. A setting of 4 would make sense for an application that needs to rapidly scale under heavy load, where a setting of 8 would be more efficient with our resources if we had plenty of time to scale due to the number of requests increasing slowly vs. sharply over time. 
+이 스레드 고갈을 신호로 사용하여 완전히 사용 가능한 스레드 풀을 갖춘 새 파드를 만들 수 있습니다. 또한 트래픽이 많은 시기에 애플리케이션에서 흡수하려는 버퍼 크기를 제어할 수 있습니다. 예를 들어 총 스레드 풀이 10개인 경우 사용된 스레드 4개와 사용된 스레드 8개로 확장하면 애플리케이션을 확장할 때 사용할 수 있는 버퍼에 큰 영향을 미칠 수 있습니다. 부하가 심한 상태에서 빠르게 확장해야 하는 애플리케이션에는 4로 설정하는 것이 좋습니다. 시간이 지남에 따라 요청 수가 느리게 증가하는 대신 급격히 증가하므로 확장할 시간이 충분하다면 8로 설정하는 것이 리소스 활용에 더 효율적입니다. 
 
 ![](../images/thread-pool.png)
 
-What do we mean by the term “smooth” when it comes to scaling? Notice the below chart where we are using CPU as a metric. The pods in this deployment are spiking in a short period for from 50 pods, all the way up to 250 pods only to immediately scale down again. This is highly inefficient scaling is the leading cause on churn on clusters.
+스케일링과 관련하여 “매끄럽다”라는 용어는 무엇을 의미할까요? 아래 차트를 보면 CPU를 지표로 사용하고 있습니다 .이 디플로이먼트의 파드 수가 50개에서 최대 250개까지 짧은 기간에 급증하다가 다시 즉시 축소됩니다.이는 매우 비효율적인 스케일링이 클러스터 이탈의 주요 원인이라는 점입니다.
 
 ![](../images/spiky-scaling.png)
 
-Notice how after we change to a metric that reflects the correct sweet spot of our application (mid-part of chart), we are able to scale smoothly. Our scaling is now efficient, and our pods are allowed to fully scale with the headroom we provided by adjusting requests settings. Now a smaller group of pods are doing the work the hundreds of pods were doing before.  Real world data shows that this is the number one factor in scalability of Kubernetes clusters. 
+애플리케이션의 올바른 스위트 스팟(차트 중간 부분)을 반영하는 지표로 변경한 후 원활하게 확장할 수 있다는 점에 주목하세요. 이제 스케일링이 효율적이었으며 요청 설정을 조정하여 제공된 여유 공간에 맞게 파드를 완전히 확장할 수 있습니다. 이전에는 수백 개의 파드가 하던 작업을 이제는 소규모 파드 그룹이 수행하고 있습니다. 실제 데이터에 따르면 이것이 쿠버네티스 클러스터의 확장성을 결정하는 가장 중요한 요소입니다. 
 
 ![](../images/smooth-scaling.png)
 
-The key takeaway is CPU utilization is only one dimension of both application and node performance. Using CPU utilization as a sole health indicator for our nodes and applications creates problems in scaling, performance and cost which are all tightly linked concepts. The more performant the application and nodes are, the less that you need to scale, which in turn lowers your costs. 
+중요한 점은 CPU 사용률이 애플리케이션과 노드 성능의 한 차원에 불과하다는 것입니다. CPU 사용률을 노드와 애플리케이션의 유일한 상태 지표로 사용하면 확장성, 성능 및 비용 측면에서 문제가 발생하는데, 이는 모두 긴밀하게 연결된 개념입니다. 애플리케이션과 노드의 성능이 높을수록 확장해야 하는 양이 줄어들어 비용이 절감됩니다. 
 
-Finding and using the correct saturation metrics for scaling your particular application also allows you to monitor and alarm on the true bottlenecks for that application. If this critical step is skipped, reports of performance problems will be difficult, if not impossible, to understand.  
+또한 특정 애플리케이션을 확장하기 위한 올바른 포화도 지표를 찾아 사용하면 해당 애플리케이션의 실제 병목 현상을 모니터링하고 경보를 설정할 수 있습니다. 이 중요한 단계를 건너뛰면 성능 문제에 대한 보고서를 이해하기가 불가능하지는 않더라도 이해하기 어려울 것입니다.   
 
-## Setting CPU Limits
-To round out this section on misunderstood topics, we will cover CPU limits. In short, limits are metadata associated with the container that has a counter that resets every 100ms. This helps Linux keep track of how many CPU resources are used node-wide by a specific container in a 100ms period of time. 
+## CPU 제한 설정
+
+잘못 이해되고 있는 주제에 대해 이 섹션을 마무리하기 위해 CPU 제한에 대해 설명하겠습니다. 간단히 말해 한도는 100ms마다 재설정하는 카운터가 있는 컨테이너와 관련된 메타데이터입니다. 이를 통해 Linux는 100ms 기간 동안 특정 컨테이너가 노드 전체에서 사용한 CPU 리소스 수를 추적할 수 있습니다. 
 
 ![CPU limits](../images/cpu-limits.png)
 
-A common error with setting limits is assuming that the application is single threaded and only running on it’s “assigned“ vCPU. In the above section we learned that CFS doesn’t assign cores, and in reality a container running large thread pools will schedule on all available vCPU’s on the box. 
+제한을 설정할 때 흔한 오류는 애플리케이션이 단일 스레드이며 할당된 vCPU에서만 실행된다고 가정하는 것입니다. 위 섹션에서 CFS는 코어를 할당하지 않으며, 실제로 대규모 스레드 풀을 실행하는 컨테이너는 기본적으로 사용 가능한 모든 vCPU를 스케줄링한다는 것을 배웠습니다. 
 
-If 64 OS threads are running across 64 available cores (from a Linux node perspective) we will make the total bill of used CPU time in a 100ms period quite large after the time running on all of those 64 cores are added up. Since this might only occur during a garbage collection process it can be quite easy to miss something like this. This is why it is necessary to use metrics to ensure we have the correct usage over time before attempting to set a limit. 
+64개의 OS 스레드가 64개의 사용 가능한 코어(리눅스 노드 관점에서)에서 실행되고 있다면, 그 64개의 코어에서 모두 실행된 시간을 합한 후 100ms 기간 동안 사용된 CPU 시간의 총계는 상당히 크게 될 것입니다. 이것은 가비지 수집 프로세스 중에만 발생할 수 있기 때문에 이런 것을 놓치기가 상당히 쉽습니다. 이것이 제한을 설정하기 전에 시간 동안 올바른 사용량을 보장하기 위해 지표를 사용해야 하는 이유입니다.
 
-Fortunately, we have a way to see exactly how much vCPU is being used by all the threads in a application. We will use the metric `container_cpu_usage_seconds_total` for this purpose. 
+다행히도, 애플리케이션의 모든 스레드에서 얼마나 많은 vCPU가 사용되고 있는지 정확히 알 수 있는 방법이 있습니다. 이 목적으로 `container_cpu_usage_seconds_total` 지표를 사용할 것입니다.
 
-Since throttling logic happens every 100ms and this metric is a per second metric, we will PromQL to match this 100ms period. If you would like to dive deep into this PromQL statement work please see the following [blog](https://aws.amazon.com/blogs/containers/using-prometheus-to-avoid-disasters-with-kubernetes-cpu-limits/).
+스로틀링 로직이 매 100ms마다 발생하고 이 지표가 초당 지표이므로, 이 100ms 기간에 맞게 PromQL을 사용할 것입니다. 이 PromQL 명령문 작업에 대해 자세히 알아보려면 다음 [블로그](https://aws.amazon.com/blogs/containers/using-prometheus-to-avoid-disasters-with-kubernetes-cpu-limits/)를 참조하십시오.
 
-PromQL query: 
+PromQL 쿼리: 
 
 ```
 topk(3, max by (pod, container)(rate(container_cpu_usage_seconds_total{image!="", instance="$instance"}[$__rate_interval]))) / 10
@@ -219,30 +231,33 @@ topk(3, max by (pod, container)(rate(container_cpu_usage_seconds_total{image!=""
 
 ![](../images/cpu-1.png)
 
-Once we feel we have the right value, we can put the limit in production. It then becomes necessary to see if our application is being throttled due to something unexpected. We can do this by looking at  `container_cpu_throttled_seconds_total`
+일단 우리가 올바른 가치를 가지고 있다고 생각되면, 프로덕션에서 제한을 설정할 수 있습니다. 그런 다음 예상치 못한 문제로 인해 애플리케이션이 병목 현상을 겪고 있는지 확인해야 합니다 `container_cpu_throttled_seconds_total`을 살펴보면 이 작업을 수행할 수 있습니다.
 
 ```
 topk(3, max by (pod, container)(rate(container_cpu_cfs_throttled_seconds_total{image!=``""``, instance=``"$instance"``}[$__rate_interval]))) / 10
 ```
 
 ![](../images/cpu-2.png)
-### Memory 
-The memory allocation is another example where it is easy to confuse Kubernetes scheduling behavior for Linux CGroup behavior. This is a more nuanced topic as there have been major changes in the way that CGroup v2 handles memory in Linux and Kubernetes has changed its syntax to reflect this; read this [blog](https://kubernetes.io/blog/2021/11/26/qos-memory-resources/) for further details.
 
-Unlike CPU requests, memory requests go unused after the scheduling process completes. This is because we can not compress memory in CGroup v1 the same way we can with CPU. That leaves us with just memory limits, which are designed to act as a fail safe for memory leaks by terminating the pod completely. This is an all or nothing style proposition, however we have now been given new ways to address this problem.
+### 메모리 
 
-First, it is important to understand that setting the right amount of memory for containers is not a straightforward as it appears. The file system in Linux will use memory as a cache to improve performance. This cache will grow over time, and it can be hard to know how much memory is just nice to have for the cache but can be reclaimed without a significant impact to application performance. This often results in misinterpreting memory usage.
+메모리 할당은 쿠버네티스 스케줄링 동작과 Linux CGroup 동작을 혼동하기 쉬운 또 다른 예입니다. CGroup v2가 Linux에서 메모리를 처리하는 방식이 크게 변경되었고 Kubernetes가 이를 반영하여 구문을 변경했기 때문에 이 주제는 좀 더 미묘한 주제입니다. 자세한 내용은 이 [블로그](https://kubernetes.io/blog/2021/11/26/qos-memory-resources/)를 참조하십시오.
 
-Having the ability to “compress” memory was one of the primary drivers behind CGroup v2. For more history on why CGroup V2 was necessary, please see Chris Down’s [presentation](https://www.youtube.com/watch?v=kPMZYoRxtmg) at LISA21 where he covers why being unable to set the minimum memory correctly was one of the reasons that drove him to create CGroup v2  and pressure stall metrics. 
+CPU 요청과 달리 메모리 요청은 스케줄링 프로세스가 완료된 후 사용되지 않습니다. 이는 CGroup v1에서 CPU와 같은 방식으로 메모리를 압축할 수 없기 때문입니다. 그 결과 우리는 메모리 제한만을 가지게 되며, 이는 메모리 누수에 대한 실패로부터 파드를 완전히 종료시키는 것으로 설계되었습니다. 이는 전부 또는 아무것도 없는 스타일의 제안이지만, 이 문제를 해결하기 위한 새로운 방법이 제시되었습니다.
 
-Fortunately, Kubernetes now has the concept of `memory.min` and `memory.high` under `requests.memory`. This gives us the option of aggressive releasing this cached memory for other containers to use. Once the container hits the memory high limit, the kernel can aggressively reclaim that container’s memory up to the value set at `memory.min`. Thus giving us more flexibility when a node comes under memory pressure.
+첫째, 컨테이너에 올바른 양의 메모리를 설정하는 것은 보이는 것만큼 간단하지 않다는 것을 이해하는 것이 중요합니다. Linux의 파일 시스템은 성능 향상을 위해 메모리를 캐시로 사용합니다. 이 캐시는 시간이 지남에 따라 성장하며, 얼마나 많은 메모리가 캐시에 좋지만 응용 프로그램 성능에 큰 영향을 미치지 않고 되찾을 수 있는지 알기 어렵습니다. 이는 종종 메모리 사용량을 잘못 해석하는 결과를 가져옵니다.
 
-The key question becomes, what value to set `memory.min` to? This is where memory pressure stall metrics come into play. We can use these metrics to detect memory “thrashing” at a container level. Then we can use controllers such as [fbtax](https://facebookmicrosites.github.io/cgroup2/docs/fbtax-results.html) to detect the correct values for `memory.min` by looking for this memory thrashing, and dynamically set the `memory.min` value to this setting. 
+메모리를 "압축"하는 능력을 갖게 되었던 것은 CGroup v2의 주요 동기 중 하나였습니다. CGroup V2가 필요했던 이유에 대한 더 많은 역사를 알고 싶다면, LISA21에서 Chris Down의 [발표]((https://www.youtube.com/watch?v=kPMZYoRxtmg))를 참조하십시오. 그는 최소 메모리를 올바르게 설정할 수 없는 문제가 CGroup v2와 압력 정체 지표를 만드는 데에 이르게 한 원인 중 하나였다고 설명합니다.
 
-### Summary
-To sum up the section, it is easy to conflate the following concepts: 
+다행히 쿠버네티스는 이제 `requests.memory`에서 `memory.min`과 `memory.high`라는 개념을 갖게 되었습니다. 이렇게 하면 캐시된 메모리를 적극적으로 해제하여 다른 컨테이너가 사용할 수 있도록 할 수 있습니다. 컨테이너가 메모리 상한에 도달하면 커널은 해당 컨테이너의 메모리를 `memory.min`으로 설정된 값까지 적극적으로 회수할 수 있습니다. 따라서 노드에 메모리 압력이 가해질 때 유연성이 향상됩니다.
 
-* Utilization and Saturation  
-* Linux performance rules with Kubernetes Scheduler logic
+핵심 질문은 `memory.min`을 어떤 값으로 설정해야 하는가입니다. 여기서 메모리 압력 정체 지표가 작용합니다. 이러한 지표를 사용하여 컨테이너 수준에서 메모리 “스래싱”을 감지할 수 있습니다. 그러면 [fbtax](https://facebookmicrosites.github.io/cgroup2/docs/fbtax-results.html)와 같은 컨트롤러를 사용하여 이 메모리 스래싱을 찾아 `memory.min`의 올바른 값을 탐지하고, `memory.min` 값을 동적으로 이 설정으로 설정할 수 있습니다. 
 
-Great care must be taken to keep these concepts separated. Performance and scale are linked on a deep level. Unnecessary scaling creates performance problems, which in turn creates scaling problems. 
+### 정리하기
+
+이 섹션을 요약하면, 다음과 같은 개념을 혼동하기 쉽습니다:
+
+* 이용률(Utilization)와 포화도(Saturation)  
+* Linux 성능 규칙과 Kubernetes 스케줄러 로직
+
+이러한 개념들을 구분하도록 많은 주의를 기울여야 합니다. 성능과 스케일은 깊은 수준에서 연결되어 있습니다. 불필요한 스케일링은 성능 문제를 일으키며, 그 결과 스케일링 문제를 초래합니다.
