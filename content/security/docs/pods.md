@@ -380,7 +380,7 @@ If limits and requests are not set, the pod is configured as _best-effort_ (lowe
 | Burstable  | medium  | limit != request != 0 | Can be killed if exceed request memory |
 | Best-Effort| lowest  | limit & request Not Set | First to get killed when there's insufficient memory |
 
-For additional information about resource QoS, please refer to the [Kubernetes documentation](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md).
+For additional information about resource QoS, please refer to the [Kubernetes documentation](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/).
 
 You can force the use of requests and limits by setting a [resource quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range](https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it’s applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. By contrast, limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.
 
