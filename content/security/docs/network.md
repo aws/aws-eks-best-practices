@@ -268,7 +268,7 @@ Please note that migration tool is currently not supported by AWS VPC CNI Networ
 + [Calico Enterprise](https://www.tigera.io/tigera-products/calico-enterprise/)
 + [Cilium](https://cilium.readthedocs.io/en/stable/intro/)
 + [NetworkPolicy Editor](https://cilium.io/blog/2021/02/10/network-policy-editor) an interactive policy editor from Cilium
-+ [Kinvolk's Network Policy Advisor](https://kinvolk.io/blog/2020/03/writing-kubernetes-network-policies-with-inspektor-gadgets-network-policy-advisor/) Suggests network policies based on an analysis of network traffic
++ [Inspektor Gadget advise network-policy gadget](https://www.inspektor-gadget.io/docs/latest/gadgets/advise/network-policy/) Suggests network policies based on an analysis of network traffic
 
 
 ## Encryption in transit
