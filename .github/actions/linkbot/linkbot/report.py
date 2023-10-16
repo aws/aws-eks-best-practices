@@ -21,7 +21,7 @@ def render_body(stats, failure):
         )
     elif failure == CheckFailures.TOO_LONG_SINCE_DEFAULT_COMMIT:
         message = (
-            f'The project [{stats.full_name}]({stats.url}) does not have any commits to its defaul branch since '
+            f'The project [{stats.full_name}]({stats.url}) does not have any commits to its default branch since '
             f'{stats.latest_default_commit.date().isoformat()}. Please check if the project is still maintained.'
         )
     else:
