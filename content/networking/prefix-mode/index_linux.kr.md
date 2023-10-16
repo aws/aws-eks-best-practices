@@ -2,13 +2,13 @@
 
 Amazon VPC CNI는 [Amazon EC2 네트워크 인터페이스](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html)에 네트워크 Prefix를 할당하여 노드에 사용 가능한 IP 주소 수를 늘리고 노드당 파드 밀도를 높입니다. Amazon VPC CNI 애드온 버전 1.9.0 이상을 구성하여 네트워크 인터페이스에 개별 보조 IP 주소를 할당하는 대신 IPv4 및 IPv6 CIDR을 할당할 수 있습니다. 
 
-IPv6 클러스터에서 Prefix 모드는 기본적으로 활성화되며 해당 옵션만 지원됩니다. VPC CNI는 ENI의 슬롯에 /80 IPv6 Prefix를 할당합니다. [이 가이드의 IPv6 섹션](../ipv6/index.md) 을 참조하십시오.
+IPv6 클러스터에서 Prefix 모드는 기본적으로 활성화되며 해당 옵션만 지원됩니다. VPC CNI는 ENI의 슬롯에 /80 IPv6 Prefix를 할당합니다. [이 가이드의 IPv6 섹션](../ipv6/index.md) 을 참조합니다.
 
-Prefix 할당 모드에서 인스턴스 유형당 최대 elastic network interfaces 수는 동일하게 유지되지만, 네트워크 인터페이스의 슬롯에 개별 IPv4 주소를 할당하는 대신 /28 (16개의 IP 주소) IPv4 주소 Prefix를 할당하도록 Amazon VPC CNI를 구성할 수 있습니다. `ENABLE_PREFIX_DELEGATION`이 true로 설정되면 CNI는 ENI에 할당된 Prefix에서 파드에 IP 주소를 할당합니다. [EKS 사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) 에 나와 있는 지침을 따라 Prefix IP 모드를 활성화 하십시오. 
+Prefix 할당 모드에서 인스턴스 유형당 최대 elastic network interfaces 수는 동일하게 유지되지만, 네트워크 인터페이스의 슬롯에 개별 IPv4 주소를 할당하는 대신 /28 (16개의 IP 주소) IPv4 주소 Prefix를 할당하도록 Amazon VPC CNI를 구성할 수 있습니다. `ENABLE_PREFIX_DELEGATION`이 true로 설정되면 CNI는 ENI에 할당된 Prefix에서 파드에 IP 주소를 할당합니다. [EKS 사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) 에 나와 있는 지침을 따라 Prefix IP 모드를 활성화 합니다. 
 
 ![illustration of two worker subnets, comparing ENI secondary IPvs to ENIs with delegated prefixes](./image.png)
 
-네트워크 인터페이스에 할당할 수 있는 최대 IP 주소 수는 인스턴스 유형에 따라 다릅니다.네트워크 인터페이스에 할당하는 각 Prefix는 하나의 IP 주소로 간주합니다. 예를 들어, `c5.large` 인스턴스의 네트워크 인터페이스당 IPv4 주소는 `10`개로 제한됩니다. 이 인스턴스의 각 네트워크 인터페이스에는 기본 IPv4 주소가 있습니다. 네트워크 인터페이스에 보조 IPv4 주소가 없는 경우 네트워크 인터페이스에 최대 9개의 Prefix를 할당할 수 있습니다. 네트워크 인터페이스에 추가로 할당하는 IPv4 주소마다 네트워크 인터페이스에 Prefix를 하나씩 더 적게 할당할 수 있습니다. [인스턴스 유형별 네트워크 인터페이스당 IP 주소](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI) 및 [네트워크 인터페이스에 Prefix 할당](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html)에 대한 AWS EC2 설명서를 참조하십시오.
+네트워크 인터페이스에 할당할 수 있는 최대 IP 주소 수는 인스턴스 유형에 따라 다릅니다.네트워크 인터페이스에 할당하는 각 Prefix는 하나의 IP 주소로 간주합니다. 예를 들어, `c5.large` 인스턴스의 네트워크 인터페이스당 IPv4 주소는 `10`개로 제한됩니다. 이 인스턴스의 각 네트워크 인터페이스에는 기본 IPv4 주소가 있습니다. 네트워크 인터페이스에 보조 IPv4 주소가 없는 경우 네트워크 인터페이스에 최대 9개의 Prefix를 할당할 수 있습니다. 네트워크 인터페이스에 추가로 할당하는 IPv4 주소마다 네트워크 인터페이스에 Prefix를 하나씩 더 적게 할당할 수 있습니다. [인스턴스 유형별 네트워크 인터페이스당 IP 주소](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI) 및 [네트워크 인터페이스에 Prefix 할당](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html)에 대한 AWS EC2 설명서를 참조합니다.
 
 워커 노드를 초기화하는 동안 VPC CNI는 기본 ENI에 하나 이상의 Prefix를 할당합니다.CNI는 웜 풀을 유지 관리하여 파드 시작 속도를 높이기 위해 Prefix를 미리 할당합니다. 환경 변수를 설정하여 웜 풀에 보관할 Prefix 수를 제어할 수 있습니다.
 
@@ -26,9 +26,9 @@ Prefix 할당 모드에서 인스턴스 유형당 최대 elastic network interfa
 
 ### 다음과 같은 경우 Prefix 모드 사용
 
-워커 노드에서 Pod 밀도 문제가 발생하는 경우 Prefix 모드를 사용합니다. VPC CNI 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약에 대한 세부 정보는 “[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” 섹션을 참조하십시오. 
+워커 노드에서 Pod 밀도 문제가 발생하는 경우 Prefix 모드를 사용합니다. VPC CNI 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약에 대한 세부 정보는 “[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” 섹션을 참조합니다. 
 
-이전 버전과의 호환성을 위해 [max-pods](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) 제한이 보조 IP 모드를 지원하도록 설정되었습니다. 파드 밀도를 높이려면, `max-pods` 값을 Kubelet에 지정하고, 노드의 사용자 데이터(User data)에 `--use-max-pods=false`를 지정하십시오. [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh) 스크립트를 사용하여 특정 인스턴스 유형에 대한 EKS의 권장 최대 파드 수를 계산하는 것을 고려해 볼 수 있습니다. 사용자 데이터의 예는 EKS [사용 설명서](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html)를 참조하십시오.
+이전 버전과의 호환성을 위해 [max-pods](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) 제한이 보조 IP 모드를 지원하도록 설정되었습니다. 파드 밀도를 높이려면, `max-pods` 값을 Kubelet에 지정하고, 노드의 사용자 데이터(User data)에 `--use-max-pods=false`를 지정합니다. [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh) 스크립트를 사용하여 특정 인스턴스 유형에 대한 EKS의 권장 최대 파드 수를 계산하는 것을 고려해 볼 수 있습니다. 사용자 데이터의 예는 EKS [사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html)를 참조합니다.
 
 ```
 ./max-pods-calculator.sh --instance-type m5.large --cni-version ``1.9``.0 --cni-prefix-delegation-enabled
@@ -54,7 +54,7 @@ Prefix 모드에서는 워커 노드에 할당된 보안 그룹이 파드에 공
 
 `WARM_PREFIX_TARGET`의 [설치 매니페스트](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.9/aws-k8s-cni.yaml#L158) 기본값은 1입니다. 대부분의 경우, `WARM_PREFIX_TARGET`의 권장 값인 1을 사용하면 인스턴스에 할당된 미사용 IP 주소를 최소화하면서 빠른 파드 실행 시간을 적절히 조합할 수 있습니다.
 
-노드당 IPv4 주소를 추가로 보존해야 하는 경우 구성 시 `WARM_PREFIX_TARGET`을 오버라이드하는 `WARM_IP_TARGET` 및 ` MINIMUM_IP_TARGET` 설정을 사용하십시오. `WARM_IP_TARGET`을 16 미만의 값으로 설정하면 CNI가 초과 Prefix 전체를 연결하지 않도록 할 수 있습니다.
+노드당 IPv4 주소를 추가로 보존해야 하는 경우 구성 시 `WARM_PREFIX_TARGET`을 오버라이드하는 `WARM_IP_TARGET` 및 ` MINIMUM_IP_TARGET` 설정을 사용합니다. `WARM_IP_TARGET`을 16 미만의 값으로 설정하면 CNI가 초과 Prefix 전체를 연결하지 않도록 할 수 있습니다.
 
 ### 신규 ENI 추가보다는 신규 Prefix 할당
 

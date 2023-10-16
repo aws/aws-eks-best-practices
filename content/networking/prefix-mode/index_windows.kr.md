@@ -3,13 +3,13 @@ Amazon EKS에서, 윈도우 호스트에서 실행되는 각 파드는 기본적
 
 특히 비교적 작은 인스턴스 유형을 사용하는 경우 윈도우 호스트에서 파드 밀도를 높이기 위해 윈도우 노드에 **Prefix Delegation**을 활성화할 수 있습니다. Prefix Delegation을 활성화하면 /28 IPv4 Prefix가 보조 IP 주소 대신 ENI 슬롯에 할당됩니다. Prefix Delegation은 `amazon-vpc-cni` ConfigMap에 `enable-windows-prefix-delegation: “true ”`항목을 추가하여 활성화할 수 있습니다. 해당 ConfigMap은 윈도우 지원을 활성화하기 위해 `enable-windows-ipam: “true ”` 항목을 설정했던 것과 동일한 ConfigMap입니다.
 
-[EKS 사용 설명서](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) 에 설명된 지침에 따라 윈도우 노드에 대해 Prefix Delegation 모드를 활성화하십시오.
+[EKS 사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) 에 설명된 지침에 따라 윈도우 노드에 대해 Prefix Delegation 모드를 활성화합니다.
 
 ![illustration of two worker subnets, comparing ENI secondary IPvs to ENIs with delegated prefixes](./windows-1.jpg)
 
 그림: 보조 IP 모드와 Prefix Delegation 모드의 비교 
 
-네트워크 인터페이스에 할당할 수 있는 최대 IP 주소 수는 인스턴스 유형과 크기에 따라 다릅니다. 네트워크 인터페이스에 할당된 각 Prefix는 가용 슬롯을 사용합니다. 예를 들어, `c5.large` 인스턴스는 네트워크 인터페이스당 `10` 슬롯으로 제한됩니다. 네트워크 인터페이스의 첫 번째 슬롯은 항상 인터페이스의 기본 IP 주소에서 사용되므로 Prefix 및/또는 보조 IP 주소를 위한 슬롯이 9개만 남게 됩니다. 이러한 슬롯에 Prefix가 할당된 경우 노드는 (9 * 16) 144 IP 주소를 지원할 수 있지만 보조 IP 주소가 할당된 경우 9개의 IP 주소만 지원할 수 있습니다. 자세한 내용은 [인스턴스 유형별 네트워크 인터페이스당 IP 주소](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI) 및 [네트워크 인터페이스에 Prefix 할당](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html) 설명서를 참조하십시오.
+네트워크 인터페이스에 할당할 수 있는 최대 IP 주소 수는 인스턴스 유형과 크기에 따라 다릅니다. 네트워크 인터페이스에 할당된 각 Prefix는 가용 슬롯을 사용합니다. 예를 들어, `c5.large` 인스턴스는 네트워크 인터페이스당 `10` 슬롯으로 제한됩니다. 네트워크 인터페이스의 첫 번째 슬롯은 항상 인터페이스의 기본 IP 주소에서 사용되므로 Prefix 및/또는 보조 IP 주소를 위한 슬롯이 9개만 남게 됩니다. 이러한 슬롯에 Prefix가 할당된 경우 노드는 (9 * 16) 144 IP 주소를 지원할 수 있지만 보조 IP 주소가 할당된 경우 9개의 IP 주소만 지원할 수 있습니다. 자세한 내용은 [인스턴스 유형별 네트워크 인터페이스당 IP 주소](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI) 및 [네트워크 인터페이스에 Prefix 할당](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html) 설명서를 참조합니다.
 
 워커 노드 초기화 중에 VPC 리소스 컨트롤러는 IP 주소의 웜 풀을 유지하여 파드 시작 속도를 높이기 위해 기본 ENI에 하나 이상의 Prefix를 할당합니다. 웜 풀에 보관할 Prefix 수는 `amazon-vpc-cni` ConfigMap에서 다음 구성 매개변수를 구성하여 제어할 수 있습니다.
 
@@ -26,13 +26,13 @@ Amazon EKS에서, 윈도우 호스트에서 실행되는 각 파드는 기본적
 
 ## 권장 사항
 ### 다음과 같은 경우 Prefix Delegation 사용
-워커 노드에서 파드 밀도 문제가 발생하는 경우 Prefix Delegation을 사용합니다. 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약 세부 정보는 “[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” 섹션을 참조하십시오. 
+워커 노드에서 파드 밀도 문제가 발생하는 경우 Prefix Delegation을 사용합니다. 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약 세부 정보는 “[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” 섹션을 참조합니다. 
 
 기본적으로 윈도우 노드의 `max-pods`는 '110'으로 설정되어 있습니다. 대부분의 인스턴스 유형에서는 이 정도면 충분합니다. 해당 한도를 늘리거나 줄이려면 사용자 데이터(User data)의 부트스트랩 명령에 다음을 추가하세요.
 ```
 -KubeletExtraArgs '--max-pods=example-value'
 ```
-윈도우 노드의 부트스트랩 구성 매개 변수에 대한 자세한 내용은 [이 링크](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-windows-ami.html#bootstrap-script-configuration-parameters)의 설명서를 참조하십시오.
+윈도우 노드의 부트스트랩 구성 매개 변수에 대한 자세한 내용은 [이 링크](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-windows-ami.html#bootstrap-script-configuration-parameters)의 설명서를 참조합니다.
 
 ### 다음과 같은 경우 Prefix Delegation을 권장하지 않음
 서브넷이 매우 파편화되어 있고 사용 가능한 IP 주소가 부족하여 /28 Prefix를 만들 수 없는 경우에는 Prefix 모드를 사용하지 마십시오. Prefix가 생성되는 서브넷이 파편화 된(사용량이 많고 보조 IP 주소가 흩어져 있는 서브넷) 경우 Prefix 연결에 실패할 수 있습니다. 신규 서브넷을 만들고 Prefix를 예약하면 이 문제를 피할 수 있습니다.
@@ -43,7 +43,7 @@ Amazon EKS에서, 윈도우 호스트에서 실행되는 각 파드는 기본적
 warm-ip-target: "1"
 minimum-ip-target: "3"
 ```
-이러한 구성 파라미터를 미세 조정하면 IP 주소 보존과 IP 주소 할당으로 인한 파드 지연 시간 감소 사이에서 최적의 균형을 이룰 수 있습니다. 이러한 구성 매개변수에 대한 자세한 내용은 [이 링크](https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/docs/windows/prefix_delegation_config_options.md)의 설명서를 참조하십시오.
+이러한 구성 파라미터를 미세 조정하면 IP 주소 보존과 IP 주소 할당으로 인한 파드 지연 시간 감소 사이에서 최적의 균형을 이룰 수 있습니다. 이러한 구성 매개변수에 대한 자세한 내용은 [이 링크](https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/docs/windows/prefix_delegation_config_options.md)의 설명서를 참조합니다.
 
 ### 서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 를 방지
 EC2가 ENI에 /28 IPv4 Prefix를 할당할 경우, 해당 Prefix는 서브넷의 연속된 IP 주소 블록이어야 합니다. Prefix가 생성되는 서브넷이 파편화된 경우 (보조 IP 주소가 흩어져 있고 많이 사용되는 서브넷) Prefix 연결에 실패할 수 있으며 다음과 같은 노드 이벤트가 표시됩니다.
