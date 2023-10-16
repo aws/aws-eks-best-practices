@@ -25,7 +25,7 @@ securityContext:
     type: RuntimeDefault
 ```
 
-As of 1.22 (in alpha, stable as of 1.27), the above `RuntimeDefault` can be used for all Pods on a Node using a [single kubelet flag](https://kubernetes.io/docs/tutorials/security/seccomp/#enable-the-use-of-runtimedefault-as-the-default-seccomp-profile-for-all-workloads), `--seccomp-default`. The annotation is no longer needed, and the `securityContext` profile is only needed for other profiles.
+As of 1.22 (in alpha, stable as of 1.27), the above `RuntimeDefault` can be used for all Pods on a Node using a [single kubelet flag](https://kubernetes.io/docs/tutorials/security/seccomp/#enable-the-use-of-runtimedefault-as-the-default-seccomp-profile-for-all-workloads), `--seccomp-default`. Then the profile specified in `securityContext` is only needed for other profiles.
 
 It's also possible to create your own profiles for things that require additional privileges. This can be very tedious to do manually, but there are tools like [Inspektor Gadget](https://github.com/inspektor-gadget/inspektor-gadget) (also recommended in the [network security section](../network/) for generating network policies) and [Security Profiles Operator](https://github.com/inspektor-gadget/inspektor-gadget) that support using tools like eBPF or logs to record baseline privilege requirements as seccomp profiles. Security Profiles Operator further allows automating the deployment of recorded profiles to nodes for use by Pods and containers.
 
