@@ -1,7 +1,7 @@
-# Data encryption and secrets management
+# 데이터 암호화 및 시크릿 관리
 
-## Encryption at rest
-There are three different AWS-native storage options you can use with Kubernetes: [EBS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html), [EFS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEFS.html), and [FSx for Lustre](https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html).  All three offer encryption at rest using a service managed key or a customer master key (CMK). For EBS you can use the in-tree storage driver or the [EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver).  Both include parameters for encrypting volumes and supplying a CMK.  For EFS, you can use the [EFS CSI driver](https://github.com/kubernetes-sigs/aws-efs-csi-driver), however, unlike EBS, the EFS CSI driver does not support dynamic provisioning.  If you want to use EFS with EKS, you will need to provision and configure at-rest encryption for the file system prior to creating a PV. For further information about EFS file encryption, please refer to [Encrypting Data at Rest](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html). Besides offering at-rest encryption, EFS and FSx for Lustre include an option for encrypting data in transit.  FSx for Luster does this by default.  For EFS, you can add transport encryption by adding the `tls` parameter to `mountOptions` in your PV as in this example: 
+## 저장 시 암호화
+쿠버네티스와 함께 사용할 수 있는 AWS 네이티브 스토리지 옵션은 [EBS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html), [EFS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEFS.html), [FSx for Lustre](https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html)등 세 가지가 있습니다. 세 가지 모두 서비스 관리 키 또는 고객 관리 키 (CMK)를 사용하여 저장 시 암호화를 제공합니다. EBS의 경우 인트리 스토리지 드라이버 또는 [EBS CSI드라이버](https://github.com/kubernetes-sigs/aws-ebs-csi-driver)를 사용할 수 있습니다.둘 다 볼륨 암호화 및 CMK 제공을 위한 파라미터를 포함합니다. EFS의 경우 [EFS CSI 드라이버](https://github.com/kubernetes-sigs/aws-efs-csi-driver)를 사용할 수 있지만 EBS와 달리 EFS CSI 드라이버는 동적 프로비저닝을 지원하지 않습니다. EKS와 함께 EFS를 사용하려면 PV를 생성하기 전에 파일 시스템에 대한 저장 중 암호화를 프로비저닝하고 구성해야 합니다. EFS 파일 암호화에 대한 자세한 내용은 [저장 데이터 암호화](https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html)를 참조합니다. EFS와 FSx for Lustre에는 저장 시 암호화를 제공하는 것 외에도 전송 데이터를 암호화하는 옵션이 포함되어 있습니다. FSx for Luster는 기본적으로 이 작업을 수행합니다. EFS의 경우 다음 예와 같이 PV의 `MountOptions`에 `tls` 매개변수를 추가하여 전송 암호화를 추가할 수 있습니다:
 
 ```yaml
 apiVersion: v1
@@ -23,7 +23,7 @@ spec:
     volumeHandle: <file_system_id>
 ```
 
-The [FSx CSI driver](https://github.com/kubernetes-sigs/aws-fsx-csi-driver) supports dynamic provisioning of Lustre file systems.  It encrypts data with a service managed key by default, although there is an option to provide your own CMK as in this example:
+[FSx CSI 드라이버](https://github.com/kubernetes-sigs/aws-fsx-csi-driver) 는 Lustre 파일 시스템의 동적 프로비저닝을 지원합니다.기본적으로 서비스 관리 키를 사용하여 데이터를 암호화하지만, 다음 예와 같이 자체 CMK를 제공하는 옵션이 있습니다.:
 
 ```yaml
 kind: StorageClass
@@ -37,38 +37,38 @@ parameters:
   deploymentType: PERSISTENT_1
   kmsKeyId: <kms_arn>
 ``` 
-!!! attention
-    As of May 28, 2020 all data written to the ephemeral volume in EKS Fargate pods is encrypted by default using an industry-standard AES-256 cryptographic algorithm. No modifications to your application are necessary as encryption and decryption are handled seamlessly by the service. 
+!!! 주목
+    2020년 5월 28일부터 EKS Fargate 포드의 임시 볼륨에 기록되는 모든 데이터는 업계 표준 AES-256 암호화 알고리즘을 사용하여 기본적으로 암호화됩니다. 서비스에서 암호화 및 복호화를 원활하게 처리하므로 애플리케이션을 수정할 필요가 없습니다. 
 
-## Recommendations
-### Encrypt data at rest
-Encrypting data at rest is considered a best practice.  If you're unsure whether encryption is necessary, encrypt your data. 
+## 권장 사항
+### 저장된 데이터 암호화
+저장된 데이터를 암호화하는 것은 모범 사례로 간주됩니다. 암호화가 필요한지 확실하지 않은 경우 데이터를 암호화하세요. 
 
-### Rotate your CMKs periodically
-Configure KMS to automatically rotate your CMKs.  This will rotate your keys once a year while saving old keys indefinitely so that your data can still be decrypted.  For additional information see [Rotating customer master keys](https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)
+### CMK를 주기적으로 교체하세요
+CMK를 자동으로 교체하도록 KMS를 구성합니다.이렇게 하면 1년에 한 번 키가 교체되고 이전 키는 무기한 저장되므로 데이터를 계속 해독할 수 있습니다. 자세한 내용은 [고객 마스터 키 교체](https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html)를 참조합니다.
 
-### Use EFS access points to simplify access to shared datasets
-If you have shared datasets with different POSIX file permissions or want to restrict access to part of the shared file system by creating different mount points, consider using EFS access points. To learn more about working with access points, see [https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html](https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html). Today, if you want to use an access point (AP) you'll need to reference the AP in the PV's `volumeHandle` parameter.
+### EFS 액세스 포인트를 사용하여 공유 데이터세트에 대한 액세스를 간소화합니다.
+서로 다른 POSIX 파일 권한으로 데이터 세트를 공유했거나 다른 마운트 지점을 생성하여 공유 파일 시스템의 일부에 대한 액세스를 제한하려는 경우 EFS 액세스 포인트를 사용하는 것이 좋습니다. 액세스 포인트 사용에 대한 자세한 내용은 [AWS 문서](https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html)를 참조합니다. 현재 액세스 포인트(AP)를 사용하려면 PV의 `VolumeHandle` 매개변수에서 AP를 참조해야 합니다.
 
-!!! attention
-    As of March 23, 2021 the EFS CSI driver supports dynamic provisioning of EFS Access Points. Access points are application-specific entry points into an EFS file system that make it easier to share a file system between multiple pods. Each EFS file system can have up to 120 PVs. See [Introducing Amazon EFS CSI dynamic provisioning](https://aws.amazon.com/blogs/containers/introducing-efs-csi-dynamic-provisioning/) for additional information. 
+!!! 주목
+    2021년 3월 23일부터 EFS CSI 드라이버는 EFS 액세스 포인트의 동적 프로비저닝을 지원합니다. 액세스 포인트는 여러 포드 간에 파일 시스템을 쉽게 공유할 수 있게 해주는 EFS 파일 시스템의 애플리케이션 별 진입점입니다. 각 EFS 파일 시스템에는 최대 120개의 PV가 있을 수 있습니다. 자세한 내용은 [Amazon EFS CSI 동적 프로비저닝 소개](https://aws.amazon.com/blogs/containers/introducing-efs-csi-dynamic-provisioning/) 를 참조하십시오. 
 
-## Secrets management
-Kubernetes secrets are used to store sensitive information, such as user certificates, passwords, or API keys. They are persisted in etcd as base64 encoded strings.  On EKS, the EBS volumes for etcd nodes are encrypted with [EBS encryption](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).  A pod can retrieve a Kubernetes secrets objects by referencing the secret in the `podSpec`.  These secrets can either be mapped to an environment variable or mounted as volume. For additional information on creating secrets, see [https://kubernetes.io/docs/concepts/configuration/secret/](https://kubernetes.io/docs/concepts/configuration/secret/). 
+## 시크릿 관리
+쿠버네티스 시크릿은 사용자 인증서, 암호 또는 API 키와 같은 민감한 정보를 저장하는 데 사용됩니다. 이들은 etcd에 base64로 인코딩된 문자열로 유지됩니다. EKS에서는 etcd 노드의 EBS 볼륨이 [EBS 암호화](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html)로 암호화됩니다. 포드는 `PodSpec`의 시크릿을 참조하여 쿠버네티스 시크릿 객체를 검색할 수 있습니다. 이러한 시크릿은 환경 변수에 매핑하거나 볼륨으로 마운트할 수 있습니다. 시크릿 생성에 대한 자세한 내용은 [쿠버네티스 문서](https://kubernetes.io/docs/concepts/configuration/secret/)를 참조하십시오. 
 
-!!! caution
-    Secrets in a particular namespace can be referenced by all pods in the secret's namespace.
+!!! 주의
+    특정 네임스페이스의 시크릿은 네임스페이스의 모든 파드에서 참조할 수 있습니다.
 
-!!! caution 
-    The node authorizer allows the Kubelet to read all of the secrets mounted to the node. 
+!!! 주의 
+    노드 권한 부여자는 Kubelet이 노드에 마운트된 모든 시크릿을 읽을 수 있도록 허용합니다. 
 
-## Recommendations
-### Use AWS KMS for envelope encryption of Kubernetes secrets
-This allows you to encrypt your secrets with a unique data encryption key (DEK). The DEK is then encrypted using a key encryption key (KEK) from AWS KMS which can be automatically rotated on a recurring schedule. With the KMS plugin for Kubernetes, all Kubernetes secrets are stored in etcd in ciphertext instead of plain text and can only be decrypted by the Kubernetes API server. 
-For additional details, see [using EKS encryption provider support for defense in depth](https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/)
+## 권장 사항
+### 쿠버네티스 시크릿 봉투 암호화에 AWS KMS 사용
+이를 통해 고유한 DEK (데이터 암호화 키) 로 시크릿을 암호화할 수 있습니다.그런 다음 DEK는 AWS KMS의 KEK (키 암호화 키) 를 사용하여 암호화되며, 이 KEK (키 암호화 키) 는 반복 일정에 따라 자동으로 교체될 수 있습니다.쿠버네티스용 KMS 플러그인을 사용하면 모든 쿠버네티스 암호가 일반 텍스트 대신 암호문의 etcd에 저장되며 쿠버네티스 API 서버에서만 해독할 수 있습니다. 
+자세한 내용은 [심층 방어를 위한 EKS 암호화 공급자 지원 사용](https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/)을 참조하십시오.
 
-### Audit the use of Kubernetes Secrets
-On EKS, turn on audit logging and create a CloudWatch metrics filter and alarm to alert you when a secret is used (optional). The following is an example of a metrics filter for the Kubernetes audit log, `{($.verb="get") && ($.objectRef.resource="secret")}`.  You can also use the following queries with CloudWatch Log Insights: 
+### 쿠버네티스 시크릿 사용 감사
+EKS에서 감사 로깅을 켜고 CloudWatch 지표 필터 및 알람을 생성하여 시크릿이 사용될 때 알림을 보냅니다 (선택 사항). 다음은 쿠버네티스 감사 로그에 대한 메트릭 필터의 예시입니다, `{($.verb="get”) && ($.ObjectRef.resource="Secret”)} `. CloudWatch 로그 인사이트에서는 다음 쿼리를 사용할 수도 있습니다:
 ```
 fields @timestamp, @message
 | sort @timestamp desc
@@ -76,7 +76,7 @@ fields @timestamp, @message
 | stats count(*) by objectRef.name as secret
 | filter verb="get" and objectRef.resource="secrets"
 ```
-The above query will display the number of times a secret has been accessed within a specific timeframe. 
+위 쿼리는 특정 기간 내에 시크릿에 액세스한 횟수를 표시합니다. 
 ```
 fields @timestamp, @message
 | sort @timestamp desc
@@ -84,28 +84,28 @@ fields @timestamp, @message
 | filter verb="get" and objectRef.resource="secrets"
 | display objectRef.namespace, objectRef.name, user.username, responseStatus.code
 ```
-This query will display the secret, along with the namespace and username of the user who attempted to access the secret and the response code. 
+이 쿼리에는 시크릿에 액세스하려고 시도한 사용자의 네임스페이스 및 사용자 이름 및 응답 코드와 함께 시크릿이 표시됩니다. 
 
-### Rotate your secrets periodically
-Kubernetes doesn't automatically rotate secrets.  If you have to rotate secrets, consider using an external secret store, e.g. Vault or AWS Secrets Manager. 
+### 주기적으로 시크릿 교체하기
+쿠버네티스는 시크릿을 자동으로 교체하지 않습니다. 암호를 교체해야 하는 경우 Vault 또는 AWS Secrets Manager와 같은 외부 암호 저장소를 사용하는 것이 좋습니다. 
 
-### Use separate namespaces as a way to isolate secrets from different applications
-If you have secrets that cannot be shared between applications in a namespace, create a separate namespace for those applications.
+### 다른 애플리케이션으로부터 시크릿을 분리하는 방법으로 별도의 네임스페이스를 사용하십시오.
+네임스페이스의 애플리케이션 간에 공유할 수 없는 시크릿이 있는 경우 해당 애플리케이션에 대해 별도의 네임스페이스를 생성하십시오.
 
-### Use volume mounts instead of environment variables
-The values of environment variables can unintentionally appear in logs. Secrets mounted as volumes are instantiated as tmpfs volumes (a RAM backed file system) that are automatically removed from the node when the pod is deleted. 
+### 환경 변수 대신 볼륨 마운트 사용
+환경 변수 값이 실수로 로그에 나타날 수 있습니다. 볼륨으로 마운트된 시크릿은 tmpfs 볼륨(RAM 백업 파일 시스템)으로 인스턴스화되며, 파드가 삭제되면 노드에서 자동으로 제거됩니다. 
 
-### Use an external secrets provider
-There are several viable alternatives to using Kubernetes secrets, including [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) and Hashicorp's [Vault](https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/). These services offer features such as fine grained access controls, strong encryption, and automatic rotation of secrets that are not available with Kubernetes Secrets. Bitnami's [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) is another approach that uses asymmetric encryption to create "sealed secrets". A public key is used to encrypt the secret while the private key used to decrypt the secret is kept within the cluster, allowing you to safely store sealed secrets in source control systems like Git. See [Managing secrets deployment in Kubernetes using Sealed Secrets](https://aws.amazon.com/blogs/opensource/managing-secrets-deployment-in-kubernetes-using-sealed-secrets/) for further information. 
+### 외부 시크릿 제공자 사용
+[AWS Secret Manager](https://aws.amazon.com/secrets-manager/)와 Hishcorp의 [Vault](https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/)를 포함하여 쿠버네티스 시크릿을 사용할 수 있는 몇 가지 실행 가능한 대안이 있습니다. 이러한 서비스는 쿠버네티스 시크릿에서는 사용할 수 없는 세밀한 액세스 제어, 강력한 암호화, 암호 자동 교체 등의 기능을 제공합니다. Bitnami의 [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)는 비대칭 암호화를 사용하여 “봉인된 시크릿”을 생성하는 또 다른 접근 방식입니다. 공개 키는 시크릿을 암호화하는 데 사용되는 반면 암호 해독에 사용된 개인 키는 클러스터 내에 보관되므로 Git과 같은 소스 제어 시스템에 봉인된 시크릿을 안전하게 저장할 수 있습니다. 자세한 내용은 [실드 시크릿을 사용한 쿠버네티스의 시크릿 배포 관리](https://aws.amazon.com/blogs/opensource/managing-secrets-deployment-in-kubernetes-using-sealed-secrets/)를 참조합니다. 
 
-As the use of external secrets stores has grown, so has need for integrating them with Kubernetes. The [Secret Store CSI Driver](https://github.com/kubernetes-sigs/secrets-store-csi-driver) is a community project that uses the CSI driver model to fetch secrets from external secret stores. Currently, the Driver has support for [AWS Secrets Manager](https://github.com/aws/secrets-store-csi-driver-provider-aws), Azure, Vault, and GCP. The AWS provider supports both AWS Secrets Manager **and** AWS Parameter Store. It can also be configured to rotate secrets when they expire and can synchronize AWS Secrets Manager secrets to Kubernetes Secrets. Synchronization of secrets can be useful when you need to reference a secret as an environment variable instead of reading them from a volume. 
+외부 시크릿 스토어의 사용이 증가함에 따라 이를 쿠버네티스와 통합해야 할 필요성도 커졌습니다. [Secret Store CSI 드라이버](https://github.com/kubernetes-sigs/secrets-store-csi-driver)는 CSI 드라이버 모델을 사용하여 외부 시크릿 스토어로부터 시크릿을 가져오는 커뮤니티 프로젝트입니다. 현재 이 드라이버는 [AWS Secret Manager](https://github.com/aws/secrets-store-csi-driver-provider-aws), Azure, Vault 및 GCP를 지원합니다. AWS 공급자는 AWS 시크릿 관리자**와** AWS 파라미터 스토어를 모두 지원합니다. 또한 암호가 만료되면 암호가 교체되도록 구성할 수 있으며, AWS Secrets Manager 암호를 쿠버네티스 암호와 동기화할 수 있습니다. 암호의 동기화는 볼륨에서 암호를 읽는 대신 암호를 환경 변수로 참조해야 할 때 유용할 수 있습니다. 
 
-!!! note
-    When the the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that references a secret. The code for this operation can be found [here](https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go).
+!!! 노트
+    시크릿 스토어 CSI 드라이버는 시크릿을 가져와야 하는 경우 시크릿을 참조하는 파드에 할당된 IRSA 역할을 맡는다. 이 작업의 코드는 [Github](https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go)에서 찾을 수 있습니다.
     
-For additional information about the AWS Secrets & Configuration Provider (ASCP) refer to the following resources:
+AWS 보안 및 구성 공급자 (ASCP) 에 대한 추가 정보는 다음 리소스를 참조하십시오:
 
-+ [How to use AWS Secrets Configuration Provider with Kubernetes Secret Store CSI Driver](https://aws.amazon.com/blogs/security/how-to-use-aws-secrets-configuration-provider-with-kubernetes-secrets-store-csi-driver/)
-+ [Integrating Secrets Manager secrets with Kubernetes Secrets Store CSI Driver](https://docs.aws.amazon.com/secretsmanager/latest/userguide/integrating_csi_driver.html)
++ [쿠버네티스 시크릿 스토어 CSI 드라이버와 함께 AWS 시크릿 구성 공급자를 사용하는 방법](https://aws.amazon.com/blogs/security/how-to-use-aws-secrets-configuration-provider-with-kubernetes-secrets-store-csi-driver/)
++ [Secret manager 시크릿을 쿠버네티스 시크릿 스토어 CSI 드라이버와 통합](https://docs.aws.amazon.com/secretsmanager/latest/userguide/integrating_csi_driver.html)
 
-[external-secrets](https://github.com/external-secrets/kubernetes-external-secrets) is yet another way to use an external secret store with Kubernetes. Like the CSI Driver, external-secrets works against a variety of different backends, including AWS Secrets Manager. The difference is, rather than retrieving secrets from the external secret store, external-secrets copies secrets from these backends to Kubernetes as Secrets.  This lets you manage secrets using your preferred secret store and interact with secrets in a Kubernetes-native way. 
+[external-secrets](https://github.com/external-secrets/kubernetes-external-secrets)는 쿠버네티스와 함께 외부 시크릿 저장소를 사용하는 또 다른 방법입니다.CSI 드라이버와 마찬가지로 외부 시크릿은 AWS Secrets Manager를 비롯한 다양한 백엔드에서 작동합니다. 차이점은 외부 시크릿이 외부 시크릿 스토어에서 시크릿을 검색하는 대신 이러한 백엔드의 시크릿을 시크릿으로 Kubernetes에 복사한다는 점입니다. 이를 통해 선호하는 시크릿 스토어를 사용하여 시크릿을 관리하고 쿠버네티스 네이티브 방식으로 시크릿과 상호작용할 수 있다. 

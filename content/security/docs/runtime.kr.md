@@ -1,19 +1,19 @@
 # 런타임 보안
 런타임 보안은 실행 중인 컨테이너에 대한 활성 보호를 제공합니다. 아이디어는 컨테이너 내부에서 악의적인 활동이 발생하는 것을 감지 및/또는 방지하는 것입니다. 보안 컴퓨팅(seccomp)을 사용하면 컨테이너화된 애플리케이션이 기본 호스트 운영 체제의 커널에 대한 특정 시스템 호출을 수행하지 못하도록 방지할 수 있습니다. Linux 운영 체제에는 수백 개의 시스템 호출이 있지만 대부분의 시스템 호출은 컨테이너를 실행하는 데 필요하지 않습니다. 컨테이너에서 수행할 수 있는 syscall을 제한하여 애플리케이션의 공격 표면을 효과적으로 줄일 수 있습니다. seccomp를 시작하려면 [`strace`](https://man7.org/linux/man-pages/man1/strace.1.html)를 사용하여 스택 추적을 생성하여 애플리케이션이 어떤 시스템 호출을 수행하는지 확인하세요. 그런 다음 [syscall2seccomp](https://github.com/antitree/syscall2seccomp)와 같은 도구를 사용하여 추적에서 수집된 데이터에서 seccomp 프로필을 만듭니다.
 
-SELinux와 달리 seccomp는 컨테이너를 서로 격리하도록 설계되지 않았지만 승인되지 않은 시스템 호출로부터 호스트 커널을 보호합니다. 시스템 호출을 가로채고 허용된 항목만 통과하도록 허용하는 방식으로 작동합니다. Docker에는 대부분의 범용 워크로드에 적합한 [기본](https://github.com/moby/moby/blob/master/profiles/seccomp/default.json) seccomp 프로필이 있습니다. 컨테이너 또는 포드의 사양(1.19 이전)에 다음 주석을 추가하여 이 프로필을 사용하도록 컨테이너 또는 포드를 구성할 수 있습니다.
+SELinux와 달리 seccomp는 컨테이너를 서로 격리하도록 설계되지 않았지만 승인되지 않은 시스템 호출로부터 호스트 커널을 보호합니다. 시스템 호출을 가로채고 허용된 항목만 통과하도록 허용하는 방식으로 작동합니다. Docker에는 대부분의 범용 워크로드에 적합한 [기본](https://github.com/moby/moby/blob/master/profiles/seccomp/default.json) seccomp 프로필이 있습니다. 컨테이너 또는 파드의 사양(1.19 이전)에 다음 주석을 추가하여 이 프로필을 사용하도록 컨테이너 또는 파드를 구성할 수 있습니다.
 
 ```
-주석:
-   seccomp.security.alpha.kubernetes.io/pod: "런타임/기본값"
+annotations:
+  seccomp.security.alpha.kubernetes.io/pod: "runtime/default"
 ```
 
 1.19 이상:
 
 ```
-보안 컨텍스트:
-   seccomp 프로필:
-     유형: RuntimeDefault
+securityContext:
+  seccompProfile:
+    type: RuntimeDefault
 ```
 
 추가 권한이 필요한 항목에 대한 고유한 프로필을 만들 수도 있습니다.
@@ -38,8 +38,8 @@ Linux 보안에 익숙하지 않은 경우 seccomp 및 Apparmor 프로필을 만
 
 seccomp를 사용하기 전에 Linux 기능 추가/제거가 필요한 제어 기능을 제공하는지 고려하십시오. [https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-capabilities-for-a-container](https://kubernetes.io/docs/tasks/configure- 자세한 내용은 pod-container/security-context/#set-capabilities-for-a-container)를 참조하십시오.
 
-### 포드 보안 정책(PSP)을 사용하여 목표를 달성할 수 있는지 확인하십시오.
-포드 보안 정책은 과도한 복잡성을 도입하지 않고 보안 태세를 개선할 수 있는 다양한 방법을 제공합니다. seccomp 및 Apparmor 프로파일을 구축하기 전에 PSP에서 사용 가능한 옵션을 살펴보십시오.
+### 파드 보안 정책(PSP)을 사용하여 목표를 달성할 수 있는지 확인하십시오.
+파드 보안 정책은 과도한 복잡성을 도입하지 않고 보안 태세를 개선할 수 있는 다양한 방법을 제공합니다. seccomp 및 Apparmor 프로파일을 구축하기 전에 PSP에서 사용 가능한 옵션을 살펴보십시오.
 
 !!! 경고
      Kubernetes 1.25부터 PSP가 제거되고 [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/) 컨트롤러로 대체되었습니다. 존재하는 타사 대안에는 OPA/Gatekeeper 및 Kyverno가 포함됩니다. Gatekeeper 제약 조건 및 제약 조건 모음

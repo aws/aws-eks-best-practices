@@ -5,13 +5,13 @@
 이 가이드는 EKS 클러스터와 클러스터가 지원하는 워크로드에 대한 보안 제어의 효과를 구현하고 모니터링하는 책임이 있는 보안 실무자를 대상으로 합니다. 가이드는 더 쉽게 사용할 수 있도록 다양한 주제 영역으로 구성되어 있습니다. 각 주제는 간략한 개요로 시작하여 EKS 클러스터 보안을 위한 권장 사항 및 모범 사례 목록이 이어집니다. 주제는 특정 순서로 읽을 필요가 없습니다.
 
 ## 공동 책임 모델 이해
-보안 및 규정 준수는 EKS와 같은 관리형 서비스를 사용할 때 공동 책임으로 간주됩니다. 일반적으로 말해서 AWS는 클라우드 "의" 보안을 책임지고 고객인 귀하는 클라우드 "안"의 보안을 책임집니다. EKS에서 AWS는 EKS 관리형 Kubernetes 컨트롤 플레인 관리를 담당합니다. 여기에는 Kubernetes 마스터, ETCD 데이터베이스 및 AWS가 안전하고 안정적인 서비스를 제공하는 데 필요한 기타 인프라가 포함됩니다. EKS의 소비자는 IAM, 포드 보안, 런타임 보안, 네트워크 보안 등과 같은 이 가이드의 주제에 대해 주로 책임이 있습니다.
+보안 및 규정 준수는 EKS와 같은 관리형 서비스를 사용할 때 공동 책임으로 간주됩니다. 일반적으로 말해서 AWS는 클라우드"의" 보안을 책임지고 고객은 클라우드 "내" 보안을 책임집니다. EKS에서 AWS는 EKS 관리형 Kubernetes 컨트롤 플레인 관리를 담당합니다. 여기에는 Kubernetes 마스터, ETCD 데이터베이스 및 AWS가 안전하고 안정적인 서비스를 제공하는 데 필요한 기타 인프라가 포함됩니다. EKS의 소비자는 IAM, 파드 보안, 런타임 보안, 네트워크 보안 등과 같은 이 가이드의 주제에 대해 주로 책임이 있습니다.
 
 인프라 보안과 관련하여 AWS는 자체 관리 작업자에서 관리형 노드 그룹, Fargate로 이동할 때 추가 책임을 맡습니다. 예를 들어 Fargate를 사용하면 AWS가 Pod를 실행하는 데 사용되는 기본 인스턴스/런타임을 보호할 책임이 있습니다.
 
 ![ 공동 책임 모델 - Fargate ]( images/SRM-EKS.jpg )
 
-AWS는 또한 Kubernetes 패치 버전 및 보안 패치로 EKS 최적화 AMI를 최신 상태로 유지할 책임이 있습니다. MNG(관리형 노드 그룹)를 사용하는 고객은 EKS API, CLI, Cloudformation 또는 AWS 콘솔을 통해 노드 그룹을 최신 AMI로 업그레이드할 책임이 있습니다. 또한 Fargate와 달리 MNG는 인프라/클러스터를 자동으로 확장하지 않습니다. [ cluster- autoscaler ] ( https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md ) 또는 [ Karpenter ]( https ://karpenter.sh/ ), 기본 AWS 자동 확장, SpotInst의 [ Ocean ]( https://spot.io/solutions/kubernetes-2/ ) 또는 Atlassian의 [ Escalator ]( https://github.com/atlassian/ 에스컬레이터 ).
+AWS는 또한 Kubernetes 패치 버전 및 보안 패치로 EKS 최적화 AMI를 최신 상태로 유지할 책임이 있습니다. MNG(관리형 노드 그룹)를 사용하는 고객은 EKS API, CLI, Cloudformation 또는 AWS 콘솔을 통해 노드 그룹을 최신 AMI로 업그레이드할 책임이 있습니다. 또한 Fargate와 달리 MNG는 인프라/클러스터를 자동으로 확장하지 않습니다. [cluster- autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md) 또는 [Karpenter]( https://karpenter.sh/), 기본 AWS 오토스케일링, SpotInst의 [Ocean](https://spot.io/solutions/kubernetes-2/) 또는 Atlassian의 [Escalator]( https://github.com/atlassian/).
 
 ![ 공유 책임 모델 - MNG ]( ./images/SRM-MNG.jpg )
 
@@ -23,7 +23,7 @@ AWS는 또한 Kubernetes 패치 버전 및 보안 패치로 EKS 최적화 AMI를
 EKS와 같은 관리형 Kubernetes 서비스를 사용할 때 관련된 몇 가지 보안 모범 사례 영역이 있습니다.
 
 + ID 및 액세스 관리
-+ 포드 보안
++ 파드 보안
 + 런타임 보안
 + 네트워크 보안
 + 멀티테넌시
@@ -42,8 +42,8 @@ AWS는 보안에 민감한 다양한 고객의 피드백을 기반으로 진화�
 이 가이드는 광범위한 EKS/Kubernetes 커뮤니티에서 직접적인 피드백과 제안을 수집하기 위해 GitHub에서 릴리스되고 있습니다. 가이드에 포함해야 한다고 생각하는 모범 사례가 있는 경우 GitHub 리포지토리에 문제를 제출하거나 PR을 제출하세요. 우리의 의도는 서비스에 새로운 기능이 추가되거나 새로운 모범 사례가 발전할 때 가이드를 주기적으로 업데이트하는 것입니다.
 
 ## 더 읽을 거리
-[ Kubernetes 보안 백서 ]( https://github.com/kubernetes/sig-security/blob/main/sig-security-external-audit/security-audit-2019/findings/Kubernetes%20White%20Paper.pdf ), 후원 Security Audit Working Group에서 만든 이 백서는 보안 실무자가 건전한 설계 및 구현 결정을 내리는 데 도움을 주기 위해 Kubernetes 공격 표면 및 보안 아키텍처의 주요 측면을 설명합니다.
+[Kubernetes 보안 백서](https://github.com/kubernetes/sig-security/blob/main/sig-security-external-audit/security-audit-2019/findings/Kubernetes%20White%20Paper.pdf), Security Audit Working Group에서 작성한 이 백서는 보안 실무자가 건전한 설계 및 구현 결정을 내리는 데 도움을 주기 위해 Kubernetes 공격 표면 및 보안 아키텍처의 주요 측면을 설명합니다.
 
-CNCF는 또한 클라우드에 [ 백서 ]( https://github.com/cncf/tag-security/blob/efb183dc4f19a1bf82f967586c9dfcb556d87534/security-whitepaper/v2/CNCF_cloud-native-security-whitepaper-May2022-v2.pdf )를 게시했습니다. 기본 보안. 이 백서에서는 기술 환경이 어떻게 발전했는지 살펴보고 DevOps 프로세스 및 애자일 방법론과 일치하는 보안 관행의 채택을 옹호합니다.
+CNCF 또한 클라우드 보안에 대하여 [백서](https://github.com/cncf/tag-security/blob/efb183dc4f19a1bf82f967586c9dfcb556d87534/security-whitepaper/v2/CNCF_cloud-native-security-whitepaper-May2022-v2.pdf)를 발행하였습니다. 이 백서에서는 기술 환경이 어떻게 발전했는지 살펴보고, 이런 기술 발전에 맞추어 DevOps 프로세스 및 애자일 방법론 등에 따른 보안 실천사항을 적용하는 것을 권장합니다.
 
 
