@@ -1,3 +1,8 @@
+---
+date: 2023-09-22
+authors: 
+  - Lukonde Mwila
+---
 # Cost Optimization - Networking
 
 Architecting systems for high availability (HA) is a best practice in order to accomplish resilience and fault-tolerance. In practice, this means spreading your workloads and the underlying infrastructure across multiple Availability Zones (AZs) in a given AWS Region. Ensuring these characteristics are in place for your Amazon EKS environment will enhance the overall reliability of your system. In conjunction with this, your EKS environments will likely also be composed of a variety of constructs (i.e. VPCs), components (i.e. ELBs), and integrations (i.e. ECR and other container registries). 
@@ -19,7 +24,7 @@ _If you want granular visibility into the amount of cross-zone traffic between P
 
 **Using Topology Aware Routing (formerly known as Topology Aware Hints)**
 
-![Topology aware routing](/content/images/topo_aware_routing.png)
+![Topology aware routing](../images/topo_aware_routing.png)
 
 When using topology aware routing, it's important to understand how Services, EndpointSlices and the `kube-proxy` work together when routing traffic. As the diagram above depicts, Services are the stable network abstraction layer that receive traffic destined for your Pods. When a Service is created, multiple EndpointSlices are created. Each EndpointSlice has a list of endpoints containing a subset of Pod addresses along with the nodes they're running on and any additional topology information. `kube-proxy` is a daemonset that runs on every node in your cluster and also fulfills a role of internal routing, but it does so based on what it consumes from the created EndpointSlices.
 
@@ -27,20 +32,20 @@ When [*topology aware routing*](https://kubernetes.io/docs/concepts/services-net
 
 The diagram below shows how EndpointSlices with hints are organized in such a way that `kube-proxy` can know what destination they should go to based on their zonal point of origin. Without hints, there is no such allocation or organization and traffic will be proxied to different zonal destinations regardless of where it’s coming from. 
 
-![Endpoint Slice](/content/images/endpoint_slice.png)
+![Endpoint Slice](../images/endpoint_slice.png)
 
 In some cases, the EndpointSlice controller may apply a _hint_ for a different zone, meaning the endpoint could end up serving traffic originating from a different zone. The reason for this is to try and maintain an even distribution of traffic between endpoints in different zones.
 
 Below is a code snippet on how to enable _topology aware routing_ for a Service. 
 
-```yaml
+```yaml hl_lines="6-7"
 apiVersion: v1
 kind: Service
 metadata:
   name: orders-service
   namespace: ecommerce
-  **annotations****:**
-    `**service.kubernetes.io/topology-mode: Auto**`
+    annotations:
+      service.kubernetes.io/topology-mode: Auto
 spec:
   selector:
     app: orders
@@ -53,12 +58,13 @@ spec:
 
 The screenshot below shows the result of the EndpointSlice controller having successfully applied a hint to an endpoint for a Pod replica running in the AZ `eu-west-1a`. 
 
-![Slice shell](/content/images/slice_shell.png)
+![Slice shell](../images/slice_shell.png)
 
 !!! note
     It’s important to note that topology aware routing is still in **beta**. Also, this feature is more predictable when workloads are widely and evenly distributed across the cluster topology. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as [pod topology spread constraints](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/).
 
 **Using Autoscalers: Provision Nodes to a Specific AZ**
+
 _We strongly recommend_ running your workloads in highly available environments across multiple AZs. This improves the reliability of your applications, especially when there is an incident of an issue with an AZ. In the case you're willing to sacrifice reliability for the sake of reducing their network-related costs, you can restrict your nodes to a single AZ. 
 
 To run all your Pods in the same AZ, either provision the worker nodes in the same AZ or schedule the Pods on the worker nodes running on the same AZ. To provision nodes within a single AZ, define a node group with subnets belonging to the same AZ with [Cluster Autoscaler (CA)](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler). For[Karpenter,](https://karpenter.sh/) use “[_topology.kubernetes.io/zone”_](http://topology.kubernetes.io/zone%E2%80%9D) and specify the AZ where you’d like to create the worker nodes. For example, the below Karpenter provisioner snippet provisions the nodes in the us-west-2a AZ.
@@ -100,6 +106,7 @@ managedNodeGroups:
 ```
 
 **Using Pod Assignment and Node Affinity**
+
 Alternatively, if you have worker nodes running in multiple AZs, each node would have the label _[topology.kubernetes.io/zone](http://topology.kubernetes.io/zone%E2%80%9D)_ with the value of its AZ (such as us-west-2a or us-west-2b). You can utilize `nodeSelector` or `nodeAffinity` to schedule Pods to the nodes in a single AZ. For example, the following manifest file will schedule the Pod inside a node running in AZ us-west-2a.
 
 ```yaml hl_lines="7-9"
@@ -118,8 +125,6 @@ spec:
     imagePullPolicy: IfNotPresent
 ```
 
-
-
 ### Restricting Traffic to a Node
 
 There are cases where restricting traffic at a zonal level isn’t sufficient. Apart from reducing costs, you may have the added requirement of reducing network latency between certain applications that have frequent inter-communication. In order to achieve optimal network performance and reduce costs, you need a way to restrict traffic to a specific node. For example, Microservice A should always talk to Microservice B on Node 1, even in highly available (HA) setups. Having Microservice A on Node 1 talk to Microservice B on Node 2 may have a negative impact on the desired performance for applications of this nature, especially if Node 2 is in a separate AZ altogether. 
@@ -131,7 +136,7 @@ In order to restrict Pod network traffic to a node, you can make use of the _[Se
 !!! note
     It’s important to note that this feature cannot be combined with topology aware routing in Kubernetes.
 
-![Local internal traffic](/content/images/local_traffic.png)
+![Local internal traffic](../images/local_traffic.png)
 
 Below is a code snippet on how to set the _internal traffic policy_ for a Service. 
 
@@ -161,16 +166,17 @@ To avoid unexpected behaviour from your application due to traffic drops, you sh
 
 In this example, you have 2 replicas of Microservice A and 3 replicas of Microservice B. If Microservice A has its replicas spread between Nodes 1 and 2, and Microservice B has all 3 of its replicas on Node 3, then they won't be able to communicate because of the `Local` internal traffic policy. When there are no available node-local endpoints the traffic is dropped. 
 
-![node-local_no_peer](/content/images/no_node_local_1.png)
+![node-local_no_peer](../images/no_node_local_1.png)
 
 If Microservice B does have 2 of its 3 replicas on Nodes 1 and 2, then there will be communication between the peer applications. But you would still have an isolated replica of Microservice B without any peer replica to communicate with. 
 
-![node-local_with_peer](/content/images/no_node_local_2.png)
+![node-local_with_peer](../images/no_node_local_2.png)
 
 !!! note
     In some scenarios, an isolated replica like the one depicted in the above diagram may not be a cause for concern if it still serves a purpose (such as serving requests from external incoming traffic).
 
 **Using the Service Internal Traffic Policy with Topology Spread Constraints**
+
 Using the _internal traffic policy_ in conjunction with _topology spread constraints_ can be useful to ensure that you have the right number of replicas for communicating microservices on different nodes. 
 
 
@@ -200,6 +206,7 @@ spec:
 ```
 
 **Using the Service Internal Traffic Policy with Pod Affinity Rules**
+
 Another approach is to make use of Pod affinity rules when using the Service internal traffic policy. With Pod affinity, you can influence the scheduler to co-locate certain Pods because of their frequent communication. By applying strict scheduling constraints (`requiredDuringSchedulingIgnoredDuringExecution`) on certain Pods, this will give you better results for Pod co-location when the Scheduler is placing Pods on nodes.
 
 ```yaml hl_lines="11-20"
@@ -235,7 +242,7 @@ When using _instance mode_, a NodePort will be opened on each node in your EKS c
 
 The diagram below depicts a network path for traffic flowing from the load balancer to the NodePort, and subsequently from the `kube-proxy` to the destination Pod on a separate node in a different AZ. This is an example of the _instance mode_ setting. 
 
-![LB to Pod](/content/images/lb_2_pod.png)
+![LB to Pod](../images/lb_2_pod.png)
 
 When using _ip mode_, network traffic is proxied from the load balancer directly to the destination Pod. As a result, there are _no data transfer charges_ involved in this approach. 
 
@@ -244,11 +251,11 @@ When using _ip mode_, network traffic is proxied from the load balancer directly
 
 The diagram below depicts network paths for traffic flowing from the load balancer to Pods in the network _ip mode_. 
 
-![IP mode](/content/images/ip_mode.png)
+![IP mode](../images/ip_mode.png)
 
-## **Data Transfer from Container Registry**
+## Data Transfer from Container Registry
 
-### **Amazon ECR**
+### Amazon ECR
 
 Data transfer into the Amazon ECR private registry is free. _In-region data transfer incurs no cost_, but data transfer out to the internet and across regions will be charged at Internet Data Transfer rates on both sides of the transfer. 
 
@@ -267,35 +274,35 @@ It's a common practice to integrate Kubernetes workloads with other AWS services
 
 NAT Gateways are network components that perform network address translation (NAT). The diagram below depicts Pods in an EKS cluster communicating with other AWS services (Amazon ECR, DynamoDB, and S3), and third-party platforms. In this example, the Pods are running in private subnets in separate AZs. To send and receive traffic from the Internet, a NAT Gateway is deployed to the public subnet of one AZ, allowing any resources with private IP addresses to share a single public IP address to access the Internet. This NAT Gateway in turn communicates with the Internet Gateway component, allowing for packets to be sent to their final destination.
 
-![NAT Gateway](/content/images/nat_gw.png)
+![NAT Gateway](../images/nat_gw.png)
 
 When using NAT Gateways for such use cases, _you can minimize the data transfer costs by deploying a NAT Gateway in each AZ_. This way, traffic routed to the Internet will go through the NAT Gateway in the same AZ, avoiding inter-AZ data transfer. However, even though you’ll save on the cost of inter-AZ data transfer, the implication of this setup is that you’ll incur the cost of an additional NAT Gateway in your architecture. 
 
 This recommended approach is depicted in the diagram below.
 
-![Recommended approach](/content/images/recommended_approach.png)
+![Recommended approach](../images/recommended_approach.png)
 
 ### Using VPC Endpoints
 
 To further reduce costs in such architectures, _you should use [VPC Endpoints](https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html) to establish connectivity between your workloads and AWS services_. VPC Endpoints allow you to access AWS services from within a VPC without data/network packets traversing the Internet. All traffic is internal and stays within the AWS network. There are two types of VPC Endpoints: Interface VPC Endpoints ([supported by many AWS services](https://docs.aws.amazon.com/vpc/latest/privatelink/aws-services-privatelink-support.html)) and Gateway VPC Endpoints (only supported by S3 and DynamoDB).
 
 **Gateway VPC Endpoints**
+
 _There are no hourly or data transfer costs associated with Gateway VPC Endpoints_. When using Gateway VPC Endpoints, it's important to note that they are not extendable across VPC boundaries. They can't be used in VPC peering, VPN networking, or via Direct Connect.
 
 **Interface VPC Endpoint**
+
 VPC Endpoints have an [hourly charge](https://aws.amazon.com/privatelink/pricing/) and, depending on the AWS service, may or may not have an additional charge associated with data processing via the underlying ENI. To reduce inter-AZ data transfer costs related to Interface VPC Endpoints, you can create a VPC Endpoint in each AZ. You can create multiple VPC Endpoints in the same VPC even if they're pointing to the same AWS service.
 
 The diagram below shows Pods communicating with AWS services via VPC Endpoints.
 
-![VPC Endpoints](/content/images/vpc_endpoints.png)
+![VPC Endpoints](../images/vpc_endpoints.png)
 
 ## Data Transfer between VPCs
 
 In some cases, you may have workloads in distinct VPCs (within the same AWS region) that need to communicate with each other. This can be accomplished by allowing traffic to traverse the public internet through Internet Gateways attached to the respective VPCs. Such communication can be enabled by deploying infrastructure components like EC2 instances, NAT Gateways or NAT instances in public subnets. However, a setup including these components will incur charges for processing/transferring data in and out of the VPCs. If the traffic to and from the separate VPCs is moving across AZs, then there will be an additional charge in the transfer of data. The diagram below depicts a setup that uses NAT Gateways and Internet Gateways to establish communication between workloads in different VPCs. 
 
-
-![Between VPCs](/content/images/between_vpcs.png)
-
+![Between VPCs](../images/between_vpcs.png)
 
 ### VPC Peering Connections 
 
@@ -303,7 +310,7 @@ To reduce costs for such use cases, you can make use of [VPC Peering](https://do
 
 The diagram below is a high-level representation of workloads communication via a VPC peering connection. 
 
-![Peering](/content/images/peering.png)
+![Peering](../images/peering.png)
 
 ### Transitive Networking Connections
 
@@ -311,7 +318,7 @@ As pointed out in the previous section, VPC Peering connections do not allow for
 
 The diagram below shows inter-AZ traffic flowing through a TGW between workloads in different VPCs but within the same AWS region.
 
-![Transitive](/content/images/transititive.png)
+![Transitive](../images/transititive.png)
 
 ## Using a Service Mesh
 
@@ -320,6 +327,7 @@ Service meshes offer powerful networking capabilities that can be used to reduce
 ### Restricting Traffic to Availability Zones
 
 **Using Istio’s Locality Weighted Distribution**
+
 Istio enables you to apply network policies to traffic _after_ routing occurs. This is done using [Destination Rules](https://istio.io/latest/docs/reference/config/networking/destination-rule/) such as [locality weighted distribution](https://istio.io/latest/docs/tasks/traffic-management/locality-load-balancing/distribute/). Using this feature, you can control the weight (expressed as a percentage) of traffic that can go to a certain destination based on its origin. The source of this traffic can either be from an external (or public facing) load balancer or a Pod within the cluster itself. When all the Pod endpoints are available, the locality will be selected based on a weighted round-robin load balancing algorithm. In the case that certain endpoints are unhealthy or unavailable, [the locality weight will be automatically adjusted](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/locality_weight.html) to reflect this change in the available endpoints. 
 
 !!! note
@@ -370,11 +378,12 @@ spec:
 
 The diagram below depicts a scenario in which there is a highly available load balancer in the _eu-west-1_ region and locality weighted distribution is applied. The Destination Rule policy for this diagram is configured to send 60% of traffic coming from _eu-west-1a_ to Pods in the same AZ, whereas 40% of the traffic from _eu-west-1a_ should go to Pods in eu-west-1b. 
 
-![Istio Traffic Control](/content/images/istio-traffic-control.png)
+![Istio Traffic Control](../images/istio-traffic-control.png)
 
 ### Restricting Traffic to Availability Zones and Nodes
 
 **Using the Service Internal Traffic Policy with Istio**
+
 To mitigate network costs associated with _external_ incoming traffic and _internal_ traffic between Pods, you can combine Istio’s Destination Rules and the Kubernetes Service _internal traffic policy_.  The way to combine Istio destination rules with the service internal traffic policy will largely depend on 3 things:
 
 * The role of the microservices
@@ -383,7 +392,7 @@ To mitigate network costs associated with _external_ incoming traffic and _inter
 
 The diagram below shows what the network flow would look like in the case of a nested request and how the aforementioned policies would control the traffic.
 
-![External and Internal traffic policy](/content/images/external-and-internal-traffic-policy.png)
+![External and Internal traffic policy](../images/external-and-internal-traffic-policy.png)
 
 1. The end user makes a request to **APP A,** which in turn makes a nested request to **APP C**. This request is first sent to a highly available load balancer, which has instances in AZ 1 and AZ 2 as the above diagram shows.
 2. The external incoming request is then routed to the correct destination by the Istio Virtual Service.
@@ -395,8 +404,8 @@ The diagram below shows what the network flow would look like in the case of a n
 
 The screenshots below are captured from a live example of this approach. The first set of screenshots demonstrate a successful external request to a `graphql` and a successful nested request from the `graphql` to a co-located `orders` replica on the node `ip-10-0-0-151.af-south-1.compute.internal`. 
 
-![Before](/content/images/before.png)
-![Before results](/content/images/before-results.png)
+![Before](../images/before.png)
+![Before results](../images/before-results.png)
 
 With Istio, you can verify and export the statistics of any [upstream clusters](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/intro/terminology) and endpoints that your proxies are aware of. This can help provide a picture of the network flow as well as the share of distribution among the services of a workload. Continuing with the same example, the `orders` endpoints that the `graphql` proxy is aware of can be obtained using the following command:
 
@@ -450,8 +459,8 @@ spec:
 
 When the `graphql` and `orders` replicas don't co-exist on the same node (`ip-10-0-0-151.af-south-1.compute.internal`), the first request to `graphql` is successful as noted by the `200 response code` in the Postman screenshot below, whereas the second nested request from `graphql` to `orders` fails with a `503 response code`. 
 
-![After](/content/images/after.png)
-![After results](/content/images/after-results.png)
+![After](../images/after.png)
+![After results](../images/after-results.png)
 
 ## Additional Resources
 

@@ -1,7 +1,12 @@
+---
+date: 2023-09-22
+authors: 
+  - Florian Daniel Otel
+---
 # Cost Optimization - Introduction
 AWS Cloud Economics is a discipline that helps customers increase efficiency and reduce their costs through the adoption of modern compute technologies like Amazon EKS. The discipline recommends following a methodology called the “Cloud Financial Management (CFM) framework” which consists of 4 pillars: 
 
-![CFM Framework](/content/images/cfm_framework.png)
+![CFM Framework](../images/cfm_framework.png)
 
 ## The See pillar: Measurement and accountability 
 The See pillar is a foundational set of activities and technologies that define how to measure, monitor and create accountability for cloud spend. It is often referred to as “Observability”, “Instrumentation”, or “Telemetry”. The capabilities and limitations of the “Observability” infrastructure dictate what can be optimized. Obtaining a clear picture of your costs is a critical first step in cost optimization as you need to know where you are starting from. This type of visibility will also guide the types of activities you will need to do to further optimize your environment.  
@@ -15,7 +20,7 @@ Here is a brief overview of our best practices for the See pillar:
 * Allocate cloud costs to applications, Lines of Business (LoBs), and revenue streams.
 * Define, measure, and circulate efficiency/value KPIs with business stakeholders. For example, create a “unit metric” KPI that measures the cost per transaction, e.g. a ride sharing services might have a KPI for “cost per ride”.  
 
-For more details on the recommended technologies and activities associated with this pillar, please see the [Cost Optimization - Observability]() section of this guide. 
+For more details on the recommended technologies and activities associated with this pillar, please see the [Cost Optimization - Observability](./cost_opt_observability.md) section of this guide. 
 
 ## The Save pillar: Cost optimization 
 
@@ -30,9 +35,9 @@ Since these activities are operational, they are highly dependent on your enviro
 
 Below is a prioritized list of the most common cost drivers for EKS clusters:
 
-1. **Compute costs:** Combining multiple types of instance families, purchasing options, and balancing scalability with availability require careful consideration. For further information, see the recommendations in the [Cost Optimization - Compute](https://quip-amazon.com/zvPtA2Jb8v9Y) and [Cost Optimization - Autoscaling](https://quip-amazon.com/wJENAxpbMXZs) sections of this guide. 
-2. **Networking costs:** using 3 AZs for EKS clusters can potentially increase inter-AZ traffic costs. For our recommendations on how to balance HA requirements with keeping network traffic costs down, please consult the [Cost Optimization - Networking]() section of this guide. 
-3. **Storage costs:** Depending on the stateful/stateless nature of the workloads in the EKS clusters, and how the different storage types are used, storage can be considered as part of the workload. For considerations relating to EKS storage costs, please consult the [Cost Optimization - Storage]() section of this guide.
+1. **Compute costs:** Combining multiple types of instance families, purchasing options, and balancing scalability with availability require careful consideration. For further information, see the recommendations in the [Cost Optimization - Compute](./cost_opt_compute.md) section of this guide. 
+2. **Networking costs:** using 3 AZs for EKS clusters can potentially increase inter-AZ traffic costs. For our recommendations on how to balance HA requirements with keeping network traffic costs down, please consult the [Cost Optimization - Networking](./cost_opt_networking.md) section of this guide. 
+3. **Storage costs:** Depending on the stateful/stateless nature of the workloads in the EKS clusters, and how the different storage types are used, storage can be considered as part of the workload. For considerations relating to EKS storage costs, please consult the [Cost Optimization - Storage](./cost_opt_storage.md) section of this guide.
 
 ## The Plan pillar:  Planning and forecasting
 
@@ -46,7 +51,7 @@ Once the recommendations in the See pillar are implemented, clusters are optimiz
 
 Cost optimization is a continuous process and involves a flywheel of incremental improvements: 
 
-![Cost optimization flywheel](/content/images/flywheel.png)
+![Cost optimization flywheel](../images/flywheel.png)
 
 Securing executive sponsorship for these types of activities is crucial for integrating EKS cluster optimization into the organization’s “FinOps” efforts. It allows stakeholder alignment through a shared understanding of EKS cluster costs, implementation of EKS cluster cost guardrails, and ensuring that the tooling, automation, and activities evolve with the organization’s needs. 
 

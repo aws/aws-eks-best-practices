@@ -100,7 +100,7 @@ Amazon Inspector can provide common vulnerabilities and exposures (CVE) data for
 ### Run SELinux
 
 !!! info
-    Available on Red Hat Enterprise Linux (RHEL), CentOS, and CoreOS
+    Available on Red Hat Enterprise Linux (RHEL), CentOS, Bottlerocket, and Amazon Linux 2023
 
 SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts the operations that can be performed against to specific resources based on a set of labels.  On EKS, SELinux can be used to prevent containers from accessing each other's resources.
 

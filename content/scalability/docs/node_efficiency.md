@@ -1,3 +1,8 @@
+---
+date: 2023-09-22
+authors: 
+  - Shane Corbett
+---
 # Node and Workload Efficiency
 Being efficient with our workloads and nodes reduces complexity/cost while increasing performance and scale. There are many factors to consider when planning this efficiency, and it’s easiest to think in terms of trade offs vs. one best practice setting for each feature. Let’s explore these tradeoffs in depth in the following section.     
 
