@@ -4,24 +4,30 @@ This guide shows cluster administrators how to plan and execute their Amazon EKS
 
 ## Overview
 
-A Kubernetes version encompasses both the control plane and the data plane. To ensure smooth operation, both the control plane and the data plane should run the same [Kubernetes minor version, such as 1.24](https://kubernetes.io/releases/version-skew-policy/#supported-versions). 
+A Kubernetes version encompasses both the control plane and the data plane. To ensure smooth operation, both the control plane and the data plane should run the same [Kubernetes minor version, such as 1.24](https://kubernetes.io/releases/version-skew-policy/#supported-versions). While AWS manages and upgrades the control plane, updating the worker nodes in the data plane is your responsibility.
 
-* **Control plane** — The control plane version is defined by the Kubernetes API server. In EKS clusters, this is managed by AWS. Upgrades to the control plane version are started using the AWS API. 
-* **Data plane** — The data plane version references the version of the Kubelet running on your nodes. Different nodes in the same cluster may have different versions. See the version of all nodes with `kubectl get nodes`. 
+* **Control plane** — The version of the control plane is determined by the Kubernetes API server. In Amazon EKS clusters, AWS takes care of managing this component. Control plane upgrades can be initiated via the AWS API. 
+* **Data plane** — The data plane version is associated with the Kubelet versions running on your individual nodes. It's possible to have nodes in the same cluster running different versions. You can check the versions of all nodes by running `kubectl get nodes`.
 
-## Keep your cluster updated
+## Before Upgrading
 
-Keeping up with Kubernetes releases is a critical component of the shared responsibility model when adopting EKS and Kubernetes. 
+If you're planning to upgrade your Kubernetes version in Amazon EKS, there are a few important policies, tools, and procedures you should put in place before starting an upgrade. 
 
-Past a certain point (usually 1 year), the Kubernetes community stops releasing bug and CVE patches. Additionally, the Kubernetes project does not encourage CVE submission for deprecated versions. This means that vulnerabilities specific to an older version of Kubernetes may not even be reported, leaving you exposed with no notice and no remediation options in the case of a vulnerability.
+* **Understand Deprecation Policies** — Gain a deep understanding of how the  [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) works. Be aware of any upcoming changes that may affect your existing applications. Newer versions of Kubernetes often phase out certain APIs and features, potentially causing issues for running applications.
+* **Review Kubernetes Change Log** — Thoroughly review the [Kubernetes change log](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) alongside [Amazon EKS Kubernetes versions](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) to understand any possible impact to your cluster, such as breaking changes that may affect your workloads.
+* **Assess Cluster Add-Ons Compatibility** — Amazon EKS doesn't automatically update an add-on when new versions are released or after you update your cluster to a new Kubernetes minor version. Review [Updating an add-on](https://docs.aws.amazon.com/eks/latest/userguide/managing-add-ons.html#updating-an-add-on) to understand the compatibility of any existing cluster add-ons with the cluster version you intend to upgrade to.
+* **Enable Control Plane Logging** — Enable [control plane logging](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html) to capture logs, errors, or issues that can arise during the upgrade process. Consider reviewing these logs for any anomalies. Test cluster upgrades in a non-production environment, or integrate automated tests into your continuous integration workflow to assess version compatibility with your applications, controllers, and custom integrations.
+* **Explore eksctl for Cluster Management** — Consider using [eksctl](https://eksctl.io/) to manage your EKS cluster. It provides you with the ability to [update the control plane, manage add-ons, and handle worker node updates](https://eksctl.io/usage/cluster-upgrade/) out-of-the-box. 
+* **Opt for Managed Node Groups or EKS on Fargate** — Streamline and automate worker node upgrades by using [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) or [EKS on Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html). These options simplify the process and reduce manual intervention.
+* **Utilize kubectl Convert Plugin** — Leverage the [kubectl convert plugin](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin) to facilitate the [conversion of Kubernetes manifest files](https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/) between different API versions. This can help ensure that your configurations remain compatible with the new Kubernetes version.
 
-We consider this to be an unacceptable security posture for EKS and our customers, leading to the current policy of automatic upgrades to newer versions. [Review the EKS version support policy](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html).
+## Keep your cluster up-to-date
 
-If your cluster is not upgraded before the end of support date, it will be automatically upgraded to the next supported version. [Review the Version FAQ for more information.](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#version-deprecation) Without proper testing and preparation this may disrupt workloads and controllers. **It is highly recommended you stay up to date with Kubernetes releases in EKS.**
+Staying current with Kubernetes updates is paramount for a secure and efficient EKS environment, reflecting the shared responsibility model in Amazon EKS. By integrating these strategies into your operational workflow, you're positioning yourself to maintain up-to-date, secure clusters that take full advantage of the latest features and improvements. Tactics:
 
-Develop a well-documented process for handling cluster upgrades. Build runbooks and tooling to support cluster upgrades. 
-
-Plan to regularly upgrade your cluster. To keep up with EKS Kubernetes releases, upgrade clusters at least once per year. 
+* **Supported Version Policy** — Aligned with the Kubernetes community, Amazon EKS typically provides three active Kubernetes versions while deprecating a fourth version each year. Deprecation notices are issued at least 60 days before a version reaches its end-of-support date. For more details, refer to the [EKS Version FAQ](https://aws.amazon.com/eks/eks-version-faq/).
+* **Auto-Upgrade Policy** — We strongly recommend staying in sync with Kubernetes updates in your EKS cluster. Kubernetes community support, including bug fixes and security patches, typically ceases for versions older than one year. Deprecated versions may also lack vulnerability reporting, posing a potential risk. Failure to proactively upgrade before a version's end-of-life triggers an automatic upgrade, which could disrupt your workloads and systems. For additional information, consult the [EKS Version Support Policy](https://aws.amazon.com/eks/eks-version-support-policy/).
+* **Create Upgrade Runbooks** — Establish a well-documented process for managing upgrades. As part of your proactive approach, develop runbooks and specialized tools tailored to your upgrade process. This not only enhances your preparedness but also simplifies complex transitions. Make it a standard practice to upgrade your clusters at least once a year. This practice aligns you with ongoing technological advancements, thereby boosting the efficiency and security of your environment.
 
 ## Review the EKS release calendar
 
@@ -374,11 +380,12 @@ In the default configuration, Karpenter automatically creates new nodes using th
 
 [Karpenter can be configured to use custom AMIs.](https://karpenter.sh/docs/concepts/node-templates/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
 
-## Track the version skew of nodes. Ensure Managed Node Groups are on the same version as the control plane before upgrading
+## Confirm version compatibility with existing nodes and the control plane
 
-The [upstream Kubernetes project](https://kubernetes.io/releases/version-skew-policy/) supports minor version skew between the control plane and data plane—specifically the API server and kubelet—of 2 minor versions. If your EKS version is 1.25 then the oldest kubelet you can use is 1.23.
+Before proceeding with a Kubernetes upgrade in Amazon EKS, it's vital to ensure compatibility between your managed node groups, self-managed nodes, and the control plane. Compatibility is determined by the Kubernetes version you are using, and it varies based on different scenarios. Tactics:
 
-This version skew is different for EKS managed node groups and nodes created by EKS Fargate Profiles. They only support 1 minor version skew between the control plane and data plane (e.g., EKS 1.25 with 1.24 kubelet).
+* **Kubernetes v1.28+** — **** Starting from Kubernetes version 1.28 and onwards, there's a more lenient version policy for core components. Specifically, the supported skew between the Kubernetes API server and the kubelet has been extended by one minor version, going from n-2 to n-3. For example, if your EKS control plane version is 1.28, you can safely use kubelet versions as old as 1.25. This version skew is supported across [AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html), [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html), and [self-managed nodes](https://docs.aws.amazon.com/eks/latest/userguide/worker.html). We highly recommend keeping your [Amazon Machine Image (AMI)](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html) versions up-to-date for security reasons. Older kubelet versions might pose security risks due to potential Common Vulnerabilities and Exposures (CVEs), which could outweigh the benefits of using older kubelet versions.
+* **Kubernetes < v1.28** — If you are using a version older than v1.28, the supported skew between the API server and the kubelet is n-2. For example, if your EKS version is 1.27, the oldest kubelet version you can use is 1.25. This version skew is applicable across [AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html), [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html), and [self-managed nodes](https://docs.aws.amazon.com/eks/latest/userguide/worker.html).
 
 ## Enable node expiry for Karpenter managed nodes
 

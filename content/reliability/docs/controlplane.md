@@ -179,24 +179,7 @@ Consider using [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper-
 
 
 ## Handling Cluster Upgrades
-Since April 2021, Kubernetes release cycle has been changed from four releases a year (once a quarter) to three releases a year. A new minor version (like 1.**21** or 1.**22**) is released approximately [every fifteen weeks](https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when). Starting with Kubernetes 1.19, each minor version is supported for approximately twelve months after it's first released.. Kubernetes supports compatibility between the control plane and worker nodes for at least two minor versions.
-
-In line with the Kubernetes community support for Kubernetes versions, EKS provides at least three production-ready versions of Kubernetes at any given time, with a fourth version in deprecation.
-
-EKS will announce the deprecation of a given Kubernetes minor version at least 60 days before the end of support date. On the end of support date, clusters running the deprecated version will begin to be automatically updated to the next EKS-supported version of Kubernetes.
-
-EKS performs in-place cluster upgrades for both [Kubernetes](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) and [EKS platform versions](https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html). This simplifies cluster operations and lets you take advantage of the latest Kubernetes features and apply security patches, without any downtime.
-
-New Kubernetes versions introduce significant changes, and you cannot downgrade a cluster once upgraded. Having a well-documented process for handling cluster upgrades is necessary for a smooth transition to newer Kubernetes versions. You may consider migrating to new clusters when upgrading to newer Kubernetes versions instead of performing in-place cluster upgrades. Cluster backup and restore tools like [VMware’s Velero](https://github.com/vmware-tanzu/velero) can help you migrate to a new cluster.
-
-- You should familiarize yourself with the [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) as newer versions may deprecate APIs and features that may break existing applications.
-- Before upgrading the cluster, you should review the [Kubernetes change log](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) and [Amazon EKS Kubernetes versions](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) to understand any negative impact to your workloads.
-- Consider testing the cluster upgrade in a non-production environment and identify any impacts to current workloads and controllers. You can automate the testing by building a continuous integration workflow to test the compatibility of your applications, controllers, and custom integrations before moving to a new Kubernetes version.
-- You may also need to upgrade Kubernetes add-ons after upgrading the cluster. Review [Updating an Amazon EKS cluster Kubernetes version](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html) to validate the compatibility of cluster add-ons with the cluster version.
-- Consider turning on [control plane logging](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html) and review the logs for any errors.
-- Consider using `eksctl` to manage EKS cluster. You can use `eksctl` to [update the control plane, add-ons, and worker nodes](https://eksctl.io/usage/cluster-upgrade/).
-- EKS control plane upgrade doesn’t include upgrading worker nodes. You are responsible for updating EKS worker nodes. Consider using [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) or [EKS on Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html) to automate the process of upgrading worker nodes.
-- If required, you can use [`kubectl convert`](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin) plugin to [convert Kubernetes manifests files between different API versions](https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/).
+Since April 2021, Kubernetes release cycle has been changed from four releases a year (once a quarter) to three releases a year. A new minor version (like 1.**21** or 1.**22**) is released approximately [every fifteen weeks](https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when). Starting with Kubernetes 1.19, each minor version is supported for approximately twelve months after it's first released. With the advent of Kubernetes v1.28, the compatibility skew between the control plane and worker nodes has expanded from n-2 to n-3 minor versions. To learn more, see [Best Practices for Cluster Upgrades](../../upgrades/index.md).
 
 ## Running large clusters
 
