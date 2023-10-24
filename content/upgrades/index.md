@@ -104,7 +104,7 @@ See the following examples of common add-ons and their relevant upgrade document
 
 AWS requires certain resources in your account to complete the upgrade process. If these resources aren’t present, the cluster cannot be upgraded. A control plane upgrade requires the following resources:
 
-1. Available IP addresses. To update the cluster, Amazon EKS requires up to five available IP addresses from the subnets that you specified when you created your cluster.
+1. Available IP addresses: Amazon EKS requires up to five available IP addresses from the subnets you specified when you created the cluster in order to update the cluster. If not, update your cluster configuration to include new cluster subnets prior to performing the version update.
 2. EKS IAM role: The control plane IAM role is still present in the account with the necessary permissions.
 3. EKS security group: Control plane primary security group still available in the account with the necessary access rules.
 4. If your cluster has secret encryption enabled, then make sure that the cluster IAM role has permission to use the AWS Key Management Service (AWS KMS) key.
@@ -135,6 +135,13 @@ aws ec2 describe-subnets --subnet-ids \
 ```
 
 The [VPC CNI Metrics Helper](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/cmd/cni-metrics-helper/README.md) may be used to create a CloudWatch dashboard for VPC metrics. 
+Amazon EKS recommends updating the cluster subnets using the "UpdateClusterConfiguration" API prior to beginning a Kubernetes version upgrade if you are running out of IP addresses in the subnets initially specified during cluster creation. Please verify that the new subnets you will be provided:
+
+* belong to same set of AZs that are selected during cluster creation. 
+* belong to the same VPC provided during cluster creation
+
+Please consider associating additional CIDR blocks if the IP addresses in the existing VPC CIDR block run out. AWS enables the association of additional CIDR blocks with your existing cluster VPC, effectively expanding your IP address pool. This expansion can be accomplished by introducing additional private IP ranges (RFC 1918) or, if necessary, public IP ranges (non-RFC 1918). You must add new VPC CIDR blocks and allow VPC refresh to complete before Amazon EKS can use the new CIDR. After that, you can update the subnets based on the newly set up CIDR blocks to the VPC.
+
 
 ### Verify EKS IAM role
 
