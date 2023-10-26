@@ -63,7 +63,7 @@ nav:
       - Home: "networking/index/index.md"
       - VPC and Subnet Considerations: "networking/subnets/index.md"
       - Amazon VPC CNI: "networking/vpc-cni/index.md"
-      - IP Consumption Optimization: "networking/ip-optimization-strategies/index.md"
+      - Optimizing IP Address Utilization: "networking/ip-optimization-strategies/index.md"
       - Running IPv6 Clusters: "networking/ipv6/index.md"
       - Custom Networking: "networking/custom-networking/index.md"
       - Prefix Mode for Linux: "networking/prefix-mode/index_linux.md"
