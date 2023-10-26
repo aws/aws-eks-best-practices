@@ -93,9 +93,3 @@ Learn more about these patterns here:
 
 * [Designing hyperscale Amazon VPC networks](https://aws.amazon.com/blogs/networking-and-content-delivery/designing-hyperscale-amazon-vpc-networks/),
 * [Build secure multi-account multi-VPC connectivity with Amazon VPC Lattice](https://aws.amazon.com/blogs/networking-and-content-delivery/build-secure-multi-account-multi-vpc-connectivity-for-your-applications-with-amazon-vpc-lattice/).
-
-
-
-
-
-
