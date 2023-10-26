@@ -106,8 +106,7 @@ AWS requires certain resources in your account to complete the upgrade process. 
 
 1. Available IP addresses: Amazon EKS requires up to five available IP addresses from the subnets you specified when you created the cluster in order to update the cluster. If not, update your cluster configuration to include new cluster subnets prior to performing the version update.
 2. EKS IAM role: The control plane IAM role is still present in the account with the necessary permissions.
-3. EKS security group: Control plane primary security group still available in the account with the necessary access rules.
-4. If your cluster has secret encryption enabled, then make sure that the cluster IAM role has permission to use the AWS Key Management Service (AWS KMS) key.
+3. If your cluster has secret encryption enabled, then make sure that the cluster IAM role has permission to use the AWS Key Management Service (AWS KMS) key.
 
 ### Verify available IP addresses
 
@@ -167,32 +166,6 @@ aws iam get-role --role-name ${ROLE_ARN##*/} \
     ]
 }
 ```
-
-### Verify EKS security group
-
-To verify that the security groups exist in your account you can run the following commands:
-
-```
-CLUSTER=<cluster name>
-aws ec2 describe-security-groups \
-  --group-ids $(aws eks describe-cluster \
-    --query 'cluster.resourcesVpcConfig.securityGroupIds[*]' \
-    --name ${CLUSTER} --output text)
-    
-{                                                                                                                                      
-    "SecurityGroups": [                                                                                                                
-        {                                                                                                                              
-            "Description": "Communication between the control plane and worker nodegroups",                                            
-            "GroupName": "eksctl-prefix-cluster-ControlPlaneSecurityGroup-HFO1JTSFWL1J",
-```
-
-If you see output like the following then you should double check the security groups used by your cluster and available in your account.
-
-```
-An error occurred (InvalidGroupId.Malformed) when calling the DescribeSecurityGroups operation: Invalid id:
-```
-
-If the security groups aren't found, review [Amazon EKS security group requirements and considerations](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html). You may need to recreate the cluster if the `eks-cluster-sg-my-cluster-uniqueID` security group has been deleted. 
 
 ## Migrate to EKS Add-ons
 
