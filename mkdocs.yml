@@ -84,7 +84,7 @@ nav:
       - Cloud Financial Management Framework: "cost_optimization/cfm_framework.md"
       - Compute: "cost_optimization/cost_opt_compute.md"
       - Network: "cost_optimization/cost_opt_networking.md"
-      #- Storage: "cost_optimization/cost_opt_storage.md"
+      - Storage: "cost_optimization/cost_opt_storage.md"
       - Observability: "cost_optimization/cost_opt_observability.md"
 markdown_extensions:
   - toc:
