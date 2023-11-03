@@ -2,7 +2,7 @@
 
 Containerized environments are growing in scale at a rapid pace, thanks to application modernization. This means that more and more worker nodes and pods are being deployed.
 
-The [Amazon VPC CNI](../vpc-cni/) plugin assigns each pod an IP address from the VPC CIDR(s), which can consume a substantial number of IP addresses from your VPCs depending on your workload.
+The [Amazon VPC CNI](../vpc-cni/) plugin assigns each pod an IP address from the VPC CIDR(s). This approach provides full visibility of the Pod addresses with tools such as VPC Flow Logs and other monitoring solutions. On the other hand, depending on your workload type this can cause a substantial number of IP addresses to be consumed by the pods.
 
 Therefore, when designing your AWS networking architecture, it is important to optimize EKS IP consumption at the VPC and at the node level. This will help you mitigate IP exhaustion issues and increase the pod density per node.
 
@@ -10,14 +10,10 @@ In this section, we will discuss techniques that can help you achieve these goal
 
 
 ## Optimize node-level IP consumption
+ 
+[Prefix delegation](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) is a feature of Amazon Virtual Private Cloud (Amazon VPC) that allows you to assign IPv4 or IPv6 prefixes to your Amazon Elastic Compute Cloud (Amazon EC2) instances. It enables increased IP addresses on a network interface thus increases pod density per node and improves compute efficiency. Prefix delegation is also supported with Custom Networking. 
 
-[Prefix delegation](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) is a feature of Amazon Virtual Private Cloud (Amazon VPC) that allows you to assign IPv4 or IPv6 prefixes to your Amazon Elastic Compute Cloud (Amazon EC2) instances. This can improve your efficiency, reduce your costs, and give you more flexibility. Prefix delegation can improve your efficiency in a number of ways by increasing the amount of available IP addresses for your Amazon EC2 nodes. This means that you can fit more pods on each instance, which can improve your pod density and IP utilization. Prefix delegation is flexible and can be used with both IPv6 and custom networking. Prefix delegation, can also help you to achieve a better pod density and workload allocation on nodes. 
-
-Check these sections of the EKS Best Practices for more information:
-
-* [Prefix Delegation with Linux nodes](../prefix-mode/index_linux/),
-
-* [Prefix Delegation with Windows nodes](../prefix-mode/index_windows/). 
+For detailed information please see [Prefix Delegation with Linux nodes](../prefix-mode/index_linux/) and [Prefix Delegation with Windows nodes](../prefix-mode/index_windows/) sections.
 
 ## Mitigate IP exhaustion
 
@@ -25,7 +21,9 @@ Check these sections of the EKS Best Practices for more information:
 
 Adopting IPv6 is the easiest way to work around RFC1918 limitations; we strongly recommend to consider adopting IPv6 as your first option when choosing network architectures. IPv6 provides a significantly larger total IP address space, and Kubernetes cluster administrators can focus on migrating and scaling applications without devoting effort towards working around IPv4 limits.
 
-Amazon EKS clusters support both IPv4 and IPv6. By default, EKS clusters use IPv4 address space. Specifying IPv6 based address space at cluster creation time will enable the use of IPv6 clusters. In an IPv6 EKS cluster, pods and services will receive IPv6 addresses while **maintaining the ability for legacy IPv4 endpoints to connect to services running on IPv6 clusters and viceversa**. All the pod-to-pod communication within a cluster is always IPv6. Within a VPC (/56), the IPv6 CIDR block size for IPv6 subnets is fixed at /64. This provides 2^64 (approximately 18 quintillion) IPv6 addresses allowing to scale your deployments on EKS. Please, check in the EKS Best Practices [section dedicated to IPv6](../ipv6/) and the [Amazon EKS Section of the IPv6 workshop](https://catalog.workshops.aws/ipv6-on-aws/en-US/lab-6) for more details. 
+Amazon EKS clusters support both IPv4 and IPv6. By default, EKS clusters use IPv4 address space. Specifying IPv6 based address space at cluster creation time will enable the use of IPv6 clusters. In an IPv6 EKS cluster, pods and services will receive IPv6 addresses while **maintaining the ability for legacy IPv4 endpoints to connect to services running on IPv6 clusters and viceversa**. All the pod-to-pod communication within a cluster is always IPv6. Within a VPC (/56), the IPv6 CIDR block size for IPv6 subnets is fixed at /64. This provides 2^64 (approximately 18 quintillion) IPv6 addresses allowing to scale your deployments on EKS. P
+
+For detailed information please see the [Running IPv6 EKS Clusters](../ipv6/) section and for hands-on experience please see the [Understanding IPv6 on Amazon EKS](https://catalog.workshops.aws/ipv6-on-aws/en-US/lab-6) section of the [Get hands-on with IPv6 workshop](https://catalog.workshops.aws/ipv6-on-aws/en-US).
 
 
 ### Optimize IP consumption in IPv4 clusters
@@ -46,7 +44,9 @@ You can use the [sample EKS Subnet Calculator](../subnet-calc/subnet-calc.xlsx) 
 #### Custom networking 
 
 This pattern allows you to conserve routable IPs by scheduling Pods inside dedicated additional subnets. 
-While custom networking will accept valid VPC range for secondary CIDR range, we recommend that you use CIDRs (/16) from the CG-NAT space, i.e. `100.64.0.0/10` or `198.19.0.0/16` as those are less likely to be used in a corporate setting than RFC1918 ranges. For more information see [this section](../custom-networking/) of the EKS best practices.
+While custom networking will accept valid VPC range for secondary CIDR range, we recommend that you use CIDRs (/16) from the CG-NAT space, i.e. `100.64.0.0/10` or `198.19.0.0/16` as those are less likely to be used in a corporate setting than RFC1918 ranges. 
+
+For detailed information please see the dedicated section for [Custom Networking](../custom-networking/).
 
 #### Configure CNI environment variables
 
@@ -83,7 +83,10 @@ In addition to the solutions described above, it is also important to have visib
 * number of IP addresses currently assigned to Pods
 * total and maximum number of IP address available
 
-You can also set [CloudWatch alarms](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of [CNI metrics helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html) (make sure `DISABLE_METRICS` variable for VPC CNI is set to false).
+You can also set [CloudWatch alarms](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of [CNI metrics helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html) 
+
+!!! warning
+    Make sure `DISABLE_METRICS` variable for VPC CNI is set to false.
 
 #### Further considerations
 
