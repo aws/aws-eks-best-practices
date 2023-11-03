@@ -4,10 +4,9 @@ Containerized environments are growing in scale at a rapid pace, thanks to appli
 
 The [Amazon VPC CNI](../vpc-cni/) plugin assigns each pod an IP address from the VPC CIDR(s). This approach provides full visibility of the Pod addresses with tools such as VPC Flow Logs and other monitoring solutions. On the other hand, depending on your workload type this can cause a substantial number of IP addresses to be consumed by the pods.
 
-Therefore, when designing your AWS networking architecture, it is important to optimize EKS IP consumption at the VPC and at the node level. This will help you mitigate IP exhaustion issues and increase the pod density per node.
+Therefore, when designing your AWS networking architecture, it is important to optimize Amazon EKS IP consumption at the VPC and at the node level. This will help you mitigate IP exhaustion issues and increase the pod density per node.
 
 In this section, we will discuss techniques that can help you achieve these goals.
-
 
 ## Optimize node-level IP consumption
  
@@ -16,6 +15,13 @@ In this section, we will discuss techniques that can help you achieve these goal
 For detailed information please see [Prefix Delegation with Linux nodes](../prefix-mode/index_linux/) and [Prefix Delegation with Windows nodes](../prefix-mode/index_windows/) sections.
 
 ## Mitigate IP exhaustion
+
+To prevent your clusters from consuming all available IP addresses, we strongly recommend sizing your VPCs and subnets with growth in mind. 
+
+Adopting [IPv6](../ipv6/) is a great way to avoid these problems from the very beginning. However, for organizations whose scalability needs exceed the initial planning and cannot adopt IPv6, improving the VPC design is the recommended response to IP address exhaustion. The most commonly used technique among Amazon EKS customers is adding non-routable Secondary CIDRs to the VPC and configure pods to consume this additional IP space with Amazon EKS. This is referred in our documentation as [Custom Networking](../custom-networking/). 
+
+We will also cover which variables of the Amazon VPC CNI you can use to optimize the warm pool of IPs assigned to your nodes. We will close this section with some other architectural patterns that are not intrinsic to Amazon EKS but can help mitigate IP exhaustion.
+
 
 ### Use IPv6 (recommended)
 
