@@ -31,7 +31,7 @@ Amazon EC2 Image Builder를 사용하여 윈도우 서버 버전, AWS 윈도우 
 
 사용자 지정 EKS 최적화 AMI를 사용할 경우 빠른 실행 기능을 활성화하여 윈도우 워커 노드를 최대 65% 더 빠르게 시작할 수 있습니다. 이 기능은  _Sysprep specialize_, __Windows Out of Box Experience (OOBE)_ 단계 및 필수 재부팅이 이미 완료된 사전 프로비저닝된 스냅샷 세트를 유지 관리합니다. 이런 스냅샷은 이후 실행 시 사용되므로 노드를 확장하거나 교체하는 시간을 줄일 수 있습니다. Fast Launch는 EC2 콘솔 또는 AWS CLI를 통해 *소유한* AMI에 대해서만 활성화할 수 있으며 유지 관리되는 스냅샷의 수는 구성할 수 있습니다.  
 
-!!! 경고
+!!! warning
     Fast Launch는 Amazon에서 제공하는 기본 EKS 최적화 AMI와 호환되지 않습니다. 활성화하기 전에 위와 같이 사용자 지정 AMI를 생성하십시오. 
  
 자세한 내용은 다음을 참조하십시오. [AWS 윈도우 AMI - 더 빠른 시작을 위한 AMI 구성](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/windows-ami-version-history.html#win-ami-config-fast-launch)

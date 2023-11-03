@@ -156,10 +156,10 @@ rules:
 ### 감사 로그 활성화
 감사 로그는 EKS에서 관리하는 EKS 관리형 쿠버네티스 컨트롤 플레인 로그의 일부입니다. 쿠버네티스 API 서버, 컨트롤러 관리자 및 스케줄러에 대한 로그와 감사 로그를 포함하는 컨트롤 플레인 로그의 활성화/비활성화 지침은 [AWS 문서](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export)에서 확인할 수 있습니다. 
 
-!!! 정보
+!!! info
     컨트롤 플레인 로깅을 활성화하면 로그를 CloudWatch에 저장하는 데 [비용](https://aws.amazon.com/cloudwatch/pricing/)이 발생합니다. 이로 인해 지속적인 보안 비용에 대한 광범위한 문제가 제기됩니다. 궁극적으로 이런 비용을 보안 침해 비용 (예: 재정적 손실, 평판 훼손 등)과 비교해야 합니다. 이 가이드의 권장 사항 중 일부만 구현하면 환경을 적절하게 보호할 수 있을 것입니다. 
 
-!!! 경고
+!!! warning
     클라우드워치 로그 항목의 최대 크기는 [256KB](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html)인 반면 쿠버네티스 API 요청 최대 크기는 1.5MiB입니다. 256KB를 초과하는 로그 항목은 잘리거나 요청 메타데이터만 포함됩니다. 
 
 ### 감사 메타데이터 활용

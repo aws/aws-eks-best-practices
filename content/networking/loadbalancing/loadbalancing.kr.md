@@ -1,8 +1,8 @@
-# Kubernetes 애플리케이션 및 AWS 로드 밸런서를 통한 오류 및 타임아웃 방지
+# Kubernetes 애플리케이션 및 AWS 로드밸런서를 통한 오류 및 타임아웃 방지
 
 필요한 쿠버네티스 리소스 (서비스, 디플로이먼트, 인그레스 등) 를 생성한 후, 파드는 Elastic Load Balancer를 통해 클라이언트로부터 트래픽을 수신할 수 있어야 합니다. 하지만 애플리케이션 또는 Kubernetes 환경을 변경할 때 오류, 시간 초과 또는 연결 재설정이 생성될 수 있습니다. 이런 변경으로 인해 애플리케이션 배포 또는 조정 작업 (수동 또는 자동) 이 트리거될 수 있습니다.
 
-안타깝게도 이런 오류는 애플리케이션이 문제를 기록하지 않는 경우에도 생성될 수 있습니다. 클러스터의 리소스를 제어하는 Kubernetes 시스템이 로드 밸런서의 대상 등록 및 상태를 제어하는 AWS 시스템보다 빠르게 실행될 수 있기 때문입니다. 애플리케이션이 요청을 수신할 준비가 되기 전에 파드가 트래픽을 수신하기 시작할 수도 있습니다.
+안타깝게도 이런 오류는 애플리케이션이 문제를 기록하지 않는 경우에도 생성될 수 있습니다. 클러스터의 리소스를 제어하는 Kubernetes 시스템이 로드밸런서의 대상 등록 및 상태를 제어하는 AWS 시스템보다 빠르게 실행될 수 있기 때문입니다. 애플리케이션이 요청을 수신할 준비가 되기 전에 파드가 트래픽을 수신하기 시작할 수도 있습니다.
 
 파드가 Ready 상태가 되는 프로세스와 트래픽을 파드로 라우팅하는 방법을 살펴보겠습니다.
 
@@ -23,7 +23,7 @@ NodePort 서비스의 멤버인 파드가 생성되면 쿠버네티스는 다음
     1. 워커 노드의 로컬 iptables 규칙이 NodePort 서비스의 추가 대상 파드로 업데이트됩니다.
 
 !!! 참조
-    인그레스 리소스와 인그레스 컨트롤러 (예: AWS 로드 밸런서 컨트롤러) 를 사용하는 경우 5단계는 `kube-proxy` 대신 관련 컨트롤러에서 처리됩니다.그러면 컨트롤러는 필요한 구성 단계 (예: 로드 밸런서에 대상 등록/등록 취소) 를 수행하여 트래픽이 예상대로 흐르도록 합니다.
+    인그레스 리소스와 인그레스 컨트롤러 (예: AWS 로드밸런서 컨트롤러) 를 사용하는 경우 5단계는 `kube-proxy` 대신 관련 컨트롤러에서 처리됩니다.그러면 컨트롤러는 필요한 구성 단계 (예: 로드밸런서에 대상 등록/등록 취소) 를 수행하여 트래픽이 예상대로 흐르도록 합니다.
 
 [파드가 종료되거나](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination) 준비되지 않은 상태로 변경되는 경우에도 유사한 프로세스가 발생합니다. API 서버는 컨트롤러, kubelet 또는 kubectl 클라이언트로부터 업데이트를 수신하여 파드를 종료합니다. 3~5단계는 거기서부터 계속되지만, 엔드포인트 목록과 iptables 규칙에서 파드 IP/튜플을 삽입하는 대신 제거합니다.
 
@@ -37,30 +37,30 @@ Below is a diagram showing the steps taken when an application deployment trigge
 
 즉, 디플로이먼트 컨트롤러가 다음 파드로 넘어갈 때 새 파드 상태를 전파하는 액션이 여전히 진행 중일 수 있습니다. 이 프로세스는 이전 버전의 파드도 종료하므로, 파드가 Ready 상태에 도달했지만 변경 사항이 계속 전파되고 이전 버전의 파드가 종료되는 상황이 발생할 수 있습니다.
 
-위에서 설명한 Kubernetes 시스템은 기본적으로 로드 밸런서의 등록 시간이나 상태 확인을 고려하지 않기 때문에 AWS와 같은 클라우드 공급자의 로드 밸런서를 사용하면 이 문제가 더욱 악화됩니다. **즉 디플로이먼트 업데이트가 파드 전체에 걸쳐 완전히 순환될 수 있지만 로드 밸런서가 상태 점검 수행 또는 새 파드 등록을 완료하지 않아 운영 중단이 발생할 수 있습니다.**
+위에서 설명한 Kubernetes 시스템은 기본적으로 로드밸런서의 등록 시간이나 상태 확인을 고려하지 않기 때문에 AWS와 같은 클라우드 공급자의 로드밸런서를 사용하면 이 문제가 더욱 악화됩니다. **즉 디플로이먼트 업데이트가 파드 전체에 걸쳐 완전히 순환될 수 있지만 로드밸런서가 상태 점검 수행 또는 새 파드 등록을 완료하지 않아 운영 중단이 발생할 수 있습니다.**
 
-파드가 종료될 때도 비슷한 문제가 발생합니다. 로드 밸런서 구성에 따라 파드의 등록을 취소하고 새 요청 수신을 중지하는 데 1~2분 정도 걸릴 수 있습니다. **쿠버네티스는 이런 등록 취소를 위해 롤링 디플로이먼트를 지연시키지 않으며, 이로 인해 로드 밸런서가 이미 종료된 대상 파드의 IP/포트로 트래픽을 계속 보내는 상태로 이어질 수 있습니다.**
+파드가 종료될 때도 비슷한 문제가 발생합니다. 로드밸런서 구성에 따라 파드의 등록을 취소하고 새 요청 수신을 중지하는 데 1~2분 정도 걸릴 수 있습니다. **쿠버네티스는 이런 등록 취소를 위해 롤링 디플로이먼트를 지연시키지 않으며, 이로 인해 로드밸런서가 이미 종료된 대상 파드의 IP/포트로 트래픽을 계속 보내는 상태로 이어질 수 있습니다.**
 
 이런 문제를 방지하기 위해 Kubernetes 시스템이 AWS Load Balancer 동작에 더 부합하는 조치를 취하도록 구성을 추가할 수 있습니다.
 
 ## 권장 사항
 
-### IP 대상 유형 로드 밸런서 이용
+### IP 대상 유형 로드밸런서 이용
 
-`LoadBalancer` 유형의 서비스를 생성할 때, **인스턴스 대상 유형** 등록을 통해 로드 밸런서에서 *클러스터의 모든 노드*로 트래픽이 전송됩니다. 그러면 각 노드가 'NodePort'의 트래픽을 서비스 엔드포인트 어레이의 파드/IP 튜플로 리디렉션합니다. 이 타겟은 별도의 워커 노드에서 실행될 수 있습니다.
+`LoadBalancer` 유형의 서비스를 생성할 때, **인스턴스 대상 유형** 등록을 통해 로드밸런서에서 *클러스터의 모든 노드*로 트래픽이 전송됩니다. 그러면 각 노드가 'NodePort'의 트래픽을 서비스 엔드포인트 어레이의 파드/IP 튜플로 리디렉션합니다. 이 타겟은 별도의 워커 노드에서 실행될 수 있습니다.
 
 !!! 참조
     배열에는 "Ready" 파드만 있어야 한다는 점을 기억하세요.
 
 ![nodeport.png](nodeport.png)
 
-이렇게 하면 요청에 홉이 추가되고 로드 밸런서 구성이 복잡해집니다.예를 들어 위의 로드 밸런서가 세션 어피니티로 구성된 경우 어피니티는 어피니티 구성에 따라 로드 밸런서와 백엔드 노드 사이에만 유지될 수 있습니다.
+이렇게 하면 요청에 홉이 추가되고 로드밸런서 구성이 복잡해집니다.예를 들어 위의 로드밸런서가 세션 어피니티로 구성된 경우 어피니티는 어피니티 구성에 따라 로드밸런서와 백엔드 노드 사이에만 유지될 수 있습니다.
 
-로드 밸런서가 백엔드 파드와 직접 통신하지 않기 때문에 쿠버네티스 시스템으로 트래픽 흐름과 타이밍을 제어하기가 더 어려워집니다.
+로드밸런서가 백엔드 파드와 직접 통신하지 않기 때문에 쿠버네티스 시스템으로 트래픽 흐름과 타이밍을 제어하기가 더 어려워집니다.
 
-[AWS 로드 밸런서 컨트롤러](https://github.com/kubernetes-sigs/aws-load-balancer-controller)를 사용하는 경우, **IP 대상 유형**을 사용하여 파드 IP/포트 튜플을 로드 밸런서에 직접 등록할 수 있습니다.
+[AWS 로드밸런서 컨트롤러](https://github.com/kubernetes-sigs/aws-load-balancer-controller)를 사용하는 경우, **IP 대상 유형**을 사용하여 파드 IP/포트 튜플을 로드밸런서에 직접 등록할 수 있습니다.
 ![ip.png](ip.png)  
-이는 로드 밸런서에서 대상 파드로의 트래픽 경로를 단순화 합니다. 즉 새 대상이 등록되면 대상이 "Ready" Pod IP 및 포트인지 확인할 수 있고, 로드 밸런서의 상태 확인이 Pod에 직접 전달되며, VPC 흐름 로그를 검토하거나 유틸리티를 모니터링할 때 로드 밸런서와 파드 간의 트래픽을 쉽게 추적할 수 있습니다.
+이는 로드밸런서에서 대상 파드로의 트래픽 경로를 단순화 합니다. 즉 새 대상이 등록되면 대상이 "Ready" Pod IP 및 포트인지 확인할 수 있고, 로드밸런서의 상태 확인이 Pod에 직접 전달되며, VPC 흐름 로그를 검토하거나 유틸리티를 모니터링할 때 로드밸런서와 파드 간의 트래픽을 쉽게 추적할 수 있습니다.
 
 또한 IP 등록을 사용하면 `NodePort` 규칙을 통해 연결을 관리하는 대신 백엔드 파드에 대한 트래픽의 타이밍과 구성을 직접 제어할 수 있습니다.
 
@@ -75,12 +75,12 @@ Below is a diagram showing the steps taken when an application deployment trigge
 
 이를 활성화하려면 다음을 수행해야 합니다.
 
-1. 최신 버전의 [AWS 로드 밸런서 컨트롤](https://github.com/kubernetes-sigs/aws-load-balancer-controller)를 배포합니다. (**[*이전 버전을 업그레이드하는 경우 설명서를 참조*](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/upgrade/migrate_v1_v2/)**)
+1. 최신 버전의 [AWS 로드밸런서 컨트롤](https://github.com/kubernetes-sigs/aws-load-balancer-controller)를 배포합니다. (**[*이전 버전을 업그레이드하는 경우 설명서를 참조*](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/upgrade/migrate_v1_v2/)**)
 2. 파드 레디니스 게이트를 자동으로 주입하려면 `elbv2.k8s.aws/pod-readiness-gate-inject: enabled` 레이블로 [타겟 파드가 실행 중인 네임스페이스에 레이블을 붙입니다.](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/pod_readiness_gate/).
 3. 네임스페이스의 모든 파드가 준비 게이트 컨피그레이션을 가져오도록 하려면 인그레스 또는 서비스를 생성하고 파드를 생성하기 ***전에*** 네임스페이스에 레이블을 지정해야 한다.
 
 
-### 종료*전*에 로드 밸런서에서 파드의 등록이 취소되었는지 확인
+### 종료*전*에 로드밸런서에서 파드의 등록이 취소되었는지 확인
 
 When a pod is terminated steps 4 and 5 from the pod readiness section occur at the same time that the container processes receive the termination signals. This means that if your container is able to shut down quickly it may shut down faster than the Load Balancer is able to deregister the target. To avoid this situation adjust the Pod spec with:
 
@@ -92,7 +92,7 @@ When a pod is terminated steps 4 and 5 from the pod readiness section occur at t
             exec:
               command: ["/bin/sh", "-c", "sleep 180"] 
 ```
-위와 같은 간단한 sleep 명령을 사용하면 파드가 `Terminating (종료 중)`으로 표시된 시점 (그리고 로드 밸런서 등록 취소가 시작되는 시점) 과 종료 신호가 컨테이너 프로세스로 전송되는 시점 사이에 짧은 지연을 발생시킬 수 있다.필요한 경우 이 훅를 고급 애플리케이션 종료/종료 절차에도 활용할 수 있습니다.
+위와 같은 간단한 sleep 명령을 사용하면 파드가 `Terminating (종료 중)`으로 표시된 시점 (그리고 로드밸런서 등록 취소가 시작되는 시점) 과 종료 신호가 컨테이너 프로세스로 전송되는 시점 사이에 짧은 지연을 발생시킬 수 있다.필요한 경우 이 훅를 고급 애플리케이션 종료/종료 절차에도 활용할 수 있습니다.
 
 2. 전체 `프리스톱` 실행 시간과 애플리케이션이 종료 신호에 정상적으로 응답하는 데 걸리는 시간을 수용할 수 있도록 'TerminationGracePeriodsSeconds'를 연장하십시오.아래 예시에서는 유예 기간을 200초로 연장하여 전체 `sleep 180` 명령을 완료한 다음, 앱이 정상적으로 종료될 수 있도록 20초 더 연장했습니다.
 
@@ -144,7 +144,7 @@ When a pod is terminated steps 4 and 5 from the pod readiness section occur at t
 
 PDB는 노드 드레이닝 또는 애플리케이션 배포와 같은 것으로부터 애플리케이션을 보호합니다. PDB는 이런 조치를 취하는 동안 사용할 수 있는 파드의 수 또는 비율을 최소한으로 유지합니다.
 
-!!! 주의
+!!! caution
     PDB는 호스트 OS 장애 또는 네트워크 연결 손실과 같은 비자발적 중단으로부터 애플리케이션을 보호하지 않습니다.
 
 아래 예시는 `app: echoserver` 레이블이 붙은 파드를 항상 1개 이상 사용할 수 있도록 만듭니다. [애플리케이션에 맞는 올바른 레플리카 수를 구성하거나 백분율을 사용할 수 있습니다.](https://kubernetes.io/docs/tasks/run-application/configure-pdb/#think-about-how-your-application-reacts-to-disruptions):
@@ -166,7 +166,7 @@ spec:
 
 파드가 종료되면 컨테이너 내에서 실행되는 애플리케이션은 두 개의 [Signal](https://www.gnu.org/software/libc/manual/html_node/Standard-Signals.html)을 수신합니다. 첫 번째는 [`SIGTERM` 신호](https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html)이며, 이는 프로세스 실행을 중단하라는 "정중한" 요청입니다. 이 신호는 차단될 수도 있고 애플리케이션이 단순히 이 신호를 무시할 수도 있으므로, `terminationGracePeriodSeconds`이 경과하면 애플리케이션은 [`SIGKILL` 신호](https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html)를 받게 됩니다. `SIGKILL`은 프로세스를 강제로 중지하는 데 사용되며, [차단, 처리 또는 무시](https://man7.org/linux/man-pages/man7/signal.7.html) 될 수 없으므로 항상 치명적입니다.
 
-이런 신호는 컨테이너 런타임에서 애플리케이션 종료를 트리거하는 데 사용됩니다.또한 `SIGTERM` 신호는 `preStop` 훅이 실행된 후에 전송됩니다. 위 구성에서 `preStop` 훅은 로드 밸런서에서 파드의 등록이 취소되었는지 확인하므로 애플리케이션은 `SIGTERM` 신호가 수신될 때 열려 있는 나머지 연결을 정상적으로 종료할 수 있습니다.
+이런 신호는 컨테이너 런타임에서 애플리케이션 종료를 트리거하는 데 사용됩니다.또한 `SIGTERM` 신호는 `preStop` 훅이 실행된 후에 전송됩니다. 위 구성에서 `preStop` 훅은 로드밸런서에서 파드의 등록이 취소되었는지 확인하므로 애플리케이션은 `SIGTERM` 신호가 수신될 때 열려 있는 나머지 연결을 정상적으로 종료할 수 있습니다.
 
 !!! 참조
     [애플리케이션의 진입점에 "래퍼 스크립트"를 사용할 경우 컨테이너 환경에서의 신호 처리는 복잡할 수 있습니다.](https://petermalmgren.com/signal-handling-docker/) 스크립트는 PID 1이므로 신호를 애플리케이션으로 전달하지 않을 수 있습니다.
@@ -179,7 +179,7 @@ Elastic Load Balancing은 등록 취소 중인 대상에 대한 요청 전송을
 
 등록 취소 대상에 진행 중인 요청이 없고 활성 연결이 없는 경우 Elastic Load Balancing은 등록 취소 지연이 경과할 때까지 기다리지 않고 등록 취소 프로세스를 즉시 완료합니다.
 
-!!! 주의
+!!! caution
     대상 등록 취소가 완료되더라도 등록 취소 지연 제한 시간이 만료될 때까지 대상 상태가 '드레이닝 중'으로 표시됩니다. 제한 시간이 만료되면 대상은 '미사용' 상태로 전환됩니다.
 
 [등록 취소 지연이 경과하기 전에 등록 취소 대상이 연결을 종료하면 클라이언트는 500레벨 오류 응답을 받습니다.](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#deregistration-delay).

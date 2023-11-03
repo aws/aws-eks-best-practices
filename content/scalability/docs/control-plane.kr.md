@@ -8,12 +8,12 @@ EKS 1.24에는 여러 가지 변경 사항이 도입되었으며 컨테이너 �
 
 ## 워크로드 및 노드 버스팅 제한
 
-!!! 주목
+!!! attention
     컨트롤 플레인에서 API 한도에 도달하지 않으려면 클러스터 크기를 한 번에 두 자릿수 비율로 늘리는 급격한 확장을 제한해야 합니다(예: 한 번에 1000개 노드에서 1100개 노드로 또는 4000개에서 4500개 파드로).
 
 EKS 컨트롤 플레인은 클러스터가 성장함에 따라 자동으로 확장되지만 확장 속도에는 제한이 있습니다. EKS 클러스터를 처음 생성할 때 컨트롤 플레인은 즉시 수백 개의 노드 또는 수천 개의 파드로 확장될 수 없습니다. EKS의 스케일링 개선 방법에 대해 자세히 알아보려면 [이 블로그 게시물](https://aws.amazon.com/blogs/containers/amazon-eks-control-plane-auto-scaling-enhancements-improve-speed-by-4x/)을 참조하세요.
 
-대규모 애플리케이션을 확장하려면 인프라가 완벽하게 준비되도록 조정해야 합니다(예: 로드 밸런서 워밍). 확장 속도를 제어하려면 애플리케이션에 적합한 측정 지표를 기반으로 확장하고 있는지 확인합니다. CPU 및 메모리 확장은 애플리케이션 제약 조건을 정확하게 예측하지 못할 수 있으며 쿠버네티스 HPA(Horizontal Pod Autoscaler)에서 사용자 지정 지표(예: 초당 요청)를 사용하는 것이 더 나은 확장 옵션일 수 있습니다.
+대규모 애플리케이션을 확장하려면 인프라가 완벽하게 준비되도록 조정해야 합니다(예: 로드밸런서 워밍). 확장 속도를 제어하려면 애플리케이션에 적합한 측정 지표를 기반으로 확장하고 있는지 확인합니다. CPU 및 메모리 확장은 애플리케이션 제약 조건을 정확하게 예측하지 못할 수 있으며 쿠버네티스 HPA(Horizontal Pod Autoscaler)에서 사용자 지정 지표(예: 초당 요청)를 사용하는 것이 더 나은 확장 옵션일 수 있습니다.
 
 사용자 정의 지표를 사용하려면 [쿠버네티스 문서](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics)의 예를 참조하세요. 고급 확장이 필요하거나 외부 소스(예: AWS SQS 대기열)를 기반으로 확장해야 하는 경우 이벤트 기반 워크로드 확장을 위해 [KEDA](https://keda.sh)를 사용하세요.
 
@@ -187,7 +187,7 @@ APF가 허용된 최대 내부 요청 수를 초과하는 지정된 PriorityLeve
 
 #### APF 설정을 변경하여 429를 방지
 
-!!! 경고
+!!! warning
      수행 중인 작업을 알고 있는 경우에만 기본 APF 설정을 변경하십시오. APF 설정이 잘못 구성되면 API Server 요청이 중단되고 워크로드가 크게 중단될 수 있습니다.
 
 요청 삭제를 방지하기 위한 또 다른 접근 방식은 EKS 클러스터에 설치된 기본 FlowSchemas 또는 PriorityLevelConfigurations를 변경하는 것입니다. EKS는 지정된 쿠버네티스 마이너 버전에 대한 FlowSchemas 및 PriorityLevelConfigurations의 업스트림 기본 설정을 설치합니다. API는 객체에 대한 다음 주석이 false로 설정되지 않은 한 이런 객체를 기본값으로 자동으로 다시 조정합니다.

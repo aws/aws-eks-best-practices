@@ -20,7 +20,7 @@ API 서버를 살펴볼 때 그 기능 중 하나가 컨트롤 플레인의 과�
 max(increase(apiserver_request_duration_seconds_bucket{subresource!="status",subresource!="token",subresource!="scale",subresource!="/healthz",subresource!="binding",subresource!="proxy",verb!="WATCH"}[$__rate_interval])) by (le)
 ```
 
-!!! 팁
+!!! tip
     이 문서에 사용된 API 대시보드로 API 서버를 모니터링하는 방법에 대한 자세한 내용은 다음 [블로그](https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/)를 참조하세요.
 
 ![API request duration heatmap](../images/api-request-duration.png)
@@ -29,7 +29,7 @@ max(increase(apiserver_request_duration_seconds_bucket{subresource!="status",sub
 
 위의 API 요청 기간에서 사용하는 형식은 히트맵입니다. 히트맵 형식의 좋은 점은 기본적으로 API의 제한 시간 값(60초)을 알려준다는 것입니다. 그러나 실제로 알아야 할 것은 시간 초과 임계값에 도달하기 전에 이 값이 어떤 임계값에 관심을 가져야 하는가입니다. 허용 가능한 임계값에 대한 대략적인 지침을 보려면 [여기](https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md#steady-state-slisslos)에서 찾을 수 있는 업스트림 Kubernetes SLO를 사용할 수 있습니다.
 
-!!! 팁
+!!! tip
     이 명령문의 max 함수를 확인하세요. 여러 서버(기본적으로 EKS의 두 API 서버)를 집계하는 지표를 사용할 때 해당 서버의 평균을 구하지 않는 것이 중요합니다.
 
 ### 비대칭 트래픽 패턴
@@ -45,7 +45,7 @@ API Priority and Fairness(APF)로 전환하면서 시스템의 총 요청 수는
 max without(instance)(apiserver_flowcontrol_request_concurrency_limit{})
 ```
 
-!!! 노트
+!!! note
     API A&F 작동 방식에 대한 자세한 내용은 다음 [모범 사례 가이드](https://aws.github.io/aws-eks-best-practices/scalability/docs/control-plane/#api-priority-and-fairness)를 참조하세요.
 
 여기에서는 클러스터에 기본적으로 제공되는 7개의 서로 다른 우선순위 그룹을 볼 수 있습니다.
@@ -88,7 +88,7 @@ API 서버의 메트릭/로그를 사용하여 API 서버에 문제가 있는지
 
 예를 들어, 위의 문제를 조사하기 위해 다음 CloudWatch Logs Insights 쿼리를 사용하여 사용자 에이전트 및 requestURI를 가져와서 어떤 애플리케이션이 이 지연을 일으키는지 정확히 파악할 수 있습니다.
 
-!!! 팁
+!!! tip
     Watch에서 정상적인 List/Resync 동작을 가져오지 않으려면 적절한 개수를 사용해야 합니다.
 
 ```
@@ -136,7 +136,7 @@ fields timestamp, pod, err, *@message*
 
 ![CloudWatch Logs query](../images/cwl-query.png)
 
-!!! 노트
+!!! note
     이 기능을 활성화하려면 컨트롤 플레인에서 감사 로깅을 켜야 합니다. 시간이 지남에 따라 불필요하게 비용이 증가하지 않도록 로그 보존을 제한하는 것도 가장 좋은 방법입니다. 다음은 EKSCTL 도구를 사용하여 모든 로깅 기능을 켜는 예제입니다.  
 
 ```yaml

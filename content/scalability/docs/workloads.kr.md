@@ -20,17 +20,17 @@ kube-proxy를 사용하여 노드당 생성되는 IP 테이블 규칙의 수는 
 
 ## Elastic Load Balancer 할당량 이해
 
-서비스를 생성할 때 사용할 로드 밸런싱 유형(예: 네트워크 로드 밸런서 (NLB) 또는 애플리케이션 로드 밸런서 (ALB)) 를 고려하세요. 각 로드 밸런서 유형은 서로 다른 기능을 제공하며 [할당량](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html)이 다릅니다. 기본 할당량 중 일부는 조정할 수 있지만 일부 할당량 최대값은 변경할 수 없습니다. 계정 할당량 및 사용량을 보려면 AWS 콘솔의 [서비스 할당량 대시보드](http://console.aws.amazon.com/servicequotas)를 참조하십시오.
+서비스를 생성할 때 사용할 로드 밸런싱 유형(예: 네트워크 로드밸런서 (NLB) 또는 애플리케이션 로드밸런서 (ALB)) 를 고려하세요. 각 로드밸런서 유형은 서로 다른 기능을 제공하며 [할당량](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html)이 다릅니다. 기본 할당량 중 일부는 조정할 수 있지만 일부 할당량 최대값은 변경할 수 없습니다. 계정 할당량 및 사용량을 보려면 AWS 콘솔의 [서비스 할당량 대시보드](http://console.aws.amazon.com/servicequotas)를 참조하십시오.
 
 예를 들어, 기본 ALB 목표는 1000입니다. 엔드포인트가 1,000개가 넘는 서비스가 있는 경우 할당량을 늘리거나 서비스를 여러 ALB로 분할하거나 쿠버네티스 인그레스(Ingress)를 사용해야 합니다. 기본 NLB 대상은 3000이지만 AZ당 500개 대상으로 제한됩니다. 클러스터에서 NLB 서비스에 대해 500개 이상의 파드를 실행하는 경우 여러 AZ를 사용하거나 할당량 한도 증가를 요청해야 합니다.
 
-서비스에 연결된 로드 밸런서를 사용하는 대신 [인그레스 컨트롤러](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) 를 사용할 수 있습니다. AWS Load Balancer Controller는 수신 리소스용 ALB를 생성할 수 있지만, 클러스터에서 전용 컨트롤러를 실행하는 것도 고려해 볼 수 있습니다.클러스터 내 수신 컨트롤러를 사용하면 클러스터 내에서 역방향 프록시를 실행하여 단일 로드 밸런서에서 여러 Kubernetes 서비스를 노출할 수 있습니다. 컨트롤러는 [Gateway API](https://gateway-api.sigs.k8s.io/) 지원과 같은 다양한 기능을 제공하므로 워크로드의 수와 규모에 따라 이점이 있을 수 있습니다.
+서비스에 연결된 로드밸런서를 사용하는 대신 [인그레스 컨트롤러](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) 를 사용할 수 있습니다. AWS Load Balancer Controller는 수신 리소스용 ALB를 생성할 수 있지만, 클러스터에서 전용 컨트롤러를 실행하는 것도 고려해 볼 수 있습니다.클러스터 내 수신 컨트롤러를 사용하면 클러스터 내에서 역방향 프록시를 실행하여 단일 로드밸런서에서 여러 Kubernetes 서비스를 노출할 수 있습니다. 컨트롤러는 [Gateway API](https://gateway-api.sigs.k8s.io/) 지원과 같은 다양한 기능을 제공하므로 워크로드의 수와 규모에 따라 이점이 있을 수 있습니다.
 
 ## Route 53, Global Accelerator, 또는 CloudFront 사용하기
 
-여러 로드 밸런서를 사용하는 서비스를 단일 엔드포인트로 사용하려면 [Amazon CloudFront](https://aws.amazon.com/cloudfront/), [AWS Global Accelerator](https://aws.amazon.com/global-accelerator/) 또는 [Amazon Route 53](https://aws.amazon.com/route53/)를 사용하여 모든 로드 밸런서를 단일 고객 대상 엔드포인트로 노출해야 합니다. 각 옵션에는 서로 다른 이점이 있으며 필요에 따라 개별적으로 또는 함께 사용할 수 있습니다.
+여러 로드밸런서를 사용하는 서비스를 단일 엔드포인트로 사용하려면 [Amazon CloudFront](https://aws.amazon.com/cloudfront/), [AWS Global Accelerator](https://aws.amazon.com/global-accelerator/) 또는 [Amazon Route 53](https://aws.amazon.com/route53/)를 사용하여 모든 로드밸런서를 단일 고객 대상 엔드포인트로 노출해야 합니다. 각 옵션에는 서로 다른 이점이 있으며 필요에 따라 개별적으로 또는 함께 사용할 수 있습니다.
 
-Route 53은 공통 이름으로 여러 로드 밸런서를 노출할 수 있으며 할당된 가중치에 따라 각 로드 밸런서에 트래픽을 전송할 수 있습니다. [DNS 가중치](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-values-weighted.html#rrsets-values-weighted-weight)설명서에 자세한 내용을 확인할 수 있으며 [쿠버네티스 외부 DNS 컨트롤러](https://github.com/kubernetes-sigs/external-dns)를 사용하여 이를 구현하는 방법은 [AWS Load Balancer Controller 설명서](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/integrations/external_dns/#usage)에서 확인할 수 있습니다.
+Route 53은 공통 이름으로 여러 로드밸런서를 노출할 수 있으며 할당된 가중치에 따라 각 로드밸런서에 트래픽을 전송할 수 있습니다. [DNS 가중치](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-values-weighted.html#rrsets-values-weighted-weight)설명서에 자세한 내용을 확인할 수 있으며 [쿠버네티스 외부 DNS 컨트롤러](https://github.com/kubernetes-sigs/external-dns)를 사용하여 이를 구현하는 방법은 [AWS Load Balancer Controller 설명서](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/integrations/external_dns/#usage)에서 확인할 수 있습니다.
 
 Global Accelerator터는 요청 IP 주소를 기반으로 가장 가까운 지역으로 워크로드를 라우팅할 수 있습니다. 이는 여러 지역에 배포되는 워크로드에 유용할 수 있지만 단일 지역의 단일 클러스터로의 라우팅을 개선하지는 않습니다. Route 53을 Global Accelerator터와 함께 사용하면 가용영역을 사용할 수 없는 경우 상태 점검 및 자동 장애 조치와 같은 추가적인 이점이 있습니다. Route 53과 함께 Global Accelerator터를 사용하는 예는 [이 블로그 게시물](https://aws.amazon.com/blogs/containers/operating-a-multi-regional-stateless-application-using-amazon-eks/)에서 확인할 수 있습니다.
 

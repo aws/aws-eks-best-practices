@@ -16,7 +16,7 @@
 
 Amazon VPC CNI 플러그인의 기본 네트워크 정책 지원을 통해 네트워크 정책을 구현하여 쿠버네티스 클러스터의 네트워크 트래픽을 보호할 수 있습니다. 이는 업스트림 쿠버네티스 네트워크 정책 API와 통합되어 호환성과 쿠버네티스 표준 준수를 보장합니다. 업스트림 API에서 지원하는 다양한 [식별자](https://kubernetes.io/docs/concepts/services-networking/network-policies/)를 사용하여 정책을 정의할 수 있습니다. 기본적으로 모든 수신 및 송신 트래픽은 파드에 허용됩니다. PolicyType Ingress가 포함된 네트워크 정책을 지정하는 경우 파드 노드의 연결과 인그레스 규칙에서 허용하는 연결만 파드에 대한 연결만 허용됩니다. 이그레스 규칙에도 동일하게 적용됩니다. 여러 규칙이 정의된 경우 결정을 내릴 때 모든 규칙의 통합을 고려합니다. 따라서 평가 순서는 정책 결과에 영향을 미치지 않습니다.
 
-!!! 주목
+!!! attention
     EKS 클러스터를 처음 프로비저닝할 때 VPC CNI 네트워크 정책 기능은 기본적으로 활성화되지 않습니다. 지원되는 VPC CNI 애드온 버전을 배포했는지 확인하고 vpc-cni 애드온에서 `ENABLE_NETWORK_POLICY` 플래그를 `true`로 설정하여 이를 활성화하세요. 자세한 지침은 [Amazon EKS 사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html)를 참조하십시오.
 
 ## 권장사항
@@ -43,7 +43,7 @@ spec:
 
 ![]( ./images/default-deny.jpg )
 
-!!! 팁
+!!! tip
     위 이미지는 [Tufin](https://orca.tufin.io/netpol/)의 네트워크 정책 뷰어로 생성되었습니다.
 
 ### DNS 쿼리를 허용하는 규칙 만들기
@@ -145,7 +145,7 @@ contains_label(arr, val) {
 
 #### vpc-network-policy-controller 및 node-agent 로그 모니터링
 
-EKS 컨트롤 플레인의 컨트롤러 매니저 로그를 활성화하여 네트워크 정책 기능을 진단합니다. 컨트롤 플레인 로그를 CloudWatch 로그 그룹으로 스트리밍하고 [CloudWatch 로그 인사이트](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html)를 사용하여 고급 쿼리를 수행할 수 있습니다. 로그에서 네트워크 정책으로 확인된 파드 엔드포인트 객체, 정책의 조정 상태를 확인하고 정책이 예상대로 작동하는지 디버깅할 수 있습니다.
+EKS 컨트롤 플레인의 컨트롤러 매니저 로그를 활성화하여 네트워크 정책 기능을 진단합니다. 컨트롤 플레인 로그를 CloudWatch 로그 그룹으로 스트리밍하고 [CloudWatch Log Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html)를 사용하여 고급 쿼리를 수행할 수 있습니다. 로그에서 네트워크 정책으로 확인된 파드 엔드포인트 객체, 정책의 조정 상태를 확인하고 정책이 예상대로 작동하는지 디버깅할 수 있습니다.
 
 또한 Amazon VPC CNI를 사용하면 EKS 워커 노드에서 정책 적용 로그를 수집하고 [Amazon Cloudwatch](https://aws.amazon.com/cloudwatch/) 로 내보낼 수 있습니다. 활성화되면 [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html)를 활용하여 네트워크 정책과 관련된 사용에 대한 통찰력을 제공할 수 있습니다. 
 
@@ -162,11 +162,11 @@ sudo /opt/cni/bin/aws-eks-na-cli ebpf progs
 ## 보안 그룹
 EKS는 [AWS VPC 보안 그룹](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html)(SG)을 사용하여 쿠버네티스 컨트롤 플레인과 클러스터의 워커 노드 사이의 트래픽을 제어합니다. 보안 그룹은 워커 노드, 기타 VPC 리소스 및 외부 IP 주소 간의 트래픽을 제어하는 데에도 사용됩니다. EKS 클러스터 (쿠버네티스 버전 1.14-eks.3 이상)를 프로비저닝하면 클러스터 보안 그룹이 자동으로 생성됩니다. 이 보안 그룹은 EKS 컨트롤 플레인과 관리형 노드 그룹의 노드 간의 자유로운 통신을 허용합니다. 단순화를 위해 비관리형 노드 그룹을 포함한 모든 노드 그룹에 클러스터 SG를 추가하는 것이 좋습니다.
 
-쿠버네티스 버전 1.14 및 EKS 버전 eks.3 이전에는 EKS 컨트롤 플레인 및 노드 그룹에 대해 별도의 보안 그룹이 구성되었습니다.컨트롤 플레인 및 노드 그룹 보안 그룹에 대한 최소 및 권장 규칙은 [AWS 문서](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html)에서 확인할 수 있습니다. _컨트롤 플레인 보안 그룹_의 최소 규칙에 따라 워커 노드 보안그룹에서 포트 443을 인바운드할 수 있습니다. 이 규칙은 kubelets가 쿠버네티스 API 서버와 통신할 수 있도록 하는 규칙입니다. 또한 워커 노드 보안그룹로의 아웃바운드 트래픽을 위한 포트 10250도 포함되어 있습니다. 10250은 kubelet이 수신하는 포트입니다. 마찬가지로 최소 _node group_ 규칙은 컨트롤 플레인 보안그룹에서 포트 10250을 인바운드하고 컨트롤 플레인 보안그룹로 아웃바운드하는 443을 허용합니다. 마지막으로 노드 그룹 내 노드 간의 자유로운 통신을 허용하는 규칙이 있습니다.
+쿠버네티스 버전 1.14 및 EKS 버전 eks.3 이전에는 EKS 컨트롤 플레인 및 노드 그룹에 대해 별도의 보안 그룹이 구성되었습니다. 컨트롤 플레인 및 노드 그룹 보안 그룹에 대한 최소 및 권장 규칙은 [AWS 문서](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html)에서 확인할 수 있습니다. _컨트롤 플레인 보안 그룹_ 의 최소 규칙에 따라 워커 노드 보안그룹에서 포트 443을 인바운드할 수 있습니다. 이 규칙은 kubelets가 쿠버네티스 API 서버와 통신할 수 있도록 하는 규칙입니다. 또한 워커 노드 보안그룹로의 아웃바운드 트래픽을 위한 포트 10250도 포함되어 있습니다. 10250은 kubelet이 수신하는 포트입니다. 마찬가지로 최소 _노드 그룹_ 규칙은 컨트롤 플레인 보안그룹에서 포트 10250을 인바운드하고 컨트롤 플레인 보안그룹로 아웃바운드하는 443을 허용합니다. 마지막으로 노드 그룹 내 노드 간의 자유로운 통신을 허용하는 규칙이 있습니다.
 
 클러스터 내에서 실행되는 서비스와 RDS 데이터베이스와 같이 클러스터 외부에서 실행되는 서비스 간의 통신을 제어해야 하는 경우 [파드용 보안 그룹](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html)을 고려해 보세요. 파드용 보안 그룹을 사용하면 파드 컬렉션에 **기존** 보안 그룹을 할당할 수 있다.
 
-!!! 경고
+!!! warning
     파드를 생성하기 전에 존재하지 않는 보안 그룹을 참조하는 경우, 파드는 스케줄링되지 않는다.
 
 `SecurityGroupPolicy` 객체를 생성하고 `PodSelector` 또는 `ServiceAccountSelector`를 지정하여 어떤 파드를 보안 그룹에 할당할지 제어할 수 있습니다. 셀렉터를 `{} `로 설정하면 `SecurityGroupPolicy`에서 참조하는 보안그룹이 네임스페이스의 모든 파드 또는 네임스페이스의 모든 서비스 어카운트에 할당됩니다. 파드용 보안 그룹을 구현하기 전에 [고려 사항](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations)을 모두 숙지해야 합니다.
@@ -217,7 +217,7 @@ EKS는 [AWS VPC 보안 그룹](https://docs.aws.amazon.com/vpc/latest/userguide/
 + **공격 범위 축소**
     + 애플리케이션 노출을 제한하여 공격 표면을 최소화합니다.
 
-!!! 주의
+!!! caution
     파드용 보안 그룹은 `strict`과 `standard`이라는 두 가지 적용 모드를 제공합니다. EKS 클러스터의 파드 기능에 네트워크 정책과 보안 그룹을 모두 사용할 때는 `standard` 모드를 사용해야 합니다.
 
 네트워크 보안과 관련해서는 계층화된 접근 방식이 가장 효과적인 솔루션인 경우가 많습니다. 쿠버네티스 네트워크 정책과 SGP를 함께 사용하면 EKS에서 실행되는 애플리케이션을 위한 강력한 심층 방어 전략을 제공할 수 있습니다.
@@ -241,7 +241,7 @@ EKS는 [AWS VPC 보안 그룹](https://docs.aws.amazon.com/vpc/latest/userguide/
 + 서로 통신할 수 있는 파드를 제한하세요.
 + 네트워크 정책은 서비스 메시보다 필요한 리소스가 적기 때문에 단순한 사용 사례나 서비스 메시의 실행 및 관리 오버헤드가 정당하지 않을 수 있는 소규모 클러스터에 적합합니다.
 
-!!! 팁
+!!! tip
     네트워크 정책과 서비스 메시를 함께 사용할 수도 있습니다. 네트워크 정책을 사용하여 파드 간에 기본 수준의 보안 및 격리를 제공한 다음 서비스 메시를 사용하여 트래픽 관리, 관찰 가능성 및 보안과 같은 추가 기능을 추가합니다.
 
 
@@ -275,7 +275,7 @@ EKS는 [AWS VPC 보안 그룹](https://docs.aws.amazon.com/vpc/latest/userguide/
 PCI, HIPAA 또는 기타 규정을 준수해야 하는 애플리케이션은 전송 중에 데이터를 암호화해야 합니다. 오늘날 TLS는 유선 트래픽을 암호화하기 위한 사실상 표준 방식입니다. TLS는 이전 SSL과 마찬가지로 암호화 프로토콜을 사용하여 네트워크를 통해 보안 통신을 제공합니다. TLS는 세션 시작 시 협상되는 공유 암호를 기반으로 데이터를 암호화하는 키를 생성하는 대칭 암호화를 사용합니다. 다음은 쿠버네티스 환경에서 데이터를 암호화할 수 있는 몇 가지 방법입니다.
 
 ### Nitro 인스턴스
-다음 Nitro 인스턴스 유형 (예: C5n, G4, I3en, M5dn, M5n, P3dn, R5dn, R5n)간에 교환되는 트래픽은 기본적으로 자동 암호화됩니다. Transit Gateway 또는 로드 밸런서와 같이 중간 홉이 있는 경우 트래픽은 암호화되지 않습니다. 전송 중 암호화에 대한 자세한 내용과 기본적으로 네트워크 암호화를 지원하는 인스턴스 유형의 전체 목록은 [전송 암호화 문서](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html#encryption-transit)를 참조하십시오.
+다음 Nitro 인스턴스 유형 (예: C5n, G4, I3en, M5dn, M5n, P3dn, R5dn, R5n)간에 교환되는 트래픽은 기본적으로 자동 암호화됩니다. Transit Gateway 또는 로드밸런서와 같이 중간 홉이 있는 경우 트래픽은 암호화되지 않습니다. 전송 중 암호화에 대한 자세한 내용과 기본적으로 네트워크 암호화를 지원하는 인스턴스 유형의 전체 목록은 [전송 암호화 문서](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html#encryption-transit)를 참조하십시오.
 
 ### 컨테이너 네트워크 인터페이스(CNI)
 [WeAvenet](https://www.weave.works/oss/net/)은 슬리브 트래픽(더 느린 패킷 포워딩 접근 방식)에는 NaCL 암호화를 사용하고 빠른 데이터 경로 트래픽에는 IPsec ESP를 사용하여 모든 트래픽을 자동으로 암호화하도록 구성할 수 있습니다.
@@ -294,10 +294,10 @@ PCI, HIPAA 또는 기타 규정을 준수해야 하는 애플리케이션은 전
 + [파일 제공 TLS 인증서를 사용하여 TLS 구성](https://github.com/aws/aws-app-mesh-examples/tree/master/walkthroughs/howto-tls-file-provided)
 + [AWS Certificate Manager를 사용하여 TLS 구성](https://github.com/aws/aws-app-mesh-examples/tree/master/walkthroughs/tls-with-acm)
 
-### 인그레스 컨트롤러 및 로드 밸런서
-인그레스 컨트롤러는 클러스터 외부에서 발생하는 HTTP/S 트래픽을 클러스터 내에서 실행되는 서비스로 지능적으로 라우팅하는 방법입니다. 이런 인그레스 앞에 CLB(Classic Load Balancer) 또는 NLB(Network Load Balancer)와 같은 레이어 4 로드 밸런서가 있는 경우가 많습니다. 암호화된 트래픽은 네트워크 내 여러 위치 (예: 로드 밸런서, 인그레스 리소스, 파드) 에서 종료될 수 있다. SSL 연결을 종료하는 방법과 위치는 궁극적으로 조직의 네트워크 보안 정책에 따라 결정됩니다. 예를 들어 엔드 투 엔드 암호화를 요구하는 정책이 있는 경우 Pod에서 트래픽을 해독해야 합니다. 이렇게 되면 파드가 초기 핸드셰이크를 설정하는 데 많은 시간을 소비해야 하므로 파드에 추가적인 부담이 가중됩니다. 전체 SSL/TLS 처리는 CPU 집약도가 매우 높습니다. 따라서 유연성이 있다면 인그레스 또는 로드 밸런서에서 SSL 오프로드를 수행해 보세요.
+### 인그레스 컨트롤러 및 로드밸런서
+인그레스 컨트롤러는 클러스터 외부에서 발생하는 HTTP/S 트래픽을 클러스터 내에서 실행되는 서비스로 지능적으로 라우팅하는 방법입니다. 이런 인그레스 앞에 CLB(Classic Load Balancer) 또는 NLB(Network Load Balancer)와 같은 레이어 4 로드밸런서가 있는 경우가 많습니다. 암호화된 트래픽은 네트워크 내 여러 위치 (예: 로드밸런서, 인그레스 리소스, 파드) 에서 종료될 수 있다. SSL 연결을 종료하는 방법과 위치는 궁극적으로 조직의 네트워크 보안 정책에 따라 결정됩니다. 예를 들어 엔드 투 엔드 암호화를 요구하는 정책이 있는 경우 Pod에서 트래픽을 해독해야 합니다. 이렇게 되면 파드가 초기 핸드셰이크를 설정하는 데 많은 시간을 소비해야 하므로 파드에 추가적인 부담이 가중됩니다. 전체 SSL/TLS 처리는 CPU 집약도가 매우 높습니다. 따라서 유연성이 있다면 인그레스 또는 로드밸런서에서 SSL 오프로드를 수행해 보세요.
 
-#### AWS Elastic 로드 밸런서를 통한 암호화 사용
+#### AWS Elastic 로드밸런서를 통한 암호화 사용
 [AWS Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html)(ALB) 및 [Network Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html)(NLB) 모두 전송 암호화(SSL 및 TLS)를 지원합니다. ALB에 대한 `alb.ingress.kubernetes.io/certificate-arn` 어노테이션을 사용하면 ALB에 추가할 인증서를 지정할 수 있습니다. 어노테이션을 생략하면 컨트롤러는 호스트 필드를 사용하여 사용 가능한 [AWS Certificate Manager (ACM)](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html)인증서를 일치시켜 인증서를 필요로 하는 리스너에 인증서를 추가하려고 시도합니다. EKS v1.15부터 아래 예와 같이 NLB와 함께 `service.beta.kubernetes.io/aws-load-balancer-ssl-cert` 어노테이션을 사용할 수 있습니다.
 
 ```yaml
@@ -354,7 +354,7 @@ spec:
 + [Securing EKS Ingress With Contour And Let’s Encrypt The GitOps Way](https://aws.amazon.com/blogs/containers/securing-eks-ingress-contour-lets-encrypt-gitops/)
 + [How do I terminate HTTPS traffic on Amazon EKS workloads with ACM?](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/)
 
-!!! 주의
+!!! caution
     AWS LB 컨트롤러와 같은 일부 인그레스는 인그레스 사양의 일부가 아닌 어노테이션을 사용하여 SSL/TLS를 구현합니다.
 
 ### ACM Private CA 연동 (cert-manager)

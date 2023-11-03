@@ -112,7 +112,7 @@ Prefix를 할당하지 않고 실행할 수 있는 최대 파드 수는 29개입
 
 하지만 인스턴스의 가상 CPU 수가 매우 적기 때문에 max-pod를 290이 아닌 110으로 설정하는 것이 좋습니다. 더 큰 인스턴스의 경우 EKS는 최대 파드 값을 250으로 설정할 것을 권장합니다. 더 작은 인스턴스 유형 (예: m5.large) 에 Prefix 첨부 파일을 사용할 경우 IP 주소보다 훨씬 먼저 인스턴스의 CPU 및 메모리 리소스가 고갈될 수 있습니다.
 
-!!! 정보
+!!! info
     CNI Prefix가 ENI에 /28 Prefix를 할당할 때는 연속된 IP 주소 블록이어야 합니다. Prefix가 생성되는 서브넷이 고도로 분할된 경우 Prefix 연결에 실패할 수 있습니다. 클러스터용 전용 VPC를 새로 만들거나 서브넷에 Prefix 첨부 전용으로 CIDR 세트를 예약하여 이런 문제가 발생하지 않도록 할 수 있습니다. 이 주제에 대한 자세한 내용은 [서브넷 CIDR 예약](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)을 참조하십시오.
 
 ### CG-NAT 공간의 기존 사용 현황 파악

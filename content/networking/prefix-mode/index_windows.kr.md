@@ -69,7 +69,7 @@ InsufficientCidrBlocks: The specified subnet does not have enough free cidr bloc
 * 윈도우용 Prefix Delegation 기능 활성화/비활성화
 * [이 링크](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html)에 설명된 단계를 따라 노드 그룹을 업데이트합니다. 해당 절차는 위와 비슷한 단계를 수행하지만 EKS에서 관리합니다.
 
-!!! 경고
+!!! warning
     노드의 모든 파드를 동일한 모드로 실행
 
 윈도우의 경우, 보조 IP 모드와 Prefix Delegation 모드에서 동시에 파드를 실행하지 않는 것이 좋습니다. 이런 상황은 윈도우 워크로드를 실행하는 상태에서 보조 IP 모드에서 Prefix Delegation 모드로 또는 그 반대로 마이그레이션할 때 발생할 수 있습니다.

@@ -81,7 +81,7 @@ aws ssm start-session --target [INSTANCE_ID_OF_EKS_NODE]
 ``` 
 
 
-!!! 노트
+!!! note
     [Session Manager 로깅 활성화](https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging)에 권한을 추가하는 것도 고려해 볼 수 있습니다.
 
 ### 프라이빗 서브넷에 워커 노드 배포
@@ -92,14 +92,14 @@ aws ssm start-session --target [INSTANCE_ID_OF_EKS_NODE]
 
 Amazon Inspector는 Amazon EC2 Systems Manager(SSM) 에이전트가 설치되고 활성화된 경우에만 Amazon EC2 인스턴스에 대한 일반적인 취약성 및 노출 (CVE) 데이터를 제공할 수 있습니다. 이 에이전트는 [EKS 최적화 Amazon Linux AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html)를 비롯한 여러 [Amazon 머신 이미지 (AMI)](https://docs.aws.amazon.com/systems-manager/latest/userguide/ami-preinstalled-agent.html)에 사전 설치되어 있습니다. SSM 에이전트 상태에 관계없이 모든 Amazon EC2 인스턴스는 네트워크 연결 문제 여부를 검사합니다.Amazon EC2용 스캔 구성에 대한 자세한 내용은 [Amazon EC2 인스턴스 스캔](https://docs.aws.amazon.com/inspector/latest/user/enable-disable-scanning-ec2.html)을 참조합니다.
 
-!!! 주목
+!!! attention
     Fargate 파드를 실행하는 데 사용되는 인프라에서는 Inspector를 실행할 수 없습니다.
 
 ## 대안으로 선택 가능한 옵션
 
 ### SELinux 실행
 
-!!! 정보
+!!! info
     RHEL(Red Hat Enterprise Linux), CentOS, Bottlerocket과 Amazon Linux 2023 에서 사용 가능
 
 SELinux는 컨테이너를 서로 격리하고 호스트로부터 격리된 상태로 유지하기 위한 추가 보안 계층을 제공합니다. SELinux를 통해 관리자는 모든 사용자, 애플리케이션, 프로세스 및 파일에 대해 필수 액세스 제어(MAC)를 적용할 수 있습니다. 레이블 집합을 기반으로 특정 리소스에 대해 수행할 수 있는 작업을 제한하는 안정장치라고 생각하면 됩니다. EKS에서는 SELinux를 사용하여 컨테이너가 서로의 리소스에 액세스하는 것을 방지할 수 있습니다.
@@ -170,7 +170,7 @@ EKS에서는 FluentD와 같은 권한 있는 컨테이너를 실행할 수 있�
 
 CentOS7 및 RHEL7에 SELinux가 구성된 [Amazon EKS 샘플 AMI](https://github.com/aws-samples/amazon-eks-custom-amis)를 구현했습니다. 이런 AMI는 STIG, CJIS, C2S와 같이 규제가 엄격한 고객의 요구 사항을 충족하는 샘플 구현을 시연하기 위해 개발되었습니다.
 
-!!! 주의
+!!! caution
   SELinux는 타입이 제한되지 않은 컨테이너를 무시합니다.
 
 #### 추가 리소스

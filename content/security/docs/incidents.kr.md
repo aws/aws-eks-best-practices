@@ -60,7 +60,7 @@ spec:
   - Egress
 ```
 
-!!! 주목
+!!! attention
     공격자가 기본 호스트에 대한 액세스 권한을 획득한 경우 네트워크 정책이 효과가 없는 것으로 판명될 수 있습니다. 그런 일이 발생했다고 의심되는 경우 [AWS 보안 그룹](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html)을 사용하여 손상된 호스트를 다른 호스트로부터 격리할 수 있습니다.호스트의 보안 그룹을 변경할 때는 해당 호스트에서 실행 중인 모든 컨테이너에 영향을 미치므로 주의하십시오.  
 
 ### 필요한 경우 파드 또는 워커 노드에 할당된 임시 보안 자격 증명을 취소
@@ -69,13 +69,13 @@ spec:
 ### 워커 노드 차단(cordon)
 영향을 받는 워커 노드를 차단함으로써 영향을 받는 노드에 파드를 스케줄링하지 않도록 스케줄러에 알리는 것입니다.이렇게 하면 다른 워크로드에 영향을 주지 않으면서 포렌식 연구를 위해 노드를 제거할 수 있습니다.
 
-!!! 정보
+!!! info
     이 지침은 각 Fargate 파드가 자체 샌드박스 환경에서 실행되는 Fargate에는 적용되지 않습니다. 차단하는 대신 모든 수신 및 송신 트래픽을 거부하는 네트워크 정책을 적용하여 영향을 받는 Fargate 파드를 격리하십시오. 
 
 ### 영향을 받는 워커 노드에서 종료 보호 활성화
 공격자는 영향을 받은 노드를 종료하여 자신의 흔적을 지우려고 시도할 수 있습니다. [종료 방지 기능](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination)을 활성화하면 이런 일이 발생하지 않도록 할 수 있습니다. [인스턴스 스케일-인 보호](https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html#instance-protection)는 스케일-인 이벤트로부터 노드를 보호합니다. 
 
-!!! 경고
+!!! warning
     스팟 인스턴스에서는 종료 방지 기능을 활성화할 수 없습니다.
 
 ### 문제가 되는 파드/노드에 현재 조사 중임을 나타내는 레이블을 지정

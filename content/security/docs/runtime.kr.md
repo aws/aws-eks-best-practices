@@ -2,7 +2,7 @@
 
 런타임 보안은 컨테이너가 실행되는 동안 컨테이너를 능동적으로 보호합니다. 컨테이너 내부에서 발생하는 악의적인 활동을 탐지 및 방지하는 것이 관건입니다. 이는 리눅스 기능, 보안 컴퓨팅 (seccomp), AppArmor 또는 SELinux와 같이 쿠버네티스와 통합된 리눅스 커널 또는 커널 익스텐션의 여러 메커니즘을 통해 달성할 수 있습니다. Amazon GuardDuty 및 타사 도구와 같은 옵션도 있습니다. 이러한 도구를 사용하면 Linux 커널 메커니즘을 수동으로 구성하지 않고도 기준을 설정하고 이상 활동을 탐지하는 데 도움을 줄 수 있습니다.
 
-!!! 주목 
+!!! attention 
     쿠버네티스는 현재 seccomp, AppArmor 또는 SELinux 프로파일을 노드에 로드하기 위한 네이티브 메커니즘을 제공하지 않는다. 수동으로 로드하거나 부트스트랩할 때 노드에 설치해야 합니다. 스케줄러가 어떤 노드에 프로파일이 있는지 인식하지 못하기 때문에 파드에서 참조하기 전에 이 작업을 수행해야 한다.Security Profiles Operator와 같은 도구를 사용하여 프로파일을 노드에 자동으로 프로비저닝하는 방법을 아래에서 확인하세요.
 
 ## 보안 컨텍스트 및 빌트인 쿠버네티스 컨트롤
@@ -31,7 +31,7 @@ securityContext:
 
 ### AppArmor와 SELinux
 
-AppMor와 SELinux는 [필수 액세스 제어(MAC 시스템)] (https://en.wikipedia.org/wiki/Mandatory_access_control)로 알려져 있습니다. 이들은 seccomp와 개념적으로는 비슷하지만 API와 기능이 다르기 때문에 특정 파일 시스템 경로 또는 네트워크 포트 등에 대한 액세스 제어가 가능합니다. 이러한 도구에 대한 지원은 리눅스 배포판에 따라 달라지는데, 데비안/우분투는 AppArmor를 지원하고 RHEL/Centos/BottleRocket/Amazon Linux 2023은 SELinux를 지원합니다. SELinux에 대한 자세한 내용은 [인프라 보안 섹션](../hosts/#run-selinux)를 참조하십시오.
+AppMor와 SELinux는 [필수 액세스 제어(MAC 시스템)](https://en.wikipedia.org/wiki/Mandatory_access_control)로 알려져 있습니다. 이들은 seccomp와 개념적으로는 비슷하지만 API와 기능이 다르기 때문에 특정 파일 시스템 경로 또는 네트워크 포트 등에 대한 액세스 제어가 가능합니다. 이러한 도구에 대한 지원은 리눅스 배포판에 따라 달라지는데, 데비안/우분투는 AppArmor를 지원하고 RHEL/Centos/BottleRocket/Amazon Linux 2023은 SELinux를 지원합니다. SELinux에 대한 자세한 내용은 [인프라 보안 섹션](../hosts/#run-selinux)를 참조하십시오.
 
 AppArmor와 SELinux는 모두 쿠버네티스와 통합되어 있지만, 쿠버네티스 1.28부터 AppArmor 프로파일은 [어노테이션](https://kubernetes.io/docs/tutorials/security/apparmor/#securing-a-pod) 을 통해 지정해야 하며, SELinux 레이블은 보안 컨텍스트의 [SELinuxOptions](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#selinuxoptions-v1-core) 필드를 통해 직접 설정할 수 있습니다.
 
@@ -55,7 +55,7 @@ seccomp를 사용하기 전에 Linux 기능 추가/제거가 필요한 제어 �
 ### 파드 시큐리티 폴리시(PSP)을 사용하여 목표를 달성할 수 있는지 확인하십시오.
 PSP는 과도한 복잡성을 유발하지 않으면서 보안 태세를 개선할 수 있는 다양한 방법을 제공합니다. seccomp 및 Apparmor 프로파일을 구축하기 전에 PSP에서 사용할 수 있는 옵션을 살펴보세요.
 
-!!! 경고
+!!! warning
      쿠버네티스 1.25부터 PSP가 제거되고 [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/) 컨트롤러로 대체되었습니다. 현재 존재하는 타사 대안으로는 OPA/게이트키퍼 및 Kyverno가 있습니다. PSP에서 흔히 볼 수 있는 정책을 구현하기 위한 게이트키퍼 제약 조건 및 제약 조건 템플릿 모음은 GitHub의 [Gatekeeper 라이브러리](https://github.com/open-policy-agent/gatekeeper-library/tree/master/library/pod-security-policy) 저장소에서 가져올 수 있습니다. 또한 [Kyverno 정책 라이브러리](https://main.kyverno.io/policies/)에서 [파드 시큐리티 스탠다드(PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/)의  전체 컬렉션을 포함하여 PSP를 대체할 수 있는 다양한 제품을 찾을 수 있습니다.
 
 ## 추가 리소스

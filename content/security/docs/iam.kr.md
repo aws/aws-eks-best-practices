@@ -53,7 +53,7 @@ https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Alg
 
 토큰은 15분의 TTL 수명이 있고, 수명 종류 후에는 새 토큰을 생성해야 합니다. 이는 `kubectl`과 같은 클라이언트를 사용할 때 자동으로 처리 되지만 쿠버네티스 대시보드를 사용하는 경우 토큰이 만료될 때마다 새 토큰을 생성하고 다시 인증해야 합니다.
 
-사용자 ID가 AWS IAM 서비스에 의해 인증되면 kube-apiserver 는 'kube-system' 네임스페이스에서 'aws-auth' ConfigMap을 읽어 사용자와 연결할 RBAC 그룹을 결정합니다. `aws-auth` 컨피그맵 은 IAM 보안 주체(예: IAM 사용자 및 역할)와 쿠버네티스 RBAC 그룹 간의 정적 매핑을 생성하는 데 사용됩니다. RBAC 그룹은 쿠버네티스 RoleBindings 또는 ClusterRoleBindings에서 참조할 수 있습니다. 쿠버네티스 리소스(객체) 모음에 대해 수행할 수 있는 일련의 작업(동사)을 정의한다는 점에서 IAM 역할과 유사합니다.
+사용자 ID가 AWS IAM 서비스에 의해 인증되면 kube-apiserver 는 'kube-system' 네임스페이스에서 'aws-auth' ConfigMap을 읽어 사용자와 연결할 RBAC 그룹을 결정합니다. `aws-auth` 컨피그맵 은 IAM 보안 주체(예: IAM 사용자 및 역할)와 쿠버네티스 RBAC 그룹 간의 정적 매핑을 생성하는 데 사용됩니다. RBAC 그룹은 쿠버네티스 롤바인딩 또는 클러스터롤바인딩에서 참조할 수 있습니다. 쿠버네티스 리소스(객체) 모음에 대해 수행할 수 있는 일련의 작업(동사)을 정의한다는 점에서 IAM 역할과 유사합니다.
 
 ## 권장 사항
 
@@ -66,7 +66,7 @@ https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Alg
 ### 여러 사용자가 클러스터에 대해 동일한 액세스 권한이 필요한 경우 IAM 역할 사용
 'aws-auth' 컨피그맵 에서 각 개별 IAM 사용자에 대한 항목을 생성하는 대신 해당 사용자가 IAM 역할을 수임하고 해당 역할을 쿠버네티스 RBAC 그룹에 매핑하도록 허용합니다. 특히 액세스가 필요한 사용자 수가 증가함에 따라 유지 관리가 더 쉬워집니다.
 
-!!! 주목
+!!! attention
     aws-auth 컨피그맵에 의해 매핑된 IAM 보안 주체로 EKS 클러스터에 액세스할 때 aws-auth 컨피그맵에 설명된 사용자 이름이 쿠버네티스 감사 로그의 사용자 필드에 기록됩니다. IAM 역할을 사용하는 경우 해당 역할을 맡는 실제 사용자는 기록되지 않으며 감사할 수 없습니다.
 
 aws-auth 컨피그맵에서 mapRoles를 사용하여 K8s RBAC 권한을 IAM 역할에 할당할 때 사용자 이름에 {{SessionName}}을 포함해야 합니다. 이렇게 하면 감사 로그에 세션 이름이 기록되므로 CloudTrail 로그와 함께 이 역할을 맡은 실제 사용자를 추적할 수 있습니다.
@@ -81,7 +81,7 @@ aws-auth 컨피그맵에서 mapRoles를 사용하여 K8s RBAC 권한을 IAM 역�
 쿠버네티스 1.20 또는 이후 버전에서는 ```User.Extra.sessionName.0```이 쿠버네티스 감사 로그에 추가되었으므로 이런 변경이 더 이상 필요하지 않습니다.
 
 ### RoleBinding 및 ClusterRoleBinding 생성 시 최소 권한 접근 허용
-AWS 리소스에 대한 액세스 권한 부여에 대한 이전 항목과 마찬가지로 RoleBindings 및 ClusterRoleBindings에는 특정 기능을 수행하는 데 필요한 권한 집합만 포함되어야 합니다. 절대적으로 필요한 경우가 아니면 Role 및 ClusterRole에서 `["*"]` 를 사용하지 마십시오. 할당할 권한이 확실하지 않은 경우 [audit2rbac](https://github.com/liggitt/audit2rbac)과 같은 도구를 사용하여 쿠버네티스 감사 로그에서 관찰된 API 호출을 기반으로 역할 및 바인딩을 자동으로 생성하는 것이 좋습니다.
+AWS 리소스에 대한 액세스 권한 부여에 대한 이전 항목과 마찬가지로 롤바인딩 및 클러스터롤바인딩에는 특정 기능을 수행하는 데 필요한 권한 집합만 포함되어야 합니다. 절대적으로 필요한 경우가 아니면 Role 및 ClusterRole에서 `["*"]` 를 사용하지 마십시오. 할당할 권한이 확실하지 않은 경우 [audit2rbac](https://github.com/liggitt/audit2rbac)과 같은 도구를 사용하여 쿠버네티스 감사 로그에서 관찰된 API 호출을 기반으로 역할 및 바인딩을 자동으로 생성하는 것이 좋습니다.
 
 ### EKS 클러스터 엔드포인트를 비공개로 설정
 기본적으로 EKS 클러스터를 프로비저닝할 때 API 클러스터 엔드포인트는 퍼블릭으로 설정됩니다. 즉, 인터넷에서 액세스할 수 있습니다. 인터넷에서 액세스할 수 있음에도 불구하고 모든 API 요청이 IAM에 의해 인증되고 쿠버네티스 RBAC에 의해 승인되어야 하기 때문에 엔드포인트는 여전히 안전한 것으로 간주됩니다. 즉, 회사 보안 정책에 따라 인터넷에서 API에 대한 액세스를 제한하거나 클러스터 VPC 외부로 트래픽을 라우팅하지 못하도록 하는 경우 다음을 수행할 수 있습니다.
@@ -154,7 +154,7 @@ IAM은 EKS 클러스터에 액세스해야 하는 사용자를 인증하는 데 
 + [Teleport와 함께 GitHub 자격 증명을 사용하여 EKS에 인증](https://aws.amazon.com/blogs/opensource/authenticating-eks-github-credentials-teleport/)
 + [kube-oidc-proxy를 사용하여 여러 EKS 클러스터에서 일관된 OIDC 인증](https://aws.amazon.com/blogs/opensource/consistent-oidc-authentication-across-multiple-eks-clusters-using-kube-oidc-proxy/)
 
-!!! 주목
+!!! attention
     EKS는 기본적으로 프록시를 사용하지 않고 OIDC 인증을 지원합니다. 자세한 내용은 [Amazon EKS에 대한 OIDC 자격 증명 공급자 인증 소개](https://aws.amazon.com/blogs/containers/introducing-oidc-identity-provider-authentication-amazon-eks/)블로그를 참조하십시오. 다양한 인증 방법에 대한 커넥터를 제공하는 인기 있는 오픈 소스 OIDC 공급자인 Dex로 EKS를 구성하는 방법을 보여주는 예는 [Dex 및 dex-k8s-authenticator를 사용하여 Amazon EKS 인증](https://aws. amazon.com/blogs/containers/using-dex-dex-k8s-authenticator-to-authenticate-to-amazon-eks/ ) 블로그를 참조하세요. 블로그에 설명된 대로 OIDC 공급자가 인증한 사용자 이름/사용자 그룹은 쿠버네티스 감사 로그에 나타납니다.
 
 또한 [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html)를 사용하여 Azure AD와 같은 외부 자격 증명 공급자와 AWS를 페더레이션할 수 있습니다. 이를 사용하기로 결정한 경우 AWS CLI v2.0에는 SSO 세션을 현재 CLI 세션과 쉽게 연결하고 IAM 역할을 수임할 수 있는 명명된 프로파일을 생성하는 옵션이 포함되어 있습니다. 사용자의 쿠버네티스 RBAC 그룹을 결정하는 데 IAM 역할이 사용되므로 `kubectl` 을 실행하기 "전" 역할을 수임(Assume)하여야 합니다.
@@ -163,7 +163,7 @@ IAM은 EKS 클러스터에 액세스해야 하는 사용자를 인증하는 데 
 [rbac.dev](https://github.com/mhausenblas/rbac.dev) 쿠버네티스 RBAC에 대한 블로그 및 도구를 포함한 추가 리소스 목록
 
 ## 파드 아이덴티티
-쿠버네티스 클러스터 내에서 실행되는 특정 애플리케이션은 제대로 작동하기 위해 쿠버네티스 API를 호출할 수 있는 권한이 필요합니다. 예를 들어 [AWS 로드 밸런서 컨트롤러](https://github.com/kubernetes-sigs/aws-load-balancer-controller)는 서비스의 엔드포인트를 나열할 수 있어야 합니다. 또한 컨트롤러는 ALB를 프로비저닝하고 구성하기 위해 AWS API를 호출할 수 있어야 합니다. 이 섹션에서는 파드에 권한을 할당하는 모범 사례를 살펴봅니다.
+쿠버네티스 클러스터 내에서 실행되는 특정 애플리케이션은 제대로 작동하기 위해 쿠버네티스 API를 호출할 수 있는 권한이 필요합니다. 예를 들어 [AWS 로드밸런서 컨트롤러](https://github.com/kubernetes-sigs/aws-load-balancer-controller)는 서비스의 엔드포인트를 나열할 수 있어야 합니다. 또한 컨트롤러는 ALB를 프로비저닝하고 구성하기 위해 AWS API를 호출할 수 있어야 합니다. 이 섹션에서는 파드에 권한을 할당하는 모범 사례를 살펴봅니다.
 
 ### 쿠버네티스 서비스 어카운트
 서비스 어카운트는 파드에 쿠버네티스 RBAC 역할을 할당할 수 있는 특수한 유형의 개체입니다. 클러스터 내의 각 네임스페이스에 대해 기본 서비스 어카운트이 자동으로 생성됩니다. 특정 서비스 어카운트을 참조하지 않고 네임스페이스에 파드를 배포하면, 해당 네임스페이스의 기본 서비스 어카운트이 자동으로 파드에 할당되고 시크릿, 즉 해당 서비스 아카운트의 서비스 어카운트 (JWT) 토큰은 `/var/run/secrets/kubernetes.io/serviceaccount`에서 볼륨으로 파드에 마운트됩니다. 해당 디렉터리의 서비스 어카운트 토큰을 디코딩하면 다음과 같은 메타데이터가 나타납니다. 
@@ -210,7 +210,7 @@ rules:
 
 파드 내에서 실행 중인 애플리케이션이 쿠버네티스 API를 호출할 때 해당 API를 호출할 수 있는 권한을 명시적으로 부여하는 서비스 어카운트를 파드에 할당해야 합니다. 사용자 접근에 대한 지침과 유사하게 서비스 어카운트에 바인딩된 Role 또는 ClusterRole은 애플리케이션이 작동하는 데 필요한 API 리소스 및 메서드로 제한되어야 합니다. 기본이 아닌 서비스 어카운트를 사용하려면 파드의 `spec.serviceAccountName` 필드를 사용하려는 서비스 어카운트의 이름으로 설정하기만 하면 됩니다. 서비스 어카운트 생성에 대한 추가 정보는 [해당 문서](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions)를 참조하십시오.
 
-!!! 노트
+!!! note
     쿠버네티스 1.24 이전에는 쿠버네티스가 각 서비스 어카운트에 대한 암호를 자동으로 생성했습니다. 이 시크릿은 파드 내 /var/run/secrets/kubernetes.io/serviceaccount 경로로 마운트되었으며 파드에서 쿠버네티스 API 서버를 인증하는 데 사용됩니다. 쿠버네티스 1.24에서는 파드가 실행될 때 서비스 어카운트 토큰이 동적으로 생성되며 기본적으로 1시간 동안만 유효합니다. 서비스 어카운트의 시크릿은 생성되지 않습니다. Jenkins와 같이 쿠버네티스 API에 인증해야 하는 클러스터 외부에서 실행되는 애플리케이션이 있는 경우, `metadata.annotations.kubernetes.io/service-account.name: <SERVICE_ACCOUNT_NAME>`와 같은 서비스 어카운트를 참조하는 어노테이션과 함께 `kubernetes.io/service-account-token` 유형의 시크릿을 생성해야 한다. 이 방법으로 생성된 시크릿은 만료되지 않습니다.
 
 ### 서비스 어카운트용 IAM 역할(IRSA)
@@ -275,7 +275,7 @@ kubelet은 총 TTL의 80%보다 오래되거나 24시간이 지나면 프로젝�
 ### 워커 노드에 할당된 인스턴스 프로파일에 대한 접근 제한
 IRSA를 사용하면 IRSA 토큰을 사용하도록 파드의 자격 증명 체인을 업데이트하지만 파드는 _워커 노드에 할당된 인스턴스 프로파일의 권한을 계속 상속할 수 있습니다_. IRSA 사용 시 허용되지 않은 권한의 범위를 최소화하기 위해 [인스턴스 메타데이터](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) 액세스를 차단하는 것이 **강력하게** 권장됩니다. 
 
-!!! 주의
+!!! caution
     인스턴스 메타데이터에 대한 액세스를 차단하면 IRSA를 사용하지 않는 파드가 워커 노드에 할당된 역할을 상속받지 못합니다.
 
 아래 예와 같이 인스턴스가 IMDSv2만 사용하도록 하고 홉 제한을 1로 업데이트하여 인스턴스 메타데이터에 대한 액세스를 차단할 수 있습니다. 노드 그룹의 시작 템플릿에 이런 설정을 포함할 수도 있습니다. 인스턴스 메타데이터를 **비활성화 하지마세요**. 이렇게 하면 노드 종료 핸들러와 같은 구성 요소와 인스턴스 메타데이터에 의존하는 기타 요소가 제대로 작동하지 않습니다.
@@ -318,8 +318,8 @@ kubectl patch serviceaccount default -p $'automountServiceAccountToken: false'
 ### 각 애플리케이션에 전용 서비스 어카운트 사용
 각 애플리케이션에는 고유한 전용 서비스 어카운트이 있어야 합니다. 이는 쿠버네티스 API 및 IRSA의 서비스 어카운트에 적용됩니다.
 
-!!! 주목
-    전체 클러스터 업그레이드를 수행하는 대신 클러스터 업그레이드에 블루/그린 접근 방식을 사용하는 경우 각 IRSA IAM 역할의 신뢰 정책을 새 클러스터의 OIDC 엔드포인트로 업데이트해야 합니다. 블루/그린 클러스터 업그레이드는 이전 클러스터와 함께 최신 버전의 쿠버네티스를 실행하는 클러스터를 생성하고 로드 밸런서 또는 서비스 메시를 사용하여 이전 클러스터에서 실행되는 서비스에서 새 클러스터로 트래픽을 원활하게 이동하는 것입니다.
+!!! attention
+    전체 클러스터 업그레이드를 수행하는 대신 클러스터 업그레이드에 블루/그린 접근 방식을 사용하는 경우 각 IRSA IAM 역할의 신뢰 정책을 새 클러스터의 OIDC 엔드포인트로 업데이트해야 합니다. 블루/그린 클러스터 업그레이드는 이전 클러스터와 함께 최신 버전의 쿠버네티스를 실행하는 클러스터를 생성하고 로드밸런서 또는 서비스 메시를 사용하여 이전 클러스터에서 실행되는 서비스에서 새 클러스터로 트래픽을 원활하게 이동하는 것입니다.
 
 ### 루트가 아닌 사용자로 애플리케이션 실행
 컨테이너는 기본적으로 루트로 실행됩니다. 이렇게 하면 웹 자격 증명 토큰 파일을 읽을 수 있지만 컨테이너를 루트로 실행하는 것은 모범 사례로 간주되지 않습니다. 또는 PodSpec에 `spec.securityContext.runAsUser` 속성을 추가하는 것이 좋습니다. `runAsUser` 의 값 은 임의의 값입니다.

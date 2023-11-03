@@ -9,7 +9,7 @@ authors:
 ## 노드 선택
 약간 큰 노드 크기(4-12xlarge) 를 사용하면 시스템 구성 요소의 [데몬셋(DaemonSets)](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) 및 [Reserves](https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/)와 같은 "오버헤드"에 사용되는 노드의 비율이 줄어들기 때문에 파드를 실행하는 데 사용할 수 있는 공간이 늘어납니다. 아래 다이어그램에서 2xlarge 시스템의 사용 가능한 공간과 적당한 수의 데몬셋을 포함하는 8xlarge 시스템의 사용 가능한 공간 차이를 확인할 수 있습니다. 
 
-!!! 노트
+!!! note
     K8s는 일반적으로 수평으로 확장되므로 대부분의 애플리케이션에서 NUMA 크기 노드의 성능 영향을 고려하는 것이 합리적이지 않으므로 해당 노드 크기보다 낮은 범위를 권장합니다.
 
 ![Node size](../images/node-size.png)
@@ -20,7 +20,7 @@ authors:
 
 ![Churn rate](../images/churn-rate.png)
 
-!!! 팁
+!!! tip
     노드 크기가 매우 클 경우 고려해야 할 또 다른 요소는 CGROUPS가 컨테이너화된 애플리케이션에서 vCPU의 총 수를 숨기지 않기 때문입니다. 동적 런타임으로 인해 의도하지 않은 수의 OS 스레드가 생성되어 지연 시간이 발생하여 문제를 해결하기 어려운 경우가 많습니다. 이런 애플리케이션의 경우 [CPU 피닝(pinning)](https://kubernetes.io/docs/tasks/administer-cluster/cpu-management-policies/#static-policy)을 사용하는 것이 좋습니다. 주제에 대해 더 자세히 알아보려면 다음 비디오를 참고하세요. https://www.youtube.com/watch?v=NqtfDy_KAqg
 
 ## 노드 빈패킹(Bin-packing)
@@ -78,7 +78,7 @@ request 값을 해당 애플리케이션의 "스위트 스팟" 값으로 설정�
 
 이 모든 것에서 얻을 수 있는 중요한 개념은, 리눅스 컨테이너 성능을 이해하기 위해 쿠버네티스 스케줄러의 코어 개념을 사용하는 것이 그들 사이에 관련이 없기 때문에 잘못된 결정을 내릴 수 있다는 것입니다.
 
-!!! 팁
+!!! tip
     리눅스 CFS는 그 자체로 강점이 있습니다. 이는 I/O 기반 작업 부하에 대해 특히 그렇습니다. 그러나 애플리케이션이 사이드카 없이 전체 코어를 사용하고 I/O 요구사항이 없다면, CPU 피닝은 이 과정에서 많은 복잡성을 제거할 수 있으며, 그런 사항들로 인해 권장됩니다.
 
 ## 이용률(Utilization) vs. 포화도(Saturation)  
@@ -123,7 +123,7 @@ topk(3, ((irate(node_pressure_io_stalled_seconds_total[1m])) * 100))
 
 ![](../images/stalled-io.png)
 
-!!! 노트
+!!! note
     압력 정체 지표에 대한 자세한 내용은 https://facebookmicrosites.github.io/psi/docs/overview *을 참조하십시오.
 
 이 측정치를 통해 스레드가 CPU에서 대기 중인지, 아니면 모든 스레드가 메모리 또는 I/O와 같은 리소스를 기다리는 동안 중단되었는지를 알 수 있습니다. 예를 들어 인스턴스의 모든 스레드가 1분 동안 I/O를 기다리는 동안 중단된 비율을 확인할 수 있습니다.  
@@ -141,7 +141,7 @@ autoscaling/v2를 사용하면 규모를 확대하기 위한 여러 기준을 �
 
 예를 들어 세 가지 값 중 가장 높은 값을 기준으로 확장할 수 있습니다(아래 참조). 모든 파드의 평균 사용률이 50% 를 넘거나, 커스텀 지표인 경우 인그레스 초당 패킷이 평균 1,000개를 초과하거나, 인그레스 오브젝트가 초당 요청 10,000건을 초과할 경우 규모를 조정합니다.
 
-!!! 노트
+!!! note
     이는 Auto Scaling API의 유연성을 보여주기 위한 것이므로 프로덕션 환경에서 문제를 해결하기 어려울 수 있는 지나치게 복잡한 규칙은 피하는 것이 좋습니다. 
 
 ```yaml

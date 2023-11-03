@@ -4,15 +4,15 @@
 
 ### 리눅스 기능
 
-컨테이너 내에서 실행되는 프로세스는 기본적으로 \[ Linux \] 루트 사용자의 컨텍스트에서 실행됩니다. 컨테이너 내의 루트 작업은 컨테이너 런타임이 컨테이너에 할당하는 리눅스 기능 세트에 의해 부분적으로 제한되지만 이런 기본 권한을 통해 공격자는 권한을 에스컬레이션하거나 호스트에 바인딩된 민감한 정보에 액세스할 수 있습니다. 비밀 및 ConfigMap을 포함합니다. 다음은 컨테이너에 할당된 기본 기능 목록입니다. 각 기능에 대한 추가 정보는 [해당 문서](http://man7.org/linux/man-pages/man7/capabilities.7.html)를 참조하십시오.
+컨테이너 내에서 실행되는 프로세스는 기본적으로 \[Linux\] 루트 사용자의 컨텍스트에서 실행됩니다. 컨테이너 내의 루트 작업은 컨테이너 런타임이 컨테이너에 할당하는 리눅스 기능 세트에 의해 부분적으로 제한되지만 이런 기본 권한을 통해 공격자는 권한을 에스컬레이션하거나 호스트에 바인딩된 민감한 정보에 액세스할 수 있습니다. 비밀 및 컨피그맵을 포함합니다. 다음은 컨테이너에 할당된 기본 기능 목록입니다. 각 기능에 대한 추가 정보는 [해당 문서](http://man7.org/linux/man-pages/man7/capabilities.7.html)를 참조하십시오.
 
 `CAP_AUDIT_WRITE, CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_MKNOD, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_SYS_CHROOT`
 
-!!! 정보
+!!! info
     
     EC2 및 Fargate 파드에는 기본적으로 앞서 언급한 기능이 할당됩니다. 또한 Linux 기능은 Fargate 파드에서만 삭제할 수 있습니다.
 
-privileged 권한으로 실행되는 파드는 호스트의 루트와 연결된 Linux 기능의 _모든 권한_ 을 상속합니다. 가능한 해당 권한으로 실행은 지양하여야 합니다.
+Privileged 권한으로 실행되는 파드는 호스트의 루트와 연결된 Linux 기능의 _모든 권한_ 을 상속합니다. 가능한 해당 권한으로 실행은 지양하여야 합니다.
 
 ### 노드 승인
 
@@ -41,11 +41,11 @@ EKS는 [노드 제한 어드미션 컨트롤러](https://kubernetes.io/docs/refe
 
 ## 파드 보안 솔루션
 
-### 파드 보안 정책(PSP)
+### 파드 시큐리티 폴리시(PSP)
 
-과거에는 [파드 보안 정책(PSP)](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) 리소스를 사용하여 파드가 충족해야 하는 일련의 요구 사항을 지정했습니다. Kubernetes 버전 1.21부터 PSP는 더 이상 사용되지 않습니다. Kubernetes 버전 1.25에서 제거될 예정입니다.
+과거에는 [파드 시큐리티 폴리시(PSP)](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) 리소스를 사용하여 파드가 충족해야 하는 일련의 요구 사항을 지정했습니다. Kubernetes 버전 1.21부터 PSP는 더 이상 사용되지 않습니다. Kubernetes 버전 1.25에서 제거될 예정입니다.
 
-!!! 주목
+!!! attention
     
     Kubernetes 버전 1.21부터 [PSP는 더 이상 사용되지 않습니다](https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/). P2P가 더이상 지원되지 않을 버전 1.25까지 대안 솔루션으로 전환하는데 대략 2년의 시간이 남았습니다. 이 [문서](https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation)는 이런 지원 중단의 동기에 대하여 설명합니다.
 
@@ -192,7 +192,7 @@ PSA는 _Exemptions_ 를 사용하여 달리 적용되었을 파드에 대한 위
 
 이런 예외 처리는 [PSA 어드미션 컨트롤러 구성](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller)에서 다음과 같이 API 서버 구성의 일부로 정적으로 적용됩니다. 
 
-_Validating Webhook_ 구현에서 예외는 [pod-security-webhook]( https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/50-deployment.yaml ) 컨테이너 내 볼륨으로 마운트되는 쿠버네티스 [ConfigMap](https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/20-configmap.yaml) 리소스 내에서 구성할 수 있습니다.
+_Validating Webhook_ 구현에서 예외는 [pod-security-webhook]( https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/50-deployment.yaml ) 컨테이너 내 볼륨으로 마운트되는 쿠버네티스 [컨피그맵](https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/20-configmap.yaml) 리소스 내에서 구성할 수 있습니다.
 
 ```yaml
 apiVersion: v1
@@ -220,7 +220,7 @@ data:
       namespaces: ["kube-system","policy-test1"]
 ```
 
-위의 ConfigMap YAML에서 볼 수 있듯이 _audit_ , _enforce_ 및 _warn_ 와 같은 모든 PSA 모드에 대한 클러스터 전체의 기본 PSS 수준은  _restricted_ 로 설정되었습니다. 이는 예외인 `namespaces: ["kube-system","policy-test1"]` 을 제외한 모든 네임스페이스에 영향을 미칩니다 . 또한 아래에 표시된 _ValidatingWebhookConfiguration_ 리소스에서 _pod-security-webhook_ 네임스페이스도 구성된 PSS에서 제외됩니다.
+위의 컨피그맵 YAML에서 볼 수 있듯이 _audit_ , _enforce_ 및 _warn_ 와 같은 모든 PSA 모드에 대한 클러스터 전체의 기본 PSS 수준은  _restricted_ 로 설정되었습니다. 이는 예외인 `namespaces: ["kube-system","policy-test1"]` 을 제외한 모든 네임스페이스에 영향을 미칩니다 . 또한 아래에 표시된 _ValidatingWebhookConfiguration_ 리소스에서 _pod-security-webhook_ 네임스페이스도 구성된 PSS에서 제외됩니다.
 
 ```yaml
 ...
@@ -240,13 +240,13 @@ webhooks:
 ...
 ```
 
-!!! 주목
+!!! attention
     
     파드 시큐리티 어드미션은 쿠버네티스 v1.25에서 안정 버전으로 전환되었습니다. 파드 시큐리티 어드미션 기능이 기본적으로 활성화되기 전에 사용하려면 동적 어드미션 컨트롤러 (뮤테이팅 웹훅) 를 설치해야 했습니다. 웹훅 설치 및 구성 지침은 [본 문서](https://github.com/kubernetes/pod-security-admission/tree/master/webhook)에서 확인할 수 있습니다.
 
 ### PAC(Policy-as-Code)과 파드 시큐리티 스탠다드 중에서(PSS) 선택
 
-파드 시큐리티 스탠다드(PSS)는 쿠버네티스에 내장되어 있고 쿠버네티스 에코시스템의 솔루션이 필요하지 않은 솔루션을 제공함으로써 파드 보안 정책(PSP)을 대체하기 위해 개발되었습니다. PAC(Policy-as-Code) 솔루션은 훨씬 더 유연합니다.
+파드 시큐리티 스탠다드(PSS)는 쿠버네티스에 내장되어 있고 쿠버네티스 에코시스템의 솔루션이 필요하지 않은 솔루션을 제공함으로써 파드 시큐리티 폴리시(PSP)을 대체하기 위해 개발되었습니다. PAC(Policy-as-Code) 솔루션은 훨씬 더 유연합니다.
 
 다음 장단점 목록은 파드 보안 솔루션에 대해 정보에 입각한 결정을 내리는 데 도움이 되도록 설계되었습니다.
 
@@ -315,7 +315,7 @@ metadata:
 
 언급한 바와 같이 Previleged 권한으로 실행되는 컨테이너는 호스트의 루트에 할당된 모든 Linux 기능을 상속합니다. 컨테이너가 제대로 작동하기 위해 이런 유형의 권한이 필요한 경우는 거의 없습니다. 컨테이너의 권한과 기능을 제한하는 데 사용할 수 있는 여러 가지 방법이 있습니다.
 
-!!! 주목
+!!! attention
     
     Fargate는 파드의 컨테이너가 AWS가 관리하는 인프라에서 실행되는 "서버리스"형태로 컨테이너를 실행할 수 있는 기능을 제공합니다. Fargate를 사용하면 Previleged 컨테이너를 실행하거나 hostNetwork 또는 hostPort를 사용하도록 파드를 구성할 수 없습니다.
 
@@ -329,7 +329,7 @@ metadata:
 
 이렇게 하면 편리하게 Docker 컨테이너에서 이미지를 빌드/실행할 수 있지만 기본적으로 컨테이너에서 실행 중인 프로세스에 대한 노드의 완전한 제어를 양도하는 것입니다. 쿠버네티스에서 컨테이너 이미지를 빌드해야 하는 경우 [Kaniko](https://github.com/GoogleContainerTools/kaniko), [buildah](https://github.com/containers/buildah), [img](https://github.com/genuinetools/img) 또는 [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) 같은 빌드 서비스 를 대신 사용할 수 있습니다.
 
-!!! 팁
+!!! tip
     
     컨테이너 이미지 빌드와 같은 CICD 처리에 사용되는 쿠버네티스 클러스터는 보다 일반화된 워크로드를 실행하는 클러스터와 격리되어야 합니다.
 
@@ -358,7 +358,7 @@ CPU 또는 메모리에 대해 _requests_ 를 지정할 때 본질적으로 컨�
 
 _Limits_ 는 컨테이너가 사용할 수 있는 CPU 및 메모리 리소스의 최대량이며 컨테이너에 대해 생성된 cgroup 의 `memory.limit_in_bytes` 값에 직접 해당합니다. 메모리 제한을 초과하는 컨테이너는 OOM 종료됩니다. 컨테이너가 CPU 제한을 초과하면 제한됩니다.
 
-!!! 팁
+!!! tip
 
 컨테이너 `resources.limits`를 사용하는 경우 컨테이너 리소스 사용량(리소스 풋프린트라고도 함)은 부하 테스트를 기반으로 데이터 기반이고 정확해야 합니다. 정확하고 신뢰할 수 있는 리소스 공간이 없으면 컨테이너 'resources.limits'를 채울 수 있습니다. 예를 들어 'resources.limits.memory'는 잠재적인 메모리 리소스 제한 부정확성을 설명하기 위해 관찰 가능한 최대값보다 20-30% 높게 패딩될 수 있습니다.
 
@@ -370,7 +370,7 @@ Kubernetes는 세 가지 서비스 품질(QoS) 클래스를 사용하여 노드�
 
 제한 및 요청이 설정되지 않은 경우 파드는 _best-effort_ (가장 낮은 우선 순위)로 구성됩니다. Best-effort 파드는 메모리가 부족할 때 가장 먼저 종료됩니다. 파드 내의 _all_ 컨테이너 에 제한이 설정 되거나 요청 및 제한이 동일한 값으로 설정되고 0이 아닌 경우 파드는 _guaranteed_ (가장 높은 우선 순위)로 구성됩니다. 보장된 파드는 구성된 메모리 제한을 초과하지 않는 한 종료되지 않습니다. 제한 및 요청이 0이 아닌 다른 값으로 구성되거나 파드 내의 한 컨테이너가 제한을 설정하고 다른 컨테이너는 다른 리소스에 대해 제한이 설정되지 않거나 설정된 경우 파드는 _burstable_ (중간 우선 순위)로 구성됩니다. 이런 파드에는 일부 리소스 보장이 있지만 요청된 메모리를 초과하면 종료될 수 있습니다.
 
-!!! 주목
+!!! attention
     
 요청은 컨테이너 cgroup의 `memory_limit_in_bytes` 값에 영향을 미치지 않습니다. cgroup 제한은 호스트에서 사용 가능한 메모리 양으로 설정됩니다. 그럼에도 불구하고 요청 값을 너무 낮게 설정하면 노드가 메모리 압력을 받는 경우 파드가 kubelet에 의해 종료 대상이 될 수 있습니다.
 
@@ -396,7 +396,7 @@ Kubernetes는 세 가지 서비스 품질(QoS) 클래스를 사용하여 노드�
 
 
 
-!!! 주목
+!!! attention
     
     서비스어카운트 마운트를 비활성화해도 파드가 쿠버네티스 API에 네트워크로 액세스하는 것을 막을 수는 없습니다. 파드가 쿠버네티스 API에 네트워크로 액세스하는 것을 방지하려면 [EKS 클러스터 엔드포인트 액세스][eks-ep-access]를 수정하고 [네트워크정책](../network/ #network -policy)를 사용하여 파드 액세스를 차단합니다.
 
@@ -437,7 +437,7 @@ automountServiceAccountToken: false
 [k8s-env-var-docs]: https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables
 [dns-policy]: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
 
-!!! 주목
+!!! attention
     
     서비스 링크를 비활성화하고 파드의 DNS 정책을 변경해도 파드가 클러스터 내 DNS 서비스에 네트워크로 액세스하는 것을 막을 수는 없습니다.
     공격자는 여전히 클러스터 내 DNS 서비스에 접속하여 클러스터의 서비스를 열거할 수 있습니다.(예: `dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) 클러스터 내 서비스 검색을 방지하려면 [NetworkPolicy](../network/ #network -policy) 를 사용하여 파드 액세스를 차단합니다.
@@ -470,7 +470,7 @@ securityContext:
 코드형 정책(PaC) 및 파드 시큐리티 스탠다드를 사용하여 이 동작을 시행할 수 있습니다.
 
 
-!!! 정보
+!!! info
     
     [쿠버네티스의 Windows 컨테이너](https://kubernetes.io/docs/concepts/windows/intro/) 에 따르면 Windows에서 실행되는 컨테이너의 경우 `SecurityContext.readOnlyRootFileSystem`은 `true`로 설정할 수 없습니다. 
     레지스트리 및 시스템 프로세스를 컨테이너 내에서 실행하려면 쓰기 권한이 필요하기 때문입니다.

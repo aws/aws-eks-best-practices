@@ -59,14 +59,14 @@ IPv6 Prefix 할당은 EKS 워커 노드 부트스트랩 시에만 발생합니�
 
 ![EKS/IPv6, IPv6 Pod to IPv6 k8s service (ClusterIP ULA) flow](./Pod-to-service-ipv6.png)
 
-서비스는 AWS 로드 밸런서를 사용하여 인터넷에 노출됩니다. 로드 밸런서는 퍼블릭 IPv4 및 IPv6 주소, 즉 듀얼 스택 로드 밸런서를 수신합니다. IPv6 클러스터 쿠버네티스 서비스에 액세스하는 IPv4 클라이언트의 경우 로드 밸런서는 IPv4에서 IPv6으로의 변환을 수행합니다.
+서비스는 AWS 로드밸런서를 사용하여 인터넷에 노출됩니다. 로드밸런서는 퍼블릭 IPv4 및 IPv6 주소, 즉 듀얼 스택 로드밸런서를 수신합니다. IPv6 클러스터 쿠버네티스 서비스에 액세스하는 IPv4 클라이언트의 경우 로드밸런서는 IPv4에서 IPv6으로의 변환을 수행합니다.
 
-Amazon EKS는 프라이빗 서브넷에서 워커 노드와 파드를 실행할 것을 권장합니다. 퍼블릭 서브넷에 퍼블릭 로드 밸런서를 생성하여 프라이빗 서브넷에 있는 노드에서 실행되는 파드로 트래픽을 로드 밸런싱할 수 있습니다.
+Amazon EKS는 프라이빗 서브넷에서 워커 노드와 파드를 실행할 것을 권장합니다. 퍼블릭 서브넷에 퍼블릭 로드밸런서를 생성하여 프라이빗 서브넷에 있는 노드에서 실행되는 파드로 트래픽을 로드 밸런싱할 수 있습니다.
 다음 다이어그램은 EKS/IPv6 인그레스 기반 서비스에 액세스하는 인터넷 IPv4 사용자를 보여줍니다.
 
 ![인터넷 IPv4 사용자를 EKS/IPv6 인그레스 서비스로](./ipv4-internet-to-eks-ipv6.png)
 
-> 참고: 위 패턴을 사용하려면 AWS 로드 밸런서 컨트롤러의 [최신 버전](https://kubernetes-sigs.github.io/aws-load-balancer-controller)을 배포해야 합니다.
+> 참고: 위 패턴을 사용하려면 AWS 로드밸런서 컨트롤러의 [최신 버전](https://kubernetes-sigs.github.io/aws-load-balancer-controller)을 배포해야 합니다.
 
 ### EKS 컨트롤 플레인 <-> 데이터 플레인 통신
 
@@ -100,11 +100,11 @@ EKS API는 IPv4에서만 액세스할 수 있습니다. 여기에는 클러스�
 
 EKS는 파게이트에서 실행되는 파드용 IPv6를 지원합니다. Fargate에서 실행되는 파드는 VPC CIDR 범위 (IPv4&IPv6) 에서 분할된 IPv6 및 VPC 라우팅 가능한 프라이빗 IPv4 주소를 사용합니다. 간단히 말해서 EKS/Fargate 파드 클러스터 전체 밀도는 사용 가능한 IPv4 및 IPv6 주소로 제한됩니다. 향후 성장에 대비하여 듀얼 스택 서브넷/vPC CIDR의 크기를 조정하는 것이 좋습니다. 기본 서브넷에 사용 가능한 IPv4 주소가 없으면 IPv6 사용 가능 주소와 상관없이 새 Fargate Pod를 예약할 수 없습니다.
 
-### AWS 로드 밸런서 컨트롤러 (LBC) 배포
+### AWS 로드밸런서 컨트롤러 (LBC) 배포
 
-**업스트림 인트리 쿠버네티스 서비스 컨트롤러는 IPv6을 지원하지 않습니다**. AWS 로드 밸런서 컨트롤러 애드온의 [최신 버전](https://kubernetes-sigs.github.io/aws-load-balancer-controller)을 사용하는 것이 좋습니다.LBC는 `"alb.ingress.kubernetes.io/ip-address type: dualstack"` 및 `"alb.ingress.kubernetes.io/target-type: ip""라는 주석이 달린 해당 쿠버네티스 서비스/인그레스 정의를 사용하는 경우에만 이중 스택 NLB 또는 이중 스택 ALB를 배포합니다.
+**업스트림 인트리 쿠버네티스 서비스 컨트롤러는 IPv6을 지원하지 않습니다**. AWS 로드밸런서 컨트롤러 애드온의 [최신 버전](https://kubernetes-sigs.github.io/aws-load-balancer-controller)을 사용하는 것이 좋습니다.LBC는 `"alb.ingress.kubernetes.io/ip-address type: dualstack"` 및 `"alb.ingress.kubernetes.io/target-type: ip""라는 주석이 달린 해당 쿠버네티스 서비스/인그레스 정의를 사용하는 경우에만 이중 스택 NLB 또는 이중 스택 ALB를 배포합니다.
 
-AWS 네트워크 로드 밸런서는 듀얼 스택 UDP 프로토콜 주소 유형을 지원하지 않습니다. 지연 시간이 짧은 실시간 스트리밍, 온라인 게임 및 IoT에 대한 강력한 요구 사항이 있는 경우 IPv4 클러스터를 실행하는 것이 좋습니다.UDP 서비스의 상태 점검 관리에 대한 자세한 내용은 ["UDP 트래픽을 쿠버네티스로 라우팅하는 방법"](https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/)을 참조하십시오.
+AWS 네트워크 로드밸런서는 듀얼 스택 UDP 프로토콜 주소 유형을 지원하지 않습니다. 지연 시간이 짧은 실시간 스트리밍, 온라인 게임 및 IoT에 대한 강력한 요구 사항이 있는 경우 IPv4 클러스터를 실행하는 것이 좋습니다.UDP 서비스의 상태 점검 관리에 대한 자세한 내용은 ["UDP 트래픽을 쿠버네티스로 라우팅하는 방법"](https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/)을 참조하십시오.
 
 ### IMDSv2에 대한 의존성
 

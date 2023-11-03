@@ -45,7 +45,7 @@ Amazon VPC CNI 플러그인 버전 1.11에는 `POD_SECURITY_GROUP_ENFORCING_MODE
 
 표준 모드에서는 기본 ENI 및 분기 ENI(파드와 연결됨)와 연결된 보안 그룹이 적용됩니다. 네트워크 트래픽은 두 보안 그룹을 모두 준수해야 합니다.
 
-!!! 경고
+!!! warning
     Any mode change will only impact newly launched Pods. Existing Pods will use the mode that was configured when the Pod was created. Customers will need to recycle existing Pods with security groups if they want to change the traffic behavior.
 
 ### 적용 모드: 파드 및 노드 트래픽을 격리하기 위해 엄격 모드를 사용
@@ -87,7 +87,7 @@ Amazon EKS를 사용하면 [Calico](https://projectcalico.docs.tigera.io/getting
 
 ### AWS Loadbalancer Controller를 사용하도록 단일 보안 그룹에 태그 지정
 
-많은 보안 그룹이 파드에 할당된 경우 Amazon EKS는 공유 또는 소유된 [`kubernetes.io/cluster/$name`](http://kubernetes.io/cluster/$name)으로 단일 보안 그룹에 태그를 지정할 것을 권장합니다. 태그를 사용하면 AWS Loadbalancer Controller가 보안 그룹의 규칙을 업데이트하여 트래픽을 파드로 라우팅할 수 있습니다. 파드에 하나의 보안 그룹만 제공되는 경우 태그 할당은 선택 사항입니다. 보안 그룹에 설정된 권한은 추가되므로 로드 밸런서 컨트롤러가 규칙을 찾고 조정하려면 단일 보안 그룹에 태그를 지정하는 것으로 충분합니다. 또한 보안 그룹에서 정의한 [기본 할당량](https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups)을 준수하는 데 도움이 됩니다.
+많은 보안 그룹이 파드에 할당된 경우 Amazon EKS는 공유 또는 소유된 [`kubernetes.io/cluster/$name`](http://kubernetes.io/cluster/$name)으로 단일 보안 그룹에 태그를 지정할 것을 권장합니다. 태그를 사용하면 AWS Loadbalancer Controller가 보안 그룹의 규칙을 업데이트하여 트래픽을 파드로 라우팅할 수 있습니다. 파드에 하나의 보안 그룹만 제공되는 경우 태그 할당은 선택 사항입니다. 보안 그룹에 설정된 권한은 추가되므로 로드밸런서 컨트롤러가 규칙을 찾고 조정하려면 단일 보안 그룹에 태그를 지정하는 것으로 충분합니다. 또한 보안 그룹에서 정의한 [기본 할당량](https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups)을 준수하는 데 도움이 됩니다.
 
 ### 아웃바운드 트래픽에 대한 NAT 구성
 

@@ -16,7 +16,7 @@ See 원칙는 클라우드 지출을 측정, 모니터링 및 결정하는 방�
 * 워크로드에 대한 태깅 전략을 정의하고 유지 관리합니다. 
     * [인스턴스 태깅](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html#tag-resources-for-billing) 을 사용하면 EKS 클러스터에 태그를 지정하여 개별 클러스터 비용을 확인하고 비용 및 사용 보고서에 비용을 할당할 수 있습니다. 
 * [Kubecost](https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring) 와 같은 기술을 사용하여 EKS 사용에 대한 보고 및 모니터링을 설정합니다. 
-    * [클라우드 인텔리전스 대시보드 활성화] (https://wellarchitectedlabs.com/cost/200_labs/200_enterprise_dashboards/), 리소스에 적절한 태그를 지정하고 시각화를 사용하여 비용을 측정하고 추정할 수 있습니다.
+    * [클라우드 인텔리전스 대시보드 활성화](https://wellarchitectedlabs.com/cost/200_labs/200_enterprise_dashboards/), 리소스에 적절한 태그를 지정하고 시각화를 사용하여 비용을 측정하고 추정할 수 있습니다.
 * 애플리케이션, LOB(Line of Business) 및 수입원 워크로드 등에 클라우드 비용을 할당합니다.
 * 효율성/가치 KPI를 정의, 측정하고 비즈니스 이해 관계자와 함께 공유합니다. 예를 들어 거래당 비용을 측정하는 "단위 지표" KPI를 만들 수 있습니다. 예를 들어, 차량 공유 서비스에는 "승차 당 비용"에 대한 KPI가 있을 수 있습니다.  
 

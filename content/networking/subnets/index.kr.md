@@ -13,7 +13,7 @@ EKS와 함께 사용할 VPC와 서브넷을 설계할 때는 [클러스터 VPC �
 EKS 클러스터는 두 개의 VPC로 구성됩니다. 
 
 * 쿠버네티스 컨트롤 플레인을 호스팅하는 AWS 관리형 VPC. 이 VPC는 고객 계정에 표시되지 않습니다. 
-* 쿠버네티스 노드를 호스팅하는 고객 관리형 VPC. 여기에서 컨테이너는 물론 클러스터에서 사용하는 로드 밸런서와 같은 기타 고객 관리형 AWS 인프라가 실행됩니다. 이 VPC는 고객 계정에 표시됩니다. 클러스터를 생성하기 전, 고객 관리형 VPC를 생성해야 합니다. 사용자가 VPC를 제공하지 않을 경우 eksctl이 VPC를 생성합니다.
+* 쿠버네티스 노드를 호스팅하는 고객 관리형 VPC. 여기에서 컨테이너는 물론 클러스터에서 사용하는 로드밸런서와 같은 기타 고객 관리형 AWS 인프라가 실행됩니다. 이 VPC는 고객 계정에 표시됩니다. 클러스터를 생성하기 전, 고객 관리형 VPC를 생성해야 합니다. 사용자가 VPC를 제공하지 않을 경우 eksctl이 VPC를 생성합니다.
 
 고객 VPC의 노드는 AWS VPC의 관리형 API 서버 엔드포인트에 연결할 수 있어야 합니다. 이를 통해 노드가 쿠버네티스 컨트롤 플레인에 등록되고 애플리케이션 파드를 실행하라는 요청을 수신할 수 있습니다.
 
@@ -76,7 +76,7 @@ IPv6 환경에서는 모든 주소를 인터넷으로 라우팅할 수 있습니
 
 #### 퍼블릭 서브넷만 사용
 
-동일한 퍼블릭 서브넷에서 노드와 인그레스 리소스(예: 로드 밸런서)가 모두 생성됩니다. 퍼블릭 서브넷에 [`kubernetes.io/role/elb`](http://kubernetes.io/role/elb) 태그를 지정하여 인터넷에 연결된 로드 밸런서를 구성합니다. 해당 구성에서는 클러스터 엔드포인트를 퍼블릭, 프라이빗 또는 둘 다 (퍼블릭 및 프라이빗)로 구성할 수 있습니다.
+동일한 퍼블릭 서브넷에서 노드와 인그레스 리소스(예: 로드밸런서)가 모두 생성됩니다. 퍼블릭 서브넷에 [`kubernetes.io/role/elb`](http://kubernetes.io/role/elb) 태그를 지정하여 인터넷에 연결된 로드밸런서를 구성합니다. 해당 구성에서는 클러스터 엔드포인트를 퍼블릭, 프라이빗 또는 둘 다 (퍼블릭 및 프라이빗)로 구성할 수 있습니다.
 
 #### 프라이빗 및 퍼블릭 서브넷 사용
 
@@ -84,7 +84,7 @@ IPv6 환경에서는 모든 주소를 인터넷으로 라우팅할 수 있습니
 
 #### 프라이빗 서브넷만 사용
 
-노드와 인그레스 모두 프라이빗 서브넷에서 생성됩니다. [`kubernetes.io/role/internal-elb`](http://kubernetes.io/role/internal-elb:1) 서브넷 태그를 사용하여 내부용 로드 밸런서를 구성합니다. 클러스터의 엔드포인트에 접근하려면 VPN 연결이 필요합니다. EC2와 모든 Amazon ECR 및 S3 리포지토리에 대해 [AWS PrivateLink](https://docs.aws.amazon.com/vpc/latest/userguide/endpoint-service.html)를 활성화해야 합니다. 클러스터의 프라이빗 엔드포인트만 활성화해야 합니다. 프라이빗 클러스터를 프로비저닝하기 전 [EKS 프라이빗 클러스터 요구 사항](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html)을 검토할 것을 권장합니다.
+노드와 인그레스 모두 프라이빗 서브넷에서 생성됩니다. [`kubernetes.io/role/internal-elb`](http://kubernetes.io/role/internal-elb:1) 서브넷 태그를 사용하여 내부용 로드밸런서를 구성합니다. 클러스터의 엔드포인트에 접근하려면 VPN 연결이 필요합니다. EC2와 모든 Amazon ECR 및 S3 리포지토리에 대해 [AWS PrivateLink](https://docs.aws.amazon.com/vpc/latest/userguide/endpoint-service.html)를 활성화해야 합니다. 클러스터의 프라이빗 엔드포인트만 활성화해야 합니다. 프라이빗 클러스터를 프로비저닝하기 전 [EKS 프라이빗 클러스터 요구 사항](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html)을 검토할 것을 권장합니다.
 
 
 ### VPC간 통신
@@ -114,7 +114,7 @@ AWS RAM을 사용하여 다른 AWS 계정의 공유용 VPC 서브넷에 Amazon E
 
     * **OIDC 공급자 접근 방식**: OIDC 공급자, IAM 역할, 권한 및 신뢰 정책과 같은 IAM 리소스는 리소스가 있는 다른 참여자 AWS 계정에서 생성됩니다. 이런 역할은 애플리케이션 계정의 쿠버네티스 파드에 할당되어 계정 간 리소스에 액세스할 수 있도록 합니다. 이 접근 방식에 대한 자세한 내용은 [쿠버네티스 서비스 어카운트를 위한 교차 계정 간 IAM 역할](https://aws.amazon.com/blogs/containers/cross-account-iam-roles-for-kubernetes-service-accounts/) 블로그를 참조합니다.
 
-* Amazon Elastic Loadbalancer(ELB) 리소스(ALB 또는 NLB)를 배포하여 애플리케이션 또는 중앙 네트워킹 계정의 쿠버네티스 파드로 트래픽을 라우팅할 수 있습니다. 중앙 네트워킹 계정에 ELB 리소스를 배포하는 방법에 대한 자세한 안내는 [교차 계정 로드 밸런서를 통해 Amazon EKS 파드 노출](https://aws.amazon.com/blogs/containers/expose-amazon-eks-pods-through-cross-account-load-balancer/)안내를 참조합니다. 이 옵션은 중앙 네트워킹 계정에 로드 밸런서 리소스의 보안 구성에 대한 모든 권한을 부여하므로 유연성이 향상됩니다.
+* Amazon Elastic Loadbalancer(ELB) 리소스(ALB 또는 NLB)를 배포하여 애플리케이션 또는 중앙 네트워킹 계정의 쿠버네티스 파드로 트래픽을 라우팅할 수 있습니다. 중앙 네트워킹 계정에 ELB 리소스를 배포하는 방법에 대한 자세한 안내는 [교차 계정 로드밸런서를 통해 Amazon EKS 파드 노출](https://aws.amazon.com/blogs/containers/expose-amazon-eks-pods-through-cross-account-load-balancer/)안내를 참조합니다. 이 옵션은 중앙 네트워킹 계정에 로드밸런서 리소스의 보안 구성에 대한 모든 권한을 부여하므로 유연성이 향상됩니다.
 
 * Amazon VPC CNI의 `사용자 지정 네트워킹 기능(custom networking feature)`을 사용하는 경우 중앙 네트워킹 계정에 나열된 가용영역 (AZ) ID 매핑을 사용하여 각각의 `ENIConfig`를 생성해야 합니다. 이는 물리적 AZ를 각 AWS 계정의 AZ 이름에 무작위로 매핑하기 때문입니다.
 
@@ -134,15 +134,15 @@ AWS 리전은 물리적으로 분리되고 격리된 여러 가용영역 (AZ) �
 
 노드를 생성할 때 서브넷 또는 가용영역을 정의할 수 있습니다. 서브넷이 구성되지 않은 경우 노드는 클러스터 서브넷에 배치됩니다. 관리형 노드 그룹에 대한 EKS 지원은 가용 용량을 기준으로 여러 가용영역에 노드를 자동으로 분산합니다. 워크로드가 topology spread constraints를 정의하는 경우 [Karpenter](https://karpenter.sh/)는 노드를 지정된 AZ로 확장하여 AZ 분산 배치를 준수합니다.
 
-AWS Elastic Loadbalancer는 쿠버네티스 클러스터용 AWS 로드 밸런서 컨트롤러에 의해 관리됩니다. 쿠버네티스 인그레스 리소스를 위한 애플리케이션 로드 밸런서(ALB) 와 로드밸런서 유형의 쿠버네티스 서비스를 위한 네트워크 로드 밸런서(NLB) 를 프로비저닝합니다. Elastic Loadbalancer 컨트롤러는 [태그](https://aws.amazon.com/premiumsupport/knowledge-center/eks-vpc-subnet-discovery/)를 사용하여 서브넷을 검색합니다. ELB 컨트롤러가 인그레스 리소스를 성공적으로 프로비저닝하려면 최소 두 개의 가용영역 (AZ) 이 필요합니다. 지리적 이중화의 안전성과 안정성을 활용하려면 최소 두 개의 AZ에 서브넷을 설정하는 것이 좋습니다. 
+AWS Elastic Loadbalancer는 쿠버네티스 클러스터용 AWS 로드밸런서 컨트롤러에 의해 관리됩니다. 쿠버네티스 인그레스 리소스를 위한 애플리케이션 로드밸런서(ALB) 와 로드밸런서 유형의 쿠버네티스 서비스를 위한 네트워크 로드밸런서(NLB) 를 프로비저닝합니다. Elastic Loadbalancer 컨트롤러는 [태그](https://aws.amazon.com/premiumsupport/knowledge-center/eks-vpc-subnet-discovery/)를 사용하여 서브넷을 검색합니다. ELB 컨트롤러가 인그레스 리소스를 성공적으로 프로비저닝하려면 최소 두 개의 가용영역 (AZ) 이 필요합니다. 지리적 이중화의 안전성과 안정성을 활용하려면 최소 두 개의 AZ에 서브넷을 설정하는 것이 좋습니다. 
 
 ### 프라이빗 서브넷에 노드 배포
 
 프라이빗 서브넷과 퍼블릭 서브넷을 모두 포함하는 VPC는 쿠버네티스 워크로드를 EKS에 배포하는 데 가장 적합한 방법입니다. 서로 다른 두 가용영역에 최소 두 개의 퍼블릭 서브넷과 두 개의 프라이빗 서브넷을 설정하는 것을 고려합니다. 퍼블릭 서브넷의 라우팅 테이블에는 인터넷 게이트웨이에 대한 경로가 포함되어 있습니다. 파드는 NAT 게이트웨이를 통해 인터넷과 상호작용할 수 있습니다. 프라이빗 서브넷은 IPv6 환경 (EIGW)의 [외부 전용 인터넷 게이트웨이](https://docs.aws.amazon.com/vpc/latest/userguide/egress-only-internet-gateway.html)에서 지원됩니다.
 
-프라이빗 서브넷에서 노드를 인스턴스화하면 노드에 대한 트래픽을 최대한 제어할 수 있으며 대부분의 쿠버네티스 애플리케이션에 적합합니다. 인그레스 리소스(예: 로드 밸런서)는 퍼블릭 서브넷에서 인스턴스화되고 프라이빗 서브넷에서 작동하는 파드로 트래픽을 라우팅합니다.
+프라이빗 서브넷에서 노드를 인스턴스화하면 노드에 대한 트래픽을 최대한 제어할 수 있으며 대부분의 쿠버네티스 애플리케이션에 적합합니다. 인그레스 리소스(예: 로드밸런서)는 퍼블릭 서브넷에서 인스턴스화되고 프라이빗 서브넷에서 작동하는 파드로 트래픽을 라우팅합니다.
 
-엄격한 보안 및 네트워크 격리가 필요한 경우 프라이빗 전용 모드를 고려합니다. 이 구성에서는 세 개의 프라이빗 서브넷이 AWS 리전 VPC 내의 서로 다른 가용영역에 배포됩니다. 서브넷에 배포된 리소스는 인터넷에 액세스할 수 없으며 인터넷에서 서브넷의 리소스로도 액세스할 수 없습니다. 쿠버네티스 애플리케이션이 다른 AWS 서비스에 액세스할 수 있으려면 PrivateLink 인터페이스 및/또는 게이트웨이 엔드포인트를 구성해야 합니다. AWS 로드 밸런서 컨트롤러를 사용하여 내부 로드 밸런서가 트래픽을 파드로 리디렉션하도록 설정할 수 있습니다. 컨트롤러가 로드 밸런서를 프로비저닝하려면 프라이빗 서브넷에 ([``kubernetes.io/role/internal-elb: 1`](http://kubernetes.io/role/internal-elb)) 태그를 지정해야 합니다. 노드를 클러스터에 등록하려면 클러스터 엔드포인트를 프라이빗 모드로 설정해야 합니다. 전체 요구 사항 및 고려 사항은 [프라이빗 클러스터 가이드](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html)를 참조합니다.
+엄격한 보안 및 네트워크 격리가 필요한 경우 프라이빗 전용 모드를 고려합니다. 이 구성에서는 세 개의 프라이빗 서브넷이 AWS 리전 VPC 내의 서로 다른 가용영역에 배포됩니다. 서브넷에 배포된 리소스는 인터넷에 액세스할 수 없으며 인터넷에서 서브넷의 리소스로도 액세스할 수 없습니다. 쿠버네티스 애플리케이션이 다른 AWS 서비스에 액세스할 수 있으려면 PrivateLink 인터페이스 및/또는 게이트웨이 엔드포인트를 구성해야 합니다. AWS 로드밸런서 컨트롤러를 사용하여 내부 로드밸런서가 트래픽을 파드로 리디렉션하도록 설정할 수 있습니다. 컨트롤러가 로드밸런서를 프로비저닝하려면 프라이빗 서브넷에 ([``kubernetes.io/role/internal-elb: 1`](http://kubernetes.io/role/internal-elb)) 태그를 지정해야 합니다. 노드를 클러스터에 등록하려면 클러스터 엔드포인트를 프라이빗 모드로 설정해야 합니다. 전체 요구 사항 및 고려 사항은 [프라이빗 클러스터 가이드](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html)를 참조합니다.
 
 ### 클러스터 엔드포인트의 퍼블릭 및 프라이빗 모드 고려
 

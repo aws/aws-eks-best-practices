@@ -82,7 +82,7 @@ EKS 클러스터를 생성하는 IAM 사용자 또는 역할은 자동으로 클
 kubectl -n kube-system create serviceaccount super-admin
 ```
 
-super-admin cluster-admin 역할을 부여하는 역할 바인딩을 생성합니다.
+super-admin cluster-admin 역할을 부여하는 롤바인딩을 생성합니다.
 
 ```
 kubectl create clusterrolebinding super-admin-rb --clusterrole=cluster-admin --serviceaccount=kube-system:super-admin

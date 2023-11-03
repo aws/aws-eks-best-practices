@@ -14,10 +14,10 @@
 Amazon EKS에서 쿠버네티스 버전을 업그레이드하려는 경우 업그레이드를 시작하기 전에 몇 가지 중요한 정책, 도구 및 절차를 마련해야 합니다. 
 
 * **지원 중단 정책 이해** — [쿠버네티스 지원 중단 정책](https://kubernetes.io/docs/reference/using-api/deprecation-policy/)이 어떻게 작동하는지 자세히 알아보세요. 기존 애플리케이션에 영향을 미칠 수 있는 향후 변경 사항을 숙지하세요. 최신 버전의 Kubernetes는 특정 API 및 기능을 단계적으로 중단하는 경우가 많으며, 이로 인해 애플리케이션 실행에 문제가 발생할 수 있습니다.
-* **쿠버네티스 변경 로그 검토** — [Amazon EKS Kubernetes 버전] (https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) 과 함께 [Kubernetes 변경 로그] (https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) 를 철저히 검토하여 워크로드에 영향을 미칠 수 있는 주요 변경 사항 등 클러스터에 미칠 수 있는 영향을 파악하십시오.
-* **클러스터 추가 기능 호환성 평가** — Amazon EKS는 새 버전이 출시되거나 클러스터를 새 Kubernetes 마이너 버전으로 업데이트한 후에 추가 기능을 자동으로 업데이트하지 않습니다.업그레이드하려는 클러스터 버전과 기존 클러스터 애드온의 호환성을 이해하려면 [애드온 업데이트] (https://docs.aws.amazon.com/eks/latest/userguide/managing-add-ons.html#updating-an-add-on) 를 검토하십시오.
+* **쿠버네티스 변경 로그 검토** — [Amazon EKS Kubernetes 버전](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) 과 함께 [Kubernetes 변경 로그](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) 를 철저히 검토하여 워크로드에 영향을 미칠 수 있는 주요 변경 사항 등 클러스터에 미칠 수 있는 영향을 파악하십시오.
+* **클러스터 추가 기능 호환성 평가** — Amazon EKS는 새 버전이 출시되거나 클러스터를 새 Kubernetes 마이너 버전으로 업데이트한 후에 추가 기능을 자동으로 업데이트하지 않습니다.업그레이드하려는 클러스터 버전과 기존 클러스터 애드온의 호환성을 이해하려면 [애드온 업데이트](https://docs.aws.amazon.com/eks/latest/userguide/managing-add-ons.html#updating-an-add-on) 를 검토하십시오.
 * **컨트롤 플레인 로깅 활성화** — 업그레이드 프로세스 중에 발생할 수 있는 로그, 오류 또는 문제를 캡처하려면 [컨트롤 플레인 로깅](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html)을 활성화합니다. 이러한 로그에 이상이 있는지 검토해 보십시오. 비프로덕션 환경에서 클러스터 업그레이드를 테스트하거나 자동화된 테스트를 지속적 통합 워크플로에 통합하여 애플리케이션, 컨트롤러 및 사용자 지정 통합과의 버전 호환성을 평가하세요.
-* **클러스터 관리를 위한 eksctl 살펴보기** — [eksctl] (https://eksctl.io/)을 사용하여 EKS 클러스터를 관리하는 것을 고려해 보십시오. 기본적으로 [컨트롤 플레인 업데이트, 애드온 관리, 워커 노드 업데이트 처리](https://eksctl.io/usage/cluster-upgrade/) 기능을 제공합니다. 
+* **클러스터 관리를 위한 eksctl 살펴보기** — [eksctl](https://eksctl.io/)을 사용하여 EKS 클러스터를 관리하는 것을 고려해 보십시오. 기본적으로 [컨트롤 플레인 업데이트, 애드온 관리, 워커 노드 업데이트 처리](https://eksctl.io/usage/cluster-upgrade/) 기능을 제공합니다. 
 * **EKS에서 관리형 노드 그룹 또는 Fargate를 선택하세요** — [EKS 관리형 노드 그룹](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) 또는 [EKS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html)를 사용하여 워커 노드 업그레이드를 간소화하고 자동화합니다. 이러한 옵션을 사용하면 프로세스를 간소화하고 수동 개입을 줄일 수 있습니다.
 * **kubectl Convert 플러그인 활용** — [kubectl convert 플러그인](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin)을 활용하여 서로 다른 API 버전 간에 [쿠버네티스 매니페스트 파일 변환](https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/)을 용이하게 합니다. 이를 통해 구성이 새로운 쿠버네티스 버전과의 호환성을 유지할 수 있습니다.
 
@@ -41,7 +41,7 @@ Amazon EKS의 공동 책임 모델을 반영하면 안전하고 효율적인 EKS
 
 ## 클러스터를 인플레이스 업그레이드
 
-EKS는 인플레이스 클러스터 업그레이드 전략을 지원합니다.이렇게 하면 클러스터 리소스가 유지되고 클러스터 구성 (예: API 엔드포인트, OIDC, ENIS, 로드 밸런서) 이 일관되게 유지됩니다.이렇게 하면 클러스터 사용자의 업무 중단이 줄어들고, 워크로드를 재배포하거나 외부 리소스 (예: DNS, 스토리지) 를 마이그레이션할 필요 없이 클러스터의 기존 워크로드와 리소스를 사용할 수 있습니다.
+EKS는 인플레이스 클러스터 업그레이드 전략을 지원합니다.이렇게 하면 클러스터 리소스가 유지되고 클러스터 구성 (예: API 엔드포인트, OIDC, ENIS, 로드밸런서) 이 일관되게 유지됩니다.이렇게 하면 클러스터 사용자의 업무 중단이 줄어들고, 워크로드를 재배포하거나 외부 리소스 (예: DNS, 스토리지) 를 마이그레이션할 필요 없이 클러스터의 기존 워크로드와 리소스를 사용할 수 있습니다.
 
 전체 클러스터 업그레이드를 수행할 때는 한 번에 하나의 마이너 버전 업그레이드만 실행할 수 있다는 점에 유의해야 합니다 (예: 1.24에서 1.25까지). 
 
@@ -77,14 +77,14 @@ EKS 쿠버네티스 [버전 문서](https://docs.aws.amazon.com/eks/latest/userg
 
 클러스터를 업그레이드하기 전에 사용 중인 Kubernetes 구성 요소의 버전을 이해해야 합니다. 클러스터 구성 요소의 인벤토리를 작성하고 Kubernetes API를 직접 사용하는 구성 요소를 식별하십시오.여기에는 모니터링 및 로깅 에이전트, 클러스터 오토스케일러, 컨테이너 스토리지 드라이버 (예: [EBS CSI](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html), [EFS CSI](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html)), 인그레스 컨트롤러, 쿠버네티스 API를 직접 사용하는 기타 워크로드 또는 애드온과 같은 중요한 클러스터 구성 요소가 포함됩니다. 
 
-!!! 팁
+!!! tip
     중요한 클러스터 구성 요소는 대개 `*-system` 네임스페이스에 설치됩니다.
     
     ```
     kubectl get ns | grep '-system'
     ```
 
-Kubernetes API를 사용하는 구성 요소를 식별한 후에는 해당 설명서에서 버전 호환성 및 업그레이드 요구 사항을 확인하십시오. 예를 들어 버전 호환성에 대해서는 [AWS 로드 밸런서 컨트롤러](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/installation/) 설명서를 참조하십시오.클러스터 업그레이드를 진행하기 전에 일부 구성 요소를 업그레이드하거나 구성을 변경해야 할 수 있습니다. 확인해야 할 몇 가지 중요한 구성 요소로는 [CoreDNS](https://github.com/coredns/coredns), [kube-proxy](https://kubernetes.io/docs/concepts/overview/components/#kube-proxy), [VPC CNI](https://github.com/aws/amazon-vpc-cni-k8s), 스토리지 드라이버 등이 있습니다. 
+Kubernetes API를 사용하는 구성 요소를 식별한 후에는 해당 설명서에서 버전 호환성 및 업그레이드 요구 사항을 확인하십시오. 예를 들어 버전 호환성에 대해서는 [AWS 로드밸런서 컨트롤러](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/installation/) 설명서를 참조하십시오.클러스터 업그레이드를 진행하기 전에 일부 구성 요소를 업그레이드하거나 구성을 변경해야 할 수 있습니다. 확인해야 할 몇 가지 중요한 구성 요소로는 [CoreDNS](https://github.com/coredns/coredns), [kube-proxy](https://kubernetes.io/docs/concepts/overview/components/#kube-proxy), [VPC CNI](https://github.com/aws/amazon-vpc-cni-k8s), 스토리지 드라이버 등이 있습니다. 
 
 클러스터에는 Kubernetes API를 사용하는 많은 워크로드가 포함되는 경우가 많으며 인그레스 컨트롤러, 지속적 전달 시스템, 모니터링 도구와 같은 워크로드 기능에 필요합니다.EKS 클러스터를 업그레이드할 때는 애드온과 타사 도구도 업그레이드하여 호환되는지 확인해야 합니다.
  
@@ -184,7 +184,7 @@ aws eks update-addon —cluster-name my-cluster —addon-name vpc-cni —addon-v
 aws eks list-addons --cluster-name <cluster name>
 ```
 
-!!! 경고
+!!! warning
       
     EKS 애드온은 컨트롤 플레인 업그레이드 중에 자동으로 업그레이드되지 않습니다. EKS 애드온 업데이트를 시작하고 원하는 버전을 선택해야 합니다. 
 
@@ -422,7 +422,7 @@ Fargate 데이터 플레인 노드를 업그레이드하려면 워크로드를 �
 * 소비자 업데이트가 필요한 API 엔드포인트 및 OIDC 변경 (예: kubectl 및 CI/CD)
 * 마이그레이션 중에 2개의 클러스터를 병렬로 실행해야 하므로 비용이 많이 들고 지역 용량이 제한될 수 있습니다.
 * 워크로드가 서로 종속되어 함께 마이그레이션되는 경우 더 많은 조정이 필요합니다.
-* 로드 밸런서와 외부 DNS는 여러 클러스터에 쉽게 분산될 수 없습니다.
+* 로드밸런서와 외부 DNS는 여러 클러스터에 쉽게 분산될 수 없습니다.
 
 이 전략은 가능하지만 인플레이스 업그레이드보다 비용이 많이 들고 조정 및 워크로드 마이그레이션에 더 많은 시간이 필요합니다.상황에 따라 필요할 수 있으므로 신중하게 계획해야 합니다.
 
