@@ -261,14 +261,14 @@ To assist in your migration process, we have developed a tool called [K8s Networ
 !!! Important
     Migration tool will only convert 3P policies that are compatible with native kubernetes network policy api. If you are using advanced network policy features offered by 3P plugins, Migration tool will skip and report them.
 
-Please note that migration tool is currently not supported by AWS VPC CNI Network policy engineering team, it is made available to customers on a best-effort basis. We encourage you to utilize this tool to facilitate your migration process. In the event that you encounter any issues or bugs with the tool, we kindly ask you create a [Github issue](https://github.com/awslabs/k8s-network-policy-migrator/issues). Your feedback is invaluable to us and will assist in the continuous improvement of our services.
+Please note that migration tool is currently not supported by AWS VPC CNI Network policy engineering team, it is made available to customers on a best-effort basis. We encourage you to utilize this tool to facilitate your migration process. In the event that you encounter any issues or bugs with the tool, we kindly ask you create a [GitHub issue](https://github.com/awslabs/k8s-network-policy-migrator/issues). Your feedback is invaluable to us and will assist in the continuous improvement of our services.
 
 ### Additional Resources
 + [Kubernetes & Tigera: Network Policies, Security, and Audit](https://youtu.be/lEY2WnRHYpg)
 + [Calico Enterprise](https://www.tigera.io/tigera-products/calico-enterprise/)
 + [Cilium](https://cilium.readthedocs.io/en/stable/intro/)
 + [NetworkPolicy Editor](https://cilium.io/blog/2021/02/10/network-policy-editor) an interactive policy editor from Cilium
-+ [Kinvolk's Network Policy Advisor](https://kinvolk.io/blog/2020/03/writing-kubernetes-network-policies-with-inspektor-gadgets-network-policy-advisor/) Suggests network policies based on an analysis of network traffic
++ [Inspektor Gadget advise network-policy gadget](https://www.inspektor-gadget.io/docs/latest/gadgets/advise/network-policy/) Suggests network policies based on an analysis of network traffic
 
 
 ## Encryption in transit
@@ -523,7 +523,7 @@ kubectl apply -f istio-custom-config.yaml
 #### Additional Resources
 + [How to implement cert-manager and the ACM Private CA plugin to enable TLS in EKS](https://aws.amazon.com/blogs/security/tls-enabled-kubernetes-clusters-with-acm-private-ca-and-amazon-eks-2/).
 + [Setting up end-to-end TLS encryption on Amazon EKS with the new AWS Load Balancer Controller and ACM Private CA](https://aws.amazon.com/blogs/containers/setting-up-end-to-end-tls-encryption-on-amazon-eks-with-the-new-aws-load-balancer-controller/).
-+ [Private CA Kubernetes cert-manager plugin on Github](https://github.com/cert-manager/aws-privateca-issuer).
++ [Private CA Kubernetes cert-manager plugin on GitHub](https://github.com/cert-manager/aws-privateca-issuer).
 + [Private CA Kubernetes cert-manager plugin user guide](https://docs.aws.amazon.com/acm-pca/latest/userguide/PcaKubernetes.html).
 + [How to use AWS Private Certificate Authority short-lived certificate mode](https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode)
 
