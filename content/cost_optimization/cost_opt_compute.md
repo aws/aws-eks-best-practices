@@ -195,7 +195,7 @@ Spot compute should use a wide variety of instance types to reduce the likelihoo
 
 It is possible to balance spot and on-demand instances in a single cluster. With Karpenter you can create [weighted provisioners](https://karpenter.sh/docs/concepts/scheduling/#on-demandspot-ratio-split) to achieve a balance of different capacity types. With Cluster Autoscaler you can create [mixed node groups with spot and on-demand or reserved instances](https://aws.amazon.com/blogs/containers/amazon-eks-now-supports-provisioning-and-managing-ec2-spot-instances-in-managed-node-groups/).
 
-Here is an example of using Karpenter to prioritize Spot **** instances ahead of On-Demand instances. When creating a provisioner, you can specify either Spot, On-Demand, or both (as shown below). When you specify both, and if the pod does not explicitly specify whether it needs to use Spot or On-Demand, then Karpenter prioritizes Spot when provisioning a node with [price-capacity-optimization allocation strategy](https://aws.amazon.com/blogs/compute/introducing-price-capacity-optimized-allocation-strategy-for-ec2-spot-instances/) .
+Here is an example of using Karpenter to prioritize Spot instances ahead of On-Demand instances. When creating a provisioner, you can specify either Spot, On-Demand, or both (as shown below). When you specify both, and if the pod does not explicitly specify whether it needs to use Spot or On-Demand, then Karpenter prioritizes Spot when provisioning a node with [price-capacity-optimization allocation strategy](https://aws.amazon.com/blogs/compute/introducing-price-capacity-optimized-allocation-strategy-for-ec2-spot-instances/) .
 
 ```yaml hl_lines="9"
 apiVersion: karpenter.sh/v1alpha5

@@ -137,7 +137,7 @@ Using this metric, we can see in the above chart every thread on the box was sta
 ### HPA V2
 It is recommended to use the autoscaling/v2 version of the HPA API. The older versions of the HPA API could get stuck scaling in certain edge cases. It was also limited to pods only doubling during each scaling step, which created issues for small deployments that needed to scale rapidly.  
 
-Autoscaling/v2 allows us more flexibility to include mutliple criteria to scale on and allows us a great deal of flexiblity when using custom and external metrics (non K8s metrics).
+Autoscaling/v2 allows us more flexibility to include multiple criteria to scale on and allows us a great deal of flexibility when using custom and external metrics (non K8s metrics).
 
 As an example, we can scaling on the highest of three values (see below). We scale if the average utilization of all the pods are over 50%, if custom metrics the packets per second of the ingress exceed an average of 1,000, or ingress object exceeds 10K request per second.
 
