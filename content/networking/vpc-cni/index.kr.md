@@ -13,7 +13,7 @@ Amazon VPC CNI에는 두 가지 구성 요소가 있습니다.
 
 인스턴스가 생성되면 EC2는 기본 서브넷과 연결된 기본 ENI를 생성하여 연결합니다. 기본 서브넷은 퍼블릭 또는 프라이빗일 수 있습니다. HostNetwork 모드에서 실행되는 파드는 노드 기본 ENI에 할당된 기본 IP 주소를 사용하며 호스트와 동일한 네트워크 네임스페이스를 공유합니다.
 
-CNI 플러그인은 노드의 [Elastic Network Interface (ENI)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html)를 관리합니다. 노드가 프로비저닝되면 CNI 플러그인은 노드의 서브넷에서 기본 ENI에 슬롯 풀(IP 또는 Prefix)을 자동으로 할당합니다. 이 풀을 *웜 풀*이라고 하며, 크기는 노드의 인스턴스 유형에 따라 결정됩니다. CNI 설정에 따라 슬롯은 IP 주소 또는 Prefix일 수 있습니다. ENI의 슬롯이 할당되면 CNI는 웜 슬롯 풀이 있는 추가 ENI를 노드에 연결할 수 있습니다. 이러한 추가 ENI를 보조 ENI라고 합니다. 각 ENI는 인스턴스 유형에 따라 특정 갯수의 슬롯만 지원할 수 있습니다. CNI는 필요한 슬롯 수를 기반으로 인스턴스에 더 많은 ENI를 연결합니다. 여기서 슬롯 갯수는 보통 파드 갯수에 해당합니다. 이 프로세스는 노드가 추가 ENI를 더 이상 제공할 수 없을 때까지 계속됩니다. 또한 CNI는 파드 시작 속도를 높이기 위해 '웜' ENI와 슬롯을 사전 할당합니다. 참고로, 각 인스턴스 유형에는 연결할 수 있는 최대 ENI 수가 존재합니다. 이 조건은 컴퓨팅 리소스와 더불어 파드 밀도(노드당 파드 수)에 대한 또 하나의 제약 조건입니다.
+CNI 플러그인은 노드의 [Elastic Network Interface (ENI)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html)를 관리합니다. 노드가 프로비저닝되면 CNI 플러그인은 노드의 서브넷에서 기본 ENI에 슬롯 풀(IP 또는 Prefix)을 자동으로 할당합니다. 이 풀을 *웜 풀*이라고 하며, 크기는 노드의 인스턴스 유형에 따라 결정됩니다. CNI 설정에 따라 슬롯은 IP 주소 또는 Prefix일 수 있습니다. ENI의 슬롯이 할당되면 CNI는 웜 슬롯 풀이 있는 추가 ENI를 노드에 연결할 수 있습니다. 이런 추가 ENI를 보조 ENI라고 합니다. 각 ENI는 인스턴스 유형에 따라 특정 갯수의 슬롯만 지원할 수 있습니다. CNI는 필요한 슬롯 수를 기반으로 인스턴스에 더 많은 ENI를 연결합니다. 여기서 슬롯 갯수는 보통 파드 갯수에 해당합니다. 이 프로세스는 노드가 추가 ENI를 더 이상 제공할 수 없을 때까지 계속됩니다. 또한 CNI는 파드 시작 속도를 높이기 위해 '웜' ENI와 슬롯을 사전 할당합니다. 참고로, 각 인스턴스 유형에는 연결할 수 있는 최대 ENI 수가 존재합니다. 이 조건은 컴퓨팅 리소스와 더불어 파드 밀도(노드당 파드 수)에 대한 또 하나의 제약 조건입니다.
 
 ![flow chart illustrating procedure when new ENI delegated prefix is needed](./image.png)
 
@@ -23,16 +23,16 @@ CNI 플러그인은 노드의 [Elastic Network Interface (ENI)](https://docs.aws
 
 보조 IP 모드는 VPC CNI의 기본 모드입니다. 이 가이드에서는 보조 IP 모드가 활성화된 경우의 VPC CNI 동작에 대한 일반적인 개요를 제공합니다. ipamd의 기능(IP 주소 할당)은 VPC CNI의 구성 설정, 예를 들어 [Prefix 모드](../prefix-mode/index_linux.md), [파드당 보안 그룹 수](../sgpp/index.md), [사용자 지정 네트워킹](../custom-networking/index.md)에 따라 달라질 수 있습니다.
 
-Amazon VPC CNI는 워커 노드에 aws-node라는 이름의 쿠버네티스 데몬셋으로 배포됩니다. 워커 노드가 프로비저닝되면 기본 ENI라고 하는 기본 ENI가 연결됩니다. CNI는 노드의 기본 ENI에 연결된 서브넷의 ENI와 보조 IP 주소로 구성된 웜 풀을 할당합니다. 기본적으로 ipamd는 노드에 추가 ENI를 할당하려고 시도합니다. 단일 파드가 스케줄되고 기본 ENI의 보조 IP 주소가 할당되면 IPAMD는 추가 ENI를 할당합니다. 이 “웜” ENI는 더 빠른 파드 네트워킹을 가능하게 합니다. 보조 IP 주소 풀이 부족해지면 CNI는 다른 ENI를 추가하여 더 많은 주소를 할당합니다.
+Amazon VPC CNI는 워커 노드에 aws-node라는 이름의 쿠버네티스 데몬셋으로 배포됩니다. 워커 노드가 프로비저닝되면 기본 ENI라고 하는 기본 ENI가 연결됩니다. CNI는 노드의 기본 ENI에 연결된 서브넷의 ENI와 보조 IP 주소로 구성된 웜 풀을 할당합니다. 기본적으로 ipamd는 노드에 추가 ENI를 할당하려고 시도합니다. 단일 파드가 스케줄되고 기본 ENI의 보조 IP 주소가 할당되면 IPAMD는 추가 ENI를 할당합니다. 이 "웜" ENI는 더 빠른 파드 네트워킹을 가능하게 합니다. 보조 IP 주소 풀이 부족해지면 CNI는 다른 ENI를 추가하여 더 많은 주소를 할당합니다.
 
 풀의 ENI 및 IP 주소 수는 [WARM_ENI_TARGET, WARM_IP_TARGET, MINIMUM_IP_TARGET](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/docs/eni-and-ip-target.md) 이라는 환경 변수를 통해 구성됩니다. `aws-node` 데몬셋은 충분한 수의 ENI가 연결되어 있는지 주기적으로 확인합니다.`WARM_ENI_TARGET` 또는 `WARM_IP_TARGET` 및 `MINIMUM_IP_TARGET` 조건이 모두 충족되면 충분한 수의 ENI가 연결됩니다. 연결된 ENI가 충분하지 않은 경우 CNI는 'MAX_ENI' 한도에 도달할 때까지 EC2에 API를 호출하여 추가로 ENI를 연결합니다.
 
 * `WARM_ENI_TARGET` - 정수 값, 값이 >0이면 요구 사항이 활성화된 것입니다.
-  * 관리할 웜 ENI의 수입니다. ENI는 노드에 보조 ENI로 연결되면 “웜” 상태가 되지만, 어떤 파드에서도 사용되지 않습니다. 구체적으로 말하면 ENI의 IP 주소가 파드와 연결되지 않은 상태입니다.
-  * 예: ENI가 2개이고 각 ENI가 5개의 IP 주소를 지원하는 인스턴스를 예로 들어 보겠습니다.WARM_ENI_TARGET은 1로 설정되어 있습니다. 인스턴스에 정확히 5개의 IP 주소가 연결된 경우 CNI는 인스턴스에 2개의 ENI를 연결한 상태로 유지합니다. 첫 번째 ENI가 사용 중이며 이 ENI에서 사용 가능한 5개 IP 주소가 모두 사용됩니다. 두 번째 ENI는 풀에 5개 IP 주소가 모두 있는 “웜” 상태입니다. 인스턴스에서 다른 파드를 시작하는 경우 6번째 IP 주소가 필요합니다. CNI는 이 6번째 파드에 두 번째 ENI 및 풀의 5개의 IP에서 IP 주소를 할당합니다. 이제 두 번째 ENI가 사용되며 더 이상 “웜” 상태가 아니게 됩니다. CNI는 최소 1개의 웜 ENI를 유지하기 위해 세 번째 ENI를 할당합니다.
+  * 관리할 웜 ENI의 수입니다. ENI는 노드에 보조 ENI로 연결되면 "웜" 상태가 되지만, 어떤 파드에서도 사용되지 않습니다. 구체적으로 말하면 ENI의 IP 주소가 파드와 연결되지 않은 상태입니다.
+  * 예: ENI가 2개이고 각 ENI가 5개의 IP 주소를 지원하는 인스턴스를 예로 들어 보겠습니다.WARM_ENI_TARGET은 1로 설정되어 있습니다. 인스턴스에 정확히 5개의 IP 주소가 연결된 경우 CNI는 인스턴스에 2개의 ENI를 연결한 상태로 유지합니다. 첫 번째 ENI가 사용 중이며 이 ENI에서 사용 가능한 5개 IP 주소가 모두 사용됩니다. 두 번째 ENI는 풀에 5개 IP 주소가 모두 있는 "웜" 상태입니다. 인스턴스에서 다른 파드를 시작하는 경우 6번째 IP 주소가 필요합니다. CNI는 이 6번째 파드에 두 번째 ENI 및 풀의 5개의 IP에서 IP 주소를 할당합니다. 이제 두 번째 ENI가 사용되며 더 이상 "웜" 상태가 아니게 됩니다. CNI는 최소 1개의 웜 ENI를 유지하기 위해 세 번째 ENI를 할당합니다.
 
 !!! Note
-    웜 ENI는 여전히 VPC의 CIDR에 있는 IP 주소를 사용합니다. IP 주소는 파드와 같은 워크로드에 연결되기 전까지는 “미사용” 또는 “웜” 상태가 됩니다.
+    웜 ENI는 여전히 VPC의 CIDR에 있는 IP 주소를 사용합니다. IP 주소는 파드와 같은 워크로드에 연결되기 전까지는 "미사용" 또는 "웜" 상태가 됩니다.
 
 * `WARM_IP_TARGET`, 정수, 값이 >0이면 요구 사항이 활성화된 것입니다.
   * 유지할 웜 IP 주소 수입니다. 웜 IP는 활성 연결된 ENI에서 사용할 수 있지만 파드에 할당되지는 않습니다. 즉, 사용 가능한 웜 IP의 수는 추가 ENI 없이 파드에 할당할 수 있는 IP의 수입니다.
@@ -63,7 +63,7 @@ IP 주소 풀이 고갈되면 플러그인은 자동으로 다른 ENI를 인스�
 
 `(Number of network interfaces for the instance type × (the number of IP addresses per network interface - 1)) + 2`
 
-+2는 kube-proxy 및 VPC CNI와 같은 호스트 네트워킹에서 필요한 파드를 나타냅니다. Amazon EKS에서는 각 노드에서 kube-proxy 및 VPC CNI가 작동해야 하며, 이러한 요구 사항은 max-pods 값에 반영됩니다. 추가 호스트 네트워킹 파드를 실행하려면 max-pods 값 업데이트를 고려해 보십시오.
++2는 kube-proxy 및 VPC CNI와 같은 호스트 네트워킹에서 필요한 파드를 나타냅니다. Amazon EKS에서는 각 노드에서 kube-proxy 및 VPC CNI가 작동해야 하며, 이런 요구 사항은 max-pods 값에 반영됩니다. 추가 호스트 네트워킹 파드를 실행하려면 max-pods 값 업데이트를 고려해 보십시오.
 
 +2는 kube-proxy 및 VPC CNI와 같은 호스트 네트워킹을 사용하는 쿠버네티스 파드를 나타냅니다.Amazon EKS는 모든 노드에서 kube-proxy와 VPC CNI를 실행해야 하며, 이는 최대 파드 수를 기준으로 계산됩니다. 더 많은 호스트 네트워킹 파드를 실행할 계획이라면 max-pod를 업데이트하는 것을 고려해 보십시오. 시작 템플릿에서 `--kubelet-extra-args "—max-pods=110"`을 사용자 데이터로 지정할 수 있습니다.
 
@@ -81,7 +81,7 @@ IP 주소 풀이 고갈되면 플러그인은 자동으로 다른 ENI를 인스�
 * Amazon Elastic LoadBalancer
 * for metrics-server용 운영 Pods
 
-이러한 파드의 용량을 조합하여 인프라를 계획하는 것을 권장합니다. 각 인스턴스 유형에서 지원하는 최대 파드 수 목록은 GitHub의 [eni-max-Pods.txt](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt)를 참조합니다.
+이런 파드의 용량을 조합하여 인프라를 계획하는 것을 권장합니다. 각 인스턴스 유형에서 지원하는 최대 파드 수 목록은 GitHub의 [eni-max-Pods.txt](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt)를 참조합니다.
 
 ![illustration of multiple ENIs attached to a node](./image-5.png)
 
@@ -112,7 +112,7 @@ kubectl get daemonset aws-node --show-managed-fields -n kube-system -o yaml
 EKS에서 관리하는 필드는 관리형 필드 아래에 나열되며 이 필드에 대한 관리자는 EKS입니다. EKS에서 관리하는 필드에는 서비스 어카운트, 이미지, 이미지 URL, liveness probe, readiness probe, 레이블, 볼륨 및 볼륨 마운트가 포함됩니다.
 
 !!! Info
-WARM_ENI_TARGET, WARM_IP_TARGET, MINIMUM_IP_TARGET과 같이 자주 사용되는 필드는 관리되지 않으며 조정되지 않습니다. 이러한 필드의 변경 사항은 애드온 업데이트 시에도 유지됩니다.
+WARM_ENI_TARGET, WARM_IP_TARGET, MINIMUM_IP_TARGET과 같이 자주 사용되는 필드는 관리되지 않으며 조정되지 않습니다. 이런 필드의 변경 사항은 애드온 업데이트 시에도 유지됩니다.
 
 프로덕션 클러스터를 업데이트하기 전, 특정 구성의 비프로덕션 클러스터에서 애드온 동작을 테스트하는 것이 좋습니다. 또한 [애드온](https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html) 구성에 대해서는 EKS 사용자 가이드의 단계를 따라합니다.
 
@@ -154,7 +154,7 @@ AWS VPC CNI에는 AWS 자격 증명 및 액세스 관리(IAM) 권한이 필요�
 
 기본적으로 VPC CNI는 (관리형 노드 그룹과 자체 관리형 노드 그룹 모두) [Amazon EKS 노드 IAM 역할](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html)을 상속합니다.
 
-Amazon VPC CNI에 대한 관련 정책을 사용하여 별도의 IAM 역할을 구성하는 것을 **강력하게** 권장합니다. 그렇지 않은 경우 Amazon VPC CNI의 파드는 노드 IAM 역할에 할당된 권한을 얻고 노드에 할당된 인스턴스 프로필에 접근할 수 있습니다.
+Amazon VPC CNI에 대한 관련 정책을 사용하여 별도의 IAM 역할을 구성하는 것을 **강력하게** 권장합니다. 그렇지 않은 경우 Amazon VPC CNI의 파드는 노드 IAM 역할에 할당된 권한을 얻고 노드에 할당된 인스턴스 프로파일에 접근할 수 있습니다.
 
 VPC CNI 플러그인은 aws-node라는 서비스 어카운트를 생성하고 구성합니다. 기본적으로 서비스 어카운트는 Amazon EKS CNI 정책이 연결된 Amazon EKS 노드의 IAM 역할에 바인딩됩니다. 별도의 IAM 역할을 사용하려면 Amazon EKS CNI 정책이 연결된 [신규 서비스 어카운트를 생성](https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-role)하는 것이 좋습니다. 신규 서비스 어카운트를 사용하려면 [CNI 파드 재배포](https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-redeploy-pods)를 진행해야 합니다. 신규 클러스터를 생성할 때 VPC CNI 관리형 애드온에 `--service-account-role-arn`을 지정하는 것을 고려합니다. 이 때 Amazon EKS 노드의 IAM 역할에서 IPv4와 IPv6 모두에 대한 Amazon EKS CNI 정책을 반드시 제거해야 합니다.
 
@@ -186,7 +186,7 @@ Amazon EKS 지원을 받는 동안 노드에서 sudo `bash /opt/cni/bin/aws-cni-
 ### 주소 제약이 있는 환경에서 IP 및 ENI 대상 값 구성
 
 !!! warning
-    IP 주소 고갈에 대한 권장 대응 방법은 VPC 설계를 개선하는 것으로, IPv6 및 보조 CIDR과 같은 솔루션을 고려합니다. 아래 값을 조정하여 웜 IP 수를 최소화하는 것은 다른 옵션이 불가한 상황에서의 임시 해결책으로 사용해야 합니다. 이러한 값을 잘못 구성하면 클러스터 동작에 방해가 될 수 있습니다.
+    IP 주소 고갈에 대한 권장 대응 방법은 VPC 설계를 개선하는 것으로, IPv6 및 보조 CIDR과 같은 솔루션을 고려합니다. 아래 값을 조정하여 웜 IP 수를 최소화하는 것은 다른 옵션이 불가한 상황에서의 임시 해결책으로 사용해야 합니다. 이런 값을 잘못 구성하면 클러스터 동작에 방해가 될 수 있습니다.
 
 기본 구성에서 VPC CNI는 전체 ENI(및 연결된 IP)를 웜 풀에 보관합니다. 이 구성에서는 대규모 인스턴스 유형에서 많은 수의 IP를 소비할 수 있습니다.
 
@@ -200,7 +200,7 @@ Amazon EKS 지원을 받는 동안 노드에서 sudo `bash /opt/cni/bin/aws-cni-
 
 WARM_IP_TARGET 값을 너무 낮게 설정하면 EC2 API에 대한 추가 호출이 발생하여 API요청에 대한 병목 현상이 발생할 수 있으므로 너무 낮게 설정하지 않습니다. 대규모 클러스터의 경우 MINIMUM_IP_TARGET과 함께 사용하여 병목 현상을 방지합니다.
 
-이러한 옵션을 구성하려면 `aws-k8s-cni.yaml`을 다운로드하고 환경 변수를 설정합니다. 이 글의 작성 시점에서 최신 릴리스는 [이 링크](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni.yaml)에 기재되어 있습니다. 구성 값의 버전이 설치된 VPC CNI 버전과 일치하는지 확인합니다.
+이런 옵션을 구성하려면 `aws-k8s-cni.yaml`을 다운로드하고 환경 변수를 설정합니다. 이 글의 작성 시점에서 최신 릴리스는 [이 링크](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni.yaml)에 기재되어 있습니다. 구성 값의 버전이 설치된 VPC CNI 버전과 일치하는지 확인합니다.
 
 !!! Warning
     CNI를 업데이트하면 웜 설정이 기본값으로 재설정됩니다. CNI를 업데이트하기 전에 CNI를 백업합니다. 구성 설정을 검토하여 업데이트가 성공한 후 재적용해야 하는지 확인합니다.
@@ -215,4 +215,4 @@ WARM_IP_TARGET 값을 너무 낮게 설정하면 EC2 API에 대한 추가 호출
 
 ### 정기적인 CNI 버전 업그레이드
 
-VPC CNI는 이전 버전과 호환됩니다. 최신 버전은 모든 Amazon EKS에서 지원하는 쿠버네티스 버전과 호환됩니다. 또한 VPC CNI는 EKS 애드온으로 제공됩니다(위의 “VPC CNI 관리형 애드온 배포” 참조). EKS 애드온은 애드온 업그레이드를 관리하지만 CNI와 같은 애드온은 데이터 플레인에서 실행되므로 자동으로 업그레이드되지 않습니다. 관리형 및 자체 관리형 워커 노드 업그레이드 후에는 VPC CNI 애드온을 업그레이드해야 합니다.
+VPC CNI는 이전 버전과 호환됩니다. 최신 버전은 모든 Amazon EKS에서 지원하는 쿠버네티스 버전과 호환됩니다. 또한 VPC CNI는 EKS 애드온으로 제공됩니다(위의 "VPC CNI 관리형 애드온 배포" 참조). EKS 애드온은 애드온 업그레이드를 관리하지만 CNI와 같은 애드온은 데이터 플레인에서 실행되므로 자동으로 업그레이드되지 않습니다. 관리형 및 자체 관리형 워커 노드 업그레이드 후에는 VPC CNI 애드온을 업그레이드해야 합니다.

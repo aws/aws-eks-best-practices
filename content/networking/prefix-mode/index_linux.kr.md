@@ -26,7 +26,7 @@ Prefix 할당 모드에서 인스턴스 유형당 최대 elastic network interfa
 
 ### 다음과 같은 경우 Prefix 모드 사용
 
-워커 노드에서 Pod 밀도 문제가 발생하는 경우 Prefix 모드를 사용합니다. VPC CNI 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약에 대한 세부 정보는 “[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” 섹션을 참조합니다. 
+워커 노드에서 Pod 밀도 문제가 발생하는 경우 Prefix 모드를 사용합니다. VPC CNI 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약에 대한 세부 정보는 "[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)" 섹션을 참조합니다. 
 
 이전 버전과의 호환성을 위해 [max-pods](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) 제한이 보조 IP 모드를 지원하도록 설정되었습니다. 파드 밀도를 높이려면, `max-pods` 값을 Kubelet에 지정하고, 노드의 사용자 데이터(User data)에 `--use-max-pods=false`를 지정합니다. [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh) 스크립트를 사용하여 특정 인스턴스 유형에 대한 EKS의 권장 최대 파드 수를 계산하는 것을 고려해 볼 수 있습니다. 사용자 데이터의 예는 EKS [사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html)를 참조합니다.
 

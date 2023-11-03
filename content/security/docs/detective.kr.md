@@ -1,5 +1,5 @@
-# 감사 및 로깅
-\ [감사\] 로그를 수집하고 분석하는 것은 여러 가지 이유로 유용합니다.로그는 근본 원인 분석 및 속성 분석, 즉 특정 사용자에게 변경 사항을 적용하는 데 도움이 될 수 있습니다.로그가 충분히 수집되면 이를 사용하여 이상 행동을 탐지할 수도 있습니다.EKS에서는 감사 로그가 Amazon Cloudwatch 로그로 전송됩니다.EKS의 감사 정책은 다음과 같습니다. 
+# 감사(Audit) 및 로깅
+\[감사\] 로그를 수집하고 분석하는 것은 여러 가지 이유로 유용합니다. 로그는 근본 원인 분석(RCA) 및 책임 분석(예: 특정 변경에 대한 사용자 추적)에 도움이 될 수 있습니다. 로그가 충분히 수집되면 이를 사용하여 이상 행동을 탐지할 수도 있습니다. EKS에서는 감사 로그가 Amazon Cloudwatch 로그로 전송됩니다. EKS의 감사 정책은 다음과 같습니다. 
 
 ```yaml
 apiVersion: audit.k8s.io/v1beta1
@@ -157,19 +157,19 @@ rules:
 감사 로그는 EKS에서 관리하는 EKS 관리형 쿠버네티스 컨트롤 플레인 로그의 일부입니다. 쿠버네티스 API 서버, 컨트롤러 관리자 및 스케줄러에 대한 로그와 감사 로그를 포함하는 컨트롤 플레인 로그의 활성화/비활성화 지침은 [AWS 문서](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export)에서 확인할 수 있습니다. 
 
 !!! 정보
-    컨트롤 플레인 로깅을 활성화하면 로그를 CloudWatch에 저장하는 데 [비용](https://aws.amazon.com/cloudwatch/pricing/)이 발생합니다. 이로 인해 지속적인 보안 비용에 대한 광범위한 문제가 제기됩니다. 궁극적으로 이러한 비용을 보안 침해 비용 (예: 재정적 손실, 평판 훼손 등)과 비교해야 합니다. 이 가이드의 권장 사항 중 일부만 구현하면 환경을 적절하게 보호할 수 있을 것입니다. 
+    컨트롤 플레인 로깅을 활성화하면 로그를 CloudWatch에 저장하는 데 [비용](https://aws.amazon.com/cloudwatch/pricing/)이 발생합니다. 이로 인해 지속적인 보안 비용에 대한 광범위한 문제가 제기됩니다. 궁극적으로 이런 비용을 보안 침해 비용 (예: 재정적 손실, 평판 훼손 등)과 비교해야 합니다. 이 가이드의 권장 사항 중 일부만 구현하면 환경을 적절하게 보호할 수 있을 것입니다. 
 
 !!! 경고
     클라우드워치 로그 항목의 최대 크기는 [256KB](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html)인 반면 쿠버네티스 API 요청 최대 크기는 1.5MiB입니다. 256KB를 초과하는 로그 항목은 잘리거나 요청 메타데이터만 포함됩니다. 
 
 ### 감사 메타데이터 활용
-쿠버네티스 감사 로그에는 요청이 `authorization.k8s.io/decision`으로 승인되었는지 여부와 결정의 이유 `authorization.k8s.io/reason`을 나타내는 두 개의 어노테이션이 포함되어 있습니다. 이러한 속성을 사용하여 특정 API 호출이 허용된 이유를 확인할 수 있습니다. 
+쿠버네티스 감사 로그에는 요청이 승인되었는지 여부를 나타내는 `authorization.k8s.io/decision`와 결정의 이유를 나타내는 `authorization.k8s.io/reason`, 두 개의 어노테이션이 포함되어 있습니다. 이런 속성을 사용하여 특정 API 호출이 허용된 이유를 확인할 수 있습니다. 
    
 ### 의심스러운 이벤트에 대한 알람 생성
-403 Forbidden 및 401 Unauthorized 응답이 증가하는 위치를 자동으로 알리는 경보를 생성한 다음 `host` , `sourceIPs` 및 `k8s_user.username` 과 같은 속성을 사용 하여 이러한 요청의 출처를 찾아냅니다.
+403 Forbidden 및 401 Unauthorized 응답이 증가하는 위치를 자동으로 알리는 경보를 생성한 다음 `host` , `sourceIPs` 및 `k8s_user.username` 과 같은 속성을 사용 하여 이런 요청의 출처를 찾아냅니다.
   
 ### Log Insights로 로그 분석
-CloudWatch Log Insights를 사용하여 RBAC 객체 (예: 역할, 역할 바인딩, 클러스터 역할, 클러스터 역할 바인딩) 에 대한 변경 사항을 모니터링할 수 있습니다. 몇 가지 샘플 쿼리는 다음과 같습니다. 
+CloudWatch Log Insights를 사용하여 RBAC 객체 (예: 롤, 롤바인딩, 클러스터롤, 클러스터 롤바인딩) 에 대한 변경 사항을 모니터링할 수 있습니다. 몇 가지 샘플 쿼리는 다음과 같습니다. 
 
 `aws-auth` 컨피그맵 에 대한 업데이트를 나열합니다:
 ```
@@ -179,7 +179,7 @@ fields @timestamp, @message
 | filter objectRef.resource = "configmaps" and objectRef.name = "aws-auth" and objectRef.namespace = "kube-system"
 | sort @timestamp desc
 ```
-유효성 검사 웹훅에 대한 생성 또는 변경 사항을 나열합니다:
+Validation 웹훅에 대한 생성 또는 변경 사항을 나열합니다:
 ```
 fields @timestamp, @message
 | filter @logStream like "kube-apiserver-audit"
@@ -187,7 +187,7 @@ fields @timestamp, @message
 | filter objectRef.resource = "validatingwebhookconfigurations"
 | sort @timestamp desc
 ```
-역할에 대한 생성, 업데이트, 삭제 작업을 나열합니다:
+롤에 대한 생성, 업데이트, 삭제 작업을 나열합니다:
 ```
 fields @timestamp, @message
 | sort @timestamp desc
@@ -232,7 +232,7 @@ fields @timestamp, @message, sourceIPs.0
 ```
 
 ### CloudTrail 로그 감사
-IAM Roles for Service Account(IRSA)을 활용하는 파드에서 호출한 AWS API는 서비스 계정 이름과 함께 CloudTrail에 자동으로 로깅됩니다. API 호출 권한이 명시적으로 부여되지 않은 서비스 계정의 이름이 로그에 표시되면 IAM 역할의 신뢰 정책이 잘못 구성되었다는 표시일 수 있습니다. 일반적으로 Cloudtrail은 AWS API 호출을 특정 IAM 보안 주체에 할당할 수 있는 좋은 방법입니다. 
+IAM Roles for Service Account(IRSA)을 활용하는 파드에서 호출한 AWS API는 서비스 어카운트 이름과 함께 CloudTrail에 자동으로 로깅됩니다. API 호출 권한이 명시적으로 부여되지 않은 서비스 어카운트의 이름이 로그에 표시되면 IAM 역할의 신뢰 정책이 잘못 구성되었다는 표시일 수 있습니다. 일반적으로 Cloudtrail은 AWS API 호출을 특정 IAM 보안 주체에 할당할 수 있는 좋은 방법입니다. 
 
 ### CloudTrail Insights를 사용하여 의심스러운 활동 발견
 CloudTrail Insights는 CloudTrail 트레일에서 쓰기 관리 이벤트를 자동으로 분석하고 비정상적인 활동이 발생하면 알려줍니다. 이를 통해 IRSA 기능을 사용하여 IAM 역할을 맡는 파드 등 AWS 계정의 쓰기 API에 대한 호출량이 증가하는 시기를 파악할 수 있습니다. 자세한 내용은 [CloudTrail Insights 발표: 비정상적인 API 활동 식별 및 대응](https://aws.amazon.com/blogs/aws/announcing-cloudtrail-insights-identify-and-respond-to-unusual-api-activity/)을 참조하십시오.

@@ -4,7 +4,7 @@
 
 ### 리눅스 기능
 
-컨테이너 내에서 실행되는 프로세스는 기본적으로 \[ Linux \] 루트 사용자의 컨텍스트에서 실행됩니다. 컨테이너 내의 루트 작업은 컨테이너 런타임이 컨테이너에 할당하는 리눅스 기능 세트에 의해 부분적으로 제한되지만 이러한 기본 권한을 통해 공격자는 권한을 에스컬레이션하거나 호스트에 바인딩된 민감한 정보에 액세스할 수 있습니다. 비밀 및 ConfigMap을 포함합니다. 다음은 컨테이너에 할당된 기본 기능 목록입니다. 각 기능에 대한 추가 정보는 [해당 문서](http://man7.org/linux/man-pages/man7/capabilities.7.html)를 참조하십시오.
+컨테이너 내에서 실행되는 프로세스는 기본적으로 \[ Linux \] 루트 사용자의 컨텍스트에서 실행됩니다. 컨테이너 내의 루트 작업은 컨테이너 런타임이 컨테이너에 할당하는 리눅스 기능 세트에 의해 부분적으로 제한되지만 이런 기본 권한을 통해 공격자는 권한을 에스컬레이션하거나 호스트에 바인딩된 민감한 정보에 액세스할 수 있습니다. 비밀 및 ConfigMap을 포함합니다. 다음은 컨테이너에 할당된 기본 기능 목록입니다. 각 기능에 대한 추가 정보는 [해당 문서](http://man7.org/linux/man-pages/man7/capabilities.7.html)를 참조하십시오.
 
 `CAP_AUDIT_WRITE, CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_MKNOD, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_SYS_CHROOT`
 
@@ -24,7 +24,7 @@ privileged 권한으로 실행되는 파드는 호스트의 루트와 연결된 
 + 엔드포인트
 + 노드
 + 파드
-+ kubelet의 노드에 바인딩된 파드와 관련된 시크릿, 컨피그맵, 영구 볼륨 클레임 및 영구 볼륨
++ kubelet의 노드에 바인딩된 파드와 관련된 시크릿, 컨피그맵, 퍼시스턴트 볼륨 클레임 및 퍼시스턴트 볼륨
 
 쓰기 작업:
 
@@ -47,11 +47,11 @@ EKS는 [노드 제한 어드미션 컨트롤러](https://kubernetes.io/docs/refe
 
 !!! 주목
     
-    Kubernetes 버전 1.21부터 [PSP는 더 이상 사용되지 않습니다](https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/). P2P가 더이상 지원되지 않을 버전 1.25까지 대안 솔루션으로 전환하는데 대략 2년의 시간이 남았습니다. 이 [문서](https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation)는 이러한 지원 중단의 동기에 대하여 설명합니다.
+    Kubernetes 버전 1.21부터 [PSP는 더 이상 사용되지 않습니다](https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/). P2P가 더이상 지원되지 않을 버전 1.25까지 대안 솔루션으로 전환하는데 대략 2년의 시간이 남았습니다. 이 [문서](https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation)는 이런 지원 중단의 동기에 대하여 설명합니다.
 
 ### 새로운 파드 보안 솔루션으로 마이그레이션
 
-PSP는 제거될 예정이며 더 이상 활성 개발 중이 아니므로 클러스터 관리자와 운영자는 이러한 보안 제어를 교체해야 합니다. 두 가지 솔루션으로 이러한 요구를 충족할 수 있습니다.
+PSP는 제거될 예정이며 더 이상 활성 개발 중이 아니므로 클러스터 관리자와 운영자는 이런 보안 제어를 교체해야 합니다. 두 가지 솔루션으로 이런 요구를 충족할 수 있습니다.
 
 + 쿠버네티스 에코시스템 내 PAC(Policy-as-code) 솔루션
 + 쿠버네티스 [파드 시큐리티 스탠다드(PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
@@ -64,7 +64,7 @@ PAC 및 PSS 솔루션은 모두 PSP와 공존할 수 있습니다. PSP가 제거
 
 PAC(Policy-as-code) 솔루션은 규정된 자동 제어를 통해 클러스터 사용자를 안내하고 원치 않는 동작을 방지하는 가드레일을 제공합니다. PAC는 [쿠버네티스 동적 어드미션 컨트롤러](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)를 사용하여 웹훅 호출을 통해 쿠버네티스 API 서버 요청 흐름을 가로채고 변형 및 검증합니다. 코드로 작성되고 저장된 정책을 기반으로 페이로드를 요청합니다. 변형 및 유효성 검사는 API 서버 요청으로 인해 클러스터가 변경되기 전에 발생합니다. PAC 솔루션은 정책을 사용하여 분류 및 값을 기반으로 API 서버 요청 페이로드를 일치시키고 작동합니다.
 
-Kubernetes에 사용할 수 있는 몇 가지 오픈 소스 PAC 솔루션이 있습니다. 이러한 솔루션은 Kubernetes 프로젝트의 일부가 아닙니다. Kubernetes 생태계에서 제공됩니다. 일부 PAC 솔루션은 다음과 같습니다.
+Kubernetes에 사용할 수 있는 몇 가지 오픈 소스 PAC 솔루션이 있습니다. 이런 솔루션은 Kubernetes 프로젝트의 일부가 아닙니다. Kubernetes 생태계에서 제공됩니다. 일부 PAC 솔루션은 다음과 같습니다.
 
 + [OPA/게이트키퍼](https://open-policy-agent.github.io/gatekeeper/website/docs/)
 + [오픈 정책 에이전트(OPA)](https://www.openpolicyagent.org/)
@@ -81,9 +81,9 @@ PAC 솔루션에 대한 자세한 내용과 필요에 맞는 적절한 솔루션
 
 PSP 지원 중단 및 즉시 사용 가능한 파드 보안을 제어해야 하는 지속적인 필요성에 대응하여 빌트인 쿠버네티스 솔루션으로 쿠버네티스 [Auth Special Interest Group](https://github.com/kubernetes/community /tree/master/sig-auth )는 [파드 시큐리티 스탠다드(PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/) 및 [파드 시큐리티 어드미션(PSA)](https://kubernetes.io/docs/concepts/security/pod-security-admission/)을 만들었습니다. PSA 에는 PSS에 정의된 제어를 구현하는 [어드미션 컨트롤러 웹훅 프로젝트](https://github.com/kubernetes/pod-security-admission#pod-security-admission)가 포함됩니다. 이 허용 컨트롤러 접근 방식은 PAC 솔루션에서 사용되는 방식과 유사합니다.
 
-쿠버네티스 문서에 따르면 PSS는 _"보안 스펙트럼을 광범위하게 포괄하는 세 가지 다른 정책을 정의합니다. 이러한 정책은 누적되며 매우 허용적인 것부터 매우 제한적인 것까지 다양합니다."_ 
+쿠버네티스 문서에 따르면 PSS는 _"보안 스펙트럼을 광범위하게 포괄하는 세 가지 다른 정책을 정의합니다. 이런 정책은 누적되며 매우 허용적인 것부터 매우 제한적인 것까지 다양합니다."_ 
 
-이러한 정책은 다음과 같이 정의됩니다:
+이런 정책은 다음과 같이 정의됩니다:
 
 + **Privileged:** 제한되지 않은(안전하지 않은) 정책으로 가능한 가장 광범위한 수준의 권한을 제공합니다. 이 정책은 알려진 권한 에스컬레이션을 허용합니다. 정책이 없다는 것입니다. 이는 로깅 에이전트, CNI, 스토리지 드라이버 및 권한 액세스가 필요한 기타 시스템 전체 애플리케이션과 같은 애플리케이션에 적합합니다.
 
@@ -91,7 +91,7 @@ PSP 지원 중단 및 즉시 사용 가능한 파드 보안을 제어해야 하�
 
 + **Restricted:** 현재 파드 강화 모범 사례에 따라 엄격하게 제한된 정책입니다. 이 정책은 기준선에서 상속되며 루트 또는 루트 그룹으로 실행할 수 없는 것과 같은 추가 제한 사항을 추가합니다. 제한된 정책은 애플리케이션의 기능에 영향을 미칠 수 있습니다. 이들은 주로 보안에 중요한 응용 프로그램을 실행하는 것을 목표로 합니다.
 
-이러한 정책은 [ 파드 실행을 위한 프로파일 ]( https://kubernetes.io/docs/concepts/security/pod-security-standards/#profile-details )을 정의하며, 세 가지 수준의 특권(Priviledged) 액세스에서부터 제한된(Restricted) 액세스로 정렬됩니다.
+이런 정책은 [ 파드 실행을 위한 프로파일 ]( https://kubernetes.io/docs/concepts/security/pod-security-standards/#profile-details )을 정의하며, 세 가지 수준의 특권(Priviledged) 액세스에서부터 제한된(Restricted) 액세스로 정렬됩니다.
 
 PSS에서 정의한 컨트롤을 구현하기 위해 PSA는 세 가지 모드로 작동합니다.
 
@@ -101,7 +101,7 @@ PSS에서 정의한 컨트롤을 구현하기 위해 PSA는 세 가지 모드로
 
 + **warn:** 정책을 위반하면 사용자에게 경고가 표시되지만 그렇지 않으면 허용됩니다.
 
-이러한 모드와 프로필 (제한) 수준은 아래 예와 같이 레이블을 사용하여 쿠버네티스 네임스페이스 수준에서 구성됩니다.
+이런 모드와 프로파일 (제한) 수준은 아래 예와 같이 레이블을 사용하여 쿠버네티스 네임스페이스 수준에서 구성됩니다.
 
 ```yaml
 apiVersion: v1
@@ -112,7 +112,7 @@ metadata:
     pod-security.kubernetes.io/enforce: restricted
 ```
 
-독립적으로 사용하는 경우 이러한 작동 모드는 다른 사용자 경험을 제공하는 다른 응답을 갖습니다. _enforce_ 모드는 각 podSpec이 구성된 제한 수준을 위반하는 경우 파드가 생성되지 않도록 합니다. 그러나 이 모드에서는 PodSpec이 적용된 PSS를 위반하더라도 배포와 같이 파드를 생성하는 파드가 아닌 쿠버네티스 개체가 클러스터에 적용되는 것을 방지하지 않습니다. 이 경우 배포가 적용되지만 파드는 적용되지 않습니다.
+독립적으로 사용하는 경우 이런 작동 모드는 다른 사용자 경험을 제공하는 다른 응답을 갖습니다. _enforce_ 모드는 각 podSpec이 구성된 제한 수준을 위반하는 경우 파드가 생성되지 않도록 합니다. 그러나 이 모드에서는 PodSpec이 적용된 PSS를 위반하더라도 배포와 같이 파드를 생성하는 파드가 아닌 쿠버네티스 개체가 클러스터에 적용되는 것을 방지하지 않습니다. 이 경우 배포가 적용되지만 파드는 적용되지 않습니다.
 
 성공적으로 적용된 디플로이머트 객체는 객체 내 파드 생성 실패에 속한다는 즉각적인 표시가 없기 때문에 이를 인지하지 쉽지 않습니다. 위반 podSpec은 파드를 생성하지 않습니다. `kubectl get deploy <DEPLOYMENT_NAME>-oyaml`로 디플로이먼트 리소스를 검사하면 아래와 같이 실패한 파드 `.status.conditions` 엘리먼트의 메시지가 표시된다.
 
@@ -134,7 +134,7 @@ status:
 ...
 ```
 
-_audit_ 및 _warn_ 모드에서 파드 제한은 위반 파드가 생성되고 시작되는 것을 막지 않습니다 . 그러나 이러한 모드에서는 API 서버 감사 로그 이벤트에 대한 감사 주석 및 API 서버 클라이언트에 대한 경고(예: _kubectl_ )는 파드와 파드를 생성하는 개체에 위반이 있는 podSpec이 포함되어 있을 때 각각 트리거됩니다. ` kubectl` _경고_ 메시지는 아래와 같습니다.
+_audit_ 및 _warn_ 모드에서 파드 제한은 위반 파드가 생성되고 시작되는 것을 막지 않습니다 . 그러나 이런 모드에서는 API 서버 감사 로그 이벤트에 대한 감사 주석 및 API 서버 클라이언트에 대한 경고(예: _kubectl_ )는 파드와 파드를 생성하는 개체에 위반이 있는 podSpec이 포함되어 있을 때 각각 트리거됩니다. ` kubectl` _경고_ 메시지는 아래와 같습니다.
 
 ```bash
 Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "test" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "test" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "test" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "test" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
@@ -156,7 +156,7 @@ metadata:
     pod-security.kubernetes.io/warn: restricted
 ```
 
-위의 예에서 배포를 적용할 때 사용자에게 친숙한 경고 및 감사 주석이 제공되는 반면 위반 적용도 파드 수준에서 제공됩니다. 실제로 여러 PSA 레이블은 아래와 같이 서로 다른 프로필 수준을 사용할 수 있습니다.
+위의 예에서 배포를 적용할 때 사용자에게 친숙한 경고 및 감사 주석이 제공되는 반면 위반 적용도 파드 수준에서 제공됩니다. 실제로 여러 PSA 레이블은 아래와 같이 서로 다른 프로파일 수준을 사용할 수 있습니다.
 
 ```yaml
 apiVersion: v1
@@ -168,11 +168,11 @@ metadata:
     pod-security.kubernetes.io/warn: restricted
 ```
 
-위의 예에서 PSA는 _baseline_ 프로필 수준을 충족하는 모든 파드의 생성을 허용한 다음 _restricted_ 프로필 수준 을 위반하는 파드(및 파드를 생성하는 개체)는 _경고_ 하도록 구성됩니다. 이는 _baseline_ 에서 _restricted_ 프로필로 변경할 때 가능한 영향을 확인하는 데 유용한 접근 방식입니다.
+위의 예에서 PSA는 _baseline_ 프로파일 수준을 충족하는 모든 파드의 생성을 허용한 다음 _restricted_ 프로파일 수준 을 위반하는 파드(및 파드를 생성하는 개체)는 _경고_ 하도록 구성됩니다. 이는 _baseline_ 에서 _restricted_ 프로파일로 변경할 때 가능한 영향을 확인하는 데 유용한 접근 방식입니다.
 
 #### 기존 파드
 
-기존 파드가 있는 네임스페이스가 더 제한적인 PSS 프로필을 사용하도록 수정되면 _audit_ 및 _warn_ 모드가 적절한 메시지를 생성합니다. 그러나 _enforce_ 모드는 파드를 삭제하지 않습니다. 경고 메시지는 아래와 같습니다.
+기존 파드가 있는 네임스페이스가 더 제한적인 PSS 프로파일을 사용하도록 수정되면 _audit_ 및 _warn_ 모드가 적절한 메시지를 생성합니다. 그러나 _enforce_ 모드는 파드를 삭제하지 않습니다. 경고 메시지는 아래와 같습니다.
 
 ```bash
 Warning: existing pods in namespace "policy-test" violate the new PodSecurity enforce level "restricted:latest"
@@ -182,7 +182,7 @@ namespace/policy-test configured
 
 #### 예외 처리 (Exemptions)
 
-PSA는 _Exemptions_ 를 사용하여 달리 적용되었을 파드에 대한 위반 집행을 제외합니다. 이러한 면제는 아래에 나열되어 있습니다.
+PSA는 _Exemptions_ 를 사용하여 달리 적용되었을 파드에 대한 위반 집행을 제외합니다. 이런 면제는 아래에 나열되어 있습니다.
 
 + **Usernames:** 예외 처리된 인증(또는 사칭) 사용자 이름을 가진 사용자의 요청은 무시됩니다.
 
@@ -190,7 +190,7 @@ PSA는 _Exemptions_ 를 사용하여 달리 적용되었을 파드에 대한 위
 
 + **네임스페이스:** 예외 처리된 네임스페이스의 파드 및 워크로드 리소스는 무시됩니다.
 
-이러한 예외 처리는 [PSA 어드미션 컨트롤러 구성](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller)에서 다음과 같이 API 서버 구성의 일부로 정적으로 적용됩니다. 
+이런 예외 처리는 [PSA 어드미션 컨트롤러 구성](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller)에서 다음과 같이 API 서버 구성의 일부로 정적으로 적용됩니다. 
 
 _Validating Webhook_ 구현에서 예외는 [pod-security-webhook]( https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/50-deployment.yaml ) 컨테이너 내 볼륨으로 마운트되는 쿠버네티스 [ConfigMap](https://github.com/kubernetes/pod-security-admission/blob/master/webhook/manifests/20-configmap.yaml) 리소스 내에서 구성할 수 있습니다.
 
@@ -279,7 +279,7 @@ webhooks:
   + 쿠버네티스에서 빌트인 제공
   + 더 간단한 구성
   + 사용할 새로운 언어나 작성할 정책이 없습니다.
-  + 클러스터 기본 승인 수준이 _privileged_ 로 구성된 경우 네임스페이스 레이블을 사용하여 파드 보안 프로필에 네임스페이스를 옵트인할 수 있습니다.
+  + 클러스터 기본 승인 수준이 _privileged_ 로 구성된 경우 네임스페이스 레이블을 사용하여 파드 보안 프로파일에 네임스페이스를 옵트인할 수 있습니다.
 
 단점:
 
@@ -321,9 +321,9 @@ metadata:
 
 ### 컨테이너에서 루트로 프로세스를 실행하지 마십시오.
 
-모든 컨테이너는 기본적으로 루트로 실행됩니다. 이는 공격자가 애플리케이션의 취약성을 악용하고 실행 중인 컨테이너에 대한 셸 액세스 권한을 얻을 수 있는 경우 문제가 될 수 있습니다. 다양한 방법으로 이 위험을 완화할 수 있습니다. 먼저 컨테이너 이미지에서 쉘(Shell)을 제거합니다. 둘째, Dockerfile에 USER 지시문을 추가하거나 루트가 아닌 사용자로 파드의 컨테이너를 실행합니다. Kubernetes podSpec에는 `spec.securityContext` 아래에 애플리케이션을 실행할 사용자 및/또는 그룹을 지정할 수 있는 일련의 필드가 포함되어 있습니다. 이러한 필드는 각각 `runAsUser` 및 `runAsGroup` 입니다.
+모든 컨테이너는 기본적으로 루트로 실행됩니다. 이는 공격자가 애플리케이션의 취약성을 악용하고 실행 중인 컨테이너에 대한 셸 액세스 권한을 얻을 수 있는 경우 문제가 될 수 있습니다. 다양한 방법으로 이 위험을 완화할 수 있습니다. 먼저 컨테이너 이미지에서 셸(Shell)을 제거합니다. 둘째, Dockerfile에 USER 지시문을 추가하거나 루트가 아닌 사용자로 파드의 컨테이너를 실행합니다. Kubernetes podSpec에는 `spec.securityContext` 아래에 애플리케이션을 실행할 사용자 및/또는 그룹을 지정할 수 있는 일련의 필드가 포함되어 있습니다. 이런 필드는 각각 `runAsUser` 및 `runAsGroup` 입니다.
 
-`spec.securityContext` 및 관련 요소 의 사용을 강제하기 위해 PAC 정책 또는 파드 시큐리티 스탠다드(PSS)를 클러스터에 추가할 수 있습니다. 이러한 솔루션을 사용하면 etcd에 유지되기 전에 인바운드 Kubernetes API 서버 요청 페이로드를 검증할 수 있는 정책 또는 프로필을 작성 및/또는 사용할 수 있습니다. 또한 PAC 솔루션은 인바운드 요청을 변경하고 경우에 따라 새 요청을 생성할 수 있습니다.
+`spec.securityContext` 및 관련 요소 의 사용을 강제하기 위해 PAC 정책 또는 파드 시큐리티 스탠다드(PSS)를 클러스터에 추가할 수 있습니다. 이런 솔루션을 사용하면 etcd에 유지되기 전에 인바운드 Kubernetes API 서버 요청 페이로드를 검증할 수 있는 정책 또는 프로파일을 작성 및/또는 사용할 수 있습니다. 또한 PAC 솔루션은 인바운드 요청을 변경하고 경우에 따라 새 요청을 생성할 수 있습니다.
 
 ### Docker에서 Docker를 실행하거나 컨테이너에 소켓을 마운트하지 마십시오.
 
@@ -335,7 +335,7 @@ metadata:
 
 ### hostPath 사용을 제한하거나 hostPath가 필요한 경우 사용할 수 있는 접두사를 제한하고 볼륨을 읽기 전용으로 구성합니다.
 
-`hostPath` 는 호스트에서 컨테이너로 직접 디렉토리를 마운트하는 볼륨입니다. 파드에 이러한 유형의 액세스가 필요한 경우는 거의 없지만 필요한 경우 위험을 인식해야 합니다. 기본적으로 루트로 실행되는 파드는 hostPath에 의해 노출된 파일 시스템에 대한 쓰기 액세스 권한을 갖습니다. 이를 통해 공격자는 kubelet 설정을 수정하고, /etc/shadow와 같이 hostPath에 의해 직접 노출되지 않는 디렉토리 또는 파일에 대한 심볼릭 링크를 생성하고, ssh 키를 설치하고, 호스트에 마운트된 비밀을 읽고, 기타 악의적인 것들을 할 수 있습니다. hostPath의 위험을 완화하려면 `spec.containers.volumeMounts` 를 `readOnly` 로 구성하십시오. 예를 들면 다음과 같습니다.
+`hostPath` 는 호스트에서 컨테이너로 직접 디렉토리를 마운트하는 볼륨입니다. 파드에 이런 유형의 액세스가 필요한 경우는 거의 없지만 필요한 경우 위험을 인식해야 합니다. 기본적으로 루트로 실행되는 파드는 hostPath에 의해 노출된 파일 시스템에 대한 쓰기 액세스 권한을 갖습니다. 이를 통해 공격자는 kubelet 설정을 수정하고, /etc/shadow와 같이 hostPath에 의해 직접 노출되지 않는 디렉토리 또는 파일에 대한 심볼릭 링크를 생성하고, ssh 키를 설치하고, 호스트에 마운트된 비밀을 읽고, 기타 악의적인 것들을 할 수 있습니다. hostPath의 위험을 완화하려면 `spec.containers.volumeMounts` 를 `readOnly` 로 구성하십시오. 예를 들면 다음과 같습니다.
 
 ```yaml
 volumeMounts:
@@ -350,7 +350,7 @@ volumeMounts:
 
 ### 리소스 경합 및 DoS 공격을 피하기 위해 각 컨테이너에 대한 요청 및 제한 설정
 
-요청이나 제한이 없는 파드는 이론적으로 호스트에서 사용 가능한 모든 리소스를 소비할 수 있습니다. 추가 파드가 노드에 예약되면 노드에서 CPU 또는 메모리 압력이 발생하여 Kubelet이 종료되거나 노드에서 파드가 제거될 수 있습니다. 이러한 일이 함께 발생하는 것을 방지할 수는 없지만 요청 및 제한을 설정하면 리소스 경합을 최소화하고 리소스를 과도하게 소비하는 잘못 작성된 애플리케이션으로 인한 위험을 완화하는 데 도움이 됩니다.
+요청이나 제한이 없는 파드는 이론적으로 호스트에서 사용 가능한 모든 리소스를 소비할 수 있습니다. 추가 파드가 노드에 예약되면 노드에서 CPU 또는 메모리 압력이 발생하여 Kubelet이 종료되거나 노드에서 파드가 제거될 수 있습니다. 이런 일이 함께 발생하는 것을 방지할 수는 없지만 요청 및 제한을 설정하면 리소스 경합을 최소화하고 리소스를 과도하게 소비하는 잘못 작성된 애플리케이션으로 인한 위험을 완화하는 데 도움이 됩니다.
 
 `podSpec` 을 사용하면 CPU 및 메모리에 대한 요청 및 제한을 지정할 수 있습니다. CPU는 초과 신청될 수 있기 때문에 압축 가능한 리소스로 간주됩니다. 메모리는 압축할 수 없습니다. 즉, 여러 컨테이너 간에 공유할 수 없습니다.
 
@@ -368,7 +368,7 @@ Kubernetes는 세 가지 서비스 품질(QoS) 클래스를 사용하여 노드�
 + burstable
 + best-effort
 
-제한 및 요청이 설정되지 않은 경우 파드는 _best-effort_ (가장 낮은 우선 순위)로 구성됩니다. Best-effort 파드는 메모리가 부족할 때 가장 먼저 종료됩니다. 파드 내의 _all_ 컨테이너 에 제한이 설정 되거나 요청 및 제한이 동일한 값으로 설정되고 0이 아닌 경우 파드는 _guaranteed_ (가장 높은 우선 순위)로 구성됩니다. 보장된 파드는 구성된 메모리 제한을 초과하지 않는 한 종료되지 않습니다. 제한 및 요청이 0이 아닌 다른 값으로 구성되거나 파드 내의 한 컨테이너가 제한을 설정하고 다른 컨테이너는 다른 리소스에 대해 제한이 설정되지 않거나 설정된 경우 파드는 _burstable_ (중간 우선 순위)로 구성됩니다. 이러한 파드에는 일부 리소스 보장이 있지만 요청된 메모리를 초과하면 종료될 수 있습니다.
+제한 및 요청이 설정되지 않은 경우 파드는 _best-effort_ (가장 낮은 우선 순위)로 구성됩니다. Best-effort 파드는 메모리가 부족할 때 가장 먼저 종료됩니다. 파드 내의 _all_ 컨테이너 에 제한이 설정 되거나 요청 및 제한이 동일한 값으로 설정되고 0이 아닌 경우 파드는 _guaranteed_ (가장 높은 우선 순위)로 구성됩니다. 보장된 파드는 구성된 메모리 제한을 초과하지 않는 한 종료되지 않습니다. 제한 및 요청이 0이 아닌 다른 값으로 구성되거나 파드 내의 한 컨테이너가 제한을 설정하고 다른 컨테이너는 다른 리소스에 대해 제한이 설정되지 않거나 설정된 경우 파드는 _burstable_ (중간 우선 순위)로 구성됩니다. 이런 파드에는 일부 리소스 보장이 있지만 요청된 메모리를 초과하면 종료될 수 있습니다.
 
 !!! 주목
     
@@ -382,7 +382,7 @@ Kubernetes는 세 가지 서비스 품질(QoS) 클래스를 사용하여 노드�
 
 리소스 QoS에 대한 추가 정보는 [쿠버네티스 문서](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md)를 참조하십시오.
 
-네임스페이스에 [리소스 쿼터](https://kubernetes.io/docs/concepts/policy/resource-quotas/)을 설정하거나 [제한 범위](https://kubernetes.io/docs/concepts/policy/limit-range/)를 생성하여 리소스 요청(request) 및 리소스 제한(limit)을 강제로 사용할 수 있습니다. 리소스 할당량을 사용하면 네임스페이스에 할당된 총 리소스 양 (예: CPU 및 RAM)을 지정할 수 있습니다. 네임스페이스에 적용하면 해당 네임스페이스에 배포된 모든 컨테이너에 대한 리소스 요청 및 리소스 제한을 지정해야 합니다. 반대로 제한 범위를 사용하면 리소스 할당을 더 세밀하게 제어할 수 있습니다. 제한 범위를 사용하면 네임스페이스 내 파드 또는 컨테이너당 CPU 및 메모리 리소스를 최소/최대로 설정할 수 있습니다. 기본 리소스 요청(request)/리소스 제한(limit) 값이 제공되지 않은 경우 이를 사용하여 기본 요청/제한 값을 설정할 수도 있습니다.
+네임스페이스에 [리소스 할당량](https://kubernetes.io/docs/concepts/policy/resource-quotas/)을 설정하거나 [제한 범위](https://kubernetes.io/docs/concepts/policy/limit-range/)를 생성하여 리소스 요청(request) 및 리소스 제한(limit)을 강제로 사용할 수 있습니다. 리소스 할당량을 사용하면 네임스페이스에 할당된 총 리소스 양 (예: CPU 및 RAM)을 지정할 수 있습니다. 네임스페이스에 적용하면 해당 네임스페이스에 배포된 모든 컨테이너에 대한 리소스 요청 및 리소스 제한을 지정해야 합니다. 반대로 제한 범위를 사용하면 리소스 할당을 더 세밀하게 제어할 수 있습니다. 제한 범위를 사용하면 네임스페이스 내 파드 또는 컨테이너당 CPU 및 메모리 리소스를 최소/최대로 설정할 수 있습니다. 기본 리소스 요청(request)/리소스 제한(limit) 값이 제공되지 않은 경우 이를 사용하여 기본 요청/제한 값을 설정할 수도 있습니다.
 
 코드형 정책(PAC) 솔루션을 사용하여 요청 및 제한을 적용하거나 네임스페이스를 생성할 때 리소스 할당량 및 제한 범위를 만들 수도 있습니다.
 
@@ -425,7 +425,7 @@ automountServiceAccountToken: false
 
 ### 서비스 검색 비활성화
 
-클러스터 내 서비스를 조회하거나 호출할 필요가 없는 파드의 경우 파드에 제공되는 정보의 양을 줄일 수 있다. CoreDNS를 사용하지 않도록 Pod의 DNS 정책을 설정하고 파드 네임스페이스의 서비스를 환경 변수로 노출하지 않도록 설정할 수 있습니다. 서비스 링크에 대한 자세한 내용은 [환경 변수에 관한 쿠버네티스 문서][k8s-env-var-docs]를 참조하십시오. 파드 DNS 정책의 기본값은 클러스터 내 DNS를 사용하는 “ClusterFirst”이고, 기본값이 아닌 “Default”는 기본 노드의 DNS 확인을 사용합니다. 자세한 내용은 [파드 DNS 정책에 관한 쿠버네티스 문서][dns-policy] 를 참조하십시오.
+클러스터 내 서비스를 조회하거나 호출할 필요가 없는 파드의 경우 파드에 제공되는 정보의 양을 줄일 수 있다. CoreDNS를 사용하지 않도록 Pod의 DNS 정책을 설정하고 파드 네임스페이스의 서비스를 환경 변수로 노출하지 않도록 설정할 수 있습니다. 서비스 링크에 대한 자세한 내용은 [환경 변수에 관한 쿠버네티스 문서][k8s-env-var-docs]를 참조하십시오. 파드 DNS 정책의 기본값은 클러스터 내 DNS를 사용하는 "ClusterFirst"이고, 기본값이 아닌 "Default"는 기본 노드의 DNS 확인을 사용합니다. 자세한 내용은 [파드 DNS 정책에 관한 쿠버네티스 문서][dns-policy] 를 참조하십시오.
 
 
 
@@ -483,5 +483,3 @@ securityContext:
 + [정책 기반 대책: 파트 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
 + [정책 기반 대책: 파트 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
 + [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) PSP를 OPA/Gatekeeper, KubeWarden 또는 Kyverno 정책으로 변환하는 도구입니다.
-
-

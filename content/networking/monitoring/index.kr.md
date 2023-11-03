@@ -4,22 +4,22 @@
 
 DNS 집약적 워크로드를 실행하면 DNS 스로틀링으로 인해 간헐적으로 CoreDNS 장애가 발생할 수 있으며, 이로 인해 가끔 알 수 없는 Hostexception 오류가 발생할 수 있는 애플리케이션에 영향을 미칠 수 있습니다.
 
-CoreDNS 배포에는 Kubernetes 스케줄러가 클러스터의 개별 작업자 노드에서 CoreDNS 인스턴스를 실행하도록 지시하는 반선호도 정책이 있습니다. 즉, 동일한 작업자 노드에 복제본을 같은 위치에 배치하지 않도록 해야 합니다. 이렇게 하면 각 복제본의 트래픽이 다른 ENI를 통해 라우팅되므로 네트워크 인터페이스당 DNS 쿼리 수가 효과적으로 줄어듭니다. 초당 1024개의 패킷 제한으로 인해 DNS 쿼리가 병목 현상을 겪는 경우 1) 코어 DNS 복제본 수를 늘리거나 2) [NodeLocal DNS 캐시](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/)를 구현해 볼 수 있습니다.자세한 내용은 [CoreDNS 메트릭 모니터링](https://aws.github.io/aws-eks-best-practices/reliability/docs/networkmanagement/#monitor-coredns-metrics)을 참조하십시오.
+CoreDNS 배포에는 Kubernetes 스케줄러가 클러스터의 개별 워커 노드에서 CoreDNS 인스턴스를 실행하도록 지시하는 반선호도 정책이 있습니다. 즉, 동일한 워커 노드에 복제본을 같은 위치에 배치하지 않도록 해야 합니다. 이렇게 하면 각 복제본의 트래픽이 다른 ENI를 통해 라우팅되므로 네트워크 인터페이스당 DNS 쿼리 수가 효과적으로 줄어듭니다. 초당 1024개의 패킷 제한으로 인해 DNS 쿼리가 병목 현상을 겪는 경우 1) 코어 DNS 복제본 수를 늘리거나 2) [NodeLocal DNS 캐시](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/)를 구현해 볼 수 있습니다.자세한 내용은 [CoreDNS 메트릭 모니터링](https://aws.github.io/aws-eks-best-practices/reliability/docs/networkmanagement/#monitor-coredns-metrics)을 참조하십시오.
 
 ### 도전 과제
-* 패킷 드롭은 몇 초 만에 발생하며 DNS 스로틀링이 실제로 발생하는지 확인하기 위해 이러한 패턴을 적절하게 모니터링하는 것은 까다로울 수 있습니다.
+* 패킷 드롭은 몇 초 만에 발생하며 DNS 스로틀링이 실제로 발생하는지 확인하기 위해 이런 패턴을 적절하게 모니터링하는 것은 까다로울 수 있습니다.
 * DNS 쿼리는 엘라스틱 네트워크 인터페이스 수준에서 조절됩니다. 따라서 병목 현상이 발생한 쿼리는 쿼리 로깅에 나타나지 않습니다.
 * 플로우 로그는 모든 IP 트래픽을 캡처하지 않습니다. 예: 인스턴스가 Amazon DNS 서버에 접속할 때 생성되는 트래픽 자체 DNS 서버를 사용하는 경우 해당 DNS 서버로 향하는 모든 트래픽이 로깅됩니다.
 
 ### 솔루션
-An easy way to identify the DNS throttling issues in worker nodes is by capturing `linklocal_allowance_exceeded` metric. The [linklocal_allowance_exceeded](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent) is number of packets dropped because the PPS of the traffic to local proxy services exceeded the maximum for the network interface. This impacts traffic to the DNS service, the Instance Metadata Service, and the Amazon Time Sync Service. Instead of tracking this event real-time, we can stream this metric to [Amazon Managed Service for Prometheus](https://aws.amazon.com/prometheus/) as well and can have them visualized in [Amazon Managed Grafana](https://aws.amazon.com/grafana/)
+워커 노드의 DNS 조절 문제를 쉽게 식별할 수 있는 방법은 `linklocal_allowance_exeded` 메트릭을 캡처하는 것입니다. [linklocal_allowance_exceeded](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent)는 로컬 프록시 서비스에 대한 트래픽의 PPS가 네트워크 인터페이스의 최대값을 초과하여 삭제된 패킷 수입니다. 이는 DNS 서비스, 인스턴스 메타데이터 서비스 및 Amazon Time Sync 서비스에 대한 트래픽에 영향을 미칩니다. 이 이벤트를 실시간으로 추적하는 대신 이 지표를 [Amazon Managed Service for Prometheus](https://aws.amazon.com/prometheus/)에도 스트리밍하여 [Amazon Managed Grafana](https://aws.amazon.com/grafana/)에서 시각화할 수 있습니다.
 
 ## Conntrack 메트릭을 사용하여 DNS 쿼리 지연 모니터링
 
 CoreDNS 스로틀링/쿼리 지연을 모니터링하는 데 도움이 될 수 있는 또 다른 지표는 `conntrack_allowance_available`과 `conntrack_allowance_exceed`입니다.
 연결 추적 허용량을 초과하여 발생하는 연결 장애는 다른 허용치를 초과하여 발생하는 연결 실패보다 더 큰 영향을 미칠 수 있습니다. TCP를 사용하여 데이터를 전송하는 경우, 대역폭, PPS 등과 같이 EC2 인스턴스 네트워크 허용량을 초과하여 대기열에 있거나 삭제되는 패킷은 일반적으로 TCP의 혼잡 제어 기능 덕분에 정상적으로 처리됩니다. 영향을 받은 흐름은 느려지고 손실된 패킷은 재전송됩니다. 그러나 인스턴스가 Connections Tracked 허용량을 초과하는 경우 새 연결을 위한 공간을 마련하기 위해 기존 연결 중 일부를 닫기 전까지는 새 연결을 설정할 수 없습니다. 
 
-`conntrack_allowance_available` 및 `conntrack_allowance_exceed`는 고객이 모든 인스턴스마다 달라지는 연결 추적 허용량을 모니터링하는 데 도움이 됩니다. 이러한 네트워크 성능 지표를 통해 고객은 네트워크 대역폭, 초당 패킷 수 (PPS), 추적된 연결, 링크 로컬 서비스 액세스 (Amazon DNS, 인스턴스 메타 데이터 서비스, Amazon Time Sync) 와 같은 인스턴스의 네트워킹 허용량을 초과했을 때 대기 또는 삭제되는 패킷 수를 파악할 수 있습니다.
+`conntrack_allowance_available` 및 `conntrack_allowance_exceed`는 고객이 모든 인스턴스마다 달라지는 연결 추적 허용량을 모니터링하는 데 도움이 됩니다. 이런 네트워크 성능 지표를 통해 고객은 네트워크 대역폭, 초당 패킷 수 (PPS), 추적된 연결, 링크 로컬 서비스 액세스 (Amazon DNS, 인스턴스 메타 데이터 서비스, Amazon Time Sync) 와 같은 인스턴스의 네트워킹 허용량을 초과했을 때 대기 또는 삭제되는 패킷 수를 파악할 수 있습니다.
 
 `conntrack_allowance_available`은 해당 인스턴스 유형의 추적된 연결 허용량에 도달하기 전에 인스턴스가 설정할 수 있는 추적된 연결 수입니다 (니트로 기반 인스턴스에서만 지원됨). 
 `conntrack_allowance_exceed`는 인스턴스의 연결 추적이 최대치를 초과하여 새 연결을 설정할 수 없어서 삭제된 패킷 수입니다.
@@ -41,7 +41,7 @@ Elastic Network Adapter (ENA) 드라이버는 위에서 설명한 네트워크 �
 이제 위에서 설명한 지표를 캡처하여 Prometheus용 Amazon Managed Service에 저장하고 Amazon Managed Grafana를 사용하여 시각화해 보겠습니다.
 
 ### 사전 요구 사항
-* ethtool - 작업자 노드에 ethtool이 설치되어 있는지 확인하십시오.
+* ethtool - 워커 노드에 ethtool이 설치되어 있는지 확인하십시오.
 * AWS 계정에 구성된 AMP 워크스페이스.지침은 AMP 사용 설명서의 [워크스페이스 만들기](https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-onboard-create-workspace.html)를 참조하십시오.
 * Amazon Managed Grafana 워크스페이스
 
@@ -53,7 +53,7 @@ kubectl apply -f https://raw.githubusercontent.com/Showmax/prometheus-ethtool-ex
 ```
 
 ### ADOT 컬렉터를 배포하여 ethtool 메트릭을 스크랩하고 프로메테우스용 아마존 매니지드 서비스 워크스페이스에 저장
-OpenTelemetry용 AWS 배포판 (ADOT) 을 설치하는 각 클러스터에는 이 역할이 있어야 AWS 서비스 계정에 메트릭을 Prometheus용 Amazon 관리형 서비스에 저장할 수 있는 권한을 부여할 수 있습니다.다음 단계에 따라 IRSA를 사용하여 IAM 역할을 생성하고 Amazon EKS 서비스 계정에 연결하십시오.
+OpenTelemetry용 AWS 배포판 (ADOT) 을 설치하는 각 클러스터에는 이 역할이 있어야 AWS 서비스 어카운트에 메트릭을 Prometheus용 Amazon 관리형 서비스에 저장할 수 있는 권한을 부여할 수 있습니다.다음 단계에 따라 IRSA를 사용하여 IAM 역할을 생성하고 Amazon EKS 서비스 어카운트에 연결하십시오.
 
 ```
 eksctl create iamserviceaccount --name adot-collector --namespace default --cluster <CLUSTER_NAME> --attach-policy-arn arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess --attach-policy-arn arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess --attach-policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy --region <REGION> --approve  --override-existing-serviceaccounts
@@ -61,7 +61,7 @@ eksctl create iamserviceaccount --name adot-collector --namespace default --clus
 
 ADOT 컬렉터를 배포하여 프로메테우스 ethtool 익스포터의 메트릭을 스크랩하여 프로메테우스용 아마존 매니지드 서비스에 저장해 보겠습니다.
 
-다음 절차에서는 배포를 모드 값으로 사용하는 예제 YAML 파일을 사용합니다. 이 모드는 기본 모드이며 독립 실행형 응용 프로그램과 유사하게 ADOT Collector를 배포합니다. 이 구성은 클러스터의 포드에서 스크랩한 샘플 애플리케이션과 Amazon Managed Service for Prometheus 지표로부터 OTLP 지표를 수신합니다.
+다음 절차에서는 배포를 모드 값으로 사용하는 예제 YAML 파일을 사용합니다. 이 모드는 기본 모드이며 독립 실행형 응용 프로그램과 유사하게 ADOT Collector를 배포합니다. 이 구성은 클러스터의 파드에서 스크랩한 샘플 애플리케이션과 Amazon Managed Service for Prometheus 지표로부터 OTLP 지표를 수신합니다.
 
 ```
 curl -o collector-config-amp.yaml https://raw.githubusercontent.com/aws-observability/aws-otel-community/master/sample-configs/operator/collector-config-amp.yaml
