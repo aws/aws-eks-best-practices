@@ -171,7 +171,7 @@ aws iam get-role --role-name ${ROLE_ARN##*/} \
 
 Amazon EKS automatically installs add-ons such as the Amazon VPC CNI plugin for Kubernetes, `kube-proxy`, and CoreDNS for every cluster. Add-ons may be self-managed, or installed as Amazon EKS Add-ons. Amazon EKS Add-ons is an alternate way to manage add-ons using the EKS API. 
 
-You can use Amazon EKS Add-ons to update vesions with a single command. For Example:
+You can use Amazon EKS Add-ons to update versions with a single command. For Example:
 
 ```
 aws eks update-addon —cluster-name my-cluster —addon-name vpc-cni —addon-version version-number \

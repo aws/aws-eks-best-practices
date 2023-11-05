@@ -259,7 +259,7 @@ The diagram below depicts network paths for traffic flowing from the load balanc
 
 Data transfer into the Amazon ECR private registry is free. _In-region data transfer incurs no cost_, but data transfer out to the internet and across regions will be charged at Internet Data Transfer rates on both sides of the transfer. 
 
-You should utilize ECRs built-in[image replication](https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html)[feature](https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html) to replicate the relevant container images into the same region as your workloads. This way the replication would be charged once, and all the same region (intra-region) image pulls would be free.
+You should utilize ECRs built-in [image replication feature](https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html) to replicate the relevant container images into the same region as your workloads. This way the replication would be charged once, and all the same region (intra-region) image pulls would be free.
 
 You can further reduce data transfer costs associated with pulling images from ECR (data transfer out) by _using [Interface VPC Endpoints](https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html) to connect to the in-region ECR repositories_. The alternative approach of connecting to ECR’s public AWS endpoint (via a NAT Gateway and an Internet Gateway) will incur higher data processing and transfer costs. The next section will cover reducing data transfer costs between your workloads and AWS Services in greater detail. 
 
