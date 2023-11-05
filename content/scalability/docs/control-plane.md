@@ -125,23 +125,25 @@ The mapping of FlowSchemas to PriorityLevelConfigurations can be viewed using th
 
 ```
 $ kubectl get flowschemas
-NAME                           PRIORITYLEVEL     MATCHINGPRECEDENCE   DISTINGUISHERMETHOD   AGE   MISSINGPL
-exempt                         exempt            1                    <none>                3d    False
-probes                         exempt            2                    <none>                3d    False
-system-leader-election         leader-election   100                  ByUser                3d    False
-endpoint-controller            workload-high     150                  ByUser                3d    False
-workload-leader-election       leader-election   200                  ByUser                3d    False
-system-node-high               node-high         400                  ByUser                3d    False
-system-nodes                   system            500                  ByUser                3d    False
-kube-controller-manager        workload-high     800                  ByNamespace           3d    False
-kube-scheduler                 workload-high     800                  ByNamespace           3d    False
-kube-system-service-accounts   workload-high     900                  ByNamespace           3d    False
-service-accounts               workload-low      9000                 ByUser                3d    False
-global-default                 global-default    9900                 ByUser                3d    False
-catch-all                      catch-all         10000                ByUser                3d    False
+NAME                           PRIORITYLEVEL     MATCHINGPRECEDENCE   DISTINGUISHERMETHOD   AGE     MISSINGPL
+exempt                         exempt            1                    <none>                7h19m   False
+eks-exempt                     exempt            2                    <none>                7h19m   False
+probes                         exempt            2                    <none>                7h19m   False
+system-leader-election         leader-election   100                  ByUser                7h19m   False
+endpoint-controller            workload-high     150                  ByUser                7h19m   False
+workload-leader-election       leader-election   200                  ByUser                7h19m   False
+system-node-high               node-high         400                  ByUser                7h19m   False
+system-nodes                   system            500                  ByUser                7h19m   False
+kube-controller-manager        workload-high     800                  ByNamespace           7h19m   False
+kube-scheduler                 workload-high     800                  ByNamespace           7h19m   False
+kube-system-service-accounts   workload-high     900                  ByNamespace           7h19m   False
+eks-workload-high              workload-high     1000                 ByUser                7h14m   False
+service-accounts               workload-low      9000                 ByUser                7h19m   False
+global-default                 global-default    9900                 ByUser                7h19m   False
+catch-all                      catch-all         10000                ByUser                7h19m   False
 ```
 
-PriorityLevelConfigurations can have a type of Queue, Reject, or Exempt. For types Queue and Reject, a limit is enforced on the maximum number of inflight requests for that priority level, however, the behavior differs when that limit is reached. For example, the workload-high PriorityLevelConfiguration uses type Queue and has 98 requests available for use by the controller-manager, endpoint-controller, scheduler, and from pods running in the kube-system namespace. Since type Queue is used, the API Server will attempt to keep requests in memory and hope that the number of inflight requests drops below 98 before these requests time out. If a given request times out in the queue or if too many requests are already queued, the API Server has no choice but to drop the request and return the client a 429. Note that queuing may prevent a request from receiving a 429, but it comes with the tradeoff of increased end-to-end latency on the request.
+PriorityLevelConfigurations can have a type of Queue, Reject, or Exempt. For types Queue and Reject, a limit is enforced on the maximum number of inflight requests for that priority level, however, the behavior differs when that limit is reached. For example, the workload-high PriorityLevelConfiguration uses type Queue and has 98 requests available for use by the controller-manager, endpoint-controller, scheduler,eks related controllers and from pods running in the kube-system namespace. Since type Queue is used, the API Server will attempt to keep requests in memory and hope that the number of inflight requests drops below 98 before these requests time out. If a given request times out in the queue or if too many requests are already queued, the API Server has no choice but to drop the request and return the client a 429. Note that queuing may prevent a request from receiving a 429, but it comes with the tradeoff of increased end-to-end latency on the request.
 
 Now consider the catch-all FlowSchema that maps to the catch-all PriorityLevelConfiguration with type Reject. If clients reach the limit of 13 inflight requests, the API Server will not exercise queuing and will drop the requests instantly with a 429 response code. Finally, requests mapping to a PriorityLevelConfiguration with type Exempt will never receive a 429 and always be dispatched immediately. This is used for high-priority requests such as healthz requests or requests coming from the system:masters group.  
 
