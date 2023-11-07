@@ -31,6 +31,8 @@ Amazon EKS clusters support both IPv4 and IPv6. By default, EKS clusters use IPv
 
 For detailed information please see the [Running IPv6 EKS Clusters](../ipv6/) section and for hands-on experience please see the [Understanding IPv6 on Amazon EKS](https://catalog.workshops.aws/ipv6-on-aws/en-US/lab-6) section of the [Get hands-on with IPv6 workshop](https://catalog.workshops.aws/ipv6-on-aws/en-US).
 
+![EKS Cluster in IPv6 Mode, traffic flow](./ipv6.gif)
+
 
 ### Optimize IP consumption in IPv4 clusters
 
@@ -53,6 +55,8 @@ This pattern allows you to conserve routable IPs by scheduling Pods inside dedic
 While custom networking will accept valid VPC range for secondary CIDR range, we recommend that you use CIDRs (/16) from the CG-NAT space, i.e. `100.64.0.0/10` or `198.19.0.0/16` as those are less likely to be used in a corporate setting than RFC1918 ranges. 
 
 For detailed information please see the dedicated section for [Custom Networking](../custom-networking/).
+
+![Custom Networking, traffic flow](./custom-networking.gif)
 
 #### Configure CNI environment variables
 

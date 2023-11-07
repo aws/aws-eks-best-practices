@@ -80,11 +80,18 @@ Both nodes and ingress are created in private subnets. Using the [`kubernetes.io
 
 ### Communication across VPCs
 
-There are many scenarios when you require multiple VPCs and separate EKS clusters deployed to these VPCs. Multiple VPCs are needed when you have to support security, billing, multiple regions, or internal charge-back requirements. We recommend following the design patterns mentioned in the VPC-to-VPC connectivity [guide](https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/amazon-vpc-to-amazon-vpc-connectivity-options.html) to integrate multiple Amazon VPCs into a larger virtual network. 
+There are many scenarios when you require multiple VPCs and separate EKS clusters deployed to these VPCs. 
 
-VPC connectivity is best achieved when using non-overlapping IP ranges for each VPC being connected. For operational efficiency, we strongly recommend deploying EKS clusters and nodes to IP ranges that do not overlap. We suggest [Private NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html#nat-gateway-basics), or VPC CNI in [custom networking](../custom-networking/index.md) mode in conjunction with [transit gateway](https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-transit-gateway.html) to integrate workloads on EKS to solve overlapping CIDR challenges while preserving routable RFC1918 IP addresses. Consider utilizing [AWS PrivateLink](https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-share-your-services.html), also known as an endpoint service, if you are the service provider and would want to share your Kubernetes service and ingress (either ALB or NLB) with your customer VPC in separate accounts. 
+You can use [Amazon VPC Lattice](https://aws.amazon.com/vpc/lattice/) to consistently and securely connect services across multiple VPCs and accounts (without requiring additional connectivity to be provided by services like VPC peering, AWS PrivateLink or AWS Transit Gateway). Learn more [here](https://aws.amazon.com/blogs/networking-and-content-delivery/build-secure-multi-account-multi-vpc-connectivity-for-your-applications-with-amazon-vpc-lattice/).
 
-You can also use [Amazon VPC Lattice](https://aws.amazon.com/vpc/lattice/) to consistently and securely connect services across multiple VPCs and accounts (without requiring additional connectivity to be provided by services like VPC peering, AWS PrivateLink or AWS Transit Gateway). Amazon VPC Lattice operates in the link-local address space in IPv4 and IPv6, providing connectivity between services that may have overlapping IPv4 addresses. Learn more [here](https://aws.amazon.com/blogs/networking-and-content-delivery/build-secure-multi-account-multi-vpc-connectivity-for-your-applications-with-amazon-vpc-lattice/).
+![Amazon VPC Lattice, traffic flow](./vpc-lattice.gif)
+
+
+Amazon VPC Lattice operates in the link-local address space in IPv4 and IPv6, providing connectivity between services that may have overlapping IPv4 addresses. For operational efficiency, we strongly recommend deploying EKS clusters and nodes to IP ranges that do not overlap. In case your infrastructure includes VPCs with overlapping IP ranges, you need to architect your network accordingly. We suggest [Private NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html#nat-gateway-basics), or VPC CNI in [custom networking](../custom-networking/index.md) mode in conjunction with [transit gateway](https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-transit-gateway.html) to integrate workloads on EKS to solve overlapping CIDR challenges while preserving routable RFC1918 IP addresses. 
+
+![Private Nat Gateway with Custom Networking, traffic flow](./private-nat-gw.gif)
+
+Consider utilizing [AWS PrivateLink](https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-share-your-services.html), also known as an endpoint service, if you are the service provider and would want to share your Kubernetes service and ingress (either ALB or NLB) with your customer VPC in separate accounts. 
 
 ### Sharing VPC across multiple accounts
 
