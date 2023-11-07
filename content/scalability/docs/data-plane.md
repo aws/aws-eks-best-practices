@@ -6,7 +6,7 @@ Selecting EC2 instance types is possibly one of the hardest decisions customers 
 
 ## Automatic node autoscaling
 
-We recommend you use node autoscaling that reduces toil and integrates deeply with Kubernetes. [Managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) and [Karpenter](https://karpenter.sh/) are recomended for large scale clusters.
+We recommend you use node autoscaling that reduces toil and integrates deeply with Kubernetes. [Managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) and [Karpenter](https://karpenter.sh/) are recommended for large scale clusters.
 
 Managed node groups will give you the flexibility of Amazon EC2 Auto Scaling groups with added benefits for managed upgrades and configuration. It can be scaled with the [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) and is a common option for clusters that have a variety of compute needs.
 
@@ -44,7 +44,7 @@ A cluster with three u-24tb1.metal instances (24 TB memory and 448 cores) has 3 
 
 Workloads should define the resources they need and the availability required via taints, tolerations, and [PodTopologySpread](https://kubernetes.io/blog/2020/05/introducing-podtopologyspread/). They should prefer the largest nodes that can be fully utilized and meet availability goals to reduce control plane load, lower operations, and reduce cost.
 
-The Kubernetes Scheduler will automatically try to spread workloads across availablility zones and hosts if resources are available. If no capacity is available the Kubernetes Cluster Autoscaler will attempt to add nodes in each Availability Zone evenly. Karpenter will attempt to add nodes as quickly and cheaply as possible unless the workload specifies other requirements.
+The Kubernetes Scheduler will automatically try to spread workloads across availability zones and hosts if resources are available. If no capacity is available the Kubernetes Cluster Autoscaler will attempt to add nodes in each Availability Zone evenly. Karpenter will attempt to add nodes as quickly and cheaply as possible unless the workload specifies other requirements.
 
 To force workloads to spread with the scheduler and new nodes to be created across availability zones you should use topologySpreadConstraints:
 
