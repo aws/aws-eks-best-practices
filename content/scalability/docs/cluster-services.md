@@ -57,6 +57,22 @@ You can reduce DNS lookup failures by setting a [lameduck](https://coredns.io/pl
 
 We recommend setting CoreDNS lameduck duration to 30 seconds. 
 
+## CoreDNS readiness probe
+
+We recommend using /ready instead of /health on on readiness probe of CoreDNS.
+
+In alignment with the earlier recommendation to set the lameduck duration to 30 seconds, providing ample time for the node's iptables rules to be updated before pod termination, employing /ready instead of /health for the CoreDNS readiness probe ensures that the CoreDNS pod is fully prepared during startup to promptly respond to DNS requests.
+
+```
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8181
+    scheme: HTTP
+```
+
+For more information about the CoreDNS Ready plugin please refer to https://coredns.io/plugins/ready/
+
 ## Logging and monitoring agents
 
 Logging and monitoring agents can add significant load to your cluster control plane because the agents query the API server to enrich logs and metrics with workload metadata. The agent on a node only has access to the local node resources to see things like container and process name. Querying the API server it can add more details such as Kubernetes deployment name and labels. This can be extremely helpful for troubleshooting but detrimental to scaling.
