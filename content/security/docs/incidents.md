@@ -105,7 +105,7 @@ If the vulnerable pods are managed by a higher-level Kubernetes workload resourc
 ## Recommendations
 
 ### Review the AWS Security Incident Response Whitepaper
-While this section gives a brief overview along with a few  recommendations for handling suspected security breaches, the topic is exhaustively covered in the white paper, [AWS Security Incident Response](https://d1.awsstatic.com/whitepapers/aws_security_incident_response.pdf).
+While this section gives a brief overview along with a few  recommendations for handling suspected security breaches, the topic is exhaustively covered in the white paper, [AWS Security Incident Response](https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/welcome.html).
 
 ### Practice security game days
 Divide your security practitioners into 2 teams: red and blue.  The red team will be focused on probing different systems for vulnerabilities while the blue team will be responsible for defending against them.  If you don't have enough security practitioners to create separate teams, consider hiring an outside entity that has knowledge of Kubernetes exploits. 
