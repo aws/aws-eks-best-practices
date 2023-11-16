@@ -302,6 +302,16 @@ Karpenter is able to launch nodes that best fit your workloads when its informat
 
 See [Configure and Size Resource Requests/Limits for all Workloads](https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads)
 
+### CoreDNS recommendations
+ 
+When deploying CoreDNS pods on nodes managed by Karpenter, given Karpenter's dynamic nature in rapidly terminating/creating new nodes to align with demand, it is advisable to adhere to the following best practices:
+
+[CoreDNS lameduck duration](https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-lameduck-duration)
+
+[CoreDNS readiness probe](https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-readiness-probe)
+
+This will ensure that DNS queries are not directed to a CoreDNS Pod that is not yet ready or has been terminated.
+
 ## Additional Resources
 * [Karpenter/Spot Workshop](https://ec2spotworkshops.com/karpenter.html)
 * [Karpenter Node Provisioner](https://youtu.be/_FXRIKWJWUk)
