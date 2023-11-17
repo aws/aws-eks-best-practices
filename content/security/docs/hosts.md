@@ -10,7 +10,7 @@ Alternately, use the [EKS optimized AMI][eks-ami] for your Kubernetes worker nod
 
 [eks-ami]: https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html
 
-Please refer Amazon [EKS AMI RHEL Build Specification](https://github.com/aws-samples/amazon-eks-ami-rhel) for building a custom Amazon EKS AMI running on Red Hat Enterprise Linux using Hashicorp Packer. This script can be further leveraged to build STIG compliant EKS custom AMIs.
+Please refer [Amazon EKS AMI RHEL Build Specification](https://github.com/aws-samples/amazon-eks-ami-rhel) for a sample configuration script which can be used for building a custom Amazon EKS AMI running on Red Hat Enterprise Linux using Hashicorp Packer. This script can be further leveraged to build STIG compliant EKS custom AMIs.
 
 ### Keep your worker node OS updated
 
