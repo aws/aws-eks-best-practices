@@ -22,7 +22,7 @@ When a pod that is a member of a NodePort Service is created, Kubernetes will go
     1. The local iptables rules on the worker node will be updated with the additional target pod for the NodePort Service.
 
 !!! note
-    When using an Ingress resource and Ingress Controller (like the AWS Load Balancer Controller) step 5 is handled by the relevant controller instead of `kube-proxy`. The controller will then take the necessary configuration steps (such as registering/deregistering the target to a load balancer) to allow traffic to flow as expected.
+    When using an Ingress resource and Ingress Controller (like the AWS Load Balancer Controller), the controller registers/deregisters the target to the load balancer to allow traffic to flow as expected.
 
 [When a pod is terminated](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), or changes to a not-ready state, a similar process occurs. The API server will receive either an update from a controller, kubelet, or kubectl client to terminate the pod. Steps 3-5 continue from there but will remove the Pod IP/Tuple from the endpoints list and iptables rules rather than insert.
 
