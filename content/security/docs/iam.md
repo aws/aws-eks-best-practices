@@ -45,9 +45,9 @@ The output should resemble this:
   }
 }
 ```
-Each token starts with `k8s-aws-v1.` followed by a base64 encoded string. The string, when decoded, should resemble this: 
+Each token starts with `k8s-aws-v1.` followed by a base64 encoded string. The string, when decoded, should resemble to something similar to this:
 ```bash
-https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJPFRILKNSRC2W5QA%2F20200219%2Fus-east-1%2Fsts%2Faws4_request&X-Amz-Date=20200219T155427Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host%3Bx-k8s-aws-id&X-Amz-Signature=220f8f3285e320ddb5e683a5c9a405301ad76546f24f28111fdad09cf648a393
+https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XXXXJPFRILKNSRC2W5QA%2F20200219%2Fus-xxxx-1%2Fsts%2Faws4_request&X-Amz-Date=20200219T155427Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host%3Bx-k8s-aws-id&X-Amz-Signature=XXXf8f3285e320ddb5e683a5c9a405301ad76546f24f28111fdad09cf648a393
 ```
 The token consists of a pre-signed URL that includes an Amazon credential and signature. For additional details see [https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html). 
 
@@ -98,6 +98,12 @@ To manage permissions, you can edit the `aws-auth` ConfigMap adding or removing 
 
 ### Cluster Access Manager
 
+Cluster Access Manager, a functionality of the AWS API, simplifies identity mapping between AWS IAM and Kubernetes RBACs. It eliminates the need to switch between AWS and Kubernetes APIs or editing the the `aws-auth` ConfigMap for access management, reducing operational overhead, and prevents misconfigurations. The tool also enables cluster administrators to revoke `cluster-admin` permissions from the cluster's creator principal.
+
+This API relies on two concepts: 
+
+- **Access entries:** A cluster identity directly linked to an AWS IAM principal (user or role) allowed to authenticate to an Amazon EKS cluster.
+- **Access Policies:** Is the authorization for an Access Entry to perform specific actions in the Amazon EKS cluster.
 
 ## Recommendations
 
@@ -306,7 +312,7 @@ This particular token grants the Pod view-only privileges to S3. When the applic
         "SecretAccessKey": "ORJ+8Adk+wW+nU8FETq7+mOqeA8Z6jlPihnV8hX1", 
         "SessionToken": "FwoGZXIvYXdzEGMaDMLxAZkuLpmSwYXShiL9A1S0X87VBC1mHCrRe/pB2oes+l1eXxUYnPJyC9ayOoXMvqXQsomq0xs6OqZ3vaa5Iw1HIyA4Cv1suLaOCoU3hNvOIJ6C94H1vU0siQYk7DIq9Av5RZe+uE2FnOctNBvYLd3i0IZo1ajjc00yRK3v24VRq9nQpoPLuqyH2jzlhCEjXuPScPbi5KEVs9fNcOTtgzbVf7IG2gNiwNs5aCpN4Bv/Zv2A6zp5xGz9cWj2f0aD9v66vX4bexOs5t/YYhwuwAvkkJPSIGvxja0xRThnceHyFHKtj0H+bi/PWAtlI8YJcDX69cM30JAHDdQH+ltm/4scFptW1hlvMaP+WReCAaCrsHrAT+yka7ttw5YlUyvZ8EPog+j6fwHlxmrXM9h1BqdikomyJU00gm1++FJelfP+1zAwcyrxCnbRl3ARFrAt8hIlrT6Vyu8WvWtLxcI8KcLcJQb/LgkW+sCTGlYcY8z3zkigJMbYn07ewTL5Ss7LazTJJa758I7PZan/v3xQHd5DEc5WBneiV3iOznDFgup0VAMkIviVjVCkszaPSVEdK2NU7jtrh6Jfm7bU/3P6ZG+CkyDLIa8MBn9KPXeJd/y+jTk5Ii+fIwO/+mDpGNUribg6TPxhzZ8b/XdZO1kS1gVgqjXyVC+M+BRBh6C4H21w/eMzjCtDIpoxt5rGKL6Nu/IFMipoC4fgx6LIIHwtGYMG7SWQi7OsMAkiwZRg0n68/RqWgLzBt/4pfjSRYuk=", 
         "Expiration": "2020-02-20T18:49:50Z", 
-        "AccessKeyId": "ASIA36C6WWEJUMHA3L7Z"
+        "AccessKeyId": "XXXX36C6WWEJUMHA3L7Z"
     }
 }
 ```  
