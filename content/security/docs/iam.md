@@ -55,6 +55,58 @@ The token has a time to live (TTL) of 15 minutes after which a new token will ne
 
 Once the user's identity has been authenticated by the AWS IAM service, the kube-apiserver reads the `aws-auth` ConfigMap in the `kube-system` Namespace to determine the RBAC group to associate with the user.  The `aws-auth` ConfigMap is used to create a static mapping between IAM principals, i.e. IAM Users and Roles, and Kubernetes RBAC groups. RBAC groups can be referenced in Kubernetes RoleBindings or ClusterRoleBindings. They are similar to IAM Roles in that they define a set of actions (verbs) that can be performed against a collection of Kubernetes resources (objects).
 
+### The `aws-auth` ConfigMap
+
+Kubernetes integration with AWS authentication is done via the `aws-auth` ConfigMap, which resides in the `kube-system` Namespace. It's is responsible for mapping the AWS IAM Identities (Users, Groups, and Roles) authentication, to Kubernates role-based access control (RBAC) authorization. The `aws-auth` ConfigMap is automatically created in your Amazon EKS cluster during its provisioning phase. It was initially created to allow nodes to join your cluster, but as mentioned you can also use this ConfigMap to add RBACs access to IAM principals.
+
+To check your cluster's `aws-auth` ConfigMap, you can use the following command.
+
+```bash
+kubectl -n kube-system get configmap aws-auth -o yaml
+```
+
+This is a sample of a default configuration of the `aws-auth` ConfigMap.
+
+```yaml
+apiVersion: v1
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      - system:node-proxier
+      rolearn: arn:aws:iam::<AWS_ACCOUNT_ID>:role/kube-system-<SELF_GENERATED_UUID>
+      username: system:node:{{SessionName}}
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2023-10-22T18:19:30Z"
+  name: aws-auth
+  namespace: kube-system
+```
+
+The main session of this ConfigMap, is under `data` in the `mapRoles` block, which is basically composed by 3 parameters.
+
+- **groups:** The Kubernetes group(s) to map the IAM Role to. This can be a default group, or a custom group specified in a `clusterrolebinding` or `rolebinding`. In the above example we have just system groups declared.
+- **rolearn:** The ARN of the AWS IAM Role be mapped to the Kubernetes group(s) add, using the following format `arn:<PARTITION>:iam::<AWS_ACCOUNT_ID>:role/role-name`.
+- **username:** The username within Kubernetes to map to the AWS IAM role. This can be any custom name.
+
+> It is also possible to map permissions for AWS IAM Users, defining a new configuration block for `mapUsers`, under `data` in the `aws-auth` ConfigMap, replacing the **rolearn** parameter for **userarn**, however as a **Best Practice** it's always recommended to user `mapRoles` instead.
+
+To manage permissions, you can edit the `aws-auth` ConfigMap adding or removing access to your Amazon EKS cluster. Although it's possible to edit the `aws-auth` ConfigMap manually, it's recommended using tools like `eksctl`, since this is a very senstitive configuration, and an inaccurate configuration can lock you outside your Amazon EKS Cluster. Check the subsection [Use tools to make changes to the aws-auth ConfigMap](https://aws.github.io/aws-eks-best-practices/security/docs/iam/#use-tools-to-make-changes-to-the-aws-auth-configmap) below for more details.
+
+To validate the identities mapped to your Amazon EKS Cluster using `eksctl`, you can run the following.
+
+```bash
+eksctl get iamidentitymapping --cluster $CLUSTER_NAME --region $AWS_REGION
+```
+```
+ARN                                                                   USERNAME                        GROUPS                                                  ACCOUNT
+arn:aws:iam::788355785855:role/kube-system-20231122180928120500000002   system:node:{{SessionName}}     system:bootstrappers,system:nodes,system:node-proxier   
+```
+
+### Cluster Access Manager
+
+
 ## Recommendations
 
 ### Don't use a service account token for authentication
@@ -254,7 +306,7 @@ This particular token grants the Pod view-only privileges to S3. When the applic
         "SecretAccessKey": "ORJ+8Adk+wW+nU8FETq7+mOqeA8Z6jlPihnV8hX1", 
         "SessionToken": "FwoGZXIvYXdzEGMaDMLxAZkuLpmSwYXShiL9A1S0X87VBC1mHCrRe/pB2oes+l1eXxUYnPJyC9ayOoXMvqXQsomq0xs6OqZ3vaa5Iw1HIyA4Cv1suLaOCoU3hNvOIJ6C94H1vU0siQYk7DIq9Av5RZe+uE2FnOctNBvYLd3i0IZo1ajjc00yRK3v24VRq9nQpoPLuqyH2jzlhCEjXuPScPbi5KEVs9fNcOTtgzbVf7IG2gNiwNs5aCpN4Bv/Zv2A6zp5xGz9cWj2f0aD9v66vX4bexOs5t/YYhwuwAvkkJPSIGvxja0xRThnceHyFHKtj0H+bi/PWAtlI8YJcDX69cM30JAHDdQH+ltm/4scFptW1hlvMaP+WReCAaCrsHrAT+yka7ttw5YlUyvZ8EPog+j6fwHlxmrXM9h1BqdikomyJU00gm1++FJelfP+1zAwcyrxCnbRl3ARFrAt8hIlrT6Vyu8WvWtLxcI8KcLcJQb/LgkW+sCTGlYcY8z3zkigJMbYn07ewTL5Ss7LazTJJa758I7PZan/v3xQHd5DEc5WBneiV3iOznDFgup0VAMkIviVjVCkszaPSVEdK2NU7jtrh6Jfm7bU/3P6ZG+CkyDLIa8MBn9KPXeJd/y+jTk5Ii+fIwO/+mDpGNUribg6TPxhzZ8b/XdZO1kS1gVgqjXyVC+M+BRBh6C4H21w/eMzjCtDIpoxt5rGKL6Nu/IFMipoC4fgx6LIIHwtGYMG7SWQi7OsMAkiwZRg0n68/RqWgLzBt/4pfjSRYuk=", 
         "Expiration": "2020-02-20T18:49:50Z", 
-        "AccessKeyId": "ASIA36C6WWEJUMHA3L7Z"
+        "AccessKeyId": "ASIA366WWEJUMHA3L7"
     }
 }
 ```  
