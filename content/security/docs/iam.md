@@ -94,11 +94,9 @@ The main session of this ConfigMap, is under `data` in the `mapRoles` block, whi
 
 To manage permissions, you can edit the `aws-auth` ConfigMap adding or removing access to your Amazon EKS cluster. Although it's possible to edit the `aws-auth` ConfigMap manually, it's recommended using tools like `eksctl`, since this is a very senstitive configuration, and an inaccurate configuration can lock you outside your Amazon EKS Cluster. Check the subsection [Use tools to make changes to the aws-auth ConfigMap](https://aws.github.io/aws-eks-best-practices/security/docs/iam/#use-tools-to-make-changes-to-the-aws-auth-configmap) below for more details.
 
-
-
 ### Cluster Access Manager
 
-Cluster Access Manager, a functionality of the AWS API, simplifies identity mapping between AWS IAM and Kubernetes RBACs. It eliminates the need to switch between AWS and Kubernetes APIs or editing the the `aws-auth` ConfigMap for access management, reducing operational overhead, and prevents misconfigurations. The tool also enables cluster administrators to revoke `cluster-admin` permissions from the cluster's creator principal.
+Cluster Access Manager, a functionality of the AWS API, simplifies identity mapping between AWS IAM and Kubernetes RBACs. It eliminates the need to switch between AWS and Kubernetes APIs or editing the the `aws-auth` ConfigMap for access management, reducing operational overhead and preventing misconfigurations. The tool also enables cluster administrators to revoke `cluster-admin` permissions from the cluster's creator principal.
 
 This API relies on two concepts: 
 
