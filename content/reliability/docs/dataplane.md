@@ -220,7 +220,7 @@ CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns
 For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
 
 ```shell
-for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name); do kubectl logs —namespace=kube-system $p; done
+for p in $(kubectl get pods -n kube-system -l k8s-app=kube-dns -o jsonpath='{.items[*].metadata.name}'); do kubectl logs $p -n kube-system; done
 ```
 
 ### Use NodeLocal DNSCache
