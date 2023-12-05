@@ -50,16 +50,16 @@ Additionally, Amazon EKS, can create up to 4 elastic network interfaces (X-ENI) 
 
 You can use the [sample EKS Subnet Calculator](../subnet-calc/subnet-calc.xlsx) spreadsheet to plan for your network. The spreadsheet calculates IP usage based on workloads and VPC ENI configuration. The IP usage is compared to an IPv4 subnet to determine if the configuration and subnet size is sufficient for your workload. Keep in mind that, if subnets in your VPC run out of available IP addresses, we suggest [creating a new subnet](https://docs.aws.amazon.com/vpc/latest/userguide/working-with-subnets.html#create-subnets) using the VPC’s original CIDR blocks. Notice that now [Amazon EKS now allows modification of cluster subnets and security groups](https://aws.amazon.com/about-aws/whats-new/2023/10/amazon-eks-modification-cluster-subnets-security/).
 
-#### Custom networking 
+#### Expand the IP space
 
-This pattern allows you to conserve routable IPs by scheduling Pods inside dedicated additional subnets. 
+If you are about to exhaust the RFC1918 IP space, you can use the [Custom Networking](../custom-networking/) pattern to conserve routable IPs by scheduling Pods inside dedicated additional subnets. 
 While custom networking will accept valid VPC range for secondary CIDR range, we recommend that you use CIDRs (/16) from the CG-NAT space, i.e. `100.64.0.0/10` or `198.19.0.0/16` as those are less likely to be used in a corporate setting than RFC1918 ranges. 
 
 For detailed information please see the dedicated section for [Custom Networking](../custom-networking/).
 
 ![Custom Networking, traffic flow](./custom-networking.gif)
 
-#### Configure CNI environment variables
+#### Optimize the IPs warm pool
 
 With the default configuration, the VPC CNI keeps an entire ENI (and associated IPs) in the warm pool. This may consume a large number of IPs, especially on larger instance types.
 
