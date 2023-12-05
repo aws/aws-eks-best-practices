@@ -65,7 +65,7 @@ With the default configuration, the VPC CNI keeps an entire ENI (and associated 
 
 If your cluster subnet has a limited number of IP addresses available, scrutinize these VPC CNI configuration environment variables:
 
-* `WARM_IP_TARGET`
+* `WARM_IP_TARGET` 
 * `MINIMUM_IP_TARGET`
 * `WARM_ENI_TARGET`
 
