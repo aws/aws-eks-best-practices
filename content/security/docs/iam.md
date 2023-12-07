@@ -115,12 +115,12 @@ With this feature, Amazon EKS support three modes of authentication:
 To get started, cluster administrators can create or update Amazon EKS clusters, setting the preferred authentication to `API_AND_CONFIG_MAP` or `API` method and define Access Entries to grant access the desired AWS IAM principals.
 
 ```bash
-aws eks create-cluster \
-  --name <CLUSTER_NAME> \
-  --role-arn <CLUSTER_ROLE_ARN> \
-  --resources-vpc-config subnetIds=<value>,endpointPublicAccess=true,endpointPrivateAccess=true \
-  --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}' \
-  --access-config authenticationMode=API_AND_CONFIG_MAP,bootstrapClusterCreatorAdminPermissions=false
+$ aws eks create-cluster \
+    --name <CLUSTER_NAME> \
+    --role-arn <CLUSTER_ROLE_ARN> \
+    --resources-vpc-config subnetIds=<value>,endpointPublicAccess=true,endpointPrivateAccess=true \
+    --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}' \
+    --access-config authenticationMode=API_AND_CONFIG_MAP,bootstrapClusterCreatorAdminPermissions=false
 ```
 
 The above command is an example to create an Amazon EKS cluster already without the admin permissions of the cluster creator.
@@ -128,9 +128,9 @@ The above command is an example to create an Amazon EKS cluster already without 
 It is possible to update Amazon EKS clusters configuration to enable `API` authenticationMode using the `update-cluster-config` command, to do that on existing clusters using `CONFIG_MAP` you will have to first update to `API_AND_CONFIG_MAP` and then to `API`. **These operations cannot be reverted**, meaning that's not possible to switch from `API` to `API_AND_CONFIG_MAP` or `CONFIG_MAP`, and also from `API_AND_CONFIG_MAP` to `CONFIG_MAP`.
 
 ```bash
-aws eks update-cluster-config \
-  --name <CLUSTER_NAME> \
-  --access-config authenticationMode=API
+$ aws eks update-cluster-config \
+    --name <CLUSTER_NAME> \
+    --access-config authenticationMode=API
 ```
 
 The API support commands to add and revoke access to the cluster, as well as validate the existing Access Policies and Access Entries for the specified cluster. The default policies are created to match Kubernets RBACs as follows.
@@ -180,7 +180,38 @@ $ aws eks list-access-entries --cluster-name <CLUSTER_NAME>
 A service account token is a long-lived, static credential. If it is compromised, lost, or stolen, an attacker may be able to perform all the actions associated with that token until the service account is deleted. At times, you may need to grant an exception for applications that have to consume the Kubernetes API from outside the cluster, e.g. a CI/CD pipeline application. If such applications run on AWS infrastructure, like EC2 instances, consider using an instance profile and mapping that to a Kubernetes RBAC role in the `aws-auth` ConfigMap instead.
 
 ### Employ least privileged access to AWS Resources
-An IAM User does not need to be assigned privileges to AWS resources to access the Kubernetes API. If you need to grant an IAM user access to an EKS cluster, create an entry in the `aws-auth` ConfigMap for that user that maps to a specific Kubernetes RBAC group. 
+An IAM User does not need to be assigned privileges to AWS resources to access the Kubernetes API. If you need to grant an IAM user access to an EKS cluster, create an entry in the `aws-auth` ConfigMap for that user that maps to a specific Kubernetes RBAC group.
+
+### Remove the cluster-admin permissions from the cluster creator principal
+
+By default Amazon EKS clusters are created with a permanent `cluster-admin` permission bound to the cluster creator principal. With the Cluster Access Manager API, it's possible to create clusters without this permission setting the `--access-config bootstrapClusterCreatorAdminPermissions` to `false`, when using `API_AND_CONFIG_MAP` or `API` authentication mode. Revoke this access considered a best practice to avoid any unwanted changes to the cluster configuration. The process to revoke this access, follows the same process to revoke any other access to the cluster.
+
+The API gives you flexibility to only disassociate an IAM principal from an Access Policy, in this case the `AmazonEKSClusterAdminPolicy`.
+
+```bash
+$ aws eks list-associated-access-policies \
+    --cluster-name <CLUSTER_NAME> \
+    --principal-arn <IAM_PRINCIPAL_ARN>
+
+$ aws eks disassociate-access-policy --cluster-name <CLUSTER_NAME> \
+    --principal-arn <IAM_PRINCIPAL_ARN. \
+    --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
+```
+
+Or completeley removing the Access Entry associated with the `cluster-admin` permission.
+
+```bash
+$ aws eks list-access-entries --cluster-name <CLUSTER_NAME>
+
+{
+    "accessEntries": []
+}
+
+$ aws eks delete-access-entry --cluster-name <CLUSTER_NAME> \
+  --principal-arn <IAM_PRINCIPAL_ARN>
+```
+
+> This access can be granted again if needed.
 
 ### Use IAM Roles when multiple users need identical access to the cluster
 Rather than creating an entry for each individual IAM User in the `aws-auth` ConfigMap, allow those users to assume an IAM Role and map that role to a Kubernetes RBAC group.  This will be easier to maintain, especially as the number of users that require access grows.
