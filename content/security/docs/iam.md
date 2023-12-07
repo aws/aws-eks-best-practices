@@ -228,7 +228,9 @@ $ aws eks delete-access-entry --cluster-name <CLUSTER_NAME> \
   --principal-arn <IAM_PRINCIPAL_ARN>
 ```
 
-> This access can be granted again if needed.
+> This access can be granted again if needed during an incident, emergency or break glass scenario where the cluster is otherwise inaccessible.
+
+If the cluster still configured with the `CONFIG_MAP` authentication method, all additional users should be granted access to the cluster through the `aws-auth` ConfigMap, and after `aws-auth` ConfigMap is configured, the role assigned to the entity that created the cluster, can be deleted and only recreated in case of an incident, emergency or break glass scenario, or where the `aws-auth` ConfigMap is corrupted and the cluster is otherwise inaccessible. This can be particularly useful in production clusters.
 
 ### Use IAM Roles when multiple users need identical access to the cluster
 
@@ -252,10 +254,9 @@ If still using the `aws-auth` configMap as the authentication method, when assig
 
 Like the earlier point about granting access to AWS Resources, RoleBindings and ClusterRoleBindings should only include the set of permissions necessary to perform a specific function. Avoid using `["*"]` in your Roles and ClusterRoles unless it's absolutely necessary. If you're unsure what permissions to assign, consider using a tool like [audit2rbac](https://github.com/liggitt/audit2rbac) to automatically generate Roles and binding based on the observed API calls in the Kubernetes Audit Log.
 
-~~### Create the cluster with a dedicated IAM role~~
-~~When you create an Amazon EKS cluster, the IAM entity user or role, such as a federated user that creates the cluster, is automatically granted `system:masters` permissions in the cluster's RBAC configuration. This access cannot be removed and is not managed through the `aws-auth` ConfigMap. Therefore it is a good idea to create the cluster with a dedicated IAM role and regularly audit who can assume this role. This role should not be used to perform routine actions on the cluster, and instead additional users should be granted access to the cluster through the `aws-auth` ConfigMap for this purpose. After the `aws-auth` ConfigMap is configured, the role can be deleted and only recreated in an emergency / break glass scenario where the `aws-auth` ConfigMap is corrupted and the cluster is otherwise inaccessible. This can be particularly useful in production clusters which do not usually have direct user access configured.~~
-
 ### Create cluster using an automated process
+
+As seen in earlier steps, when creating an Amazon EKS cluster, if not using the using `API_AND_CONFIG_MAP` or `API` authentication mode, and not opting out to delegate `cluster-admin` permissions to the cluster creator, the IAM entity user or role, such as a federated user that creates the cluster, is automatically granted `system:masters` permissions in the cluster's RBAC configuration. Even being a best practice to remove this permission, as described [here](Rremove-the-cluster-admin-permissions-from-the-cluster-creator-principal) if using the `CONFIG_MAP` authentication method, relying on `aws-auth` ConfigMap, this access cannot be revoked. Therefore it is a good idea to create the cluster with an infrastructure automation pipeline tied to dedicated IAM role, with no permissions to be assumed by other users or entities and regularly audit this role permissions, policies, and who have access to the trigger the pipeline. Also, this role should not be used to perform routine actions on the cluster, and be exclusively used to cluster level actions triggered by the pipeline, via SCM code changes for example.
 
 ### Regularly audit access to the cluster
 
