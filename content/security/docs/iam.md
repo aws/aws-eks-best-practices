@@ -172,7 +172,7 @@ $ aws eks list-access-entries --cluster-name <CLUSTER_NAME>
 }
 ```
 
-> No Access Entries are available since the example created a cluster without the cluster creator admin permission, which is the only default entry.
+> No Access Entries are available when the cluster is created without the cluster creator admin permission, which is the only entry created by default.
 
 ## Recommendations
 
