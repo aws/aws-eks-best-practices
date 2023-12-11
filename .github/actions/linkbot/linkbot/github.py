@@ -17,7 +17,9 @@ class Client:
 
     @staticmethod
     def repo_full_name_from_url(url):
-        return re.search(r"github.com/([^/]+/[^/]+)", url).group(1)
+        match = re.search(r"github.com/([^/]+/[^/]+)", url)
+        if match:
+            return match.group(1)
 
     @staticmethod
     def latest_commit_date_on_default_branch(repo):
