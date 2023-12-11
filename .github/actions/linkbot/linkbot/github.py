@@ -6,6 +6,11 @@ from github import Auth, Github
 from .checks import RepoStats
 
 
+def repo_full_name_from_url(url):
+    match = re.search(r"github.com/([^/]+/[^/]+)", url)
+    if match:
+        return match.group(1)
+
 class Client:
 
     def __init__(self, token=None):
@@ -16,15 +21,11 @@ class Client:
             self._pygh = Github()
 
     @staticmethod
-    def repo_full_name_from_url(url):
-        return re.search(r"github.com/([^/]+/[^/]+)", url).group(1)
-
-    @staticmethod
     def latest_commit_date_on_default_branch(repo):
         return repo.get_commits()[0].commit.author.date
     
     def get_repo_stats(self, url):
-        full_name = self.repo_full_name_from_url(url)
+        full_name = repo_full_name_from_url(url)
         repo = self._pygh.get_repo(full_name)
         return RepoStats(
             # Keeping the original name/URL here rather than the one from the API
@@ -43,12 +44,12 @@ class Client:
 
 
     def get_open_issue_messages(self, repo_url, user):
-        full_name = self.repo_full_name_from_url(repo_url)
+        full_name = repo_full_name_from_url(repo_url)
         repo = self._pygh.get_repo(full_name)
         return [issue.body for issue in repo.get_issues(state='open', creator=user)]
 
 
     def create_issue(self, repo_url, title, body):
-        full_name = self.repo_full_name_from_url(repo_url)
+        full_name = repo_full_name_from_url(repo_url)
         repo = self._pygh.get_repo(full_name)
         return repo.create_issue(title, body)
