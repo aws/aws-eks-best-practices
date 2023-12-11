@@ -1,5 +1,7 @@
 import re
 
+from .github import repo_full_name_from_url
+
 
 def find_links_in_markdown(markdown):
     '''Takes a markdown string and returns a list of links'''
@@ -7,7 +9,7 @@ def find_links_in_markdown(markdown):
 
 
 def is_github_url(link):
-    return bool(re.match(r"https?://github\.com.*", link))
+    return bool(repo_full_name_from_url(link))
 
 
 def github_links_in_files(path, glob):

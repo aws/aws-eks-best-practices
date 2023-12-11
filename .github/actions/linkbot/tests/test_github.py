@@ -4,13 +4,12 @@ import os
 import pytest
 
 from linkbot.checks import RepoStats
-from linkbot.github import Client
+from linkbot.github import Client, repo_full_name_from_url
 
 
 def test_repo_name_from_url():
-    gh = Client(os.environ.get('LINKBOT_GH_TOKEN'))
-    assert (gh.repo_full_name_from_url('https://github.com/bellkev/ToneBoard') == 'bellkev/ToneBoard')
-    assert (gh.repo_full_name_from_url('https://github.com/FairwindsOps/') == None)
+    assert (repo_full_name_from_url('https://github.com/bellkev/ToneBoard') == 'bellkev/ToneBoard')
+    assert (repo_full_name_from_url('https://github.com/FairwindsOps/') == None)
 
 
 @pytest.mark.network
