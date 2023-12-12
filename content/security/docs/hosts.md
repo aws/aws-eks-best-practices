@@ -10,6 +10,8 @@ Alternately, use the [EKS optimized AMI][eks-ami] for your Kubernetes worker nod
 
 [eks-ami]: https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html
 
+Please refer [Amazon EKS AMI RHEL Build Specification](https://github.com/aws-samples/amazon-eks-ami-rhel) for a sample configuration script which can be used for building a custom Amazon EKS AMI running on Red Hat Enterprise Linux using Hashicorp Packer. This script can be further leveraged to build STIG compliant EKS custom AMIs.
+
 ### Keep your worker node OS updated
 
 Regardless of whether you use a container-optimized host OS like Bottlerocket or a larger, but still minimalist, Amazon Machine Image like the EKS optimized AMIs, it is best practice to keep these host OS images up to date with the latest security patches.
@@ -100,7 +102,7 @@ Amazon Inspector can provide common vulnerabilities and exposures (CVE) data for
 ### Run SELinux
 
 !!! info
-    Available on Red Hat Enterprise Linux (RHEL), CentOS, and CoreOS
+    Available on Red Hat Enterprise Linux (RHEL), CentOS, Bottlerocket, and Amazon Linux 2023
 
 SELinux provides an additional layer of security to keep containers isolated from each other and from the host. SELinux allows administrators to enforce mandatory access controls (MAC) for every user, application, process, and file.  Think of it as a backstop that restricts the operations that can be performed against to specific resources based on a set of labels.  On EKS, SELinux can be used to prevent containers from accessing each other's resources.
 

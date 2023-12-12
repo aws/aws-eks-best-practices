@@ -85,7 +85,10 @@ You can also use quotas to apportion the cluster's resources to align with a ten
 
 ### Pod priority and preemption
 
-Pod priority and preemption can be useful when you want to provide different qualities of services (QoS) for different customers.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the Kubelet will evict the lower-priority pods from customer B to accommodate the higher-priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher quality of service.
+Pod priority and preemption can be useful when you want to provide more importance to a Pod relative to other Pods.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the scheduler will evict the lower-priority pods from customer B to accommodate the higher-priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher priority.
+
+!!! attention 
+    Pods priority can have an undesired effect on other Pods with lower priority. For example, although the victim pods are terminated gracefully but the PodDisruptionBudget is not guaranteed, which could break a application with lower priority that relies on a quorum of Pods, see [Limitations of preemption](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#limitations-of-preemption).
 
 ## Mitigating controls
 
@@ -94,8 +97,6 @@ Your chief concern as an administrator of a multi-tenant environment is preventi
 ### Sandboxed execution environments for containers
 
 Sandboxing is a technique by which each container is run in its own isolated virtual machine. Technologies that perform pod sandboxing include [Firecracker](https://firecracker-microvm.github.io/) and Weave's [Firekube](https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite).
-
-If you are building your own self-managed Kubernetes cluster on AWS, you may be able to configure alternate container runtimes such as [Kata Containers](https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support).
 
 For additional information about the effort to make Firecracker a supported runtime for EKS, see
 [https://threadreaderapp.com/thread/1238496944684597248.html](https://threadreaderapp.com/thread/1238496944684597248.html). 
@@ -118,7 +119,7 @@ Restricting tenant workloads to run on specific nodes can be used to increase is
 
 #### Part 1 - Node affinity
 
-Kubernetes [node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) is used to target nodes for scheduling, based on node [labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/). With node affinity rules, the pods are attracted to specific nodes that match the selector terms. In the below pod specification, the `requiredDuringSchedulingIgnoredDuringExecution` node affinity is applied to the respective pod. The result is that the pod will target nodes that are labeled with the following key/value: `tenant: tenants-x`. 
+Kubernetes [node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) is used to target nodes for scheduling, based on node [labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/). With node affinity rules, the pods are attracted to specific nodes that match the selector terms. In the below pod specification, the `requiredDuringSchedulingIgnoredDuringExecution` node affinity is applied to the respective pod. The result is that the pod will target nodes that are labeled with the following key/value: `node-restriction.kubernetes.io/tenant: tenants-x`.
 
 ``` yaml
 ...
@@ -128,7 +129,7 @@ spec:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: tenant
+          - key: node-restriction.kubernetes.io/tenant
             operator: In
             values:
             - tenants-x
@@ -136,6 +137,9 @@ spec:
 ```
 
 With this node affinity, the label is required during scheduling, but not during execution; if the underlying nodes' labels change, the pods will not be evicted due solely to that label change. However, future scheduling could be impacted.
+
+!!! Warning
+    The label prefix of `node-restriction.kubernetes.io/` has special meaning in Kubernetes. [NodeRestriction](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction) which is enabled for EKS clusters prevents `kubelet` from adding/removing/updating labels with this prefix. Attackers aren't able to use the `kubelet`'s credentials to update the node object or modify the system setup to pass these labels into `kubelet` as `kubelet` isn't allowed to modify these labels. If this prefix is used for all pod to node scheduling, it prevents scenarios where an attacker may want to attract a different set of workloads to a node by modifying the node labels.
 
 !!! Info
     Instead of node affinity, we could have used the [node selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector). However, node affinity is more expressive and allows for more conditions to be considered during pod scheduling. For additional information about the differences and more advanced scheduling choices, please see this CNCF blog post on [Advanced Kubernetes pod to node scheduling](https://www.cncf.io/blog/2021/07/27/advanced-kubernetes-pod-to-node-scheduling/).

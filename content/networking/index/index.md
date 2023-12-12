@@ -33,7 +33,7 @@ The AWS-provided VPC CNI is the default networking add-on for EKS clusters. VPC 
 
 Amazon EKS recommends you specify subnets in at least two availability zones when you create a cluster. Amazon VPC CNI allocates IP addresses to Pods from the node subnets. We strongly recommend checking the subnets for available IP addresses. Please consider [VPC and Subnet](../subnets/index.md) recommendations before deploying EKS clusters. 
 
-Amazon VPC CNI allocates a warm pool of ENIs and secondary IP addresses from the subnet attached to the node’s primary ENI. This mode of VPC CNI is called the "[secondary IP mode](../vpc-cni/index.md)." The number of IP addresses and hence the number of Pods (Pod density) is defined by the number of ENIs and the IP address per ENI (limits) as defined by the instance type. The secondary mode is the default and works well for small clusters with smaller instance types. Please consider using [prefix mode](../prefix-mode/index.md) if you are experiencing pod density challenges. You can also increase the available IP addresses on node for Pods by assigning prefixes to ENIs.
+Amazon VPC CNI allocates a warm pool of ENIs and secondary IP addresses from the subnet attached to the node’s primary ENI. This mode of VPC CNI is called the "[secondary IP mode](../vpc-cni/index.md)." The number of IP addresses and hence the number of Pods (Pod density) is defined by the number of ENIs and the IP address per ENI (limits) as defined by the instance type. The secondary mode is the default and works well for small clusters with smaller instance types. Please consider using [prefix mode](../prefix-mode/index_linux.md) if you are experiencing pod density challenges. You can also increase the available IP addresses on node for Pods by assigning prefixes to ENIs.
 
 Amazon VPC CNI natively integrates with AWS VPC and allows users to apply existing AWS VPC networking and security best practices for building Kubernetes clusters. This includes the ability to use VPC flow logs, VPC routing policies, and security groups for network traffic isolation. By default, the Amazon VPC CNI applies security group associated with the primary ENI on the node to the Pods. Consider enabling [security groups for Pods](../sgpp/index.md) when you would like to assign different network rules for a Pod.
 
@@ -45,7 +45,7 @@ EKS’s support for IPv6 is focused on solving the IP exhaustion problem caused 
 
 ## Subnet Calculator
 
-This project includes a [Subnet Calculator Excel Document](../subnet-calc/subnet-calc.xlsx). This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`. The document includes two sheets, a first for WarmE NI mode, and a second for Warm IP mode. Review the [VPC CNI guidance](../vpc-cni/index.md) for more information on these modes. 
+This project includes a [Subnet Calculator Excel Document](../subnet-calc/subnet-calc.xlsx). This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`. The document includes two sheets, a first for Warm ENI mode, and a second for Warm IP mode. Review the [VPC CNI guidance](../vpc-cni/index.md) for more information on these modes. 
 
 Inputs:
 - Subnet CIDR Size

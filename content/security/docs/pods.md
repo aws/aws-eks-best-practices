@@ -51,12 +51,14 @@ In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/pol
 
 ### Migrating to a new pod security solution
 
-Since PSPs are scheduled to be removed and are no longer under active development, cluster administrators and operators must replace those security controls. Two solutions can fill this need:
+Since PSPs have been removed as of Kubernetes v1.25, cluster administrators and operators must replace those security controls. Two solutions can fill this need:
 
 + Policy-as-code (PAC) solutions from the Kubernetes ecosystem
 + Kubernetes [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
 
 Both the PAC and PSS solutions can coexist with PSP; they can be used in clusters before PSP is removed. This eases adoption when migrating from PSP. Please see this [document](https://kubernetes.io/docs/tasks/configure-pod-container/migrate-from-psp/) when considering migrating from PSP to PSS.
+
+Kyverno, one of the PAC solutions outlined below, has specific guidance outlined in a [blog post](https://kyverno.io/blog/2023/05/24/podsecuritypolicy-migration-with-kyverno/) when migrating from PSPs to its solution including analogous policies, feature comparisons, and a migration procedure. Additional information and guidance on migration to Kyverno with respect to Pod Security Admission (PSA) has been published on the AWS blog [here](https://aws.amazon.com/blogs/containers/managing-pod-security-on-amazon-eks-with-kyverno/).
 
 ### Policy-as-code (PAC)
 
@@ -200,7 +202,7 @@ metadata:
   namespace: pod-security-webhook
 data:
   podsecurityconfiguration.yaml: |
-    apiVersion: pod-security.admission.config.k8s.io/v1beta1
+    apiVersion: pod-security.admission.config.k8s.io/v1
     kind: PodSecurityConfiguration
     defaults:
       enforce: "restricted"
@@ -240,7 +242,7 @@ webhooks:
 
 !!! Attention 
     
-    As of Kubernetes versions _1.22_ and _1.23_, the Pod Security Admission feature is _alpha_ and _beta_ status, respectively. At least until GA, the current admission controller can be used via a validating webhook, configured from [these instructions](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
+    Pod Security Admissions graduated to stable in Kubernetes v1.25. If you wanted to use the Pod Security Admission feature prior to it being enabled by default, you needed to install the dynamic admission controller (mutating webhook). The instructions for installing and configuring the webhook can be found [here](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
 
 ### Choosing between policy-as-code and Pod Security Standards
 
@@ -325,7 +327,7 @@ To enforce the use of the `spec.securityContext`, and its associated elements, w
 
 ### Never run Docker in Docker or mount the socket in the container
 
-While this conveniently lets you to build/run images in Docker containers, you're basically relinquishing complete control of the node to the process running in the container. If you need to build container images on Kubernetes use [Kaniko](https://github.com/GoogleContainerTools/kaniko), [buildah](https://github.com/containers/buildah), [img](https://github.com/genuinetools/img), or a build service like [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) instead. 
+While this conveniently lets you to build/run images in Docker containers, you're basically relinquishing complete control of the node to the process running in the container. If you need to build container images on Kubernetes use [Kaniko](https://github.com/GoogleContainerTools/kaniko), [buildah](https://github.com/containers/buildah), or a build service like [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) instead. 
 
 !!! Tip
     
@@ -378,7 +380,7 @@ If limits and requests are not set, the pod is configured as _best-effort_ (lowe
 | Burstable  | medium  | limit != request != 0 | Can be killed if exceed request memory |
 | Best-Effort| lowest  | limit & request Not Set | First to get killed when there's insufficient memory |
 
-For additional information about resource QoS, please refer to the [Kubernetes documentation](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/resource-qos.md).
+For additional information about resource QoS, please refer to the [Kubernetes documentation](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/).
 
 You can force the use of requests and limits by setting a [resource quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range](https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it’s applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. By contrast, limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.
 
@@ -480,4 +482,4 @@ Policy-as-code and Pod Security Standards can be used to enforce this behavior.
 + A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
 + [Policy based countermeasures: part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
 + [Policy based countermeasures: part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
-+ [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) a tool that converts PSPs to OPA/Gatekeeper, KubeWarden, or Kyverno policies 
++ [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) a tool that converts PSPs to OPA/Gatekeeper, KubeWarden, or Kyverno policies

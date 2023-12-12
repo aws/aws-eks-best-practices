@@ -7,23 +7,25 @@ Network security has several facets.  The first involves the application of rule
 #### Encryption in transit
 + Service Mesh
 + Container Network Interfaces (CNIs)
++ Ingress Controllers and Load Balancers
 + Nitro Instances
 + ACM Private CA with cert-manager
 
 ## Network policy
-Within a Kubernetes cluster, all Pod to Pod communication is allowed by default.  While this flexibility may help promote experimentation, it is not considered secure.  Kubernetes network policies give you a mechanism to restrict network traffic between Pods (often referred to as East/West traffic) and between Pods and external services. Kubernetes network policies operate at layers 3 and 4 of the OSI model.  Network policies use pod selectors and labels to identify source and destination pods, but can also include IP addresses, port numbers, protocol number, or a combination of these. [Calico](https://docs.projectcalico.org/introduction/), is an open source policy engine from [Tigera](https://tigera.io) that works well with EKS. In addition to implementing the full set of Kubernetes network policy features, Calico supports extended network polices with a richer set of features, including support for layer 7 rules, e.g. HTTP, when integrated with Istio. Isovalent, the maintainers of [Cilium](https://cilium.readthedocs.io/en/stable/intro/), have also extended the network policies to include partial support for layer 7 rules, e.g. HTTP.  Cilium also has support for DNS hostnames which can be useful for restricting traffic between Kubernetes Services/Pods and resources that run within or outside of your VPC. By contrast, Calico Enterprise includes a feature that allows you to map a Kubernetes network policy to an AWS security group, as well as DNS hostnames.
+Within a Kubernetes cluster, all Pod to Pod communication is allowed by default. While this flexibility may help promote experimentation, it is not considered secure. Kubernetes network policies give you a mechanism to restrict network traffic between Pods (often referred to as East/West traffic) as well as between Pods and external services. Kubernetes network policies operate at layers 3 and 4 of the OSI model. Network policies use pod, namespace selectors and labels to identify source and destination pods, but can also include IP addresses, port numbers, protocols, or a combination of these. Network Policies can be applied to both Inbound or Outbound connections to the pod, often called Ingress and Egress rules. 
+
+With native network policy support of Amazon VPC CNI Plugin, you can implement network policies to secure network traffic in kubernetes clusters. This integrates with the upstream Kubernetes Network Policy API, ensuring compatibility and adherence to Kubernetes standards. You can define policies using different [identifiers](https://kubernetes.io/docs/concepts/services-networking/network-policies/) supported by the upstream API. By default, all ingress and egress traffic is allowed to a pod. When a network policy with a policyType Ingress is specified, only allowed connections into the pod are those from the pod's node and those allowed by the ingress rules. Same applies for egress rules.  If multiple rules are defined, then union of all rules are taken into account when making the decision. Thus, order of evaluation does not affect the policy result.
 
 !!! attention
-    When you first provision an EKS cluster, the Calico policy engine is not installed by default. The instructions for installing Calico can be found in the AWS EKS documentation at [https://docs.aws.amazon.com/eks/latest/userguide/calico.html](https://docs.aws.amazon.com/eks/latest/userguide/calico.html).
-
-Calico policies can be scoped to Namespaces, Pods, service accounts, or globally.  When policies are scoped to a service account, it associates a set of ingress/egress rules with that service account.  With the proper RBAC rules in place, you can prevent teams from overriding these rules, allowing IT security professionals to safely delegate administration of namespaces.
-
-You can find a list of common Kubernetes network policies at [https://github.com/ahmetb/kubernetes-network-policy-recipes](https://github.com/ahmetb/kubernetes-network-policy-recipes).  A similar set of rules for Calico are available at [https://docs.projectcalico.org/security/calico-network-policy](https://docs.projectcalico.org/security/calico-network-policy).
+    When you first provision an EKS cluster, VPC CNI Network Policy functionality is not enabled by default. Ensure you deployed supported VPC CNI Add-on version and set `ENABLE_NETWORK_POLICY` flag to `true` on the vpc-cni add-on to enable this. Refer [Amazon EKS User guide](https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html) for detailed instructions.
 
 ## Recommendations
 
-### Create a default deny policy
-As with RBAC policies, network policies should adhere to the policy of least privileged access.  Start by creating a deny all policy that restricts all inbound and outbound traffic from a namespace or create a global policy using Calico.
+### Getting Started with Network Policies - Follow Principle of Least Privilege
+
+#### Create a default deny policy
+
+As with RBAC policies, it is recommended to follow least privileged access principles with network policies. Start by creating a deny all policy that restricts all inbound and outbound traffic with in a namespace.
 
 _Kubernetes network policy_
 ```yaml
@@ -44,28 +46,11 @@ spec:
 !!! tip
     The image above was created by the network policy viewer from [Tufin](https://orca.tufin.io/netpol/).
 
-_Calico global network policy_
-```yaml
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: default-deny
-spec:
-  selector: all()
-  types:
-  - Ingress
-  - Egress
-```
+#### Create a rule to allow DNS queries
 
-### Create a rule to allow DNS queries
-Once you have the default deny all rule in place, you can begin layering on additional rules, such as a global rule that allows pods to query CoreDNS for name resolution. You begin by labeling the namespace:
+Once you have the default deny all rule in place, you can begin layering on additional rules, such as a rule that allows pods to query CoreDNS for name resolution.
 
-```
-kubectl label namespace kube-system name=kube-system
-```
-
-Then add the network policy:
-
+_Kubernetes network policy_
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -81,7 +66,10 @@ spec:
   - to:
     - namespaceSelector:
         matchLabels:
-          name: kube-system
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
     ports:
     - protocol: UDP
       port: 53
@@ -89,88 +77,228 @@ spec:
 
 ![](./images/allow-dns-access.jpg)
 
-_Calico global policy equivalent_
+#### Incrementally add rules to selectively allow the flow of traffic between namespaces/pods
 
+Understand the application requirements and create fine-grained ingress and egress rules as needed. Below example shows how to restrict ingress traffic on port 80 to `app-one` from `client-one`. This helps minimize the attack surface and reduces the risk of unauthorized access.
+
+_Kubernetes network policy_
 ```yaml
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: allow-dns-egress
-spec:
-  selector: all()
-  types:
-  - Egress
-  egress:
-  - action: Allow
-    protocol: UDP
-    destination:
-      namespaceSelector: name == "kube-system"
-      ports:
-      - 53
-```
-
-The following is an example of how to associate a network policy with a service account while preventing users associated with the readonly-sa-group from editing the service account my-sa in the default namespace:
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: my-sa
-  namespace: default
-  labels:
-    name: my-sa
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: default
-  name: readonly-sa-role
-rules:
-# Allows the subject to read a service account called my-sa
-- apiGroups: [""]
-  resources: ["serviceaccounts"]
-  resourceNames: ["my-sa"]
-  verbs: ["get", "watch", "list"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  namespace: default
-  name: readonly-sa-rolebinding
-# Binds the readonly-sa-role to the RBAC group called readonly-sa-group.
-subjects:
-- kind: Group
-  name: readonly-sa-group
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: Role
-  name: readonly-sa-role
-  apiGroup: rbac.authorization.k8s.io
----
-apiVersion: projectcalico.org/v3
+apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: netpol-sa-demo
+  name: allow-ingress-app-one
   namespace: default
-# Allows all ingress traffic to services in the default namespace that reference
-# the service account called my-sa
 spec:
+  podSelector:
+    matchLabels:
+      k8s-app: app-one
+  policyTypes:
+  - Ingress
   ingress:
-    - action: Allow
-      source:
-        serviceAccounts:
-          selector: 'name == "my-sa"'
-  selector: all()
+  - from:
+    - podSelector:
+        matchLabels:
+          k8s-app: client-one
+    ports:
+    - protocol: TCP
+      port: 80
 ```
 
-### Incrementally add rules to selectively allow the flow of traffic between namespaces/pods
-Start by allowing Pods within a Namespace to communicate with each other and then add custom rules that further restrict Pod to Pod communication within that Namespace.
+![](./images/allow-ingress-app-one.png)
 
-### Log network traffic metadata
+### Monitoring network policy enforcement
+
++ **Use Network Policy editor**
+    + [Network policy editor](https://networkpolicy.io/) helps with visualizations, security score, autogenerates from network flow logs
+    + Build network policies in an interactive way
++ **Audit Logs**
+    + Regularly review audit logs of your EKS cluster
+    + Audit logs provide wealth of information about what actions have been performed on your cluster including changes to network policies
+    + Use this information to track changes to your network policies over time and detect any unauthorized or unexpected changes
++ **Automated testing**
+    + Implement automated testing by creating a test environment that mirrors your production environment and periodically deploy workloads that attempt to violate your network policies.
++ **Monitoring metrics**
+    + Configure your observability agents to scrape the prometheus metrics from the VPC CNI node agents, that allows to monitor the agent health, and sdk errors.
++ **Audit Network Policies regularly**
+    + Periodically audit your Network Policies to make sure that they meet your current application requirements. As your application evolves, an audit gives you the opportunity to remove redundant ingress, egress rules and make sure that your applications don’t have excessive permissions.
++ **Ensure Network Policies exists using Open Policy Agent (OPA)**
+    + Use OPA Policy like shown below to ensure Network Policy always exists before onboarding application pods. This policy denies onboarding k8s pods with a label `k8s-app: sample-app` if corresponding network policy does not exist.
+
+```javascript
+package kubernetes.admission
+import data.kubernetes.networkpolicies
+
+deny[msg] {
+    input.request.kind.kind == "Pod"
+    pod_label_value := {v["k8s-app"] | v := input.request.object.metadata.labels}
+    contains_label(pod_label_value, "sample-app")
+    np_label_value := {v["k8s-app"] | v := networkpolicies[_].spec.podSelector.matchLabels}
+    not contains_label(np_label_value, "sample-app")
+    msg:= sprintf("The Pod %v could not be created because it is missing an associated Network Policy.", [input.request.object.metadata.name])
+}
+contains_label(arr, val) {
+    arr[_] == val
+}
+```
+
+### Troubleshooting
+
+#### Monitor the vpc-network-policy-controller, node-agent logs
+
+Enable the EKS Control plane controller manager logs to diagnose the network policy functionality.  You can stream the control plane logs to a CloudWatch log group and use [CloudWatch Log insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html) to perform advanced queries. From the logs, you can view what pod endpoint objects are resolved to a Network Policy, reconcilation status of the policies, and debug if the policy is working as expected.
+
+In addition, Amazon VPC CNI allows you to enable the collection and export of policy enforcement logs to [Amazon Cloudwatch](https://aws.amazon.com/cloudwatch/) from the EKS worker nodes. Once enabled, you can leverage [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) to provide insights on your usage related to Network Policies. 
+
+Amazon VPC CNI also ships an SDK that provides an interface to interact with eBPF programs on the node. The SDK is installed when the `aws-node` is deployed onto the nodes. You can find the SDK binary installed under `/opt/cni/bin` directory on the node. At launch, the SDK provides support for fundamental functionalities such as inspecting eBPF programs and maps.
+
+```shell
+sudo /opt/cni/bin/aws-eks-na-cli ebpf progs
+```
+
+#### Log network traffic metadata
 [AWS VPC Flow Logs](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html) captures metadata about the traffic flowing through a VPC, such as source and destination IP address and port along with accepted/dropped packets. This information could be analyzed to look for suspicious or unusual activity between resources within the VPC, including Pods.  However, since the IP addresses of pods frequently change as they are replaced, Flow Logs may not be sufficient on its own.  Calico Enterprise extends the Flow Logs with pod labels and other metadata, making it easier to decipher the traffic flows between pods.
 
-### Use encryption with AWS load balancers
-The [AWS Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html) (ALB) and [Network Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html) (NLB) both have support for transport encryption (SSL and TLS).  The `alb.ingress.kubernetes.io/certificate-arn` annotation for the ALB lets you to specify which certificates to add to the ALB.  If you omit the annotation the controller will attempt to add certificates to listeners that require it by matching the available [AWS Certificate Manager (ACM)](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html) certificates using the host field. Starting with EKS v1.15 you can use the service.beta.kubernetes.io/aws-load-balancer-ssl-cert annotation with the NLB as shown in the example below.
+
+## Security groups
+EKS uses [AWS VPC Security Groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) (SGs) to control the traffic between the Kubernetes control plane and the cluster's worker nodes. Security groups are also used to control the traffic between worker nodes, and other VPC resources, and external IP addresses.  When you provision an EKS cluster (with Kubernetes version 1.14-eks.3 or greater), a cluster security group is automatically created for you.  This security group allows unfettered communication between the EKS control plane and the nodes from managed node groups. For simplicity, it is recommended that you add the cluster SG to all node groups, including unmanaged node groups.
+
+Prior to Kubernetes version 1.14 and EKS version eks.3, there were separate security groups configured for the EKS control plane and node groups. The minimum and suggested rules for the control plane and node group security groups can be found at [https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html).  The minimum rules for the _control plane security group_ allows port 443 inbound from the worker node SG. This rule is what allows the kubelets to communicate with the Kubernetes API server.  It also includes port 10250 for outbound traffic to the worker node SG; 10250 is the port that the kubelets listen on. Similarly, the minimum _node group_ rules allow port 10250 inbound from the control plane SG and 443 outbound to the control plane SG.  Finally there is a rule that allows unfettered communication between nodes within a node group.
+
+If you need to control communication between services that run within the cluster and service the run outside the cluster such as an RDS database, consider [security groups for pods](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html). With security groups for pods, you can assign an **existing** security group to a collection of pods.
+
+!!! warning
+    If you reference a security group that does not exist prior to the creation of the pods, the pods will not get scheduled.
+
+You can control which pods are assigned to a security group by creating a `SecurityGroupPolicy` object and specifying a `PodSelector` or a `ServiceAccountSelector`. Setting the selectors to `{}` will assign the SGs referenced in the `SecurityGroupPolicy` to all pods in a namespace or all Service Accounts in a namespace. Be sure you've familiarized yourself with all the [considerations](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations) before implementing security groups for pods.
+
+!!! important
+    If you use SGs for pods you **must** create SGs that allow port 53 outbound to the cluster security group.  Similarly, you **must** update the cluster security group to accept port 53 inbound traffic from the pod security group.
+
+!!! important
+    The [limits for security groups](https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups) still apply when using security groups for pods so use them judiciously.
+
+!!! important
+    You **must** create rules for inbound traffic from the cluster security group (kubelet) for all of the probes configured for pod.
+
+!!! important
+    Security groups for pods relies on a feature known as [ENI trunking](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html) which was created to increase the ENI density of an EC2 instance. When a pod is assigned to an SG, a VPC controller associates a branch ENI from the node group with the pod. If there aren't enough branch ENIs available in a node group at the time the pod is scheduled, the pod will stay in pending state. The number of branch ENIs an instance can support varies by instance type/family. See [https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types) for further details.
+
+While security groups for pods offers an AWS-native way to control network traffic within and outside of your cluster without the overhead of a policy daemon, other options are available. For example, the Cilium policy engine allows you to reference a DNS name in a network policy. Calico Enterprise includes an option for mapping network policies to AWS security groups. If you've implemented a service mesh like Istio, you can use an egress gateway to restrict network egress to specific, fully qualified domains or IP addresses. For further information about this option, read the three part series on [egress traffic control in Istio](https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/).
+
+
+## When to use Network Policy vs Security Group for Pods?
+
+### When to use Kubernetes network policy:
+
++ **Controlling pod-to-pod traffic**
+    + Suitable for controlling network traffic between pods inside a cluster (east-west traffic)
++ **Control traffic at the IP address or port level (OSI layer 3 or 4)**
+
+### When to use AWS Security groups for pods (SGP):
+
++ **Leverage existing AWS configurations**
+    + If you already have complex set of EC2 security groups that manage access to AWS services and you are migrating applications from EC2 instances to EKS, SGPs can be a very good choice allowing you to reuse security group resources and apply them to your pods.
++ **Control access to AWS services**
+    + Your applications running within an EKS cluster wants to communicate with other AWS services (RDS database), use SGPs as an efficient mechanism to control the traffic from the pods to AWS services.
++ **Isolation of Pod & Node traffic**
+    + If you want to completely separate pod traffic from the rest of the node traffic, use SGP in `POD_SECURITY_GROUP_ENFORCING_MODE=strict` mode.
+
+### Best practices using `Security groups for pods` and `Network Policy`
+
++ **Layered security**
+    + Use a combination of SGP and kubernetes network policy for a layered security approach
+    + Use SGPs to limit network level access to AWS services that are not part of a cluster, while kubernetes network policies can restrict network traffic between pods inside the cluster
++ **Principle of least privilege**
+    + Only allow necessary traffic between pods or namespaces
++ **Segment your applications**
+    + Wherever possible, segment applications by the network policy to reduce the blast radius if an application is compromised
++ **Keep policies simple and clear**
+    + Kubernetes network policies can be quite granular and complex, its best to keep them as simple as possible to reduce the risk of misconfiguration and ease the management overhead
++ **Reduce the attack surface**
+    + Minimize the attack surface by limiting the exposure of your applications
+
+!!! attention
+    Security Groups for pods provides two enforcing modes: `strict` and `standard`. You must use `standard` mode when using both Network Policy and Security Groups for pods features in an EKS cluster.
+
+When it comes to network security, a layered approach is often the most effective solution. Using kubernetes network policy and SGP in combination can provide a robust defense-in-depth strategy for your applications running in EKS.
+
+## Service Mesh Policy Enforcement or Kubernetes network policy
+
+A `service mesh` is a dedicated infrastructure layer that you can add to your applications. It allows you to transparently add capabilities like observability, traffic management, and security, without adding them to your own code. 
+
+Service mesh enforces policies at Layer 7 (application) of OSI model whereas kubernetes network policies operate at Layer 3 (network) and Layer 4 (transport). There are many offerings in this space like AWS AppMesh, Istio, Linkerd, etc.,
+
+### When to use Service mesh for policy enforcement:
+
++ Have existing investment in a service mesh
++ Need more advanced capabilities like traffic management, observability & security 
+    + Traffic control, load balancing, circuit breaking, rate limiting, timeouts etc.
+    + Detailed insights into how your services are performing (latency, error rates, requests per second, request volumes etc.)
+    + You want to implement and leverage service mesh for security features like mTLS
+
+### Choose Kubernetes network policy for simpler use cases
+
++ Limit which pods can communicate with each other
++ Network policies require fewer resources than a service mesh making them a good fit for simpler use cases or for smaller clusters where the overhead of running and managing a service mesh might not be justified
+
+!!! tip
+    Network policies and Service mesh can also be used together. Use network policies to provide a baseline level of security and isolation between your pods and then use a service mesh to add additional capabilities like traffic management, observability and security.
+
+
+## ThirdParty Network Policy Engines
+
+Consider a Third Party Network Policy Engine when you have advanced policy requirements like Global Network Policies, support for DNS Hostname based rules, Layer 7 rules, ServiceAccount based rules, and explicit deny/log actions, etc., [Calico](https://docs.projectcalico.org/introduction/), is an open source policy engine from [Tigera](https://tigera.io) that works well with EKS. In addition to implementing the full set of Kubernetes network policy features, Calico supports extended network polices with a richer set of features, including support for layer 7 rules, e.g. HTTP, when integrated with Istio. Calico policies can be scoped to Namespaces, Pods, service accounts, or globally.  When policies are scoped to a service account, it associates a set of ingress/egress rules with that service account.  With the proper RBAC rules in place, you can prevent teams from overriding these rules, allowing IT security professionals to safely delegate administration of namespaces. Isovalent, the maintainers of [Cilium](https://cilium.readthedocs.io/en/stable/intro/), have also extended the network policies to include partial support for layer 7 rules, e.g. HTTP.  Cilium also has support for DNS hostnames which can be useful for restricting traffic between Kubernetes Services/Pods and resources that run within or outside of your VPC. By contrast, Calico Enterprise includes a feature that allows you to map a Kubernetes network policy to an AWS security group, as well as DNS hostnames. 
+
+You can find a list of common Kubernetes network policies at [https://github.com/ahmetb/kubernetes-network-policy-recipes](https://github.com/ahmetb/kubernetes-network-policy-recipes).  A similar set of rules for Calico are available at [https://docs.projectcalico.org/security/calico-network-policy](https://docs.projectcalico.org/security/calico-network-policy).
+
+### Migration to Amazon VPC CNI Network Policy Engine
+
+To maintain consistency and avoid unexpected pod communication behavior, it is recommended to deploy only one Network Policy Engine in your cluster. If you want to migrate from 3P to VPC CNI Network Policy Engine, we recommend converting your existing 3P NetworkPolicy CRDs to the Kubernetes NetworkPolicy resources before enabling VPC CNI network policy support. And, test the migrated policies in a separate test cluster before applying them in you production environment. This allows you to identify and address any potential issues or inconsistencies in pod communication behavior.
+
+#### Migration Tool
+To assist in your migration process, we have developed a tool called [K8s Network Policy Migrator](https://github.com/awslabs/k8s-network-policy-migrator) that converts your existing Calico/Cilium network policy CRDs to Kubernetes native network policies. After conversion you can directly test the converted network policies on your new clusters running VPC CNI network policy controller. The tool is designed to help you streamline the migration process and ensure a smooth transition.
+
+!!! Important
+    Migration tool will only convert 3P policies that are compatible with native kubernetes network policy api. If you are using advanced network policy features offered by 3P plugins, Migration tool will skip and report them.
+
+Please note that migration tool is currently not supported by AWS VPC CNI Network policy engineering team, it is made available to customers on a best-effort basis. We encourage you to utilize this tool to facilitate your migration process. In the event that you encounter any issues or bugs with the tool, we kindly ask you create a [GitHub issue](https://github.com/awslabs/k8s-network-policy-migrator/issues). Your feedback is invaluable to us and will assist in the continuous improvement of our services.
+
+### Additional Resources
++ [Kubernetes & Tigera: Network Policies, Security, and Audit](https://youtu.be/lEY2WnRHYpg)
++ [Calico Enterprise](https://www.tigera.io/tigera-products/calico-enterprise/)
++ [Cilium](https://cilium.readthedocs.io/en/stable/intro/)
++ [NetworkPolicy Editor](https://cilium.io/blog/2021/02/10/network-policy-editor) an interactive policy editor from Cilium
++ [Inspektor Gadget advise network-policy gadget](https://www.inspektor-gadget.io/docs/latest/gadgets/advise/network-policy/) Suggests network policies based on an analysis of network traffic
+
+
+## Encryption in transit
+Applications that need to conform to PCI, HIPAA, or other regulations may need to encrypt data while it is in transit.  Nowadays TLS is the de facto choice for encrypting traffic on the wire.  TLS, like it's predecessor SSL, provides secure communications over a network using cryptographic protocols.  TLS uses symmetric encryption where the keys to encrypt the data are generated based on a shared secret that is negotiated at the beginning of the session. The following are a few ways that you can encrypt data in a Kubernetes environment.
+
+### Nitro Instances
+Traffic exchanged between the following Nitro instance types, e.g. C5n, G4, I3en, M5dn, M5n, P3dn, R5dn, and R5n, is automatically encrypted by default.  When there's an intermediate hop, like a transit gateway or a load balancer, the traffic is not encrypted. See [Encryption in transit](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html#encryption-transit) for further details on encryption in transit as well as the complete list of instances types that support network encryption by default.
+
+### Container Network Interfaces (CNIs)
+[WeaveNet](https://www.weave.works/oss/net/) can be configured to automatically encrypt all traffic using NaCl encryption for sleeve traffic, and IPsec ESP for fast datapath traffic.
+
+### Service Mesh
+Encryption in transit can also be implemented with a service mesh like App Mesh, Linkerd v2, and Istio. AppMesh supports [mTLS](https://docs.aws.amazon.com/app-mesh/latest/userguide/mutual-tls.html) with X.509 certificates or Envoy's Secret Discovery Service(SDS). Linkerd and Istio both have support for mTLS.
+
+The [aws-app-mesh-examples](https://github.com/aws/aws-app-mesh-examples) GitHub repository provides walkthroughs for configuring mTLS using X.509 certificates and SPIRE as SDS provider with your Envoy container:
+
++ [Configuring mTLS using X.509 certificates](https://github.com/aws/aws-app-mesh-examples/tree/main/walkthroughs/howto-k8s-mtls-file-based)
++ [Configuring TLS using SPIRE (SDS)](https://github.com/aws/aws-app-mesh-examples/tree/main/walkthroughs/howto-k8s-mtls-sds-based)
+
+App Mesh also supports [TLS encryption](https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html) with a private certificate issued by [AWS Certificate Manager](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html) (ACM) or a certificate stored on the local file system of the virtual node.
+
+The [aws-app-mesh-examples](https://github.com/aws/aws-app-mesh-examples) GitHub repository provides walkthroughs for configuring TLS using certificates issued by ACM and certificates that are packaged with your Envoy container:
++ [Configuring TLS with File Provided TLS Certificates](https://github.com/aws/aws-app-mesh-examples/tree/master/walkthroughs/howto-tls-file-provided)
++ [Configuring TLS with AWS Certificate Manager](https://github.com/aws/aws-app-mesh-examples/tree/master/walkthroughs/tls-with-acm)
+
+### Ingress Controllers and Load Balancers
+Ingress controllers are a way for you to intelligently route HTTP/S traffic that emanates from outside the cluster to services running inside the cluster. Oftentimes, these Ingresses are fronted by a layer 4 load balancer, like the Classic Load Balancer or the Network Load Balancer (NLB). Encrypted traffic can be terminated at different places within the network, e.g. at the load balancer, at the ingress resource, or the Pod. How and where you terminate your SSL connection will ultimately be dictated by your organization's network security policy. For instance, if you have a policy that requires end-to-end encryption, you will have to decrypt the traffic at the Pod. This will place additional burden on your Pod as it will have to spend cycles establishing the initial handshake. Overall SSL/TLS processing is very CPU intensive. Consequently, if you have the flexibility, try performing the SSL offload at the Ingress or the load balancer.
+
+#### Use encryption with AWS Elastic load balancers
+The [AWS Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html) (ALB) and [Network Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html) (NLB) both have support for transport encryption (SSL and TLS).  The `alb.ingress.kubernetes.io/certificate-arn` annotation for the ALB lets you to specify which certificates to add to the ALB.  If you omit the annotation the controller will attempt to add certificates to listeners that require it by matching the available [AWS Certificate Manager (ACM)](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html) certificates using the host field. Starting with EKS v1.15 you can use the `service.beta.kubernetes.io/aws-load-balancer-ssl-cert` annotation with the NLB as shown in the example below.
 
 ```yaml
 apiVersion: v1
@@ -221,75 +349,13 @@ spec:
               protocol: TCP
 ```
 
-### Additional Resources
-+ [Kubernetes & Tigera: Network Policies, Security, and Audit](https://youtu.be/lEY2WnRHYpg)
-+ [Calico Enterprise](https://www.tigera.io/tigera-products/calico-enterprise/)
-+ [Cilium](https://cilium.readthedocs.io/en/stable/intro/)
-+ [NetworkPolicy Editor](https://cilium.io/blog/2021/02/10/network-policy-editor) an interactive policy editor from Cilium
-+ [Kinvolk's Network Policy Advisor](https://kinvolk.io/blog/2020/03/writing-kubernetes-network-policies-with-inspektor-gadgets-network-policy-advisor/) Suggests network policies based on an analysis of network traffic
-
-## Security groups
-EKS uses [AWS VPC Security Groups](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) (SGs) to control the traffic between the Kubernetes control plane and the cluster's worker nodes. Security groups are also used to control the traffic between worker nodes, and other VPC resources, and external IP addresses.  When you provision an EKS cluster (with Kubernetes version 1.14-eks.3 or greater), a cluster security group is automatically created for you.  This security group allows unfettered communication between the EKS control plane and the nodes from managed node groups. For simplicity, it is recommended that you add the cluster SG to all node groups, including unmanaged node groups.
-
-Prior to Kubernetes version 1.14 and EKS version eks.3, there were separate security groups configured for the EKS control plane and node groups. The minimum and suggested rules for the control plane and node group security groups can be found at [https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html).  The minimum rules for the _control plane security group_ allows port 443 inbound from the worker node SG. This rule is what allows the kubelets to communicate with the Kubernetes API server.  It also includes port 10250 for outbound traffic to the worker node SG; 10250 is the port that the kubelets listen on. Similarly, the minimum _node group_ rules allow port 10250 inbound from the control plane SG and 443 outbound to the control plane SG.  Finally there is a rule that allows unfettered communication between nodes within a node group.
-
-If you need to control communication between services that run within the cluster and service the run outside the cluster such as an RDS database, consider [security groups for pods](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html). With security groups for pods, you can assign an **existing** security group to a collection of pods.
-
-!!! warning
-    If you reference a security group that does not exist prior to the creation of the pods, the pods will not get scheduled.
-
-You can control which pods are assigned to a security group by creating a `SecurityGroupPolicy` object and specifying a `PodSelector` or a `ServiceAccountSelector`. Setting the selectors to `{}` will assign the SGs referenced in the `SecurityGroupPolicy` to all pods in a namespace or all Service Accounts in a namespace. Be sure you've familiarized yourself with all the [considerations](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations) before implementing security groups for pods.
-
-!!! important
-    If you use SGs for pods you **must** create SGs that allow port 53 outbound to the cluster security group.  Similarly, you **must** update the cluster security group to accept port 53 inbound traffic from the pod security group.
-
-!!! important
-    The [limits for security groups](https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups) still apply when using security groups for pods so use them judiciously.
-
-!!! important
-    You **must** create rules for inbound traffic from the cluster security group (kubelet) for all of the probes configured for pod.
-
-!!! warning
-    There is a [bug](https://github.com/aws/amazon-vpc-cni-k8s/pull/1212) that currently prevents the kubelet from communicating with pods that are assigned to SGs. The current workaround involves running `sudo sysctl net.ipv4.tcp_early_demux=0` on the affected worker nodes.  This is fixed in CNI v1.7.3, [https://github.com/aws/amazon-vpc-cni-k8s/releases/tag/v1.7.3](https://github.com/aws/amazon-vpc-cni-k8s/releases/tag/v1.7.3).
-
-!!! important
-    Security groups for pods relies on a feature known as [ENI trunking](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html) which was created to increase the ENI density of an EC2 instance. When a pod is assigned to an SG, a VPC controller associates a branch ENI from the node group with the pod. If there aren't enough branch ENIs available in a node group at the time the pod is scheduled, the pod will stay in pending state. The number of branch ENIs an instance can support varies by instance type/family. See [https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types) for further details.
-
-While security groups for pods offers an AWS-native way to control network traffic within and outside of your cluster without the overhead of a policy daemon, other options are available. For example, the Cilium policy engine allows you to reference a DNS name in a network policy. Calico Enterprise includes an option for mapping network policies to AWS security groups. If you've implemented a service mesh like Istio, you can use an egress gateway to restrict network egress to specific, fully qualified domains or IP addresses. For further information about this option, read the three part series on [egress traffic control in Istio](https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/).
-
-## Encryption in transit
-Applications that need to conform to PCI, HIPAA, or other regulations may need to encrypt data while it is in transit.  Nowadays TLS is the de facto choice for encrypting traffic on the wire.  TLS, like it's predecessor SSL, provides secure communications over a network using cryptographic protocols.  TLS uses symmetric encryption where the keys to encrypt the data are generated based on a shared secret that is negotiated at the beginning of the session. The following are a few ways that you can encrypt data in a Kubernetes environment.
-
-### Nitro Instances
-Traffic exchanged between the following Nitro instance types, e.g. C5n, G4, I3en, M5dn, M5n, P3dn, R5dn, and R5n, is automatically encrypted by default.  When there's an intermediate hop, like a transit gateway or a load balancer, the traffic is not encrypted. See [Encryption in transit](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html#encryption-transit) for further details on encryption in transit as well as the complete list of instances types that support network encryption by default.
-
-### Container Network Interfaces (CNIs)
-[WeaveNet](https://www.weave.works/oss/net/) can be configured to automatically encrypt all traffic using NaCl encryption for sleeve traffic, and IPsec ESP for fast datapath traffic.
-
-### Service Mesh
-Encryption in transit can also be implemented with a service mesh like App Mesh, Linkerd v2, and Istio. AppMesh supports [mTLS](https://docs.aws.amazon.com/app-mesh/latest/userguide/mutual-tls.html) with X.509 certificates or Envoy's Secret Discovery Service(SDS). Linkerd and Istio both have support for mTLS.
-
-The [aws-app-mesh-examples](https://github.com/aws/aws-app-mesh-examples) GitHub repository provides walkthroughs for configuring mTLS using X.509 certificates and SPIRE as SDS provider with your Envoy container:
-
-+ [Configuring mTLS using X.509 certificates](https://github.com/aws/aws-app-mesh-examples/tree/main/walkthroughs/howto-k8s-mtls-file-based)
-+ [Configuring TLS using SPIRE (SDS)](https://github.com/aws/aws-app-mesh-examples/tree/main/walkthroughs/howto-k8s-mtls-sds-based)
-
-App Mesh also supports [TLS encryption](https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html) with a private certificate issued by [AWS Certificate Manager](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html) (ACM) or a certificate stored on the local file system of the virtual node.
-
-The [aws-app-mesh-examples](https://github.com/aws/aws-app-mesh-examples) GitHub repository provides walkthroughs for configuring TLS using certificates issued by ACM and certificates that are packaged with your Envoy container:
-+ [Configuring TLS with File Provided TLS Certificates](https://github.com/aws/aws-app-mesh-examples/tree/master/walkthroughs/howto-tls-file-provided)
-+ [Configuring TLS with AWS Certificate Manager](https://github.com/aws/aws-app-mesh-examples/tree/master/walkthroughs/tls-with-acm)
-
-### Ingress Controllers and Load Balancers
-Ingress controllers are a way for you to intelligently route HTTP/S traffic that emanates from outside the cluster to services running inside the cluster. Oftentimes, these Ingresses are fronted by a layer 4 load balancer, like the Classic Load Balancer or the Network Load Balancer (NLB). Encrypted traffic can be terminated at different places within the network, e.g. at the load balancer, at the ingress resource, or the Pod. How and where you terminate your SSL connection will ultimately be dictated by your organization's network security policy. For instance, if you have a policy that requires end-to-end encryption, you will have to decrypt the traffic at the Pod. This will place additional burden on your Pod as it will have to spend cycles establishing the initial handshake. Overall SSL/TLS processing is very CPU intensive. Consequently, if you have the flexibility, try performing the SSL offload at the Ingress or the load balancer.
-
-An ingress controller can be configured to terminate SSL/TLS connections. An example for how to terminate SSL/TLS connections at the NLB appears [above](#use-encryption-with-aws-load-balancers). Additional examples for SSL/TLS termination appear below.
+Following are additional examples for SSL/TLS termination.
 
 + [Securing EKS Ingress With Contour And Let’s Encrypt The GitOps Way](https://aws.amazon.com/blogs/containers/securing-eks-ingress-contour-lets-encrypt-gitops/)
 + [How do I terminate HTTPS traffic on Amazon EKS workloads with ACM?](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/)
 
 !!! attention
-    Some Ingresses, like the ALB ingress controller, implement the SSL/TLS using Annotations instead of as part of the Ingress Spec.
+    Some Ingresses, like the AWS LB controller, implement the SSL/TLS using Annotations instead of as part of the Ingress Spec.
 
 ### ACM Private CA with cert-manager
 You can enable TLS and mTLS to secure your EKS application workloads at the ingress, on the pod, and between pods using ACM Private Certificate Authority (CA) and [cert-manager](https://cert-manager.io/), a popular Kubernetes add-on to distribute, renew, and revoke certificates. ACM Private CA is a highly-available, secure, managed CA without the upfront and maintenance costs of managing your own CA. If you are using the default Kubernetes certificate authority, there is an opportunity to improve your security and meet compliance requirements with ACM Private CA. ACM Private CA secures private keys in FIPS 140-2 Level 3 hardware security modules (very secure), compared with the default CA storing keys encoded in memory (less secure). A centralized CA also gives you more control and improved auditability for private certificates both inside and outside of a Kubernetes environment. 
@@ -457,7 +523,7 @@ kubectl apply -f istio-custom-config.yaml
 #### Additional Resources
 + [How to implement cert-manager and the ACM Private CA plugin to enable TLS in EKS](https://aws.amazon.com/blogs/security/tls-enabled-kubernetes-clusters-with-acm-private-ca-and-amazon-eks-2/).
 + [Setting up end-to-end TLS encryption on Amazon EKS with the new AWS Load Balancer Controller and ACM Private CA](https://aws.amazon.com/blogs/containers/setting-up-end-to-end-tls-encryption-on-amazon-eks-with-the-new-aws-load-balancer-controller/).
-+ [Private CA Kubernetes cert-manager plugin on Github](https://github.com/cert-manager/aws-privateca-issuer).
++ [Private CA Kubernetes cert-manager plugin on GitHub](https://github.com/cert-manager/aws-privateca-issuer).
 + [Private CA Kubernetes cert-manager plugin user guide](https://docs.aws.amazon.com/acm-pca/latest/userguide/PcaKubernetes.html).
 + [How to use AWS Private Certificate Authority short-lived certificate mode](https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode)
 

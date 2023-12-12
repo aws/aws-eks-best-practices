@@ -302,9 +302,24 @@ Karpenter is able to launch nodes that best fit your workloads when its informat
 
 See [Configure and Size Resource Requests/Limits for all Workloads](https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads)
 
+## CoreDNS recommendations
+
+### Update the configuration of CoreDNS to maintain reliability
+When deploying CoreDNS pods on nodes managed by Karpenter, given Karpenter's dynamic nature in rapidly terminating/creating new nodes to align with demand, it is advisable to adhere to the following best practices:
+
+[CoreDNS lameduck duration](https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-lameduck-duration)
+
+[CoreDNS readiness probe](https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-readiness-probe)
+
+This will ensure that DNS queries are not directed to a CoreDNS Pod that is not yet ready or has been terminated.
+
+## Karpenter Blueprints
+As Karpenter takes an application-first approach to provision compute capacity for to the Kubernetes data plane, there are common workload scenarios that you might be wondering how to configure them properly. [Karpenter Blueprints](https://github.com/aws-samples/karpenter-blueprints) is a repository that includes a list of common workload scenarios following the best practices described here. You'll have all the resources you need to even create an EKS cluster with Karpenter configured, and test each of the blueprints included in the repository. You can combine different blueprints to finally create the one you need for your workload(s).
+
 ## Additional Resources
 * [Karpenter/Spot Workshop](https://ec2spotworkshops.com/karpenter.html)
 * [Karpenter Node Provisioner](https://youtu.be/_FXRIKWJWUk)
 * [TGIK Karpenter](https://youtu.be/zXqrNJaTCrU)
 * [Karpenter vs. Cluster Autoscaler](https://youtu.be/3QsVRHVdOnM)
 * [Groupless Autoscaling with Karpenter](https://www.youtube.com/watch?v=43g8uPohTgc)
+* [Tutorial: Run Kubernetes Clusters for Less with Amazon EC2 Spot and Karpenter](https://community.aws/tutorials/run-kubernetes-clusters-for-less-with-amazon-ec2-spot-and-karpenter#step-6-optional-simulate-spot-interruption)

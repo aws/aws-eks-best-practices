@@ -82,13 +82,15 @@ An attacker may attempt to erase their misdeeds by terminating an affected node.
 This will serve as a warning to cluster administrators not to tamper with the affected Pods/Nodes until the investigation is complete. 
 
 ### Capture volatile artifacts on the worker node
-+ **Capture the operating system memory**. This will capture the Docker daemon and its subprocess per container.  [MargaritaShotgun](https://github.com/ThreatResponse/margaritashotgun), a remote memory acquisition tool, can aid in this effort. 
++ **Capture the operating system memory**. This will capture the Docker daemon (or other container runtime) and its subprocesses per container. This can be accomplished using tools like [LiME](https://github.com/504ensicsLabs/LiME) and [Volatility](https://www.volatilityfoundation.org/), or through higher-level tools such as [Automated Forensics Orchestrator for Amazon EC2](https://aws.amazon.com/solutions/implementations/automated-forensics-orchestrator-for-amazon-ec2/) that build on top of them.
 + **Perform a netstat tree dump of the processes running and the open ports**. This will capture the docker daemon and its subprocess per container. 
-+ **Run docker commands before evidence is altered on the worker node**.
-    + `docker container top CONTAINER` for processes running.
-    + `docker container logs CONTAINER` for daemon level held logs.
-    + `docker container port CONTAINER` for list of open ports.
-    + `docker container diff CONTAINER` to capture changes to files and directories to container's  filesystem since its initial launch.   
++ **Run commands to save container-level state before evidence is altered**. You can use capabilities of the container runtime to capture information about currently running containers. For example, with Docker, you could do the following:
+    + `docker top CONTAINER` for processes running.
+    + `docker logs CONTAINER` for daemon level held logs.
+    + `docker inspect CONTAINER` for various information about the container.
+
+    The same could be achieved with containerd using the [nerdctl](https://github.com/containerd/nerdctl) CLI, in place of `docker` (e.g. `nerdctl inspect`). Some additional commands are available depending on the container runtime. For example, Docker has `docker diff` to see changes to the container filesystem or `docker checkpoint` to save all container state including volatile memory (RAM). See [this Kubernetes blog post](https://kubernetes.io/blog/2022/12/05/forensic-container-checkpointing-alpha/) for discussion of similar capabilities with containerd or CRI-O runtimes.
+
 + **Pause the container for forensic capture**.
 + **Snapshot the instance's EBS volumes**.
 
@@ -103,7 +105,7 @@ If the vulnerable pods are managed by a higher-level Kubernetes workload resourc
 ## Recommendations
 
 ### Review the AWS Security Incident Response Whitepaper
-While this section gives a brief overview along with a few  recommendations for handling suspected security breaches, the topic is exhaustively covered in the white paper, [AWS Security Incident Response](https://d1.awsstatic.com/whitepapers/aws_security_incident_response.pdf).
+While this section gives a brief overview along with a few  recommendations for handling suspected security breaches, the topic is exhaustively covered in the white paper, [AWS Security Incident Response](https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/welcome.html).
 
 ### Practice security game days
 Divide your security practitioners into 2 teams: red and blue.  The red team will be focused on probing different systems for vulnerabilities while the blue team will be responsible for defending against them.  If you don't have enough security practitioners to create separate teams, consider hiring an outside entity that has knowledge of Kubernetes exploits. 
@@ -116,7 +118,6 @@ Periodically attacking your own cluster can help you discover vulnerabilities an
 ## Tools
 + [kube-hunter](https://github.com/aquasecurity/kube-hunter), a penetration testing tool for Kubernetes. 
 + [Gremlin](https://www.gremlin.com/product/#kubernetes), a chaos engineering toolkit that you can use to simulate attacks against your applications and infrastructure. 
-+ [kube-forensics](https://github.com/keikoproj/kube-forensics), a Kubernetes controller that triggers a job that collects the state of a running pod and dumps it in an S3 bucket. 
 + [Attacking and Defending Kubernetes Installations](https://github.com/kubernetes/sig-security/blob/main/sig-security-external-audit/security-audit-2019/findings/AtredisPartners_Attacking_Kubernetes-v1.0.pdf)
 + [kubesploit](https://www.cyberark.com/resources/threat-research-blog/kubesploit-a-new-offensive-tool-for-testing-containerized-environments)
 

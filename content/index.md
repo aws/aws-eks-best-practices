@@ -9,6 +9,8 @@ We currently have published guides for the following topics:
 * [Best Practices for Running Windows Containers](windows/docs/ami/)
 * [Best Practices for Networking](networking/index/)
 * [Best Practices for Scalability](scalability/docs/)
+* [Best Practices for Cluster Upgrades](upgrades/)
+* [Best Practices for Cost Optimization](cost_optimization/cfm_framework.md)
 
 We also open sourced a Python based CLI (Command Line Interface) called [hardeneks](https://github.com/aws-samples/hardeneks) to check some of the recommendations from this guide.
 

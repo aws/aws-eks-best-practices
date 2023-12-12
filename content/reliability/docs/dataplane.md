@@ -6,7 +6,7 @@ You have two choices for worker nodes with EKS: [EC2 instances](https://docs.aws
 
 EKS on Fargate offers the easiest path to a resilient data plane. Fargate runs each Pod in an isolated compute environment. Each Pod running on Fargate gets its own worker node. Fargate automatically scales the data plane as Kubernetes scales pods. You can scale both the data plane and your workload by using the [horizontal pod autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html).
 
-The preferred way to scale EC2 worker nodes is by using [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md), [EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) or community projects like [Atlassian’s Esclator](https://github.com/atlassian/escalator).
+The preferred way to scale EC2 worker nodes is by using [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md), [EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) or community projects like [Atlassian’s Escalator](https://github.com/atlassian/escalator).
 
 ## Recommendations 
 
@@ -215,7 +215,7 @@ CoreDNS fulfills name resolution and service discovery functions in Kubernetes. 
 
 ## Recommendations
 ### Monitor CoreDNS metrics
-CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`), errors (`coredns_dns_response_rcode_count_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption.
+CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`, before [1.7.0](https://github.com/coredns/coredns/blob/master/notes/coredns-1.7.0.md) version the metric was called `core_dns_response_rcode_count_total`), errors (`coredns_dns_responses_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption.
 
 For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
 

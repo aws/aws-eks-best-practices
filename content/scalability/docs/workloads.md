@@ -71,7 +71,7 @@ You should set up monitoring to alert a cluster admin before this limit is reach
 
 ## Limit Deployment history
 
-Pods can be slow when creating, updating, or deleting because old objects are still tracked in the cluster. You can reduce `therevisionHistoryLimit` of [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy) to cleanup older ReplicaSets which will lower to total amount of objects tracked by the Kubernetes Controller Manager. The default history limit for Deployments in 10.
+Pods can be slow when creating, updating, or deleting because old objects are still tracked in the cluster. You can reduce the `revisionHistoryLimit` of [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy) to cleanup older ReplicaSets which will lower to total amount of objects tracked by the Kubernetes Controller Manager. The default history limit for Deployments in 10.
 
 If your cluster creates a lot of job objects through CronJobs or other mechanisms you should use the [`ttlSecondsAfterFinished` setting](https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/) to automatically clean up old pods in the cluster. This will remove successfully executed jobs from the job history after a specified amount of time.
 

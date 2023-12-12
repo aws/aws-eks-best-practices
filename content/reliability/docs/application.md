@@ -132,14 +132,14 @@ You must use one of these three APIs to provide the metric to scale your applica
 
 ### Scaling applications based on custom or external metrics
 
-You can use custom or external metrics to scale your application on metrics other than CPU or memory utilization. [Custom Metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/custom-metrics-api.md) API servers provide the `custom-metrics.k8s.io` API that HPA can use to autoscale applications. 
+You can use custom or external metrics to scale your application on metrics other than CPU or memory utilization. [Custom Metrics](https://github.com/kubernetes-sigs/custom-metrics-apiserver) API servers provide the `custom-metrics.k8s.io` API that HPA can use to autoscale applications. 
 
-You can use the [Prometheus Adapter for Kubernetes Metrics APIs](https://github.com/directxman12/k8s-prometheus-adapter) to collect metrics from Prometheus and use with the HPA. In this case, Prometheus adapter will expose Prometheus metrics in [Metrics API format](https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/v1alpha1/types.go). A list of all custom metrics implementation can be found in [Kubernetes Documentation](https://github.com/kubernetes/metrics/blob/master/IMPLEMENTATIONS.md#custom-metrics-api). 
+You can use the [Prometheus Adapter for Kubernetes Metrics APIs](https://github.com/directxman12/k8s-prometheus-adapter) to collect metrics from Prometheus and use with the HPA. In this case, Prometheus adapter will expose Prometheus metrics in [Metrics API format](https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/types.go). 
 
 Once you deploy the Prometheus Adapter, you can query custom metrics using kubectl.
 `kubectl get —raw /apis/custom.metrics.k8s.io/v1beta1/`
 
-[External metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md), as the name suggests, provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to the Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
+External metrics, as the name suggests, provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to the Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
 
 To autoscale a Deployment using a CloudWatch metric, for example, [scaling a batch-processor application based on SQS queue depth](https://github.com/awslabs/k8s-cloudwatch-adapter/blob/master/samples/sqs/README.md), you can use [`k8s-cloudwatch-adapter`](https://github.com/awslabs/k8s-cloudwatch-adapter). `k8s-cloudwatch-adapter` is a community project and not maintained by AWS. 
 

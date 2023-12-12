@@ -1,0 +1,7 @@
+This is actually markdown.
+
+And has links:
+- [A repo](https://github.com/some/repo)
+- [Another repo](https://github.com/some-other/repo)
+
+But it shouldn't be found because of file extension/glob patterns.
