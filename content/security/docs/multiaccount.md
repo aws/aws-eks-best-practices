@@ -29,7 +29,7 @@ It is possible to have multiple `cluster accounts` in your AWS organization, and
 
 | ![](./images/multi-account-eks.jpg) |
 |:--:|
-| In the above diagram, AWS RAM is used to share subnets from a cluster account into a workload account. Then workloads running in EKS pods use IRSA to assume a role in their workload account and consume their AWS resources. |
+| In the above diagram, AWS RAM is used to share subnets from a cluster account into a workload account. Then workloads running in EKS pods use IRSA or EKS Pod Identities and role chaining to assume a role in their workload account and consume their AWS resources. |
 
  
 ### Implementing a Multi Workload Account Strategy for Multi Tenant Cluster
