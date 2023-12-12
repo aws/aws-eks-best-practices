@@ -87,14 +87,6 @@ We suggest that you plan your infrastructure by combining these Pods' capacities
 
 ## Recommendations
 
-### Use Secondary IP Mode when
-
-Secondary IP mode is an ideal configuration option for ephemeral EKS clusters. Greenfield customers who are either new to EKS or in the process of migrating can take advantage of VPC CNI in secondary mode.
-
-### Avoid Secondary IP Mode when
-
-If you are experiencing Pod density issues, we suggest enabling prefix mode. If you are facing IPv4 depletion issues, we advise migrating to IPv6 clusters. If IPv6 is not on the horizon, you may choose to use custom networking.
-
 ### Deploy VPC CNI Managed Add-On
 
 When you provision a cluster, Amazon EKS installs VPC CNI automatically. Amazon EKS nevertheless supports managed add-ons that enable the cluster to interact with underlying AWS resources such as computing, storage, and networking. We highly recommend that you deploy clusters with managed add-ons including VPC CNI.
@@ -166,48 +158,8 @@ We advise increasing the liveness and readiness probe timeout values (default `t
 
 We highly encourage you to run sudo `bash /opt/cni/bin/aws-cni-support.sh` on a node while you engage Amazon EKS support. The script will assist in evaluating kubelet logs and memory utilization on the node. Please consider installing SSM Agent on Amazon EKS worker nodes to run the script.
 
-### Monitor IP Address Inventory
 
-You can monitor the IP addresses inventory of subnets using [CNI Metrics Helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html).
 
-* maximum number of ENIs the cluster can support
-* number of ENIs already allocated
-* number of IP addresses currently assigned to Pods
-* total and maximum number of IP address available
-
-You can also set [CloudWatch alarms](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of [CNI metrics helper](https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html). Make sure DISABLE_METRICS variable for VPC CNI is set to false.
-
-### Plan for Growth
-
-We strongly recommend to size your subnets for growth. Right sizing the subnets will prevent your subnets from running out of IP addresses as your Pods and nodes scale. You will not be able to create new Pods or nodes if the subnets don’t have enough available IP addresses. If you need to limit the IP addresses the CNI caches, then you can use warm pool CNI environment variables. If subnets in your VPC run out of available IP addresses, we suggest [creating a new subnet](https://docs.aws.amazon.com/vpc/latest/userguide/working-with-subnets.html#create-subnets) using the VPC’s original CIDR blocks.
-
-Use the [sample EKS Subnet Calculator](../subnet-calc/subnet-calc.xlsx) spreadsheet to plan your network. The spreadsheet calculates IP usage based on workloads and VPC ENI configuration. The IP usage is compared to an IPv4 subnet to determine if the configuration and subnet size is sufficient for your workload.
-
-### Configure IP and ENI Target values in address constrained environments
-
-!!! warning
-    Improving your VPC design is the recommended response to IP address exhaustion. Consider solutions like IPv6 and Secondary CIDRs. Adjusting these values to minimize the number of Warm IPs should be a temporary solution after other options are excluded. Misconfiguring these values may interfere with cluster operation.
-
-In the default configuration, VPC CNI keeps an entire ENI (and associated IPs) in the warm pool. This may consume a large number of IPs, especially on larger instance types.
-
-If your cluster subnet has a limited number of free IP addresses, scrutinize these VPC CNI configuration environment variables:
-
-* `WARM_IP_TARGET`
-* `MINIMUM_IP_TARGET`
-* `WARM_ENI_TARGET`
-
-Configure the value of MINIMUM_IP_TARGET to closely match the number of Pods you expect to run on your nodes. Doing so will ensure that as Pods get created, and the CNI can assign IP addresses from the warm pool without calling the EC2 API.
-
-Avoid setting the value of WARM_IP_TARGET too low as it will cause additional calls to the EC2 API, and that might cause throttling of the requests. For large clusters use along with MINIMUM_IP_TARGET to avoid throttling of the requests.
-
-To configure these options, download `aws-k8s-cni.yaml` and set the environment variables. At the time of writing, the latest release is located [here](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni.yaml). Check the version of the configuration value matches the installed VPC CNI version.
-
-!!! Warning
-    The warm settings will be reset to defaults when you update the CNI. Please take a backup of the CNI, before you update the CNI. Review the configuration settings to determine if you need to reapply them after update is successful.
-
-### Configure Warm ENI value for Batch Workloads
-
-We recommend updating the default `WARM_ENI_TARGET` to match the Pod scale needs for batch workloads. Setting `WARM_ENI_TARGET` to a high value always maintains the warm IP pool required to run large batch workloads and hence avoid data processing delays.
 
 ### Configure IPTables Forward Policy on non-EKS Optimized AMI Instances
 

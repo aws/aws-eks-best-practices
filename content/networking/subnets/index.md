@@ -45,15 +45,6 @@ There is no public access to your API server from the internet when only private
 
 Note that the cluster's API server endpoint is resolved by public DNS servers to a private IP address from the VPC. In the past, the endpoint could only be resolved from within the VPC.
 
-### Guidance on Designing Hyperscale VPCs
-
-An environment can be considered “Hyperscale” once it supports thousands of application endpoints and tens or hundreds of gigabits of traffic per second. 
-
-When operating at Hyperscale, additional planning is required for network connectivity, security, private IPv4 address scarcity and overlap. Hyperscale network design involves leveraging cell-based infrastructure units, and understanding the benefits and limitations of each of the various AWS networking services.
-
-Learn more about [Designing Hyperscale Amazon VPC networks](https://aws.amazon.com/blogs/networking-and-content-delivery/designing-hyperscale-amazon-vpc-networks/) on the AWS Networking & Content Delivery Blog. 
-
-
 ### VPC configurations
 
 Amazon VPC supports IPv4 and IPv6 addressing. Amazon EKS supports IPv4 by default. A VPC must have an IPv4 CIDR block associated with it. You can optionally associate multiple IPv4 [Classless Inter-Domain Routing](http://en.wikipedia.org/wiki/CIDR_notation) (CIDR) blocks and multiple IPv6 CIDR blocks to your VPC. When you create a VPC, you must specify an IPv4 CIDR block for the VPC from the private IPv4 address ranges as specified in [RFC 1918](http://www.faqs.org/rfcs/rfc1918.html). The allowed block size is between a `/16` prefix (65,536 IP addresses) and `/28` prefix (16 IP addresses). 
@@ -72,6 +63,8 @@ The traffic that originates somewhere else and reaches your nodes is called *ing
 
 In the IPv6 world, every address is internet routable. The IPv6 addresses associated with the nodes and pods are public. Private subnets are supported by implementing an [egress-only internet gateways (EIGW)](https://docs.aws.amazon.com/vpc/latest/userguide/egress-only-internet-gateway.html) in a VPC, allowing outbound traffic while blocking all incoming traffic. Best practices for implementing IPv6 subnets can be found in the [VPC user guide](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html).
 
+
+
 ### You can configure VPC and Subnets in three different ways:
 
 #### Using only public subnets
@@ -89,9 +82,18 @@ Both nodes and ingress are created in private subnets. Using the [`kubernetes.io
 
 ### Communication across VPCs
 
-There are many scenarios when you require multiple VPCs and separate EKS clusters deployed to these VPCs. Multiple VPCs are needed when you have to support security, billing, multiple regions, or internal charge-back requirements. We recommend following the design patterns mentioned in the VPC-to-VPC connectivity [guide](https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/amazon-vpc-to-amazon-vpc-connectivity-options.html) to integrate multiple Amazon VPCs into a larger virtual network. 
+There are many scenarios when you require multiple VPCs and separate EKS clusters deployed to these VPCs. 
 
-VPC connectivity is best achieved when using non-overlapping IP ranges for each VPC being connected. For operational efficiency, we strongly recommend deploying EKS clusters and nodes to IP ranges that do not overlap. We suggest [Private NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html#nat-gateway-basics), or VPC CNI in [custom networking](../custom-networking/index.md) mode in conjunction with [transit gateway](https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-transit-gateway.html) to integrate workloads on EKS to solve overlapping CIDR challenges while preserving routable RFC1918 IP addresses. Consider utilizing [AWS PrivateLink](https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-share-your-services.html), also known as an endpoint service, if you are the service provider and would want to share your Kubernetes service and ingress (either ALB or NLB) with your customer VPC in separate accounts.
+You can use [Amazon VPC Lattice](https://aws.amazon.com/vpc/lattice/) to consistently and securely connect services across multiple VPCs and accounts (without requiring additional connectivity to be provided by services like VPC peering, AWS PrivateLink or AWS Transit Gateway). Learn more [here](https://aws.amazon.com/blogs/networking-and-content-delivery/build-secure-multi-account-multi-vpc-connectivity-for-your-applications-with-amazon-vpc-lattice/).
+
+![Amazon VPC Lattice, traffic flow](./vpc-lattice.gif)
+
+
+Amazon VPC Lattice operates in the link-local address space in IPv4 and IPv6, providing connectivity between services that may have overlapping IPv4 addresses. For operational efficiency, we strongly recommend deploying EKS clusters and nodes to IP ranges that do not overlap. In case your infrastructure includes VPCs with overlapping IP ranges, you need to architect your network accordingly. We suggest [Private NAT Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html#nat-gateway-basics), or VPC CNI in [custom networking](../custom-networking/index.md) mode in conjunction with [transit gateway](https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-transit-gateway.html) to integrate workloads on EKS to solve overlapping CIDR challenges while preserving routable RFC1918 IP addresses. 
+
+![Private Nat Gateway with Custom Networking, traffic flow](./private-nat-gw.gif)
+
+Consider utilizing [AWS PrivateLink](https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-share-your-services.html), also known as an endpoint service, if you are the service provider and would want to share your Kubernetes service and ingress (either ALB or NLB) with your customer VPC in separate accounts. 
 
 ### Sharing VPC across multiple accounts
 
@@ -150,13 +152,6 @@ Amazon EKS offers public-only, public-and-private, and private-only cluster endp
 
 We suggest a private-only endpoint when you need security and network isolation. We recommend using either of the options listed in the [EKS user guide](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html#private-access) to connect to an API server privately.
 
-### Check available IPs
-
-When you create a cluster, Amazon EKS creates up to 4 elastic network interfaces in the cluster subnets. When you upgrade the cluster, Amazon EKS creates new X-ENIs and deletes the old ones when the upgrade is successful. Amazon EKS recommends a netmask of /28 (16 IP addresses) for cluster subnets to accommodate upgrades of the cluster. Amazon EKS now supports updating the subnets you used when creating a cluster, also called as cluster subnets. You can update the cluster to specify new subnets if you run out of IP addresses within your cluster subnets.
-
-Before building VPC and subnets, it is advised to work backwards from the required workload scale. When clusters are built using “ekstcl”, /19 subnets are created by default. A netmask of /19 is suitable for the majority of workload types. To learn about Pod IP allocations, refer [Amazon VPC CNI](../vpc-cni/index.md). Consider using [subnet-calc](../subnet-calc/subnet-calc.xlsx), a tool developed by EKS to help with subnet sizing.
-
-For IPv6 VPCs, a subnet's CIDR block has a fixed prefix length of `/64`. We recommend to deploy nodes and workloads to cluster subnets to maximize IP usage. 
 
 ### Configure Security Groups Carefully
 
