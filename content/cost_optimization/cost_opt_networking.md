@@ -67,7 +67,7 @@ The screenshot below shows the result of the EndpointSlice controller having suc
 
 _We strongly recommend_ running your workloads in highly available environments across multiple AZs. This improves the reliability of your applications, especially when there is an incident of an issue with an AZ. In the case you're willing to sacrifice reliability for the sake of reducing their network-related costs, you can restrict your nodes to a single AZ. 
 
-To run all your Pods in the same AZ, either provision the worker nodes in the same AZ or schedule the Pods on the worker nodes running on the same AZ. To provision nodes within a single AZ, define a node group with subnets belonging to the same AZ with [Cluster Autoscaler (CA)](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler). For[Karpenter,](https://karpenter.sh/) use “[_topology.kubernetes.io/zone”_](http://topology.kubernetes.io/zone%E2%80%9D) and specify the AZ where you’d like to create the worker nodes. For example, the below Karpenter provisioner snippet provisions the nodes in the us-west-2a AZ.
+To run all your Pods in the same AZ, either provision the worker nodes in the same AZ or schedule the Pods on the worker nodes running on the same AZ. To provision nodes within a single AZ, define a node group with subnets belonging to the same AZ with [Cluster Autoscaler (CA)](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler). For [Karpenter,](https://karpenter.sh/) use “[_topology.kubernetes.io/zone”_](http://topology.kubernetes.io/zone%E2%80%9D) and specify the AZ where you’d like to create the worker nodes. For example, the below Karpenter provisioner snippet provisions the nodes in the us-west-2a AZ.
 
 **Karpenter**
 
