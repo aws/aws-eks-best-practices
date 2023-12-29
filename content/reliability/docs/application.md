@@ -183,7 +183,7 @@ Changes are inherently risky, but changes that cannot be undone can be potential
 
 You can perform blue/green deployments in Kubernetes by creating a new Deployment that is identical to the existing version’s Deployment. Once you verify that the Pods in the new Deployment are running without errors, you can start sending traffic to the new Deployment by changing the `selector` spec in the Service that routes traffic to your application’s Pods.
 
-Many continuous integration tools such as [Flux](https://fluxcd.io), [Jenkins](https://www.jenkins.io), and [Spinnaker](https://spinnaker.io) let you automate blue/green deployments. Kubernetes blog includes a walkthrough using Jenkins: [Zero-downtime Deployment in Kubernetes with Jenkins](https://kubernetes.io/blog/2018/04/30/zero-downtime-deployment-kubernetes-jenkins/)
+Many continuous integration tools such as [Flux](https://fluxcd.io), [Jenkins](https://www.jenkins.io), and [Spinnaker](https://spinnaker.io) let you automate blue/green deployments. AWS Containers Blog includes a walkthrough using AWS Load Balancer Controller: [Using AWS Load Balancer Controller for blue/green deployment, canary deployment and A/B testing](https://aws.amazon.com/blogs/containers/using-aws-load-balancer-controller-for-blue-green-deployment-canary-deployment-and-a-b-testing/)
 
 ### Use Canary deployments
 
