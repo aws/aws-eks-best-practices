@@ -104,6 +104,9 @@ If the vulnerable pods are managed by a higher-level Kubernetes workload resourc
 
 ## Recommendations
 
+### Use AWS Security Hub to centralize security findings and automate security best practices, compliance, and incident response
+[AWS Security Hub](https://aws.amazon.com/security-hub/) is a cloud security posture management (CSPM) service that you can use to automate security best practice checks, aggregate security alerts into a single place and format, and understand your overall security posture across all of your AWS accounts. Reduce your risk with automated checks based on a collection of security controls curated by experts and simplify compliance management with built in mapping capabilities for common frameworks like CIS, PCI DSS, and more. Simplify and streamline data ingestion into your Security Information and Event Management (SIEM), ticketing, and other tools by consolidating the integrations between AWS services and your downstream tooling and by normalizing your findings. Better prioritize the response and remediation efforts of your central security teams and DevSecOps teams by searching, correlating, and aggregating, and fine-tuning diverse security findings by accounts and resources as well as visualizing findings in the Security Hub dashboard.
+
 ### Review the AWS Security Incident Response Whitepaper
 While this section gives a brief overview along with a few  recommendations for handling suspected security breaches, the topic is exhaustively covered in the white paper, [AWS Security Incident Response](https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/welcome.html).
 
