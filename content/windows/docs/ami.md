@@ -65,7 +65,7 @@ phases:
             - Set-ExecutionPolicy Unrestricted -Force
             - (Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin 111000111000.dkr.ecr.us-east-1.amazonaws.com
             - ctr image pull mcr.microsoft.com/dotnet/framework/aspnet:latest
-			      - ctr image pull 111000111000.dkr.ecr.us-east-1.amazonaws.com/myappcontainerimage:latest
+            - ctr image pull 111000111000.dkr.ecr.us-east-1.amazonaws.com/myappcontainerimage:latest
 ```
 
 To make sure the following component works as expected, check if the IAM role used by EC2 Image builder (EC2InstanceProfileForImageBuilder) has the attached policies:
