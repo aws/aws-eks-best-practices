@@ -119,29 +119,31 @@ apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-high"} 
 apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-low"} 245
 ```
 
-두 번째 유형의 객체는 FlowSchemas입니다. 특정 속성 세트가 포함된 API 서버 요청은 동일한 FlowSchema로 분류됩니다. 이러한 속성에는 인증된 사용자나 API Group, namespace 또는 resource와 같은 요청의 속성이 포함됩니다. FlowSchema는 또한 이 유형의 요청이 매핑되어야 하는 PriorityLevelConfiguration을 지정합니다. 두 개체는 함께 "이 유형의 요청이 이 inflight 요청 비율에 포함되기를 원합니다."라고 말합니다. 요청이 API Server에 도달하면 모든 필수 속성과 일치하는 FlowSchemas를 찾을 때까지 각 FlowSchemas를 확인합니다. 여러 FlowSchemas가 요청과 일치하는 경우 API Server는 개체의 속성으로 지정된 일치 우선 순위가 가장 작은 FlowSchema를 선택합니다.
+두 번째 유형의 객체는 FlowSchemas입니다. 특정 속성 세트가 포함된 API 서버 요청은 동일한 FlowSchema로 분류됩니다. 이러한 속성에는 인증된 사용자나 API Group, 네임스페이스 또는 리소스와 같은 요청의 속성이 포함됩니다. FlowSchema는 또한 이 유형의 요청이 매핑되어야 하는 PriorityLevelConfiguration을 지정합니다. 두 개체는 함께 "이 유형의 요청이 이 inflight 요청 비율에 포함되기를 원합니다."라고 말합니다. 요청이 API Server에 도달하면 모든 필수 속성과 일치하는 FlowSchemas를 찾을 때까지 각 FlowSchemas를 확인합니다. 여러 FlowSchemas가 요청과 일치하는 경우 API Server는 개체의 속성으로 지정된 일치 우선 순위가 가장 작은 FlowSchema를 선택합니다.
 
 FlowSchemas와 PriorityLevelConfigurations의 매핑은 다음 명령을 사용하여 볼 수 있습니다.
 
 ```
 $ kubectl get flowschemas
-NAME                           PRIORITYLEVEL     MATCHINGPRECEDENCE   DISTINGUISHERMETHOD   AGE   MISSINGPL
-exempt                         exempt            1                    <none>                3d    False
-probes                         exempt            2                    <none>                3d    False
-system-leader-election         leader-election   100                  ByUser                3d    False
-endpoint-controller            workload-high     150                  ByUser                3d    False
-workload-leader-election       leader-election   200                  ByUser                3d    False
-system-node-high               node-high         400                  ByUser                3d    False
-system-nodes                   system            500                  ByUser                3d    False
-kube-controller-manager        workload-high     800                  ByNamespace           3d    False
-kube-scheduler                 workload-high     800                  ByNamespace           3d    False
-kube-system-service-accounts   workload-high     900                  ByNamespace           3d    False
-service-accounts               workload-low      9000                 ByUser                3d    False
-global-default                 global-default    9900                 ByUser                3d    False
-catch-all                      catch-all         10000                ByUser                3d    False
+NAME                           PRIORITYLEVEL     MATCHINGPRECEDENCE   DISTINGUISHERMETHOD   AGE     MISSINGPL
+exempt                         exempt            1                    <none>                7h19m   False
+eks-exempt                     exempt            2                    <none>                7h19m   False
+probes                         exempt            2                    <none>                7h19m   False
+system-leader-election         leader-election   100                  ByUser                7h19m   False
+endpoint-controller            workload-high     150                  ByUser                7h19m   False
+workload-leader-election       leader-election   200                  ByUser                7h19m   False
+system-node-high               node-high         400                  ByUser                7h19m   False
+system-nodes                   system            500                  ByUser                7h19m   False
+kube-controller-manager        workload-high     800                  ByNamespace           7h19m   False
+kube-scheduler                 workload-high     800                  ByNamespace           7h19m   False
+kube-system-service-accounts   workload-high     900                  ByNamespace           7h19m   False
+eks-workload-high              workload-high     1000                 ByUser                7h14m   False
+service-accounts               workload-low      9000                 ByUser                7h19m   False
+global-default                 global-default    9900                 ByUser                7h19m   False
+catch-all                      catch-all         10000                ByUser                7h19m   False
 ```
 
-PriorityLevelConfigurations에는 Queue, Reject 또는 Exempt 유형이 있을 수 있습니다. Queue 및 Reject 유형의 경우 해당 우선순위 수준에 대한 최대 진행 중인 요청 수에 제한이 적용되지만 해당 제한에 도달하면 동작이 달라집니다. 예를 들어 워크로드가 높은 PriorityLevelConfiguration은 Queue 유형을 사용하며 Controller Manager, Endpoint Controller, Scheduler 및 kube-system 네임스페이스에서 실행되는 파드에서 사용할 수 있는 요청이 98개 있습니다. Queue 유형이 사용되므로 API Server는 요청을 메모리에 유지하려고 시도하며 이러한 요청이 시간 초과되기 전에 진행 중인 요청 수가 98개 미만으로 떨어지기를 희망합니다. 특정 요청이 대기열에서 시간 초과되거나 너무 많은 요청이 이미 대기열에 있는 경우 API Server는 요청을 삭제하고 클라이언트에 429를 반환할 수밖에 없습니다. 대기열에 있으면 요청이 429를 수신하지 못할 수 있지만 요청의 종단 간 지연 시간이 늘어나는 단점이 있습니다.
+PriorityLevelConfigurations에는 Queue, Reject 또는 Exempt 유형이 있을 수 있습니다. Queue 및 Reject 유형의 경우 해당 우선순위 수준에 대한 최대 진행 중인 요청 수에 제한이 적용되지만 해당 제한에 도달하면 동작이 달라집니다. 예를 들어 워크로드가 높은 PriorityLevelConfiguration은 Queue 유형을 사용하며 컨트롤러 매니저, 엔드포인트 컨트롤러, 스케줄러 및 kube-system 네임스페이스에서 실행되는 파드에서 사용할 수 있는 요청이 98개 있습니다. Queue 유형이 사용되므로 API Server는 요청을 메모리에 유지하려고 시도하며 이러한 요청이 시간 초과되기 전에 진행 중인 요청 수가 98개 미만으로 떨어지기를 희망합니다. 특정 요청이 대기열에서 시간 초과되거나 너무 많은 요청이 이미 대기열에 있는 경우 API Server는 요청을 삭제하고 클라이언트에 429를 반환할 수밖에 없습니다. 대기열에 있으면 요청이 429를 수신하지 못할 수 있지만 요청의 종단 간 지연 시간이 늘어나는 단점이 있습니다.
 
 이제 Reject 유형을 사용하여 포괄적인 PriorityLevelConfiguration에 매핑되는 포괄적인 FlowSchema를 살펴보겠습니다. 클라이언트가 13개의 진행 중인 요청 제한에 도달하면 API Server는 대기열을 실행하지 않고 429 응답 코드를 사용하여 요청을 즉시 삭제합니다. 마지막으로 Exempt 유형을 사용하여 PriorityLevelConfiguration에 매핑하는 요청은 429를 수신하지 않으며 항상 즉시 전달됩니다. 이는 healthz 요청이나 system:masters 그룹에서 오는 요청과 같은 우선순위가 높은 요청에 사용됩니다. 
 
@@ -212,7 +214,7 @@ APF 기본값을 변경할 때 설정 변경으로 인해 의도하지 않은 42
 1. 버킷이 요청 삭제를 시작하지 않도록 모든 FlowSchemas에 대해 `apiserver_flowcontrol_rejected_requests_total`에 대한 측정 지표를 모니터링해야 합니다.
 2. `apiserver_flowcontrol_request_concurrency_limit` 및 `apiserver_flowcontrol_request_concurrency_in_use` 값을 비교하여 사용 중인 동시성이 해당 우선순위 수준의 제한을 위반할 위험이 없는지 확인해야 합니다.
 
-새로운 FlowSchema 및 PriorityLevelConfiguration을 정의하는 일반적인 사용 사례 중 하나는 격리입니다. Pod에서 장기 실행 목록 이벤트 호출을 자체 요청 공유로 분리한다고 가정해 보겠습니다. 이렇게 하면 기존 서비스 계정 FlowSchema를 사용하는 파드의 중요한 요청이 429를 수신하여 요청 용량이 부족해지는 것을 방지할 수 있습니다. 진행 중인 요청의 총 개수는 유한하지만 이 예에서는 APF 설정을 수정하여 지정된 워크로드에 대한 요청 용량을 더 잘 나눌 수 있음을 보여줍니다.
+새로운 FlowSchema 및 PriorityLevelConfiguration을 정의하는 일반적인 사용 사례 중 하나는 격리입니다. 파드에서 장기 실행 목록 이벤트 호출을 자체 요청 공유로 분리한다고 가정해 보겠습니다. 이렇게 하면 기존 서비스 계정 FlowSchema를 사용하는 파드의 중요한 요청이 429를 수신하여 요청 용량이 부족해지는 것을 방지할 수 있습니다. 진행 중인 요청의 총 개수는 유한하지만 이 예에서는 APF 설정을 수정하여 지정된 워크로드에 대한 요청 용량을 더 잘 나눌 수 있음을 보여줍니다.
 
 List 이벤트 요청을 분리하기 위한 FlowSchema 객체의 예:
 
@@ -266,19 +268,17 @@ client-go 라이브러리의 [informer](https://pkg.go.dev/k8s.io/client-go/info
 
 사용자 정의 컨트롤러 또는 자동화를 사용하여 Kubernetes API를 호출할 때 필요한 리소스로만 호출을 제한하는 것이 중요합니다. 제한이 없으면 API Server 및 etcd에 불필요한 로드가 발생할 수 있습니다.
 
-가능하면 watch 인자를 사용하는 것이 좋습니다. 인자가 없으면 기본 동작은 객체를 나열하는 것입니다. list 대신 watch를 사용하려면 API 요청 끝에 `?watch=true`를 추가하면 됩니다. 예를 들어 watch를 사용하여 기본 네임스페이스의 모든 Pod를 가져오려면 다음을 사용하세요.
+가능하면 watch 인자를 사용하는 것이 좋습니다. 인자가 없으면 기본 동작은 객체를 나열하는 것입니다. list 대신 watch를 사용하려면 API 요청 끝에 `?watch=true`를 추가하면 됩니다. 예를 들어 watch를 사용하여 기본 네임스페이스의 모든 파드를 가져오려면 다음을 사용하세요.
 
 ```
 /api/v1/namespaces/default/pods?watch=true
 ```
 
-객체를 나열하는 경우 나열하는 항목의 범위와 반환되는 데이터의 양을 제한해야 합니다. 요청에 `limit=500` 인수를 추가하여 반환되는 데이터를 제한할 수 있습니다. `fieldSelector` 인수와 `/namespace/` 경로는 목록의 범위를 필요에 따라 좁게 지정하는 데 유용할 수 있습니다. 예를 들어 기본 네임스페이스에서 실행 중인 Pod만 나열하려면 다음 API 경로와 인수를 사용합니다.
+객체를 나열하는 경우 나열하는 항목의 범위와 반환되는 데이터의 양을 제한해야 합니다. 요청에 `limit=500` 인수를 추가하여 반환되는 데이터를 제한할 수 있습니다. `fieldSelector` 인수와 `/namespace/` 경로는 목록의 범위를 필요에 따라 좁게 지정하는 데 유용할 수 있습니다. 예를 들어 기본 네임스페이스에서 실행 중인 파드만 나열하려면 다음 API 경로와 인수를 사용합니다.
 
 ```
 /api/v1/namespaces/default/pods?fieldSelector=status.phase=Running&limit=500
 ```
-
-객체를 나열하는 경우 나열하는 항목의 범위와 반환되는 데이터의 양을 제한해야 합니다. 요청에 `limit=500` 인자를 추가하여 반환되는 데이터를 제한할 수 있습니다. `fieldSelector` 인자와 `/namespace/` 경로는 목록의 범위를 필요에 따라 작게 지정하는 데 유용할 수 있습니다. 예를 들어 기본 네임스페이스에서 실행 중인 Pod만 나열하려면 다음 API 경로와 인자를 사용합니다.
 
 또는 다음을 사용하여 실행 중인 모든 파드를 나열합니다.
 

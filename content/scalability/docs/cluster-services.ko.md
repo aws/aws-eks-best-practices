@@ -1,6 +1,6 @@
 # 클러스터 서비스
 
-클러스터 서비스는 EKS 클러스터 내에서 실행되지만 사용자 워크로드는 아닙니다. Linux 서버를 사용하는 경우 워크로드를 지원하기 위해 NTP, syslog 및 컨테이너 런타임과 같은 서비스를 실행해야 하는 경우가 많습니다. 클러스터 서비스도 비슷하며 클러스터를 자동화하고 운영하는 데 도움이 되는 서비스를 지원합니다. 쿠버네티스에서 이들은 일반적으로 kube-system 네임스페이스에서 실행되고 일부는 [DaemonSets](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)로 실행된다.
+클러스터 서비스는 EKS 클러스터 내에서 실행되지만 사용자 워크로드는 아닙니다. Linux 서버를 사용하는 경우 워크로드를 지원하기 위해 NTP, syslog 및 컨테이너 런타임과 같은 서비스를 실행해야 하는 경우가 많습니다. 클러스터 서비스도 비슷하며 클러스터를 자동화하고 운영하는 데 도움이 되는 서비스를 지원합니다. 쿠버네티스에서 이들은 일반적으로 kube-system 네임스페이스에서 실행되고 일부는 [데몬셋](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)로 실행된다.
 
 클러스터 서비스는 가동 시간이 길어질 것으로 예상되며 정전 및 문제 해결에 중요한 역할을 하는 경우가 많습니다. 코어 클러스터 서비스를 사용할 수 없는 경우 장애 복구 또는 예방에 도움이 되는 데이터 (예: 높은 디스크 사용률)에 액세스할 수 없게 될 수 있습니다. 별도의 노드 그룹 또는 AWS Fargate와 같은 전용 컴퓨팅 인스턴스에서 실행해야 합니다. 이렇게 하면 규모가 커지거나 리소스를 더 많이 사용하는 워크로드가 공유 인스턴스에 미치는 영향을 클러스터 서비스가 받지 않도록 할 수 있습니다.
 
@@ -39,7 +39,7 @@ ndots를 너무 낮은 값으로 낮추거나 연결하려는 도메인의 구�
 
 CoreDNS 인스턴스는 배포에 복제본을 추가하여 확장할 수 있습니다. CoreDNS를 확장하려면 [NodeLocal DNS](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/) 또는 [cluster proportional autoscaler](https://github.com/kubernetes-sigs/cluster-proportional-autoscaler)를 사용하는 것이 좋습니다.
 
-NodeLocal DNS는 노드당 하나의 인스턴스를 DaemonSet으로 실행해야 하며, 이를 위해서는 클러스터에 더 많은 컴퓨팅 리소스가 필요하지만 DNS 요청 실패를 방지하고 클러스터의 DNS 쿼리에 대한 응답 시간을 줄입니다.Cluster propertional autoscaler는 클러스터의 노드 또는 코어 수에 따라 CoreDNS의 크기를 조정합니다. 이는 쿼리 요청과 직접적인 상관 관계는 아니지만 워크로드 및 클러스터 크기에 따라 유용할 수 있습니다. 기본 비례 척도는 클러스터의 256개 코어 또는 16개 노드마다 추가 복제본을 추가하는 것입니다(둘 중 먼저 발생하는 기준).
+NodeLocal DNS는 노드당 하나의 인스턴스를 데몬셋으로 실행해야 하며, 이를 위해서는 클러스터에 더 많은 컴퓨팅 리소스가 필요하지만 DNS 요청 실패를 방지하고 클러스터의 DNS 쿼리에 대한 응답 시간을 줄입니다. Cluster propertional autoscaler는 클러스터의 노드 또는 코어 수에 따라 CoreDNS의 크기를 조정합니다. 이는 쿼리 요청과 직접적인 상관 관계는 아니지만 워크로드 및 클러스터 크기에 따라 유용할 수 있습니다. 기본 비례 척도는 클러스터의 256개 코어 또는 16개 노드마다 추가 복제본을 추가하는 것입니다(둘 중 먼저 발생하는 기준).
 
 ## 쿠버네티스 Metric Server 수직 확장
 

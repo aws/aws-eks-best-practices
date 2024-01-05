@@ -1,3 +1,8 @@
+---
+date: 2023-09-22
+authors: 
+  - Shane Corbett
+---
 # 컨트롤 플레인 모니터링
 
 ## API Server
@@ -6,7 +11,7 @@ API Server를 살펴볼 때 그 기능 중 하나가 컨트롤 플레인의 과�
 1. 시스템을 통해 이동하는 요청의 대기 시간은 얼마나 됩니까?
 2. 지연 시간은 API Server 자체입니까, 아니면 etcd와 같은 "다운스트림"입니까?
 3. API 서버 대기열 깊이가 이 지연 시간의 요인입니까?
-4. API Prioirity and Fairness(APF) 대기열이 우리가 원하는 API 호출 패턴에 맞게 올바르게 설정되어 있습니까?
+4. API 우선 순위 및 공정성(APF) 대기열이 우리가 원하는 API 호출 패턴에 맞게 올바르게 설정되어 있습니까?
 
 ## 문제가 있는 곳은 어디입니까?
 먼저 API 지연 시간 측정 지표를 사용하여 API Server가 요청을 처리하는 데 걸리는 시간을 파악할 수 있습니다. 아래 PromQL 및 Grafana 히트맵을 사용하여 이 데이터를 표시해 보겠습니다.
@@ -18,7 +23,7 @@ max(increase(apiserver_request_duration_seconds_bucket{subresource!="status",sub
 !!! 팁
     이 문서에 사용된 API 대시보드로 API 서버를 모니터링하는 방법에 대한 자세한 내용은 다음 [blog](https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/)를 참조하세요.
 
-![API request duration heatmap](../images/api-request-duration.png)
+![API 요청 지연 히트맵](../images/api-request-duration.png)
 
 이러한 요청은 모두 1초 아래에 있습니다. 이는 컨트롤 플레인이 적시에 요청을 처리하고 있음을 나타내는 좋은 표시입니다. 하지만 그렇지 않다면 어떨까요?
 
@@ -32,7 +37,7 @@ max(increase(apiserver_request_duration_seconds_bucket{subresource!="status",sub
 
 ![Total inflight requests](../images/inflight-requests.png)
 
-API Priority and Fairness(APF)로 전환하면서 시스템의 총 요청 수는 API Server가 초과 구독되었는지 확인하는 하나의 요소일 뿐입니다. 이제 시스템에서 일련의 대기열을 사용하므로 대기열이 꽉 찼는지, 해당 대기열의 트래픽이 삭제되고 있는지 확인해야 합니다. 
+API 우선순위 및 공정성(APF)으로 전환하면서 시스템의 총 요청 수는 API Server가 초과 구독되었는지 확인하는 하나의 요소일 뿐입니다. 이제 시스템에서 일련의 대기열을 사용하므로 대기열이 꽉 찼는지, 해당 대기열의 트래픽이 삭제되고 있는지 확인해야 합니다. 
 
 다음 쿼리를 사용하여 이러한 대기열을 살펴보겠습니다.
 
@@ -49,7 +54,7 @@ max without(instance)(apiserver_flowcontrol_request_concurrency_limit{})
 
 다음으로 특정 우선순위 수준이 포화 상태인지 파악하기 위해 해당 우선순위 그룹이 몇 퍼센트의 비율로 사용되고 있는지 확인하고자 합니다. 워크로드가 낮은 수준에서는 요청을 스로틀링하는 것이 바람직할 수 있지만 리더 선출 수준에서는 그렇지 않을 수 있습니다.
 
-API Priority and Fairness(APF) 시스템에는 여러 가지 복잡한 옵션이 있으며, 이러한 옵션 중 일부는 의도하지 않은 결과를 초래할 수 있습니다. 워크로드에서 일반적으로 볼 수 있는 문제는 불필요한 대기 시간이 추가되기 시작하는 지점까지 대기열 깊이를 늘리는 것입니다. `apiserver_flowcontrol_current_inqueue_request` 지표를 사용하여 이 문제를 모니터링할 수 있습니다. `apiserver_flowcontrol_rejected_requests_total`을 사용하여 삭제를 확인할 수 있습니다. 버킷이 동시성을 초과하는 경우 이러한 지표는 0이 아닌 값이 됩니다.
+API 우선 순위 및 공정성(APF) 시스템에는 여러 가지 복잡한 옵션이 있으며, 이러한 옵션 중 일부는 의도하지 않은 결과를 초래할 수 있습니다. 워크로드에서 일반적으로 볼 수 있는 문제는 불필요한 대기 시간이 추가되기 시작하는 지점까지 대기열 깊이를 늘리는 것입니다. `apiserver_flowcontrol_current_inqueue_request` 지표를 사용하여 이 문제를 모니터링할 수 있습니다. `apiserver_flowcontrol_rejected_requests_total`을 사용하여 삭제를 확인할 수 있습니다. 버킷이 동시성을 초과하는 경우 이러한 지표는 0이 아닌 값이 됩니다.
 
 ![Requests in use](../images/requests-in-use.png)
 
@@ -72,7 +77,7 @@ API Server의 메트릭/로그를 사용하여 API Server에 문제가 있는지
 ![ETCD duress](../images/etcd-duress.png)
 
 ### 컨트롤 플레인과 클라이언트 측 문제
-이 차트에서는 해당 기간 동안 완료하는 데 가장 많은 시간이 걸린 API 호출을 찾고 있습니다. 이 경우 custom resource definitions(CRD)가 05:40 시간 프레임 동안 가장 오래걸린 호출이 APPLY 함수라는 것을 볼 수 있습니다.
+이 차트에서는 해당 기간 동안 완료하는 데 가장 많은 시간이 걸린 API 호출을 찾고 있습니다. 이 경우 사용자 정의 리소스(CRD)가 05:40 시간 프레임 동안 가장 오래걸린 호출이 APPLY 함수라는 것을 볼 수 있습니다.
 
 ![Slowest requests](../images/slowest-requests.png)
 
