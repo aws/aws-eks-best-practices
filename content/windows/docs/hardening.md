@@ -1,6 +1,6 @@
 # Hardening the Windows worker node
 
-Windows Server hardening involves identifying and remediating security vulnerabilities before they are exploited. Amazon EKS Optimized Windows AMIs )are not hardened by default and only contain the latest Microsoft security patches and EKS components. 
+Windows Server hardening involves identifying and remediating security vulnerabilities before they are exploited. Amazon EKS Optimized Windows AMIs are not hardened by default and only contain the latest Microsoft security patches and EKS components. 
 
 Microsoft offers a range of tools like [Microsoft Security Compliance Toolkit](https://www.microsoft.com/en-us/download/details.aspx?id=55319) and [Security Baselines](https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-security-baselines) that helps you to achieve hardening based on your security policies needs. [CIS Benchmarks](https://learn.cisecurity.org/benchmarks?_gl=1*eoog69*_ga*MTgzOTM2NDE0My4xNzA0NDgwNTcy*_ga_3FW1B1JC98*MTcwNDQ4MDU3MS4xLjAuMTcwNDQ4MDU3MS4wLjAuMA..*_ga_N70Z2MKMD7*MTcwNDQ4MDU3MS4xLjAuMTcwNDQ4MDU3MS42MC4wLjA.) are also available and should be implemented on top of an Amazon EKS Optimized Windows AMI for production environments.
 
