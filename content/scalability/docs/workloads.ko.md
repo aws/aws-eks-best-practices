@@ -24,7 +24,7 @@ kube-proxy를 사용하여 노드당 생성되는 IP 테이블 규칙의 수는 
 
 예를 들어, 기본 ALB 목표는 1000입니다. 엔드포인트가 1,000개가 넘는 서비스가 있는 경우 할당량을 늘리거나 서비스를 여러 ALB로 분할하거나 쿠버네티스 인그레스(Ingress)를 사용해야 합니다. 기본 NLB 대상은 3000이지만 AZ당 500개 대상으로 제한됩니다. 클러스터에서 NLB 서비스에 대해 500개 이상의 파드를 실행하는 경우 여러 AZ를 사용하거나 할당량 한도 증가를 요청해야 합니다.
 
-서비스에 연결된 로드밸런서를 사용하는 대신 [인그레스 컨트롤러](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) 를 사용할 수 있습니다. AWS Load Balancer Controller는 수신 리소스용 ALB를 생성할 수 있지만, 클러스터에서 전용 컨트롤러를 실행하는 것도 고려해 볼 수 있습니다.클러스터 내 수신 컨트롤러를 사용하면 클러스터 내에서 역방향 프록시를 실행하여 단일 로드밸런서에서 여러 Kubernetes 서비스를 노출할 수 있습니다. 컨트롤러는 [Gateway API](https://gateway-api.sigs.k8s.io/) 지원과 같은 다양한 기능을 제공하므로 워크로드의 수와 규모에 따라 이점이 있을 수 있습니다.
+서비스에 연결된 로드밸런서를 사용하는 대신 [인그레스 컨트롤러](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) 를 사용할 수 있습니다. AWS Load Balancer Controller는 수신 리소스용 ALB를 생성할 수 있지만, 클러스터에서 전용 컨트롤러를 실행하는 것도 고려해 볼 수 있습니다.클러스터 내 수신 컨트롤러를 사용하면 클러스터 내에서 역방향 프록시를 실행하여 단일 로드밸런서에서 여러 쿠버네티스 서비스를 노출할 수 있습니다. 컨트롤러는 [Gateway API](https://gateway-api.sigs.k8s.io/) 지원과 같은 다양한 기능을 제공하므로 워크로드의 수와 규모에 따라 이점이 있을 수 있습니다.
 
 ## Route 53, Global Accelerator, 또는 CloudFront 사용하기
 

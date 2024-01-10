@@ -6,9 +6,9 @@
 
 ## 자동 노드 오토 스케일링
 
-수고를 줄이고 Kubernetes와 긴밀하게 통합되는 노드 오토 스케일링을 사용하는 것이 좋습니다. 대규모 클러스터에는 [관리형 노드 그룹](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) 및 [Karpenter](https://karpenter.sh/) 를 사용하는 것이 좋습니다.
+수고를 줄이고 쿠버네티스와 긴밀하게 통합되는 노드 오토 스케일링을 사용하는 것이 좋습니다. 대규모 클러스터에는 [관리형 노드 그룹](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) 및 [Karpenter](https://karpenter.sh/) 를 사용하는 것이 좋습니다.
 
-관리형 노드 그룹은 관리형 업그레이드 및 구성에 대한 추가 이점과 함께 Amazon EC2 Auto Scaling 그룹의 유연성을 제공합니다. [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)를 사용하여 확장할 수 있으며 다양한 컴퓨팅 요구 사항이 있는 클러스터에 대한 일반적인 옵션입니다.
+관리형 노드 그룹은 관리형 업그레이드 및 구성에 대한 추가 이점과 함께 Amazon EC2 Auto Scaling 그룹의 유연성을 제공합니다. [쿠버네티스 Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler)를 사용하여 확장할 수 있으며 다양한 컴퓨팅 요구 사항이 있는 클러스터에 대한 일반적인 옵션입니다.
 
 Karpenter는 AWS에서 만든 오픈 소스 워크로드 네이티브 노드 오토 스케일러입니다. 노드 그룹을 관리하지 않고도 리소스 (예: GPU) 와 taint 및 tolerations (예: zone spread)에 대한 워크로드 요구 사항을 기반으로 클러스터의 노드를 확장합니다. 노드는 EC2로부터 직접 생성되므로 기본 노드 그룹 할당량 (그룹당 450개 노드)이 필요 없으며 운영 오버헤드를 줄이면서 인스턴스 선택 유연성이 향상됩니다. 고객은 가능하면 Karpenter를 사용하는 것이 좋습니다.
 
@@ -18,7 +18,7 @@ Karpenter는 AWS에서 만든 오픈 소스 워크로드 네이티브 노드 오
 
 Karpenter는 기본적으로 호환되는 다양한 인스턴스 유형을 사용하며 보류 중인 워크로드 요구 사항, 가용성 및 비용을 기반으로 프로비저닝 시 인스턴스를 선택합니다. [Provisioner](https://karpenter.sh/docs/concepts/provisioners/#instance-types)의 `karpenter.k8s.aws/instance-category` 키에 사용되는 인스턴스 유형 목록을 정의할 수 있습니다.
 
-Kubernetes Cluster Autoscaler를 사용하려면 노드 그룹이 일관되게 확장될 수 있도록 유사한 크기의 유형을 필요로 합니다. CPU 및 메모리 크기를 기준으로 여러 그룹을 생성하고 독립적으로 확장해야 합니다. [ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector)를 사용하여 노드 그룹과 비슷한 크기의 인스턴스를 식별하세요.
+쿠버네티스 Cluster Autoscaler를 사용하려면 노드 그룹이 일관되게 확장될 수 있도록 유사한 크기의 유형을 필요로 합니다. CPU 및 메모리 크기를 기준으로 여러 그룹을 생성하고 독립적으로 확장해야 합니다. [ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector)를 사용하여 노드 그룹과 비슷한 크기의 인스턴스를 식별하세요.
 
 ```
 ec2-instance-selector --service eks --vcpus-min 8 --memory-min 16
@@ -38,13 +38,13 @@ c5.metal
 
 ## API 서버 부하를 줄이기 위해 더 큰 노드를 선호
 
-어떤 인스턴스 유형을 사용할지 결정할 때 노드 수가 적고 크면 Kubernetes 컨트롤 플레인에 걸리는 부하가 줄어듭니다. 실행 중인 kubelet과 데몬셋의 수가 줄어들기 때문입니다. 그러나 큰 노드는 작은 노드처럼 충분히 활용되지 않을 수 있습니다. 노드 크기는 워크로드의 가용성 및 확장성을 기반으로 평가해야 합니다.
+어떤 인스턴스 유형을 사용할지 결정할 때 노드 수가 적고 크면 쿠버네티스 컨트롤 플레인에 걸리는 부하가 줄어듭니다. 실행 중인 kubelet과 데몬셋의 수가 줄어들기 때문입니다. 그러나 큰 노드는 작은 노드처럼 충분히 활용되지 않을 수 있습니다. 노드 크기는 워크로드의 가용성 및 확장성을 기반으로 평가해야 합니다.
 
-u-24tb1.metal 인스턴스 3개 (24TB Memory 및 448 cores)가 있는 클러스터에는 3개의 kubelets가 있으며 기본적으로 노드당 110개의 파드로 제한됩니다. 파드가 각각 4개의 코어를 사용하는 경우 이는 예상할 수 있습니다 (4코어 x 110 = 노드당 440코어). 클러스터에 3개의 노드를 사용하면 인스턴스 1개가 중단될 때 클러스터의 1/3에 영향을 미칠 수 있으므로 인스턴스 인시던트를 처리하는 능력이 떨어집니다. Kubernetes 스케줄러가 워크로드를 적절하게 배치할 수 있도록 워크로드에 노드 요구 사항과 pod spread를 지정해야 합니다.
+u-24tb1.metal 인스턴스 3개 (24TB Memory 및 448 cores)가 있는 클러스터에는 3개의 kubelets가 있으며 기본적으로 노드당 110개의 파드로 제한됩니다. 파드가 각각 4개의 코어를 사용하는 경우 이는 예상할 수 있습니다 (4코어 x 110 = 노드당 440코어). 클러스터에 3개의 노드를 사용하면 인스턴스 1개가 중단될 때 클러스터의 1/3에 영향을 미칠 수 있으므로 인스턴스 인시던트를 처리하는 능력이 떨어집니다. 쿠버네티스 스케줄러가 워크로드를 적절하게 배치할 수 있도록 워크로드에 노드 요구 사항과 pod spread를 지정해야 합니다.
 
 워크로드는 taint, tolerations 및 [PodTopologySpread](https://kubernetes.io/blog/2020/05/introducing-podtopologyspread/)를 통해 필요한 리소스와 필요한 가용성을 정의해야 합니다. 이들은 컨트롤 플레인의 부하 감소, 운영 감소, 비용 절감이라는 가용성 목표를 충분히 활용할 수 있고 가용성 목표를 충족할 수 있는 가장 큰 노드를 선호해야 합니다.
 
-Kubernetes Scheduler는 리소스를 사용할 수 있는 경우 가용 영역과 호스트에 워크로드를 자동으로 분산하려고 합니다. 사용 가능한 용량이 없는 경우 Kubernetes Cluster Autoscaler는 각 가용 영역에 노드를 균등하게 추가하려고 시도합니다. 워크로드에 다른 요구 사항이 지정되어 있지 않는 한 Karpenter는 가능한 한 빠르고 저렴하게 노드를 추가하려고 시도합니다.
+쿠버네티스 Scheduler는 리소스를 사용할 수 있는 경우 가용 영역과 호스트에 워크로드를 자동으로 분산하려고 합니다. 사용 가능한 용량이 없는 경우 쿠버네티스 Cluster Autoscaler는 각 가용 영역에 노드를 균등하게 추가하려고 시도합니다. 워크로드에 다른 요구 사항이 지정되어 있지 않는 한 Karpenter는 가능한 한 빠르고 저렴하게 노드를 추가하려고 시도합니다.
 
 스케줄러를 통해 워크로드를 분산시키고 가용 영역 전체에 새 노드를 생성하도록 하려면 TopologySpreadConstraints (topologySpreadConstraints) 를 사용해야 합니다.
 
@@ -82,7 +82,7 @@ spec:
       karpenter.k8s.aws/instance-size: 8xlarge
 ```
 
-Kubernetes Cluster Autoscaler를 사용하여 클러스터에서 스케줄링되는 워크로드는 레이블 매칭을 기반으로 node selector를 노드 그룹과 일치시켜야 합니다.
+쿠버네티스 Cluster Autoscaler를 사용하여 클러스터에서 스케줄링되는 워크로드는 레이블 매칭을 기반으로 node selector를 노드 그룹과 일치시켜야 합니다.
 
 ```
 spec:
@@ -105,7 +105,7 @@ Karpenter를 사용하면 먼저 노드 그룹을 생성하거나 특정 노드�
 
 ## Amazon Machine Image (AMI) 업데이트 자동화
 
-Worker 노드 구성 요소를 최신 상태로 유지하면 최신 보안 패치와 Kubernetes API와 호환되는 기능을 사용할 수 있습니다. kublet 업데이트는 Kubernetes 기능의 가장 중요한 구성 요소이지만 OS, 커널 및 로컬에 설치된 애플리케이션 패치를 자동화하면 확장에 따른 유지 관리 비용을 줄일 수 있습니다.
+Worker 노드 구성 요소를 최신 상태로 유지하면 최신 보안 패치와 쿠버네티스 API와 호환되는 기능을 사용할 수 있습니다. kublet 업데이트는 쿠버네티스 기능의 가장 중요한 구성 요소이지만 OS, 커널 및 로컬에 설치된 애플리케이션 패치를 자동화하면 확장에 따른 유지 관리 비용을 줄일 수 있습니다.
 
 노드 이미지에는 최신 [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) 또는 [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html)를 사용하는 것이 좋습니다. Karpenter는 [사용 가능한 최신 AMI](https://karpenter.sh/docs/concepts/provisioners/#instance-types) 를 자동으로 사용하여 클러스터에 새 노드를 프로비저닝합니다. 관리형 노드 그룹은 [노드 그룹 업데이트](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) 중에 AMI를 업데이트하지만 노드 프로비저닝 시에는 AMI ID를 업데이트하지 않습니다.
 
@@ -188,7 +188,7 @@ spec:
 
 ## 워크로드에서 EBS 볼륨을 사용하는 경우 EBS 연결 제한이 낮은 인스턴스를 피하세요.
 
-EBS는 워크로드가 영구 스토리지를 확보하는 가장 쉬운 방법 중 하나이지만 확장성 제한도 있습니다. 각 인스턴스 유형에는 [연결할 수 있는 최대 EBS 볼륨](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/volume_limits.html) 수가 있습니다. 워크로드는 실행해야 하는 인스턴스 유형을 선언하고 Kubernetes taints가 있는 단일 인스턴스의 복제본 수를 제한해야 합니다.
+EBS는 워크로드가 영구 스토리지를 확보하는 가장 쉬운 방법 중 하나이지만 확장성 제한도 있습니다. 각 인스턴스 유형에는 [연결할 수 있는 최대 EBS 볼륨](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/volume_limits.html) 수가 있습니다. 워크로드는 실행해야 하는 인스턴스 유형을 선언하고 쿠버네티스 taints가 있는 단일 인스턴스의 복제본 수를 제한해야 합니다.
 
 ## 디스크에 불필요한 로깅을 비활성화
 
