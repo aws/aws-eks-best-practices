@@ -454,7 +454,7 @@ Repeat the same steps for system:basic-user ClusterRoleBinding.
 
 ### Reuse AWS SDK sessions
 
-When you use IRSA, applications written using the AWS SDK use the token delivered to your pods to call `sts:AssumeRoleWithWebIdentity` to generate temporary AWS credentials. This is different from other AWS compute services, where the compute service delivers temporary AWS credentials directly to the AWS compute resource, such as a lambda function. This means that every time an AWS SDK session is initialized, a call to AWS STS for `AssumeRoleWithWebIdentity` is made. If your application scales rapidly and initializes many AWS SDK sessions, you may experience throttling from AWS STS as your code will be making many calls for `AssumeRoleWithWebIdentity`. If you're migrating an application from another AWS compute service, such as EC2, to EKS with IRSA, this is particularly important. On EC2 initializing an AWS SDK session does not call AWS STS unless you instruct it to.
+When you use IRSA, applications written using the AWS SDK use the token delivered to your pods to call `sts:AssumeRoleWithWebIdentity` to generate temporary AWS credentials. This is different from other AWS compute services, where the compute service delivers temporary AWS credentials directly to the AWS compute resource, such as a lambda function. This means that every time an AWS SDK session is initialized, a call to AWS STS for `AssumeRoleWithWebIdentity` is made. If your application scales rapidly and initializes many AWS SDK sessions, you may experience throttling from AWS STS as your code will be making many calls for `AssumeRoleWithWebIdentity`. 
 
 To avoid this scenario, we recommend reusing AWS SDK sessions within your application so that unnecessary calls to `AssumeRoleWithWebIdentity` are not made.
 
@@ -484,6 +484,7 @@ print("sqs response:")
 print(sqsresponse)
 ```
 
+If you're migrating an application from another AWS compute service, such as EC2, to EKS with IRSA, this is a particularly important detail. On other compute services initializing an AWS SDK session does not call AWS STS unless you instruct it to.
 
 ### Alternative approaches
 While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html). If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA. 
