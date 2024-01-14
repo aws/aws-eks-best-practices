@@ -461,9 +461,8 @@ To avoid this scenario, we recommend reusing AWS SDK sessions within your applic
 In the following example code, a session is created using the boto3 python SDK, and that same session is used to create clients and interact with both Amazon S3 and Amazon SQS. `AssumeRoleWithWebIdentity` is only called once, and the AWS SDK will refresh the credentials of `my_session` when they expire automatically.
 
 
-```python
+``` py hl_lines="4 7 8"  
 import boto3
-import boto3.session
 
 # Create your own session
 my_session = boto3.session.Session()
