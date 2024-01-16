@@ -40,7 +40,7 @@ c5.metal
 
 When deciding what instance types to use, fewer, large nodes will put less load on the Kubernetes Control Plane because there will be fewer kubelets and DaemonSets running. However, large nodes may not be utilized fully like smaller nodes. Node sizes should be evaluated based on your workload availability and scale requirements.
 
-A cluster with three u-24tb1.metal instances (24 TB memory and 448 cores) has 3 kublets, and would be limited to 110 pods per node by default. If your pods use 4 cores each then this might be expected (4 cores x 110 = 440 cores/node). With a 3 node cluster your ability to handle an instance incident would be low because 1 instance outage could impact 1/3 of the cluster. You should specify node requirements and pod spread in your workloads so the Kubernetes scheduler can place workloads properly.
+A cluster with three u-24tb1.metal instances (24 TB memory and 448 cores) has 3 kubelets, and would be limited to 110 pods per node by default. If your pods use 4 cores each then this might be expected (4 cores x 110 = 440 cores/node). With a 3 node cluster your ability to handle an instance incident would be low because 1 instance outage could impact 1/3 of the cluster. You should specify node requirements and pod spread in your workloads so the Kubernetes scheduler can place workloads properly.
 
 Workloads should define the resources they need and the availability required via taints, tolerations, and [PodTopologySpread](https://kubernetes.io/blog/2020/05/introducing-podtopologyspread/). They should prefer the largest nodes that can be fully utilized and meet availability goals to reduce control plane load, lower operations, and reduce cost.
 
@@ -105,7 +105,7 @@ Karpenter allows workloads to declare the type of compute resources it needs wit
 
 ## Automate Amazon Machine Image (AMI) updates
 
-Keeping worker node components up to date will make sure you have the latest security patches and compatible features with the Kubernetes API. Updating the kublet is the most important component for Kubernetes functionality, but automating OS, kernel, and locally installed application patches will reduce maintenance as you scale.
+Keeping worker node components up to date will make sure you have the latest security patches and compatible features with the Kubernetes API. Updating the kubelet is the most important component for Kubernetes functionality, but automating OS, kernel, and locally installed application patches will reduce maintenance as you scale.
 
 It is recommended that you use the latest [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) or [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html) for your node image. Karpenter will automatically use the [latest available AMI](https://karpenter.sh/docs/concepts/provisioners/#instance-types) to provision new nodes in the cluster. Managed node groups will update the AMI during a [node group update](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) but will not update the AMI ID at node provisioning time.
 

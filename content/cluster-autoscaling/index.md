@@ -64,13 +64,16 @@ This will prevents a Cluster Autoscaler running in one cluster from modifying no
         {
             "Effect": "Allow",
             "Action": [
-                "autoscaling:DescribeAutoScalingInstances",
                 "autoscaling:DescribeAutoScalingGroups",
-                "autoscaling:DescribeScalingActivities",
-                "ec2:DescribeLaunchTemplateVersions",
-                "autoscaling:DescribeTags",
+                "autoscaling:DescribeAutoScalingInstances",
                 "autoscaling:DescribeLaunchConfigurations",
-                "ec2:DescribeInstanceTypes"
+                "autoscaling:DescribeScalingActivities",
+                "autoscaling:DescribeTags",
+                "ec2:DescribeImages",
+                "ec2:DescribeInstanceTypes",
+                "ec2:DescribeLaunchTemplateVersions",
+                "ec2:GetInstanceTypesFromInstanceRequirements",
+                "eks:DescribeNodegroup"
             ],
             "Resource": "*"
         }
