@@ -37,6 +37,7 @@ nav:
       - Regulatory Compliance: "security/docs/compliance.md"
       - Incident Response and Forensics: "security/docs/incidents.md"
       - Image Security: "security/docs/image.md"
+      - Multi Account Strategy: "security/docs/multiaccount.md"
   - Cluster Autoscaling:
       - Karpenter: "karpenter/index.md"
       - Cluster-Autoscaler: "cluster-autoscaling/index.md"
