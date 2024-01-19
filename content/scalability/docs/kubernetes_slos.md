@@ -2,6 +2,8 @@
 
 Amazon EKS runs the same code as the upstream Kubernetes releases and ensures that EKS clusters operate within the SLOs defined by the Kubernetes community. The Kubernetes[Scalability Special Interest Group (SIG)](https://github.com/kubernetes/community/tree/master/sig-scalability) defines the scalability goals and investigates bottlenecks in performance through SLIs and SLOs. 
 
+SLIs are how we measure a system like metrics or measures that can be used to determine how “well” the system is running, e.g. request latency or count. SLOs define the values that are expected for when the system is running “well”, e.g. request latency remains less than 3 seconds. The Kubernetes SLOs and SLIs focus on the performance of the Kubernetes components and are completely independent from the Amazon EKS Service SLAs which focus on availability of the EKS cluster endpoint.
+
 Kubernetes has a number of features that allow users to extend the system with custom add-ons or drivers, like CSI drivers, admission webhooks, and auto-scalers. These extensions can drastically impact the performance of a Kubernetes cluster in different ways, i.e. an admission webhook with `failurePolicy=Ignore` could add latency to K8s API requests if the webhook target is unavailable. The Kubernetes Scalability SIG defines scalability using a ["you promise, we promise" framework](https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md#how-we-define-scalability):
 
 

@@ -81,6 +81,8 @@ nav:
       - The theory behind scaling: "scalability/docs/scaling_theory.md"
       - Control plane monitoring: "scalability/docs/kcp_monitoring.md"
       - Node efficiency and scaling: "scalability/docs/node_efficiency.md"
+      - Kubernetes SLOs: "scalability/docs/kubernetes_slos.md"
+      - Known limits and service quotas: "scalability/docs/quotas.md"
   - Cluster Upgrades: "upgrades/index.md"
   - Cost Optimization:
       - Cloud Financial Management Framework: "cost_optimization/cfm_framework.md"
