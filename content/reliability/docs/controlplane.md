@@ -191,14 +191,6 @@ EKS actively monitors the load on control plane instances and automatically scal
 - Clusters with more than 1000 services may experience network latency with using `kube-proxy` in `iptables` mode according to the [tests performed by the ProjectCalico team](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/). The solution is to switch to [running `kube-proxy` in `ipvs` mode](https://medium.com/@jeremy.i.cowan/the-problem-with-kube-proxy-enabling-ipvs-on-eks-169ac22e237e).
 - You may also experience [EC2 API request throttling](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html) if the CNI needs to request IP addresses for Pods or if you need to create new EC2 instances frequently. You can reduce calls EC2 API by configuring the CNI to cache IP addresses. You can use larger EC2 instance types to reduce EC2 scaling events.
 
-## Know limits and service quotas
-
-AWS sets service limits (an upper limit on the number of each resource your team can request) to protect you from accidentally over-provisioning resources. [Amazon EKS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html) lists the service limits. There are two types of limits, soft limits, that can be changed using [AWS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html). Hard limits cannot be changed. You should consider these values when architecting your applications. Consider reviewing these service limits periodically and incorporate them during in your application design.
-
-- Besides the limits from orchestration engines, there are limits in other AWS services, such as Elastic Load Balancing (ELB) and Amazon VPC, that may affect your application performance.
-- More about EC2 limits here: [EC2 service limits](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html).
-- Each EC2 instance limits the number of packets that can be sent to the [Amazon-provided DNS server](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-limits) to a maximum of 1024 packets per second per network interface.
-- In EKS environment, etcd storage limit is **8 GiB** as per [upstream guidance](https://etcd.io/docs/v3.5/dev-guide/limit/#storage-size-limit). Please monitor metric `etcd_db_total_size_in_bytes` to track etcd db size. You can refer to [alert rules](https://github.com/etcd-io/etcd/blob/main/contrib/mixin/mixin.libsonnet#L213-L240) `etcdBackendQuotaLowSpace` and `etcdExcessiveDatabaseGrowth` to setup this monitoring.
 
 ## Additional Resources:
 
