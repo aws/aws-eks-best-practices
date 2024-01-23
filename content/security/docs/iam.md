@@ -347,7 +347,7 @@ You can also use [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userg
 
 [rbac.dev](https://github.com/mhausenblas/rbac.dev) A list of additional resources, including blogs and tools, for Kubernetes RBAC
 
-## Pods Identities
+## Identities and Credentials for EKS pods
 
 Certain applications that run within a Kubernetes cluster need permission to call the Kubernetes API to function properly. For example, the [AWS Load Balancer Controller](https://github.com/kubernetes-sigs/aws-load-balancer-controller) needs to be able to list a Service's Endpoints. The controller also needs to be able to invoke AWS APIs to provision and configure an ALB.  In this section we will explore the best practices for assigning rights and privileges to Pods.
 
@@ -462,18 +462,106 @@ AWS_WEB_IDENTITY_TOKEN_FILE=/var/run/secrets/eks.amazonaws.com/serviceaccount/to
 
 The kubelet will automatically rotate the projected token when it is older than 80% of its total TTL, or after 24 hours. The AWS SDKs are responsible for reloading the token when it rotates. For further information about IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html).
 
-## Pod Identity Recommendations
+### EKS Pod Identities
+
+[EKS Pod Identities](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) is a feature launched at re:Invent 2023 that allows you to assign an IAM role to a kubernetes service account, without the need to configure an Open Id Connect (OIDC) identity provider(IDP) for each cluster in your AWS account. EKS Pod Identities deploys an agent onto each EKS node that your applications communicate with in order to get temporary AWS credentials. EKS Pod Identities requires a [recent version of the AWS SDK](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html).
+
+When EKS Pod Identities are configured for a Pod, EKS will mount and refresh a pod identity token at `/var/run/secrets/pods.eks.amazonaws.com/serviceaccount/eks-pod-identity-token` . This token will be used by the AWS SDK to communicate with the EKS Pod Identity Agent, which uses the pod identity token and the agent's IAM role to create temporary credentials for your pods by calling the [AssumeRoleForPodIdentity API](https://docs.aws.amazon.com/eks/latest/APIReference/API_auth_AssumeRoleForPodIdentity.html). The pod identity token delivered to your pods is a JWT issued from your EKS cluster and cryptographically signed, but with appropriate JWT claims for use with EKS Pod Identities.
+
+To learn more about EKS Pod Identities, please see [This Blog](https://aws.amazon.com/blogs/containers/amazon-eks-pod-identity-a-new-way-for-applications-on-eks-to-obtain-iam-credentials/).
+
+
+#### Working with IAM roles for EKS Pod Identities
+
+* EKS Pod Identities can only directly assume IAM role that belongs to the same AWS account as the EKS cluster. To access an IAM role in another AWS account, you must assume that role by [configuring a profile in your SDK configuration](https://docs.aws.amazon.com/sdkref/latest/guide/feature-assume-role-credentials.html), or in your [applications code](https://docs.aws.amazon.com/IAM/latest/UserGuide/example_sts_AssumeRole_section.html).
+* When EKS Pod Identities are being configured, the person or process configuring the Pod Identity Association must have the `iam:PassRole` entitlement for that role.
+* Each Service Account may only have one IAM role associated with it through EKS Pod Identities, however you can associate the same IAM role with multiple service accounts
+* IAM roles used with EKS Pod Identities must allow the `pods.eks.amazonaws.com` Service Principal to assume them, *and* set session tags. The following is an example role trust policy which allows EKS Pod Identities to use an IAM role:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "pods.eks.amazonaws.com"
+      },
+      "Action": [
+        "sts:AssumeRole",
+        "sts:TagSession"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceOrgId": "${aws:ResourceOrgId}"
+        }
+      }
+    }
+  ]
+}
+```
+AWS recommends using condition keys like `aws:SourceOrgId` to help protect against the [cross-service confused deputy problem](https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html#cross-service-confused-deputy-prevention). In the above example role trust policy, the ResourceOrgId is a variable equal to the AWS Organizations Organization ID of the AWS Organization that the AWS account belongs to. EKS will pass in a value for aws:SourceOrgId equal to that when assuming a role with EKS Pod Identities.
+
+#### ABAC and EKS Pod Identities
+
+When EKS Pod Identities assumes an IAM role, it sets the following session tags:
+
+
+|# |EKS Pod Identities Session Tag | Value |
+|:--|:--|:--|
+|kubernetes-namespace | The namespace the pod associated with EKS Pod Identities runs in.|
+|kubernetes-service-account | The name of the kubernetes service accoutn associated with EKS Pod Identities|
+|eks-cluster-arn | The ARN of the EKS cluster, e.g. arn:${Partition}:eks:${Region}:${Account}:cluster/${ClusterName} . The cluster ARN is unique, but if a cluster is deleted and recreated in the same region with the same name, it will have the same ARN. |
+|eks-cluster-name | The name of the EKS cluster. Please note that EKS cluster names can be same within your AWS account, and EKS clusters in other AWS accounts. |
+|kubernetes-pod-name | The name of the pod in EKS. |
+|kubernetes-pod-uid | The UID of the pod in EKS. |
+
+These session tags allow you to use [Attribute Based Access Control(ABAC)](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_attribute-based-access-control.html) to grant access to your AWS resources to only specific kubernetes service accounts. When doing so, it is *very important* to understand that kubernetes service accounts are only unique within a namespace, and kubernetes namespaces are only unique within an EKS cluster. These session tags can be accessed in AWS policies by using the `aws:PrincipalTag/<tag-key>` global condition key, such as `aws:PrincipalTag/eks-cluster-arn`
+
+For example, if you wanted to grant access to only a specific service account to access an AWS resource in your account with an IAM or resource policy, you would need to check `eks-cluster-arn` and  `kubernetes-namespace` tags as well as the `kubernetes-service-account` to ensure that only that service accounts from the intended cluster have access to that resource.
+
+This example S3 Bucket policy only grants access to objects in the S3 bucket it's attached to, only if `kubernetes-service-account`, `kubernetes-namespace`, `eks-cluster-arn` all meet their expected values, where the EKS cluster is hosted in the AWS account 111122223333.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::111122223333:root"
+            },
+            "Action": "s3:*",
+            "Resource":            [
+                "arn:aws:s3:::ExampleBucket/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:PrincipalTag/kubernetes-service-account": "s3objectservice",
+                    "aws:PrincipalTag/eks-cluster-arn": "arn:aws:eks:us-west-2:111122223333:cluster/ProductionCluster",
+                    "aws:PrincipalTag/kubernetes-namespace": "s3datanamespace"
+                }
+            }
+        }
+    ]
+}
+```
+
+
+## Identities and Credentials for EKS pods Recommendations
 
 ### Update the aws-node daemonset to use IRSA
 
 At present, the aws-node daemonset is configured to use a role assigned to the EC2 instances to assign IPs to pods.  This role includes several AWS managed policies, e.g. AmazonEKS_CNI_Policy and EC2ContainerRegistryReadOnly that effectively allow **all** pods running on a node to attach/detach ENIs, assign/unassign IP addresses, or pull images from ECR. Since this presents a risk to your cluster, it is recommended that you update the aws-node daemonset to use IRSA. A script for doing this can be found in the [repository](https://github.com/aws/aws-eks-best-practices/tree/master/projects/enable-irsa/src) for this guide.
 
+The aws-node daemonset does not support EKS Pod Identities at this time.
+
 ### Restrict access to the instance profile assigned to the worker node
 
-When you use IRSA, it updates the credential chain of the pod to use the IRSA token, however, the pod _can still inherit the rights of the instance profile assigned to the worker node_. When using IRSA, it is **strongly** recommended that you block access [instance metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) to minimize the blast radius of a breach.
+When you use IRSA or EKS Pod Identities, it updates the credential chain of the pod to use IRSA or Pod Identities first, however, the pod _can still inherit the rights of the instance profile assigned to the worker node_. When using IRSA or Pod Identities, it is **strongly** recommended that you block access [instance metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html) to help ensure that your applications only have the permissions they require, and not their nodes.
 
 !!! caution
-    Blocking access to instance metadata will prevent pods that do not use IRSA from inheriting the role assigned to the worker node.
+    Blocking access to instance metadata will prevent pods that do not use IRSA or Pod Identities from inheriting the role assigned to the worker node.
 
 You can block access to instance metadata by requiring the instance to use IMDSv2 only and updating the hop count to 1 as in the example below. You can also include these settings in the node group's launch template. Do **not** disable instance metadata as this will prevent components like the node termination handler and other things that rely on instance metadata from working properly.
 
@@ -499,7 +587,7 @@ resource "aws_launch_template" "foo" {
 
 You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [Limiting access to the instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access).
 
-If you have an application that is using an older version of the AWS SDK that doesn't support IRSA, you should update the SDK version.
+If you have an application that is using an older version of the AWS SDK that doesn't support IRSA or Pod Identities, you should update the SDK version.
 
 ### Scope the IAM Role trust policy for IRSA to the service account name
 
@@ -519,10 +607,12 @@ kubectl patch serviceaccount default -p $'automountServiceAccountToken: false'
 
 ### Use dedicated service accounts for each application
 
-Each application should have its own dedicated service account.  This applies to service accounts for the Kubernetes API as well as IRSA.
+Each application should have its own dedicated service account.  This applies to service accounts for the Kubernetes API as well as IRSA and EKS Pod.
 
 !!! attention
-    If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster.
+    If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade when using IRSA, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster.
+
+    Using blue/green cluster upgrades with EKS Pod Identities similarly means that the role trust policy of the IAM roles used with EKS Pod Identities must allow both clusters to assume your roles.
 
 ### Run the application as a non-root user
 
@@ -559,7 +649,7 @@ In Kubernetes 1.19 and above, this change is no longer required.
 
 [Action Hero](https://github.com/princespaghetti/actionhero) is a utility that you can run alongside your application to identify the AWS API calls and corresponding IAM permissions your application needs to function properly.  It is similar to [IAM Access Advisor](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html) in that it helps you gradually limit the scope of IAM roles assigned to applications. Consult the documentation on granting [least privileged access](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege) to AWS resources for further information.
 
-### Review and revoke unnecessary anonymous access
+### Review and revoke unnecessary anonymous access to your EKS cluster
 
 Ideally anonymous access should be disabled for all API actions. Anonymous access is granted by creating a RoleBinding or ClusterRoleBinding for the Kubernetes built-in user system:anonymous. You can use the [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) tool to identify permissions that system:anonymous user has on your cluster:
 
@@ -665,7 +755,7 @@ Delete the entry for system:unauthenticated group from the “subjects” sectio
 
 Repeat the same steps for system:basic-user ClusterRoleBinding.
 
-### Reuse AWS SDK sessions
+### Reuse AWS SDK sessions with IRSA
 
 When you use IRSA, applications written using the AWS SDK use the token delivered to your pods to call `sts:AssumeRoleWithWebIdentity` to generate temporary AWS credentials. This is different from other AWS compute services, where the compute service delivers temporary AWS credentials directly to the AWS compute resource, such as a lambda function. This means that every time an AWS SDK session is initialized, a call to AWS STS for `AssumeRoleWithWebIdentity` is made. If your application scales rapidly and initializes many AWS SDK sessions, you may experience throttling from AWS STS as your code will be making many calls for `AssumeRoleWithWebIdentity`. 
 
@@ -698,6 +788,6 @@ print(sqsresponse)
 
 If you're migrating an application from another AWS compute service, such as EC2, to EKS with IRSA, this is a particularly important detail. On other compute services initializing an AWS SDK session does not call AWS STS unless you instruct it to.
 
-### Alternative approaches
+### Alternative approaches to pod identity
 
-While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html). If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA.
+While IRSA and EKS Pod Identities are is the _preferred ways_ to assign an AWS identity to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html). If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse, condone, nor support the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA.
