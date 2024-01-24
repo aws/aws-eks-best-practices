@@ -94,9 +94,41 @@ The source of the script called by credential_process:
 curl -H "Authorization: $(cat $AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE)" $AWS_CONTAINER_CREDENTIALS_FULL_URI | jq -c '{AccessKeyId: .AccessKeyId, SecretAccessKey: .SecretAccessKey, SessionToken: .Token, Expiration: .Expiration, Version: 1}' 
 ```
 
-When configuring role trust policies for role chaining with EKS pod identities, you can reference [EKS specific attributes](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html) and use attribute based access control(ABAC) to limit access to your IAM roles to only specific EKS Pod identities sessions, such as the Kubernetes Service Account a pod belongs to. 
+When configuring role trust policies for role chaining with EKS pod identities, you can reference [EKS specific attributes](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html) as session tags and use attribute based access control(ABAC) to limit access to your IAM roles to only specific EKS Pod identities sessions, such as the Kubernetes Service Account a pod belongs to. 
 
-Please note that these attributes may not be universally unique, for example two EKS clusters may have identical namespaces, and one cluster may have identically named service accounts across namespaces. So when granting access via EKS Pod Identities and ABAC, it is a best practice to always consider the cluster arn and namespace when granting access to a service account with pod identities.
+Please note that some these attributes may not be universally unique, for example two EKS clusters may have identical namespaces, and one cluster may have identically named service accounts across namespaces. So when granting access via EKS Pod Identities and ABAC, it is a best practice to always consider the cluster arn and namespace when granting access to a service account with pod identities.
+
+###### ABAC and EKS Pod Identities for cross account access
+
+When using EKS Pod Identities to assume roles(role chain) in other accounts as part of a multi account strategy, you have the option to assign a unique IAM role for each service account that needs to access another account, or use a common IAM role across multiple service accounts and use ABAC to control what accounts it can access.
+
+To use ABAC to control what service accounts can assume a role into another account with role chaining, you create a role trust policy statement that only allows a role to be assumed by a role session with the expected values are present. The following role trust policy will only let a role from the EKS cluster account (account ID 111122223333) assume a role if the `kubernetes-service-account`, `eks-cluster-arn` and `kubernetes-namespace`tags all have the expected value.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::111122223333:root"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "aws:PrincipalTag/kubernetes-service-account": "PayrollApplication",
+                    "aws:PrincipalTag/eks-cluster-arn": "arn:aws:eks:us-east-1:111122223333:cluster/ProductionCluster",
+                    "aws:PrincipalTag/kubernetes-namespace": "PayrollNamespace"
+                }
+            }
+        }
+    ]
+}
+```
+
+When using this strategy it is a best practice to ensure that the common IAM role only has `sts:AssumeRole` permissions and no other AWS access.
+
+It is important when using ABAC that you control who has the ability to tag IAM roles and users to only those who have a strict need to do so. Someone with the ability to tag an IAM role or user would be able to set tags on roles/users identical to what would be set by EKS Pod Identities and may be able to escalate their privilege. You can restrict who has the access to set tags the `kubernetes-` and `eks-` tags on IAM role and users using IAM policy, or Service Control Policy (SCP). 
 
 ## De-centralized EKS Clusters
 
