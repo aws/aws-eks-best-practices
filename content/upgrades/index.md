@@ -203,6 +203,39 @@ Running the check against static manifest files is generally more accurate. If r
 
 A deprecated Kubernetes API does not mean the API has been removed. You should check the [Kubernetes Deprecation Policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) to understand how API removal affects your workloads.
 
+### Cluster Insights
+[Cluster Insights](https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html) is a feature that provides findings on issues that may impact the ability to upgrade an EKS cluster to newer versions of Kubernetes. These findings are curated and managed by Amazon EKS and offer recommendations on how to remediate them. By leveraging Cluster Insights, you can minimize the effort spent to upgrade to newer Kubernetes versions.
+
+To view insights of an EKS cluster, you can run the command:
+```
+aws eks list-insights --region <region-code> --cluster-name <my-cluster>
+
+{
+    "insights": [
+        {
+            "category": "UPGRADE_READINESS", 
+            "name": "Deprecated APIs removed in Kubernetes v1.29", 
+            "insightStatus": {
+                "status": "PASSING", 
+                "reason": "No deprecated API usage detected within the last 30 days."
+            }, 
+            "kubernetesVersion": "1.29", 
+            "lastTransitionTime": 1698774710.0, 
+            "lastRefreshTime": 1700157422.0, 
+            "id": "123e4567-e89b-42d3-a456-579642341238", 
+            "description": "Checks for usage of deprecated APIs that are scheduled for removal in Kubernetes v1.29. Upgrading your cluster before migrating to the updated APIs supported by v1.29 could cause application impact."
+        }
+    ]
+}
+```
+
+For a more descriptive output about the insight received, you can run the command:
+```
+aws eks describe-insight --region <region-code> --id <insight-id> --cluster-name <my-cluster>
+```
+
+You also have the option to view insights in the [Amazon EKS Console](https://console.aws.amazon.com/eks/home#/clusters). After selecting your cluster from the cluster list, insight findings are located under the ```Upgrade Insights``` tab.
+
 ### Kube-no-trouble
 
 [Kube-no-trouble](https://github.com/doitintl/kube-no-trouble) is an open source command line utility with the command `kubent`. When you run `kubent` without any arguments it will use your current KubeConfig context and scan the cluster and print a report with what APIs will be deprecated and removed. 
