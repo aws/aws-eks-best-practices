@@ -238,7 +238,7 @@ You also have the option to view insights in the [Amazon EKS Console](https://co
 
 In the event your Cluster Insight findings report ```"status": ERROR```, then addressing these findings will be imperative before proceeding with an EKS version upgrade. The information provided by running the ```aws eks describe-insight``` command will aid you in remediating the finding report by sharing the following:
 
-Resources are affected:
+Resources affected:
 ```
 "resources": [
       {
@@ -250,20 +250,20 @@ Resources are affected:
 ]
 ```
 
-APIs that are deprecated:
+APIs deprecated:
 ```
 "deprecationDetails": [
-                {
-                    "usage": "/apis/flowcontrol.apiserver.k8s.io/v1beta2/flowschemas", 
-                    "replacedWith": "/apis/flowcontrol.apiserver.k8s.io/v1beta3/flowschemas", 
-                    "stopServingVersion": "1.29", 
-                    "clientStats": [], 
-                    "startServingReplacementVersion": "1.26"
-                }
+      {
+        "usage": "/apis/flowcontrol.apiserver.k8s.io/v1beta2/flowschemas", 
+        "replacedWith": "/apis/flowcontrol.apiserver.k8s.io/v1beta3/flowschemas", 
+        "stopServingVersion": "1.29", 
+        "clientStats": [], 
+        "startServingReplacementVersion": "1.26"
+      }
 ]
 ```
 
-The recommended action to take:
+Recommended action to take:
 ```
 "recommendation": "Update manifests and API clients to use newer Kubernetes APIs if applicable before upgrading to Kubernetes v1.26."
 ```
