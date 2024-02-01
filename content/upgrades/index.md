@@ -236,6 +236,40 @@ aws eks describe-insight --region <region-code> --id <insight-id> --cluster-name
 
 You also have the option to view insights in the [Amazon EKS Console](https://console.aws.amazon.com/eks/home#/clusters). After selecting your cluster from the cluster list, insight findings are located under the ```Upgrade Insights``` tab.
 
+In the event your Cluster Insight findings report ```"status": ERROR```, then addressing these findings will be imperative before proceeding with an EKS version upgrade. The information provided by running the ```aws eks describe-insight``` command will aid you in remediating the finding report by sharing the following:
+
+Resources are affected:
+```
+"resources": [
+      {
+        "insightStatus": {
+          "status": "ERROR"
+        },
+        "kubernetesResourceUri": "/apis/policy/v1beta1/podsecuritypolicies/null"
+      }
+]
+```
+
+APIs that are deprecated:
+```
+"deprecationDetails": [
+                {
+                    "usage": "/apis/flowcontrol.apiserver.k8s.io/v1beta2/flowschemas", 
+                    "replacedWith": "/apis/flowcontrol.apiserver.k8s.io/v1beta3/flowschemas", 
+                    "stopServingVersion": "1.29", 
+                    "clientStats": [], 
+                    "startServingReplacementVersion": "1.26"
+                }
+]
+```
+
+The recommended action to take:
+```
+"recommendation": "Update manifests and API clients to use newer Kubernetes APIs if applicable before upgrading to Kubernetes v1.26."
+```
+
+Utilizing this information will help greatly speed the process of successfully upgrading EKS cluster versions, and is available on the Amazon EKS console to view as well. To learn more, please visit the official EKS [documentation](https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html), as well as the Cluster Insights launch [blog](https://aws.amazon.com/blogs/containers/accelerate-the-testing-and-verification-of-amazon-eks-upgrades-with-upgrade-insights/).
+
 ### Kube-no-trouble
 
 [Kube-no-trouble](https://github.com/doitintl/kube-no-trouble) is an open source command line utility with the command `kubent`. When you run `kubent` without any arguments it will use your current KubeConfig context and scan the cluster and print a report with what APIs will be deprecated and removed. 
