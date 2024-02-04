@@ -45,7 +45,7 @@ Prefix 모드에서는 워커 노드에 할당된 보안 그룹이 파드에 공
 
 ### 동일한 노드 그룹에서 유사한 인스턴스 유형 사용
 
-노드 그룹에는 여러 유형의 인스턴스가 포함될 수 있습니다. 최대 파드 수가 적은 인스턴스의 값이 노드 그룹의 모든 노드에 적용됩니다. 노드 사용을 극대화하려면 노드 그룹에서 유사한 인스턴스 유형을 사용하는 것이 좋습니다. 노드 오토스케일링을 위해 Karpenter를 사용하는 경우 provisioner API의 requirements 부분에서 [node.kubernetes.io/instance-type](https://karpenter.sh/docs/concepts/provisioners/)을 구성할 것을 권장합니다.
+노드 그룹에는 여러 유형의 인스턴스가 포함될 수 있습니다. 최대 파드 수가 적은 인스턴스의 값이 노드 그룹의 모든 노드에 적용됩니다. 노드 사용을 극대화하려면 노드 그룹에서 유사한 인스턴스 유형을 사용하는 것이 좋습니다. 노드 오토스케일링을 위해 Karpenter를 사용하는 경우 provisioner API의 requirements 부분에서 [node.kubernetes.io/instance-type](https://karpenter.sh/docs/concepts/nodepools/)을 구성할 것을 권장합니다.
 
 !!! warning 
     특정 노드 그룹의 모든 노드에 대한 최대 파드 수는 노드 그룹 내 단일 인스턴스 유형의 *최소* 최대 파드 수로 정의됩니다.

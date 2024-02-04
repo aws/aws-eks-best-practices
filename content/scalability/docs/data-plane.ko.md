@@ -16,7 +16,7 @@ Karpenter는 AWS에서 만든 오픈 소스 워크로드 네이티브 노드 오
 
 각 AWS 리전에는 인스턴스 유형별로 사용 ​​가능한 인스턴스 수가 제한되어 있습니다. 하나의 인스턴스 유형만 사용하는 클러스터를 생성하고 리전의 용량을 초과하여 노드 수를 확장하면 사용 가능한 인스턴스가 없다는 오류가 발생합니다. 이 문제를 방지하려면 클러스터에서 사용할 수 있는 인스턴스 유형을 임의로 제한해서는 안 됩니다.
 
-Karpenter는 기본적으로 호환되는 다양한 인스턴스 유형을 사용하며 보류 중인 워크로드 요구 사항, 가용성 및 비용을 기반으로 프로비저닝 시 인스턴스를 선택합니다. [Provisioner](https://karpenter.sh/docs/concepts/provisioners/#instance-types)의 `karpenter.k8s.aws/instance-category` 키에 사용되는 인스턴스 유형 목록을 정의할 수 있습니다.
+Karpenter는 기본적으로 호환되는 다양한 인스턴스 유형을 사용하며 보류 중인 워크로드 요구 사항, 가용성 및 비용을 기반으로 프로비저닝 시 인스턴스를 선택합니다. [NodePools](https://karpenter.sh/docs/concepts/nodepools/#instance-types)의 `karpenter.k8s.aws/instance-category` 키에 사용되는 인스턴스 유형 목록을 정의할 수 있습니다.
 
 쿠버네티스 Cluster Autoscaler를 사용하려면 노드 그룹이 일관되게 확장될 수 있도록 유사한 크기의 유형을 필요로 합니다. CPU 및 메모리 크기를 기준으로 여러 그룹을 생성하고 독립적으로 확장해야 합니다. [ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector)를 사용하여 노드 그룹과 비슷한 크기의 인스턴스를 식별하세요.
 
@@ -107,7 +107,7 @@ Karpenter를 사용하면 먼저 노드 그룹을 생성하거나 특정 노드�
 
 Worker 노드 구성 요소를 최신 상태로 유지하면 최신 보안 패치와 쿠버네티스 API와 호환되는 기능을 사용할 수 있습니다. kublet 업데이트는 쿠버네티스 기능의 가장 중요한 구성 요소이지만 OS, 커널 및 로컬에 설치된 애플리케이션 패치를 자동화하면 확장에 따른 유지 관리 비용을 줄일 수 있습니다.
 
-노드 이미지에는 최신 [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) 또는 [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html)를 사용하는 것이 좋습니다. Karpenter는 [사용 가능한 최신 AMI](https://karpenter.sh/docs/concepts/provisioners/#instance-types) 를 자동으로 사용하여 클러스터에 새 노드를 프로비저닝합니다. 관리형 노드 그룹은 [노드 그룹 업데이트](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) 중에 AMI를 업데이트하지만 노드 프로비저닝 시에는 AMI ID를 업데이트하지 않습니다.
+노드 이미지에는 최신 [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) 또는 [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html)를 사용하는 것이 좋습니다. Karpenter는 [사용 가능한 최신 AMI](https://karpenter.sh/docs/concepts/nodepools/#instance-types) 를 자동으로 사용하여 클러스터에 새 노드를 프로비저닝합니다. 관리형 노드 그룹은 [노드 그룹 업데이트](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) 중에 AMI를 업데이트하지만 노드 프로비저닝 시에는 AMI ID를 업데이트하지 않습니다.
 
 관리형 노드 그룹의 경우 패치 릴리스에 사용할 수 있게 되면 Auto Scaling Group (ASG) 시작 템플릿을 새 AMI ID로 업데이트해야 합니다. AMI 마이너 버전 (예: 1.23.5~1.24.3)은 EKS 콘솔 및 API에서 [노드 그룹 업그레이드](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html)로 제공됩니다. 패치 릴리스 버전 (예: 1.23.5 ~ 1.23.6)은 노드 그룹에 대한 업그레이드로 제공되지 않습니다. AMI 패치 릴리스를 통해 노드 그룹을 최신 상태로 유지하려면 새 시작 템플릿 버전을 생성하고 노드 그룹이 인스턴스를 새 AMI 릴리스로 교체하도록 해야 합니다.
 
@@ -144,7 +144,7 @@ managedNodeGroups:
       - "systemctl start containerd"
 ```
 
-Terraform을 사용하여 노드 그룹을 프로비저닝하는 경우 [EKS Blueprints for terraform](https://github.com/aws-ia/terraform-aws-eks-blueprints/blob/main/examples/node-groups/main.tf)의 예를 참조하세요. Karpenter를 사용하여 노드를 프로비저닝하는 경우 노드 사용자 데이터와 함께 [`blockDeviceMappings`](https://karpenter.sh/docs/concepts/node-templates/#specblockdevicemappings)를 사용하여 추가 볼륨을 추가할 수 있습니다.
+Terraform을 사용하여 노드 그룹을 프로비저닝하는 경우 [EKS Blueprints for terraform](https://aws-ia.github.io/terraform-aws-eks-blueprints/patterns/stateful/#eks-managed-nodegroup-w-multiple-volumes)의 예를 참조하세요. Karpenter를 사용하여 노드를 프로비저닝하는 경우 노드 사용자 데이터와 함께 [`blockDeviceMappings`](https://karpenter.sh/docs/concepts/nodeclasses/#specblockdevicemappings)를 사용하여 추가 볼륨을 추가할 수 있습니다.
 
 EBS 볼륨을 파드에 직접 탑재하려면 [AWS EBS CSI 드라이버](https://github.com/kubernetes-sigs/aws-ebs-csi-driver)를 사용하고 스토리지 클래스가 있는 볼륨을 사용해야 합니다.
 

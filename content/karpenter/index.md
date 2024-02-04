@@ -42,7 +42,7 @@ Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-st
 
 Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s provisioners while others are ignored by Karpenter, e.g. subnets and instance types.
 
-You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [Node Templates](https://karpenter.sh/docs/concepts/node-templates).
+You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
 
 
 ### Exclude instance types that do not fit your workload
@@ -267,7 +267,7 @@ When you configure your cluster to automatically scale, you should create billin
 
 The snippet below tells Karpenter to only provision a maximum of 1000 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only when the limit is met or exceeded. When a limit is exceeded the Karpenter controller will write `memory resource usage of 1001 exceeds limit of 1000` or a similar looking message to the controller’s logs. If you are routing your container logs to CloudWatch logs, you can create a [metrics filter](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html) to look for specific patterns or terms in your logs and then create a [CloudWatch alarm](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to alert you when your configured metrics threshold is breached.
 
-For further information using limits with Karpenter, see [Setting Resource Limits](https://karpenter.sh/docs/concepts/provisioners/#speclimitsresources) in the Karpenter documentation.
+For further information using limits with Karpenter, see [Setting Resource Limits](https://karpenter.sh/docs/concepts/nodepools/#speclimitsresources) in the Karpenter documentation.
 
 ```yaml
 spec:

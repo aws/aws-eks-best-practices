@@ -158,7 +158,7 @@ spec:
 
 AWS resource [tags](https://docs.aws.amazon.com/tag-editor/latest/userguide/tagging.html) are used to organize your resources, and to track your AWS costs on a detailed level. They do not directly correlate with Kubernetes labels for cost tracking. It’s recommended to start with Kubernetes resource labeling and utilize tools like [Kubecost](https://aws.amazon.com/blogs/containers/aws-and-kubecost-collaborate-to-deliver-cost-monitoring-for-eks-customers/) to get infrastructure cost reporting based on Kubernetes labels on pods, namespaces etc.
 
-Worker nodes need to have tags to show billing information in AWS Cost Explorer. With Cluster Autoscaler, tag your worker nodes inside a managed node group using [launch template](https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html). For self managed node groups, tag your instances using [EC2 auto scaling group](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-tagging.html). For instances provisioned by Karpenter, tag them using [spec.tags in the node template](https://karpenter.sh/v0.29/concepts/node-templates/#spectags).
+Worker nodes need to have tags to show billing information in AWS Cost Explorer. With Cluster Autoscaler, tag your worker nodes inside a managed node group using [launch template](https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html). For self managed node groups, tag your instances using [EC2 auto scaling group](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-tagging.html). For instances provisioned by Karpenter, tag them using [spec.tags in the node template](https://karpenter.sh/docs/concepts/nodeclasses/#spectags).
 
 ### Multi-tenant clusters
 
@@ -170,7 +170,7 @@ Shared clusters may also have cluster level resource constraints such as IP exha
 
 You can isolate resources at a namespace or Karpenter provisioner level. [Resource Quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/) provide a way to set limits on how many resources workloads in a namespace can consume. This can be a good initial guard rail but it should be continually evaluated to make sure it doesn’t artificially restrict workloads from scaling.
 
-Karpenter provisioners can [set limits on some of the consumable resources](https://karpenter.sh/docs/concepts/provisioners/#speclimitsresources) in a cluster (e.g. CPU, GPU), but you will need to configure tenant applications to use the appropriate provisioner. This can prevent a single provisioner from creating too many nodes in a cluster, but it should be continually evaluated to make sure the limit isn’t set too low and in turn, prevent workloads from scaling.
+Karpenter provisioners can [set limits on some of the consumable resources](https://karpenter.sh/docs/concepts/nodepools/#speclimitsresources) in a cluster (e.g. CPU, GPU), but you will need to configure tenant applications to use the appropriate provisioner. This can prevent a single provisioner from creating too many nodes in a cluster, but it should be continually evaluated to make sure the limit isn’t set too low and in turn, prevent workloads from scaling.
 
 ### Scheduled Autoscaling
 
