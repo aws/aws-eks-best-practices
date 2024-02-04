@@ -137,11 +137,12 @@ managedNodeGroups:
       - volumeName: '/dev/sdz'
         volumeSize: 100
     preBootstrapCommands:
-      - "systemctl stop containerd"
-      - "mkfs -t ext4 /dev/nvme1n1"
-      - "rm -rf /var/lib/containerd/*"
-      - "mount /dev/nvme1n1 /var/lib/containerd/"
-      - "systemctl start containerd"
+    - |
+      "systemctl stop containerd"
+      "mkfs -t ext4 /dev/nvme1n1"
+      "rm -rf /var/lib/containerd/*"
+      "mount /dev/nvme1n1 /var/lib/containerd/"
+      "systemctl start containerd"
 ```
 
 Terraform을 사용하여 노드 그룹을 프로비저닝하는 경우 [EKS Blueprints for terraform](https://github.com/aws-ia/terraform-aws-eks-blueprints/blob/main/examples/node-groups/main.tf)의 예를 참조하세요. Karpenter를 사용하여 노드를 프로비저닝하는 경우 노드 사용자 데이터와 함께 [`blockDeviceMappings`](https://karpenter.sh/docs/concepts/node-templates/#specblockdevicemappings)를 사용하여 추가 볼륨을 추가할 수 있습니다.

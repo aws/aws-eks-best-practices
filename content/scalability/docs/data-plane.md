@@ -137,11 +137,12 @@ managedNodeGroups:
       - volumeName: '/dev/sdz'
         volumeSize: 100
     preBootstrapCommands:
-      - "systemctl stop containerd"
-      - "mkfs -t ext4 /dev/nvme1n1"
-      - "rm -rf /var/lib/containerd/*"
-      - "mount /dev/nvme1n1 /var/lib/containerd/"
-      - "systemctl start containerd"
+    - |
+      "systemctl stop containerd"
+      "mkfs -t ext4 /dev/nvme1n1"
+      "rm -rf /var/lib/containerd/*"
+      "mount /dev/nvme1n1 /var/lib/containerd/"
+      "systemctl start containerd"
 ```
 
 If you are using terraform to provision your node groups please see examples in [EKS Blueprints for terraform](https://github.com/aws-ia/terraform-aws-eks-blueprints/blob/main/examples/node-groups/managed-node-groups/main.tf). If you are using Karpenter to provision nodes you can use [`blockDeviceMappings`](https://karpenter.sh/docs/concepts/node-templates/#specblockdevicemappings) with node user-data to add additional volumes.
