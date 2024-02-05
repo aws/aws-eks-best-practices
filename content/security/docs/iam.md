@@ -563,7 +563,7 @@ Both EKS Pod Identities and IRSA are preferred ways to deliver temporary AWS cre
 |Uses AWS STS Quota from your AWS account?|No|Yes|
 |Can access other AWS accounts | Indirectly with role chaining | Directly with sts:AssumeRoleWithWebIdentity|
 |Compatible with AWS SDKs |Yes|Yes|
-|Requires Pod Identity Agent Daemonset on nodes? |No|Yes|
+|Requires Pod Identity Agent Daemonset on nodes? |Yes|No|
 
 
 
