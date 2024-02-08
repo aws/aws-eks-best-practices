@@ -531,3 +531,4 @@ kubectl apply -f istio-custom-config.yaml
 + [Verifying Service Mesh TLS in Kubernetes, Using ksniff and Wireshark](https://itnext.io/verifying-service-mesh-tls-in-kubernetes-using-ksniff-and-wireshark-2e993b26bf95)
 + [ksniff](https://github.com/eldadru/ksniff)
 + [egress-operator](https://github.com/monzo/egress-operator) An operator and DNS plugin to control egress traffic from your cluster without protocol inspection
++ [NeuVector by SUSE](https://www.suse.com/neuvector/) open source, zero-trust container security platform, provides policy network rules, data loss prevention (DLP), web application firewall (WAF) and network threat signatures.

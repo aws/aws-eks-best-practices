@@ -214,3 +214,4 @@ RUN apt-get update && apt-get install -y \
 * [Notary](https://github.com/theupdateframework/notary) A project for signing container images
 * [Notary v2](https://github.com/notaryproject/nv2)
 * [Grafeas](https://grafeas.io/) An open artifact metadata API to audit and govern your software supply chain
+* [NeuVector by SUSE](https://www.suse.com/neuvector/) open source, zero-trust container security platform, provides container, image and registry scanning for vulnerabilities, secrets and compliance.
