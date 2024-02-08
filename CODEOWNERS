@@ -1,0 +1,9 @@
+/security/ @aws/eks-bpg-security-wg
+/autoscaling/ @aws/eks-bpg-autoscaling-wg
+/resiliency/ @aws/eks-bpg-resiliency-wg
+/windows/ @aws/eks-bpg-windows-wg
+/networking/ @aws/eks-bpg-networking-wg
+/cost-optimization/ @aws/eks-bpg-costoptimization-wg
+
+# Fallback
+* @aws/eks-bpg-steering-committee
