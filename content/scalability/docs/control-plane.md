@@ -100,9 +100,11 @@ autoscalingGroups:
 
 ### Overview
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YnPPHBawhE0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 To protect itself from being overloaded during periods of increased requests, the API Server limits the number of inflight requests it can have outstanding at a given time. Once this limit is exceeded, the API Server will start rejecting requests and return a 429 HTTP response code for "Too Many Requests" back to clients. The server dropping requests and having clients try again later is preferable to having no server-side limits on the number of requests and overloading the control plane, which could result in degraded performance or unavailability.
 
-The mechanism used by Kubernetes to configure how these inflights requests are divided among different request types is called [API Priority and Fairness](https://kubernetes.io/docs/concepts/cluster-administration/flow-control/). The API Server configures the total number of inflight requests it can accept by summing together the values specified by the `--max-requests-inflight` and `--max-mutating-requests-inflight` flags. EKS uses the default values of 400 and 200 requests for these flags, allowing a total of 600 requests to be dispatched at a given time. APF specifies how these 600 requests are divided among different request types. Note that EKS control planes are highly available with at least 2 API Servers registered to each cluster. This increases the total number of inflight requests across the cluster to 1200.
+The mechanism used by Kubernetes to configure how these inflights requests are divided among different request types is called [API Priority and Fairness](https://kubernetes.io/docs/concepts/cluster-administration/flow-control/). The API Server configures the total number of inflight requests it can accept by summing together the values specified by the `--max-requests-inflight` and `--max-mutating-requests-inflight` flags. EKS uses the default values of 400 and 200 requests for these flags, allowing a total of 600 requests to be dispatched at a given time. However, as it scales the control-plane to larger sizes in response to increased utilization and workload churn, it correspondingly increases the inflight request quota all the way till 2000 (subject to change). APF specifies how these inflight request quota is further sub-divided among different request types. Note that EKS control planes are highly available with at least 2 API Servers registered to each cluster. This means the total number of inflight requests your cluster can handle is twice (or higher if horizontally scaled out further) the inflight quota set per kube-apiserver. This amounts to several thousands of requests/second on the largest EKS clusters.
 
 Two kinds of Kubernetes objects, called PriorityLevelConfigurations and FlowSchemas, configure how the total number of requests is divided between different request types. These objects are maintained by the API Server automatically and EKS uses the default configuration of these objects for the given Kubernetes minor version. PriorityLevelConfigurations represent a fraction of the total number of allowed requests. For example, the workload-high PriorityLevelConfiguration is allocated 98 out of the total of 600 requests. The sum of requests allocated to all PriorityLevelConfigurations will equal 600 (or slightly above 600 because the API Server will round up if a given level is granted a fraction of a request). To check the PriorityLevelConfigurations in your cluster and the number of requests allocated to each, you can run the following command. These are the defaults on EKS 1.24:
 
@@ -123,23 +125,25 @@ The mapping of FlowSchemas to PriorityLevelConfigurations can be viewed using th
 
 ```
 $ kubectl get flowschemas
-NAME                           PRIORITYLEVEL     MATCHINGPRECEDENCE   DISTINGUISHERMETHOD   AGE   MISSINGPL
-exempt                         exempt            1                    <none>                3d    False
-probes                         exempt            2                    <none>                3d    False
-system-leader-election         leader-election   100                  ByUser                3d    False
-endpoint-controller            workload-high     150                  ByUser                3d    False
-workload-leader-election       leader-election   200                  ByUser                3d    False
-system-node-high               node-high         400                  ByUser                3d    False
-system-nodes                   system            500                  ByUser                3d    False
-kube-controller-manager        workload-high     800                  ByNamespace           3d    False
-kube-scheduler                 workload-high     800                  ByNamespace           3d    False
-kube-system-service-accounts   workload-high     900                  ByNamespace           3d    False
-service-accounts               workload-low      9000                 ByUser                3d    False
-global-default                 global-default    9900                 ByUser                3d    False
-catch-all                      catch-all         10000                ByUser                3d    False
+NAME                           PRIORITYLEVEL     MATCHINGPRECEDENCE   DISTINGUISHERMETHOD   AGE     MISSINGPL
+exempt                         exempt            1                    <none>                7h19m   False
+eks-exempt                     exempt            2                    <none>                7h19m   False
+probes                         exempt            2                    <none>                7h19m   False
+system-leader-election         leader-election   100                  ByUser                7h19m   False
+endpoint-controller            workload-high     150                  ByUser                7h19m   False
+workload-leader-election       leader-election   200                  ByUser                7h19m   False
+system-node-high               node-high         400                  ByUser                7h19m   False
+system-nodes                   system            500                  ByUser                7h19m   False
+kube-controller-manager        workload-high     800                  ByNamespace           7h19m   False
+kube-scheduler                 workload-high     800                  ByNamespace           7h19m   False
+kube-system-service-accounts   workload-high     900                  ByNamespace           7h19m   False
+eks-workload-high              workload-high     1000                 ByUser                7h14m   False
+service-accounts               workload-low      9000                 ByUser                7h19m   False
+global-default                 global-default    9900                 ByUser                7h19m   False
+catch-all                      catch-all         10000                ByUser                7h19m   False
 ```
 
-PriorityLevelConfigurations can have a type of Queue, Reject, or Exempt. For types Queue and Reject, a limit is enforced on the maximum number of inflight requests for that priority level, however, the behavior differs when that limit is reached. For example, the workload-high PriorityLevelConfiguration uses type Queue and has 98 requests available for use by the controller-manager, endpoint-controller, scheduler, and from pods running in the kube-system namespace. Since type Queue is used, the API Server will attempt to keep requests in memory and hope that the number of inflight requests drops below 98 before these requests time out. If a given request times out in the queue or if too many requests are already queued, the API Server has no choice but to drop the request and return the client a 429. Note that queuing may prevent a request from receiving a 429, but it comes with the tradeoff of increased end-to-end latency on the request.
+PriorityLevelConfigurations can have a type of Queue, Reject, or Exempt. For types Queue and Reject, a limit is enforced on the maximum number of inflight requests for that priority level, however, the behavior differs when that limit is reached. For example, the workload-high PriorityLevelConfiguration uses type Queue and has 98 requests available for use by the controller-manager, endpoint-controller, scheduler,eks related controllers and from pods running in the kube-system namespace. Since type Queue is used, the API Server will attempt to keep requests in memory and hope that the number of inflight requests drops below 98 before these requests time out. If a given request times out in the queue or if too many requests are already queued, the API Server has no choice but to drop the request and return the client a 429. Note that queuing may prevent a request from receiving a 429, but it comes with the tradeoff of increased end-to-end latency on the request.
 
 Now consider the catch-all FlowSchema that maps to the catch-all PriorityLevelConfiguration with type Reject. If clients reach the limit of 13 inflight requests, the API Server will not exercise queuing and will drop the requests instantly with a 429 response code. Finally, requests mapping to a PriorityLevelConfiguration with type Exempt will never receive a 429 and always be dispatched immediately. This is used for high-priority requests such as healthz requests or requests coming from the system:masters group.  
 

@@ -27,6 +27,7 @@ There are several security best practice areas that are pertinent when using a m
 + Runtime Security
 + Network Security
 + Multi-tenancy
++ Multi Account for Multi-tenancy
 + Detective Controls
 + Infrastructure Security
 + Data Encryption and Secrets Management

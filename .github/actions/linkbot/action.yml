@@ -1,0 +1,28 @@
+name: "Check Links"
+inputs:
+  repo:
+    description: "Reposity to use"
+    required: false
+    default: "https://github.com/${{ github.repository }}"
+  token:
+    description: "GitHub token to use"
+    required: false
+    default: ${{ github.token }}
+  max_days_old:
+    description: "Max days since last GitHub project update to allow"
+    required: false
+    default: 365
+  glob:
+    description: "Glob pattern relative to repo root to search under"
+    required: false
+    default: "**/*.md"
+runs:
+  using: docker
+  image: Dockerfile
+  env:
+    LINKBOT_REPO_ROOT: "."
+    LINKBOT_REPO_URL: ${{ inputs.repo }}
+    LINKBOT_GLOB: ${{ inputs.glob }}
+    LINKBOT_MAX_DAYS_OLD: ${{ inputs.max_days_old }}
+    LINKBOT_GH_USER: "github-actions[bot]"
+    LINKBOT_GH_TOKEN: ${{ inputs.token }}

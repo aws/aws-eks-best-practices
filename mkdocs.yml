@@ -37,6 +37,7 @@ nav:
       - Regulatory Compliance: "security/docs/compliance.md"
       - Incident Response and Forensics: "security/docs/incidents.md"
       - Image Security: "security/docs/image.md"
+      - Multi Account Strategy: "security/docs/multiaccount.md"
   - Cluster Autoscaling:
       - Karpenter: "karpenter/index.md"
       - Cluster-Autoscaler: "cluster-autoscaling/index.md"
@@ -63,11 +64,12 @@ nav:
       - Home: "networking/index/index.md"
       - VPC and Subnet Considerations: "networking/subnets/index.md"
       - Amazon VPC CNI: "networking/vpc-cni/index.md"
+      - Optimizing IP Address Utilization: "networking/ip-optimization-strategies/index.md"
+      - Running IPv6 Clusters: "networking/ipv6/index.md"
+      - Custom Networking: "networking/custom-networking/index.md"
       - Prefix Mode for Linux: "networking/prefix-mode/index_linux.md"
       - Prefix Mode for Windows: "networking/prefix-mode/index_windows.md"
-      - Running IPv6 Clusters: "networking/ipv6/index.md"
       - Security Groups per Pod: "networking/sgpp/index.md"
-      - Custom Networking: "networking/custom-networking/index.md"
       - Load Balancing: "networking/loadbalancing/loadbalancing.md"
       - Monitoring for Network performance issues: "networking/monitoring/index.md"
   - Scalability:
@@ -76,7 +78,18 @@ nav:
       - Data Plane: "scalability/docs/data-plane.md"
       - Cluster Services: "scalability/docs/cluster-services.md"
       - Workloads: "scalability/docs/workloads.md"
+      - The theory behind scaling: "scalability/docs/scaling_theory.md"
+      - Control plane monitoring: "scalability/docs/kcp_monitoring.md"
+      - Node efficiency and scaling: "scalability/docs/node_efficiency.md"
+      - Kubernetes SLOs: "scalability/docs/kubernetes_slos.md"
+      - Known limits and service quotas: "scalability/docs/quotas.md"
   - Cluster Upgrades: "upgrades/index.md"
+  - Cost Optimization:
+      - Cloud Financial Management Framework: "cost_optimization/cfm_framework.md"
+      - Compute: "cost_optimization/cost_opt_compute.md"
+      - Network: "cost_optimization/cost_opt_networking.md"
+      - Storage: "cost_optimization/cost_opt_storage.md"
+      - Observability: "cost_optimization/cost_opt_observability.md"
 markdown_extensions:
   - toc:
       permalink: true
@@ -87,8 +100,88 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.details
 plugins:
   - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      languages:
+        - locale: en
+          name: English
+          fixed_link: ./
+          build: true
+          default: true
+        - locale: ko
+          name: 한국어
+          fixed_link: ./ko/
+          build: true
+          nav_translations:
+            AMI Management: AMI 관리
+            Amazon VPC CNI: Amazon VPC CNI
+            Applications: 애플리케이션
+            Cloud Financial Management Framework: 클라우드 재무 관리 프레임워크
+            Cluster Autoscaling: 클러스터 오토스케일링
+            Cluster Services: 클러스터 서비스
+            Cluster Upgrades: 클러스터 업그레이드
+            Cluster-Autoscaler: Cluster Autoscaler
+            Compute: 컴퓨팅
+            Control Plane: 컨트롤 플레인
+            Control plane monitoring: 컨트롤 플레인 모니터링
+            Cost Optimization: 비용 최적화
+            Custom Networking: Custom 네트워킹
+            Data Encryption and Secrets Management: 데이터 암호화 및 시크릿 관리
+            Data Plane: 데이터 플레인
+            Detective Controls: 탐지 관리
+            Guides: 가이드
+            Home: 홈
+            Identity and Access Management: 인증 및 접근 관리
+            Image Security: 이미지 보안
+            Incident Response and Forensics: 사고 대응 및 포렌식
+            Infrastructure Management: 인프라 관리
+            Infrastructure Security: 인프라 보안
+            Introduction: 소개
+            Karpenter: Karpenter
+            Load Balancing: 로드 밸런싱
+            Logging: 로깅
+            Memory and Systems Management: 메모리 및 시스템 관리
+            Monitoring Windows Containers: 윈도우 컨테이너 모니터링
+            Monitoring for DNS Throttling Issues: DNS 스로틀링 모니터링
+            Monitoring for Network performance issues: 네트워크 성능 문제에 대한 EKS 워크로드 모니터링
+            Multi-tenancy: 멀티 테넌시
+            Network: 네트워크
+            Network Security: 네트워크 보안
+            Networking: 네트워크
+            Node efficiency and scaling: 노드 및 워크로드 효율성
+            Observability: 옵저버빌리티
+            Pod Security: 파드 보안
+            Pod Security for Windows Containers: 윈도우 컨테이너 파드 보안
+            Prefix Mode: Prefix 모드
+            Prefix Mode for Linux: Prefix 모드 - 리눅스
+            Prefix Mode for Windows: Prefix 모드 - 윈도우
+            Regulatory Compliance: 컴플라이언스
+            Reliability: 신뢰성
+            Running IPv6 Clusters: IPv6 클러스터 운영
+            Running Mixed Workloads: 혼합 워크로드 실행
+            Runtime Security: 런타임 보안
+            Scalability: 확장성
+            Scanning Windows Images: 윈도우 이미지 스캔
+            Scheduling: 스케줄링
+            Security: 보안
+            Security Groups per Pod: 파드 보안 그룹 할당
+            Storage: 스토리지
+            Storage Options: 스토리지 옵션
+            The theory behind scaling: 확장에 대한 이론
+            VPC and Subnet Considerations: VPC 및 서브넷 고려사항
+            Windows Containers: 윈도우 컨테이너
+            Windows Networking: 윈도우 네트워크
+            Windows Server Hardening: 윈도우 서버 하드닝
+            Windows Versions and Licensing: 윈도우 버전 및 라이선스
+            Workloads: 워크로드
+            gMSA for Windows Containers: gMSA 윈도우 컨테이너
+          site_name: EKS 모범 사례 가이드
+      reconfigure_material: true
+      reconfigure_search: true
 extra:
   analytics:
     provider: google
