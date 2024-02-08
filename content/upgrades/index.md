@@ -236,7 +236,7 @@ aws eks describe-insight --region <region-code> --id <insight-id> --cluster-name
 
 You also have the option to view insights in the [Amazon EKS Console](https://console.aws.amazon.com/eks/home#/clusters). After selecting your cluster from the cluster list, insight findings are located under the ```Upgrade Insights``` tab.
 
-In the event your Cluster Insight findings report ```"status": ERROR```, then addressing these findings will be imperative before proceeding with an EKS version upgrade. The information provided by running the ```aws eks describe-insight``` command will aid you in remediating the finding report by sharing the following:
+If you find a cluster insight with `"status": ERROR`, you must address the issue prior to performing the cluster upgrade. Run the `aws eks describe-insight` command which will share the following remediation advice: 
 
 Resources affected:
 ```
