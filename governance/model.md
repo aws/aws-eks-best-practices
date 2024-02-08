@@ -25,7 +25,13 @@ This document outlines the governance model for the EKS Best Practices Guide pro
 - Approve nominations for new maintainers and steering committee members.
 - Resolve conflicts and ensure the project's goals are consistently met.
 
-### Maintainers
+### Working Group Chairs
+- Responsible for ensuring that pull requests (PRs) within their domain are reviewed and merged in a timely manner.
+- Identifying and nominating suitable candidates to serve as maintainers for their respective working groups.
+- Responsible for facilitating their working groups.
+- Participate in steering committee calls, representing their groups' interests and contributions.
+
+### Working Group Maintainers
 
 - Review and approve contributions within their area of expertise.
 - Responsible for ensuring timely reviews, either by themselves or by delegating to an appropriate reviewer.
