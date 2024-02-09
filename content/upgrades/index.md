@@ -268,7 +268,9 @@ Recommended action to take:
 "recommendation": "Update manifests and API clients to use newer Kubernetes APIs if applicable before upgrading to Kubernetes v1.26."
 ```
 
-Utilizing this information will help greatly speed the process of successfully upgrading EKS cluster versions, and is available on the Amazon EKS console to view as well. To learn more, please visit the official EKS [documentation](https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html), as well as the Cluster Insights launch [blog](https://aws.amazon.com/blogs/containers/accelerate-the-testing-and-verification-of-amazon-eks-upgrades-with-upgrade-insights/).
+Utilizing cluster insights through the EKS Console or CLI help speed the process of successfully upgrading EKS cluster versions. Learn more with the following resources:
+* [Official EKS Docs](https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html)
+* [Cluster Insights launch blog](https://aws.amazon.com/blogs/containers/accelerate-the-testing-and-verification-of-amazon-eks-upgrades-with-upgrade-insights/).
 
 ### Kube-no-trouble
 
