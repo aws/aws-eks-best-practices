@@ -488,7 +488,7 @@ If you are using Terraform to create launch templates for use with Managed Node 
 resource "aws_launch_template" "foo" {
   name = "foo"
   ...
-    metadata_options {
+    metadata_options = {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
     http_put_response_hop_limit = 1
