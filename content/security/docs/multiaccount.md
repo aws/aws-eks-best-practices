@@ -71,13 +71,13 @@ After this is configured, your application running in EKS will be able to direct
 
 Unlike IRSA, EKS Pod Identities can only be used to directly grant access to a role in the same account as the EKS cluster. To access a role in another AWS account, pods that use EKS Pod Identities must perform [Role Chaining](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html#iam-term-role-chaining).
 
-Role chaining can be configured in an applications profile with their aws configuration file (`~/.aws/config`) using the [Process Credentials Provider](https://docs.aws.amazon.com/sdkref/latest/guide/feature-process-credentials.html) available in various AWS SDKs. `credential_process` can be used as a credential source when configuring a profile, such as:
+Role chaining can be configured in an applications profile with their aws configuration file using the [Process Credentials Provider](https://docs.aws.amazon.com/sdkref/latest/guide/feature-process-credentials.html) available in various AWS SDKs. `credential_process` can be used as a credential source when configuring a profile, such as:
 
 ```
 # Content of the AWS Config file
 [profile account_b_role] 
 source_profile = account_a_role 
-role_arn=arn:aws:iam::444455556666:role/account-b-role
+role_arn = arn:aws:iam::444455556666:role/account-b-role
 
 [profile account_a_role] 
 credential_process = /eks-credential-processrole.sh
@@ -94,15 +94,29 @@ The source of the script called by credential_process:
 curl -H "Authorization: $(cat $AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE)" $AWS_CONTAINER_CREDENTIALS_FULL_URI | jq -c '{AccessKeyId: .AccessKeyId, SecretAccessKey: .SecretAccessKey, SessionToken: .Token, Expiration: .Expiration, Version: 1}' 
 ```
 
-When configuring role trust policies for role chaining with EKS pod identities, you can reference [EKS specific attributes](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html) as session tags and use attribute based access control(ABAC) to limit access to your IAM roles to only specific EKS Pod identities sessions, such as the Kubernetes Service Account a pod belongs to. 
+You can create an aws config file as shown above with both Account A and B roles and specify the AWS_CONFIG_FILE and AWS_PROFILE env vars in your pod spec. EKS Pod identity webhook does not override if the env vars already exists in the pod spec.
 
-Please note that some these attributes may not be universally unique, for example two EKS clusters may have identical namespaces, and one cluster may have identically named service accounts across namespaces. So when granting access via EKS Pod Identities and ABAC, it is a best practice to always consider the cluster arn and namespace when granting access to a service account with pod identities.
+```yaml
+# Snippet of the PodSpec
+containers: 
+  - name: container-name
+    image: container-image:version
+    env:
+    - name: AWS_CONFIG_FILE
+      value: path-to-customer-provided-aws-config-file
+    - name: AWS_PROFILE
+      value: account_b_role
+```
+
+When configuring role trust policies for role chaining with EKS pod identities, you can reference [EKS specific attributes](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html) as session tags and use attribute based access control(ABAC) to limit access to your IAM roles to only specific EKS Pod identity sessions, such as the Kubernetes Service Account a pod belongs to. 
+
+Please note that some of these attributes may not be universally unique, for example two EKS clusters may have identical namespaces, and one cluster may have identically named service accounts across namespaces. So when granting access via EKS Pod Identities and ABAC, it is a best practice to always consider the cluster arn and namespace when granting access to a service account.
 
 ###### ABAC and EKS Pod Identities for cross account access
 
-When using EKS Pod Identities to assume roles(role chain) in other accounts as part of a multi account strategy, you have the option to assign a unique IAM role for each service account that needs to access another account, or use a common IAM role across multiple service accounts and use ABAC to control what accounts it can access.
+When using EKS Pod Identities to assume roles (role chaining) in other accounts as part of a multi account strategy, you have the option to assign a unique IAM role for each service account that needs to access another account, or use a common IAM role across multiple service accounts and use ABAC to control what accounts it can access.
 
-To use ABAC to control what service accounts can assume a role into another account with role chaining, you create a role trust policy statement that only allows a role to be assumed by a role session with the expected values are present. The following role trust policy will only let a role from the EKS cluster account (account ID 111122223333) assume a role if the `kubernetes-service-account`, `eks-cluster-arn` and `kubernetes-namespace`tags all have the expected value.
+To use ABAC to control what service accounts can assume a role into another account with role chaining, you create a role trust policy statement that only allows a role to be assumed by a role session when the expected values are present. The following role trust policy will only let a role from the EKS cluster account (account ID 111122223333) assume a role if the `kubernetes-service-account`, `eks-cluster-arn` and `kubernetes-namespace` tags all have the expected value.
 
 ```json
 {
@@ -128,7 +142,7 @@ To use ABAC to control what service accounts can assume a role into another acco
 
 When using this strategy it is a best practice to ensure that the common IAM role only has `sts:AssumeRole` permissions and no other AWS access.
 
-It is important when using ABAC that you control who has the ability to tag IAM roles and users to only those who have a strict need to do so. Someone with the ability to tag an IAM role or user would be able to set tags on roles/users identical to what would be set by EKS Pod Identities and may be able to escalate their privilege. You can restrict who has the access to set tags the `kubernetes-` and `eks-` tags on IAM role and users using IAM policy, or Service Control Policy (SCP). 
+It is important when using ABAC that you control who has the ability to tag IAM roles and users to only those who have a strict need to do so. Someone with the ability to tag an IAM role or user would be able to set tags on roles/users identical to what would be set by EKS Pod Identities and may be able to escalate their privileges. You can restrict who has the access to set tags the `kubernetes-` and `eks-` tags on IAM role and users using IAM policy, or Service Control Policy (SCP). 
 
 ## De-centralized EKS Clusters
 
@@ -164,4 +178,4 @@ The decision to run with a Centralized or De-centralized will depend on your req
 |Performance & Scalabity:|As workloads grow to very large scales you may encounter kubernetes and AWS service quotas in the cluster account. You can deploy addtional cluster accounts to scale even further|As more clusters and VPCs are present, each workload has more available k8s and AWS service quota|
 |Networking: | Single VPC is used per cluster, allowing for simpler connectivity for applications on that cluster | Routing must be established between the de-centralized EKS cluster VPCs |
 |Kubernetes Access Management: |Need to maintain many different roles and users in the cluster to provide access to all workload teams and ensure kubernetes resources are properly segregated| Simplified access management as each cluster is dedicated to a workload/team|
-|AWS Access Management: |AWS resources are deployed into to their own account which can only be accessed by default with IAM roles in the workload account. IAM roles in the workload accounts are assumed cross account either with IRSA or POD Identities.|AWS resources are deployed into to their own account which can only be accessed by default with IAM roles in the workload account. IAM roles in the workload accounts are delivered directly to pods with IRSA or Pod Identities|
+|AWS Access Management: |AWS resources are deployed into to their own account which can only be accessed by default with IAM roles in the workload account. IAM roles in the workload accounts are assumed cross account either with IRSA or EKS Pod Identities.|AWS resources are deployed into to their own account which can only be accessed by default with IAM roles in the workload account. IAM roles in the workload accounts are delivered directly to pods with IRSA or EKS Pod Identities|
