@@ -667,14 +667,13 @@ Repeat the same steps for system:basic-user ClusterRoleBinding.
 
 ### Reuse AWS SDK sessions
 
-When you use IRSA, applications written using the AWS SDK use the token delivered to your pods to call `sts:AssumeRoleWithWebIdentity` to generate temporary AWS credentials. This is different from other AWS compute services, where the compute service delivers temporary AWS credentials directly to the AWS compute resource, such as a lambda function. This means that every time an AWS SDK session is initialized, a call to AWS STS for `AssumeRoleWithWebIdentity` is made. If your application scales rapidly and initializes many AWS SDK sessions, you may experience throttling from AWS STS as your code will be making many calls for `AssumeRoleWithWebIdentity`. 
+When you use IRSA, applications written using the AWS SDK use the token delivered to your pods to call `sts:AssumeRoleWithWebIdentity` to generate temporary AWS credentials. This is different from other AWS compute services, where the compute service delivers temporary AWS credentials directly to the AWS compute resource, such as a lambda function. This means that every time an AWS SDK session is initialized, a call to AWS STS for `AssumeRoleWithWebIdentity` is made. If your application scales rapidly and initializes many AWS SDK sessions, you may experience throttling from AWS STS as your code will be making many calls for `AssumeRoleWithWebIdentity`.
 
 To avoid this scenario, we recommend reusing AWS SDK sessions within your application so that unnecessary calls to `AssumeRoleWithWebIdentity` are not made.
 
 In the following example code, a session is created using the boto3 python SDK, and that same session is used to create clients and interact with both Amazon S3 and Amazon SQS. `AssumeRoleWithWebIdentity` is only called once, and the AWS SDK will refresh the credentials of `my_session` when they expire automatically.
 
-
-``` py hl_lines="4 7 8"  
+```py hl_lines="4 7 8"  
 import boto3
 
 # Create your own session
@@ -704,4 +703,4 @@ While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requi
 
 ## Tools and Resources
 
-* [Amazon EKS Security Immersion Workshop - Identity and Access Management](https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management)
+- [Amazon EKS Security Immersion Workshop - Identity and Access Management](https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management)
