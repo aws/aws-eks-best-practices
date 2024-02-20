@@ -1,5 +1,6 @@
 # 테넌트 격리
-멀티테넌시를 생각할 때 공유 인프라에서 실행되는 다른 사용자나 애플리케이션으로부터 사용자나 애플리케이션을 분리하려는 경우가 많습니다. 
+
+멀티테넌시를 생각할 때 공유 인프라에서 실행되는 다른 사용자나 애플리케이션으로부터 사용자나 애플리케이션을 분리하려는 경우가 많습니다.
 
 쿠버네티스는 _단일 테넌트 오케스트레이터_ 입니다. 즉, 컨트롤 플레인의 단일 인스턴스가 클러스터 내 모든 테넌트 간에 공유됩니다. 하지만 멀티테넌시와 유사한 형태를 만드는 데 사용할 수 있는 다양한 쿠버네티스 객체가 있습니다. 예를 들어 네임스페이스와 역할 기반 접근 제어(RBAC) 를 구현하여 테넌트를 논리적으로 서로 격리할 수 있습니다. 마찬가지로 할당량 및 제한 범위를 사용하여 각 테넌트가 사용할 수 있는 클러스터 리소스의 양을 제어할 수 있습니다. 하지만 클러스터는 강력한 보안 경계를 제공하는 유일한 구조입니다. 클러스터 내 호스트에 대한 액세스 권한을 획득한 공격자는 해당 호스트에 마운트된 _모든_ 시크릿, 컨피그맵, 볼륨을 가져올 수 있기 때문입니다. 또한 Kubelet을 가장하여 노드의 속성을 조작하거나 클러스터 내에서 옆으로 이동할 수도 있습니다.
 
@@ -9,32 +10,32 @@
 
 소프트 멀티테넌시를 사용하면 네임스페이스, 역할 및 롤바인딩, 네트워크 정책과 같은 네이티브 쿠버네티스 구조를 사용하여 테넌트를 논리적으로 분리할 수 있습니다.예를 들어 RBAC는 테넌트가 서로의 리소스에 액세스하거나 조작하는 것을 방지할 수 있습니다. 쿼터 및 리밋 범위는 각 테넌트가 소비할 수 있는 클러스터 리소스의 양을 제어하는 반면, 네트워크 정책은 서로 다른 네임스페이스에 배포된 애플리케이션이 서로 통신하지 못하도록 하는 데 도움이 될 수 있습니다.
 
-그러나 이런 컨트롤 중 어느 것도 다른 테넌트의 파드가 노드를 공유하는 것을 막지는 못합니다. 더 강력한 격리가 필요한 경우 노드 셀렉터, 안티-어피니티 규칙 및/또는 테인트 및 톨러레이션을 사용하여 서로 다른 테넌트의 파드를 별도의 노드로 강제로 스케줄링할 수 있습니다. 이를 종종 _단독 테넌트 노드_ 라고 합니다. 테넌트가 많은 환경에서는 이 작업이 다소 복잡하고 비용이 많이 들 수 있습니다. 
+그러나 이런 컨트롤 중 어느 것도 다른 테넌트의 파드가 노드를 공유하는 것을 막지는 못합니다. 더 강력한 격리가 필요한 경우 노드 셀렉터, 안티-어피니티 규칙 및/또는 테인트 및 톨러레이션을 사용하여 서로 다른 테넌트의 파드를 별도의 노드로 강제로 스케줄링할 수 있습니다. 이를 종종 _단독 테넌트 노드_ 라고 합니다. 테넌트가 많은 환경에서는 이 작업이 다소 복잡하고 비용이 많이 들 수 있습니다.
 
 !!! attention
-    네임스페이스는 전역적으로 범위가 지정된 유형이므로 네임스페이스로 구현된 소프트 멀티테넌시는 필터링된 네임스페이스 목록을 테넌트에 제공할 수 없습니다. 테넌트가 특정 네임스페이스를 볼 수 있는 경우 클러스터 내의 모든 네임스페이스를 볼 수 있습니다. 
+    네임스페이스는 전역적으로 범위가 지정된 유형이므로 네임스페이스로 구현된 소프트 멀티테넌시는 필터링된 네임스페이스 목록을 테넌트에 제공할 수 없습니다. 테넌트가 특정 네임스페이스를 볼 수 있는 경우 클러스터 내의 모든 네임스페이스를 볼 수 있습니다.
 
 !!! warning
     소프트 멀티테넌시를 사용하면 테넌트는 기본적으로 클러스터 내에서 실행되는 모든 서비스에 대해 CoreDNS를 쿼리할 수 있습니다.공격자는 클러스터의 모든 파드에서 `dig SRV *.*.svc.cluster.local`을 실행하여 이를 악용할 수 있습니다.클러스터 내에서 실행되는 서비스의 DNS 레코드에 대한 액세스를 제한해야 하는 경우 CoreDNS용 방화벽 또는 정책 플러그인을 사용하는 것이 좋습니다. 자세한 내용은 [https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy](https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy)을 참조하십시오.
 
 [Kiosk](https://github.com/kiosk-sh/kiosk)는 소프트 멀티 테넌시의 구현을 지원하는 오픈 소스 프로젝트입니다. 다음 기능을 제공하는 일련의 CRD 및 컨트롤러로 구현됩니다.
 
-  + 공유 쿠버네티스 클러스터에서 테넌트를 분리하기 위한 **계정 및 계정 사용자**
-  + 계정 사용자를 위한 **셀프 서비스 네임스페이스 프로비저닝**
-  + 클러스터 공유 시 서비스 품질 및 공정성을 보장하기 위한 **계정 제한**
-  + 안전한 테넌트 격리 및 셀프 서비스 네임스페이스 초기화를 위한 **네임스페이스 템플릿**
+- 공유 쿠버네티스 클러스터에서 테넌트를 분리하기 위한 **계정 및 계정 사용자**
+- 계정 사용자를 위한 **셀프 서비스 네임스페이스 프로비저닝**
+- 클러스터 공유 시 서비스 품질 및 공정성을 보장하기 위한 **계정 제한**
+- 안전한 테넌트 격리 및 셀프 서비스 네임스페이스 초기화를 위한 **네임스페이스 템플릿**
   
 [Loft](https://loft.sh)는 다음 기능을 추가하는 Kiosk 및 [DevSpace](https://github.com/devspace-cloud/devspace)의 관리자가 제공하는 상용 제품입니다.
 
-  + 다른 클러스터의 공간에 대한 액세스 권한을 부여하기 위한 **멀티 클러스터 액세스**
-  + **절전 모드** 는 비활성 기간 동안 공간에서 배포를 축소합니다.
-  + ** GitHub와 같은 OIDC 인증 공급자를 사용한 싱글 사인온**
+- 다른 클러스터의 공간에 대한 액세스 권한을 부여하기 위한 **멀티 클러스터 액세스**
+- **절전 모드** 는 비활성 기간 동안 공간에서 배포를 축소합니다.
+- **GitHub와 같은 OIDC 인증 공급자를 사용한 싱글 사인온**
 
 소프트 멀티 테넌시로 해결할 수 있는 세 가지 주요 사용 사례가 있습니다.
 
 ### 엔터프라이즈 설정
 
-첫 번째는 "테넌트"가 직원, 계약자 또는 조직의 승인을 받았다는 점에서 어느정도 신뢰을 받는 기업 환경입니다. 각 테넌트는 일반적으로 부서 또는 팀과 같은 행정 부서에 소속됩니다. 
+첫 번째는 "테넌트"가 직원, 계약자 또는 조직의 승인을 받았다는 점에서 어느정도 신뢰을 받는 기업 환경입니다. 각 테넌트는 일반적으로 부서 또는 팀과 같은 행정 부서에 소속됩니다.
 
 이런 유형의 설정에서는 일반적으로 클러스터 관리자가 네임스페이스 생성 및 정책 관리를 담당합니다. 또한 특정 개인에게 네임스페이스를 감독하는 위임 관리 모델을 구현하여 배포, 서비스, 파드, 작업 등과 같이 정책과 관련이 없는 개체에 대해 CRUD 작업을 수행할 수 있도록 할 수도 있습니다.
 
@@ -64,7 +65,7 @@
 
 기본적으로 쿠버네티스 클러스터의 모든 파드는 서로 통신할 수 있습니다. 이 동작은 네트워크 정책을 사용하여 변경할 수 있습니다.
 
-네트워크 정책은 레이블 또는 IP 주소 범위를 사용하여 파드 간 통신을 제한합니다. 테넌트 간 엄격한 네트워크 격리가 필요한 멀티 테넌트 환경에서는 파드 간 통신을 거부하는 기본 규칙과 모든 파드가 DNS 서버에 이름 확인을 쿼리할 수 있도록 허용하는 다른 규칙으로 시작하는 것이 좋습니다. 이를 통해 네임스페이스 내에서 통신을 허용하는 더 많은 허용 규칙을 추가할 수 있습니다. 필요에 따라 이를 더 세분화할 수 있습니다. 
+네트워크 정책은 레이블 또는 IP 주소 범위를 사용하여 파드 간 통신을 제한합니다. 테넌트 간 엄격한 네트워크 격리가 필요한 멀티 테넌트 환경에서는 파드 간 통신을 거부하는 기본 규칙과 모든 파드가 DNS 서버에 이름 확인을 쿼리할 수 있도록 허용하는 다른 규칙으로 시작하는 것이 좋습니다. 이를 통해 네임스페이스 내에서 통신을 허용하는 더 많은 허용 규칙을 추가할 수 있습니다. 필요에 따라 이를 더 세분화할 수 있습니다.
 
 !!! attention
     네트워크 정책은 필요하지만 충분하지는 않습니다. 네트워크 정책을 적용하려면 Calico 또는 Cilium과 같은 정책 엔진이 필요합니다.
@@ -87,25 +88,24 @@
 
 파드 우선순위 및 선점은 다른 파드에 비해 파드에 더 많은 중요성을 부여하고자 할 때 유용할 수 있다.예를 들어 파드 우선 순위를 사용하면 고객 A의 파드가 고객 B보다 높은 우선 순위로 실행되도록 구성할 수 있습니다. 사용 가능한 용량이 충분하지 않은 경우 스케줄러는 고객 B의 우선 순위가 낮은 파드를 제외하고 고객 A의 우선 순위가 높은 파드를 수용합니다. 이는 프리미엄을 지불하려는 고객이 더 높은 우선 순위를 받는 SaaS 환경에서 특히 유용할 수 있습니다.
 
-!!! attention 
+!!! attention
     파드의 우선순위는 우선순위가 낮은 다른 파드에 원치 않는 영향을 미칠 수 있다. 예를 들어, 대상 파드는 정상적으로 종료되지만 PodDisruptionBudget은 보장되지 않아 파드 쿼럼에 의존하는 우선순위가 낮은 애플리케이션이 중단될 수 있습니다. [선점 제한](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#limitations-of-preemption)을 참조하십시오.
 
 ## 완화 제어
 
-멀티 테넌트 환경 관리자의 주된 관심사는 공격자가 기본 호스트에 대한 접근 권한을 얻지 못하도록 하는 것입니다. 이런 위험을 완화하려면 다음 제어 방법을 고려해야 합니다. 
+멀티 테넌트 환경 관리자의 주된 관심사는 공격자가 기본 호스트에 대한 접근 권한을 얻지 못하도록 하는 것입니다. 이런 위험을 완화하려면 다음 제어 방법을 고려해야 합니다.
 
 ### 컨테이너를 위한 샌드박스 실행 환경
 
 샌드박싱은 각 컨테이너를 격리된 자체 가상 시스템에서 실행하는 기술입니다. 파드 샌드박싱을 수행하는 기술로는 [Firecracker](https://firecracker-microvm.github.io/), Weave의 [Firekube](https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite)등이 있습니다.
 
-Firecracker를 EKS 지원 런타임으로 만들기 위한 노력에 대한 추가 정보는 [이 글](https://threadreaderapp.com/thread/1238496944684597248.html)을 참조하십시오. 
-
+Firecracker를 EKS 지원 런타임으로 만들기 위한 노력에 대한 추가 정보는 [이 글](https://threadreaderapp.com/thread/1238496944684597248.html)을 참조하십시오.
 
 ### 개방형 정책 에이전트(OPA) 및 게이트키퍼
 
 [Gatekeeper](https://github.com/open-policy-agent/gatekeeper)는 [OPA](https://www.openpolicyagent.org/)로 생성된 정책을 시행하는 Kubernetes 어드미션 컨트롤러입니다. OPA를 사용하면 별도의 인스턴스 또는 다른 테넌트보다 더 높은 우선순위에서 테넌트의 파드를 실행하는 정책을 생성할 수 있습니다. 이 프로젝트에 대한 일반적인 OPA 정책 모음은 GitHub [리포지토리](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa)에서 찾을 수 있습니다.
 
-OPA를 사용하여 CoreDNS에서 반환되는 레코드를 필터링/제어할 수 있는 실험적인 [CoreDNS를 위한 OPA 플러그인](https://github.com/coredns/coredns-opa)도 있습니다. 
+OPA를 사용하여 CoreDNS에서 반환되는 레코드를 필터링/제어할 수 있는 실험적인 [CoreDNS를 위한 OPA 플러그인](https://github.com/coredns/coredns-opa)도 있습니다.
 
 ### Kyverno
 
@@ -119,7 +119,7 @@ Kyverno를 사용하여 네임스페이스를 격리하고, 파드 보안 및 �
 
 #### 파트 1 - 노드 어피니티
 
-쿠버네티스 [노드 어피니티](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity)는 노드 [레이블](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)을 기반으로 노드를 스케줄링할 대상으로 지정하는 데 사용됩니다. 노드 어피니티 규칙을 사용하면 셀렉터 용어와 일치하는 특정 노드에 파드가 몰리도록 구성할 수 있습니다. 아래 파드 사양에서는 `requiredDuringSchedulingIgnoredDuringExecution` 노드 어피니티가 각 파드에 적용된다. 결과적으로 파드는 `node-restriction.kubernetes.io/tenant: tenants-x`와 같은 키/값으로 레이블이 지정된 노드에 배포됩니다. 
+쿠버네티스 [노드 어피니티](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity)는 노드 [레이블](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)을 기반으로 노드를 스케줄링할 대상으로 지정하는 데 사용됩니다. 노드 어피니티 규칙을 사용하면 셀렉터 용어와 일치하는 특정 노드에 파드가 몰리도록 구성할 수 있습니다. 아래 파드 사양에서는 `requiredDuringSchedulingIgnoredDuringExecution` 노드 어피니티가 각 파드에 적용된다. 결과적으로 파드는 `node-restriction.kubernetes.io/tenant: tenants-x`와 같은 키/값으로 레이블이 지정된 노드에 배포됩니다.
 
 ``` yaml
 ...
@@ -294,11 +294,12 @@ spec:
 
 ### 참조
 
-+ [k-rail](https://github.com/cruise-automation/k-rail)는 특정 정책의 적용을 통해 멀티테넌트 환경을 보호할 수 있도록 설계되었습니다. 
+- [k-rail](https://github.com/cruise-automation/k-rail)는 특정 정책의 적용을 통해 멀티테넌트 환경을 보호할 수 있도록 설계되었습니다.
 
-+ [Amazon EKS를 사용하는 멀티 테넌트 SaaS 애플리케이션에 대한 보안 사례](https://d1.awsstatic.com/whitepapers/security-practices-for-multi-tenant-saas-apps-using-eks.pdf)
+- [Amazon EKS를 사용하는 멀티 테넌트 SaaS 애플리케이션에 대한 보안 사례](https://d1.awsstatic.com/whitepapers/security-practices-for-multi-tenant-saas-apps-using-eks.pdf)
 
 ## 하드 멀티테넌시
+
 각 테넌트에 대해 별도의 클러스터를 프로비저닝하여 하드 멀티테넌시를 구현할 수 있습니다. 이렇게 하면 테넌트 간에 매우 강력한 격리가 가능하지만 몇 가지 단점이 있습니다.
 
 첫째, 테넌트가 많은 경우 이 접근 방식은 비용이 많이 들 수 있습니다. 각 클러스터의 컨트롤 플레인 비용을 지불해야 할 뿐만 아니라 클러스터 간에 컴퓨팅 리소스를 공유할 수 없게 됩니다. 이로 인해 결국 클러스터의 일부는 활용도가 낮고 다른 클러스터는 과도하게 사용되는 단편화가 발생합니다.
@@ -319,10 +320,10 @@ HNC 제안(KEP)은 테넌트 관리자가 하위 네임스페이스를 생성할
 
 ## 멀티 클러스터 관리 리소스
 
-+ [Banzai Cloud](https://banzaicloud.com/)
-+ [Kommander](https://d2iq.com/solutions/ksphere/kommander)
-+ [Lens](https://github.com/lensapp/lens)
-+ [Nirmata](https://nirmata.com)
-+ [Rafay](https://rafay.co/)
-+ [Rancher](https://rancher.com/products/rancher/)
-+ [Weave Flux](https://www.weave.works/oss/flux/)
+- [Banzai Cloud](https://banzaicloud.com/)
+- [Kommander](https://d2iq.com/solutions/ksphere/kommander)
+- [Lens](https://github.com/lensapp/lens)
+- [Nirmata](https://nirmata.com)
+- [Rafay](https://rafay.co/)
+- [Rancher](https://rancher.com/products/rancher/)
+- [Weave Flux](https://www.weave.works/oss/flux/)
