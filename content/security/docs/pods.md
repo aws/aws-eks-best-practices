@@ -475,7 +475,7 @@ Policy-as-code and Pod Security Standards can be used to enforce this behavior.
     As per [Windows containers in Kubernetes](https://kubernetes.io/docs/concepts/windows/intro/) `securityContext.readOnlyRootFilesystem` cannot be set to
     `true` for a container running on Windows as write access is required for registry and system processes to run inside the container.
 
-## Tools and Resources
+## Tools and resources
 
 + [Amazon EKS Security Immersion Workshop - Pod Security](https://catalog.workshops.aws/eks-security-immersionday/en-US/3-pod-security)
 + [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitute for PSPs.

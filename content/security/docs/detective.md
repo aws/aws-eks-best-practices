@@ -265,7 +265,7 @@ As the volume of logs increases, parsing and filtering them with Log Insights or
 
 Yet another option might be to store the audit logs in S3 and use the SageMaker [Random Cut Forest](https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html) algorithm to anomalous behaviors that warrant further investigation.
 
-## Tools and Resources
+## Tools and resources
 
 The following commercial and open source projects can be used to assess your cluster's alignment with established best practices:
 

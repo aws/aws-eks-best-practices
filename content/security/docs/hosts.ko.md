@@ -180,7 +180,7 @@ CentOS7 및 RHEL7에 SELinux가 구성된 [Amazon EKS 샘플 AMI](https://github
 !!! caution
   SELinux는 타입이 제한되지 않은 컨테이너를 무시합니다.
 
-#### 추가 리소스
+## 도구 및 리소스
 
 - [온프레미스 애플리케이션을 위한 SELinux, 쿠버네티스 RBAC 및 보안 정책](https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/)
 - [쿠버네티스의 반복적 하드닝](https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html)
@@ -188,9 +188,6 @@ CentOS7 및 RHEL7에 SELinux가 구성된 [Amazon EKS 샘플 AMI](https://github
 - [SEAlert](https://linux.die.net/man/8/sealert)
 - [Udica를 사용하여 컨테이너에 대한 SELinux 정책 생성](https://www.redhat.com/en/blog/generate-selinux-policies-containers-with-udica)은 Linux 기능에 대한 컨테이너 사양 파일을 확인하는 도구를 설명합니다. 포트, 마운트 지점, 컨테이너가 제대로 실행되도록 하는 일련의 SELinux 규칙을 생성합니다.
 - [AMI Hardening](https://github.com/aws-samples/amazon-eks-custom-amis#hardening)은 다양한 규제 요구 사항을 충족하기 위해 OS를 강화하기 위한 플레이북입니다.
-
-## 도구
-
 - [Keiko Upgrade Manager](https://github.com/keikoproj/upgrade-manager)는 워커 노드의 회전을 오케스트레이션하는 Intuit의 오픈 소스 프로젝트입니다.
 - [Sysdig Secure](https://sysdig.com/products/kubernetes-security/)
 - [eksctl](https://eksctl.io/)

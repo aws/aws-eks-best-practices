@@ -265,7 +265,7 @@ CloudTrail Insights는 CloudTrail 트레일에서 쓰기 관리 이벤트를 자
 
 또 다른 옵션은 감사 로그를 S3에 저장하고 SageMaker [Random Cut Forest](https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html) 알고리즘을 사용하여 추가 조사가 필요한 이상 동작에 사용하는 것일 수 있습니다.
 
-## 도구
+## 도구 및 리소스
 
 다음 상용 및 오픈 소스 프로젝트를 사용하여 클러스터가 확립된 모범 사례와 일치하는지 평가할 수 있습니다.
 

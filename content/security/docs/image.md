@@ -222,7 +222,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 ```
 
-## Tools and Resources
+## Tools and resources
 
 - [Amazon EKS Security Immersion Workshop - Image Security](https://catalog.workshops.aws/eks-security-immersionday/en-US/12-image-security)
 - [docker-slim](https://github.com/docker-slim/docker-slim) Build secure minimal images

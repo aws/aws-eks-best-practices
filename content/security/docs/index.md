@@ -47,6 +47,6 @@ This guide is being released on GitHub so as to collect direct feedback and sugg
 
 The CNCF published also a [white paper](https://github.com/cncf/tag-security/blob/efb183dc4f19a1bf82f967586c9dfcb556d87534/security-whitepaper/v2/CNCF_cloud-native-security-whitepaper-May2022-v2.pdf) on cloud native security. The paper examines how the technology landscape has evolved and advocates for the adoption of security practices that align with DevOps processes and agile methodologies.
 
-## Tools and Resources
+## Tools and resources
 
 [Amazon EKS Security Immersion Workshop](https://catalog.workshops.aws/eks-security-immersionday/en-US)

@@ -220,7 +220,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 ```
 
-## 도구
+## 도구 및 리소스
 
 - [docker-slim](https://github.com/docker-slim/docker-slim)는 안전한 최소 이미지를 구축합니다.
 - [dockle](https://github.com/goodwithtech/dockle)는 Dockerfile이 보안 이미지 생성 모범 사례와 일치하는지 확인합니다.
