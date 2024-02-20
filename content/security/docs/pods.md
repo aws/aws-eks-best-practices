@@ -2,40 +2,40 @@
 
 The pod specification includes a variety of different attributes that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that’s running in a container from escaping the isolation boundaries of the container runtime and gaining access to the underlying host.
 
-### Linux Capabilities
+## Linux Capabilities
 
 The processes that run within a container run under the context of the \[Linux\] root user by default.  Although the actions of root within a container are partially constrained by the set of Linux capabilities that the container runtime assigns to the containers, these default privileges could allow an attacker to escalate their privileges and/or gain access to sensitive information bound to the host, including Secrets and ConfigMaps.  Below is a list of the default capabilities assigned to containers.  For additional information about each capability, see [http://man7.org/linux/man-pages/man7/capabilities.7.html](http://man7.org/linux/man-pages/man7/capabilities.7.html).
 
 `CAP_AUDIT_WRITE, CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_MKNOD, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_SYS_CHROOT`
 
-!!! Info 
-    
-    EC2 and Fargate pods are assigned the aforementioned capabilities by default. Additionally, Linux capabilities can only be dropped from Fargate pods. 
+!!! Info
+
+  EC2 and Fargate pods are assigned the aforementioned capabilities by default. Additionally, Linux capabilities can only be dropped from Fargate pods.
 
 Pods that are run as privileged, inherit _all_ of the Linux capabilities associated with root on the host. This should be avoided if possible.
 
 ### Node Authorization
 
-All Kubernetes worker nodes use an authorization mode called [Node Authorization](https://kubernetes.io/docs/reference/access-authn-authz/node/). Node Authorization authorizes all API requests that originate from the kubelet and allows nodes to perform the following actions: 
+All Kubernetes worker nodes use an authorization mode called [Node Authorization](https://kubernetes.io/docs/reference/access-authn-authz/node/). Node Authorization authorizes all API requests that originate from the kubelet and allows nodes to perform the following actions:
 
 Read operations:
 
-+ services
-+ endpoints
-+ nodes
-+ pods
-+ secrets, configmaps, persistent volume claims and persistent volumes related to pods bound to the kubelet’s node
+- services
+- endpoints
+- nodes
+- pods
+- secrets, configmaps, persistent volume claims and persistent volumes related to pods bound to the kubelet’s node
 
 Write operations:
 
-+ nodes and node status (enable the `NodeRestriction` admission plugin to limit a kubelet to modify its own node)
-+ pods and pod status (enable the `NodeRestriction` admission plugin to limit a kubelet to modify pods bound to itself)
-+ events
+- nodes and node status (enable the `NodeRestriction` admission plugin to limit a kubelet to modify its own node)
+- pods and pod status (enable the `NodeRestriction` admission plugin to limit a kubelet to modify pods bound to itself)
+- events
 
 Auth-related operations:
 
-+ Read/write access to the CertificateSigningRequest (CSR) API for TLS bootstrapping
-+ the ability to create TokenReview and SubjectAccessReview for delegated authentication/authorization checks
+- Read/write access to the CertificateSigningRequest (CSR) API for TLS bootstrapping
+- the ability to create TokenReview and SubjectAccessReview for delegated authentication/authorization checks
 
 EKS uses the [node restriction admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction) which only allows the node to modify a limited set of node attributes and pod objects that are bound to the node.   Nevertheless, an attacker who manages to get access to the host will still be able to glean sensitive information about the environment from the Kubernetes API that could allow them to move laterally within the cluster.
 
@@ -43,18 +43,18 @@ EKS uses the [node restriction admission controller](https://kubernetes.io/docs/
 
 ### Pod Security Policy (PSP)
 
-In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) resources were used to specify a set of requirements that pods had to meet before they could be created. As of Kubernetes version 1.21, PSP have been deprecated. They are scheduled for removal in Kubernetes version 1.25. 
+In the past, [Pod Security Policy (PSP)](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) resources were used to specify a set of requirements that pods had to meet before they could be created. As of Kubernetes version 1.21, PSP have been deprecated. They are scheduled for removal in Kubernetes version 1.25.
 
 !!! Attention
-    
-    [PSPs are deprecated](https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/) in Kubernetes version 1.21. You will have until version 1.25 or roughly 2 years to transition to an alternative. This [document](https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation) explains the motivation for this deprecation.
+
+  [PSPs are deprecated](https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/) in Kubernetes version 1.21. You will have until version 1.25 or roughly 2 years to transition to an alternative. This [document](https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation) explains the motivation for this deprecation.
 
 ### Migrating to a new pod security solution
 
 Since PSPs have been removed as of Kubernetes v1.25, cluster administrators and operators must replace those security controls. Two solutions can fill this need:
 
-+ Policy-as-code (PAC) solutions from the Kubernetes ecosystem
-+ Kubernetes [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
+- Policy-as-code (PAC) solutions from the Kubernetes ecosystem
+- Kubernetes [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/)
 
 Both the PAC and PSS solutions can coexist with PSP; they can be used in clusters before PSP is removed. This eases adoption when migrating from PSP. Please see this [document](https://kubernetes.io/docs/tasks/configure-pod-container/migrate-from-psp/) when considering migrating from PSP to PSS.
 
@@ -66,40 +66,40 @@ Policy-as-code (PAC) solutions provide guardrails to guide cluster users, and pr
 
 There are several open source PAC solutions available for Kubernetes. These solutions are not part of the Kubernetes project; they are sourced from the Kubernetes ecosystem. Some PAC solutions are listed below.
 
-+ [OPA/Gatekeeper](https://open-policy-agent.github.io/gatekeeper/website/docs/)
-+ [Open Policy Agent (OPA)](https://www.openpolicyagent.org/)
-+ [Kyverno](https://kyverno.io/)
-+ [Kubewarden](https://www.kubewarden.io/)
-+ [jsPolicy](https://www.jspolicy.com/)
+- [OPA/Gatekeeper](https://open-policy-agent.github.io/gatekeeper/website/docs/)
+- [Open Policy Agent (OPA)](https://www.openpolicyagent.org/)
+- [Kyverno](https://kyverno.io/)
+- [Kubewarden](https://www.kubewarden.io/)
+- [jsPolicy](https://www.jspolicy.com/)
 
 For further information about PAC solutions and how to help you select the appropriate solution for your needs, see the links below.
 
-+ [Policy-based countermeasures for Kubernetes – Part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
-+ [Policy-based countermeasures for Kubernetes – Part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
+- [Policy-based countermeasures for Kubernetes – Part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
+- [Policy-based countermeasures for Kubernetes – Part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
 
 ### Pod Security Standards (PSS) and Pod Security Admission (PSA)
 
 In response to the PSP deprecation and the ongoing need to control pod security out-of-the-box, with a built-in Kubernetes solution, the Kubernetes [Auth Special Interest Group](https://github.com/kubernetes/community/tree/master/sig-auth) created the [Pod Security Standards (PSS)](https://kubernetes.io/docs/concepts/security/pod-security-standards/) and [Pod Security Admission (PSA)](https://kubernetes.io/docs/concepts/security/pod-security-admission/). The PSA effort includes an [admission controller webhook project](https://github.com/kubernetes/pod-security-admission#pod-security-admission) that implements the controls defined in the PSS. This admission controller approach resembles that used in the PAC solutions.
 
-According to the Kubernetes documentation, the PSS _"define three different policies to broadly cover the security spectrum. These policies are cumulative and range from highly-permissive to highly-restrictive."_ 
+According to the Kubernetes documentation, the PSS _"define three different policies to broadly cover the security spectrum. These policies are cumulative and range from highly-permissive to highly-restrictive."_
 
 These policies are defined as:
 
-+ **Privileged:** Unrestricted (unsecure) policy, providing the widest possible level of permissions. This policy allows for known privilege escalations. It is the absence of a policy. This is good for applications such as logging agents, CNIs, storage drivers, and other system wide applications that need privileged access.
+- **Privileged:** Unrestricted (unsecure) policy, providing the widest possible level of permissions. This policy allows for known privilege escalations. It is the absence of a policy. This is good for applications such as logging agents, CNIs, storage drivers, and other system wide applications that need privileged access.
 
-+ **Baseline:** Minimally restrictive policy which prevents known privilege escalations. Allows the default (minimally specified) Pod configuration. The baseline policy prohibits use of hostNetwork, hostPID, hostIPC, hostPath, hostPort, the inability to add Linux capabilities, along with several other restrictions. 
+- **Baseline:** Minimally restrictive policy which prevents known privilege escalations. Allows the default (minimally specified) Pod configuration. The baseline policy prohibits use of hostNetwork, hostPID, hostIPC, hostPath, hostPort, the inability to add Linux capabilities, along with several other restrictions.
 
-+ **Restricted:** Heavily restricted policy, following current Pod hardening best practices.  This policy inherits from the baseline and adds further restrictions such as the inability to run as root or a root-group. Restricted policies may impact an application's ability to function. They are primarily targeted at running security critical applications.
+- **Restricted:** Heavily restricted policy, following current Pod hardening best practices.  This policy inherits from the baseline and adds further restrictions such as the inability to run as root or a root-group. Restricted policies may impact an application's ability to function. They are primarily targeted at running security critical applications.
 
 These policies define [profiles for pod execution](https://kubernetes.io/docs/concepts/security/pod-security-standards/#profile-details), arranged into three levels of privileged vs. restricted access.
 
 To implement the controls defined by the PSS, PSA operates in three modes:
 
-+ **enforce:** Policy violations will cause the pod to be rejected.
+- **enforce:** Policy violations will cause the pod to be rejected.
 
-+ **audit:** Policy violations will trigger the addition of an audit annotation to the event recorded in the audit log, but are otherwise allowed.
+- **audit:** Policy violations will trigger the addition of an audit annotation to the event recorded in the audit log, but are otherwise allowed.
 
-+ **warn:**	Policy violations will trigger a user-facing warning, but are otherwise allowed.
+- **warn:** Policy violations will trigger a user-facing warning, but are otherwise allowed.
 
 These modes and the profile (restriction) levels are configured at the Kubernetes Namespace level, using labels, as seen in the below example.
 
@@ -184,11 +184,11 @@ namespace/policy-test configured
 
 PSA uses _Exemptions_ to exclude enforcement of violations against pods that would have otherwise been applied. These exemptions are listed below.
 
-+ **Usernames:** requests from users with an exempt authenticated (or impersonated) username are ignored.
+- **Usernames:** requests from users with an exempt authenticated (or impersonated) username are ignored.
 
-+ **RuntimeClassNames:** pods and workload resources specifying an exempt runtime class name are ignored.
+- **RuntimeClassNames:** pods and workload resources specifying an exempt runtime class name are ignored.
 
-+ **Namespaces:** pods and workload resources in an exempt namespace are ignored.
+- **Namespaces:** pods and workload resources in an exempt namespace are ignored.
 
 These exemptions are applied statically in the [PSA admission controller configuration](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller) as part of the API server configuration.
 
@@ -240,52 +240,52 @@ webhooks:
 ...
 ```
 
-!!! Attention 
-    
-    Pod Security Admissions graduated to stable in Kubernetes v1.25. If you wanted to use the Pod Security Admission feature prior to it being enabled by default, you needed to install the dynamic admission controller (mutating webhook). The instructions for installing and configuring the webhook can be found [here](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
+!!! Attention
+
+  Pod Security Admissions graduated to stable in Kubernetes v1.25. If you wanted to use the Pod Security Admission feature prior to it being enabled by default, you needed to install the dynamic admission controller (mutating webhook). The instructions for installing and configuring the webhook can be found [here](https://github.com/kubernetes/pod-security-admission/tree/master/webhook).
 
 ### Choosing between policy-as-code and Pod Security Standards
 
-The Pod Security Standards (PSS) were developed to replace the Pod Security Policy (PSP), by providing a solution that was built-in to Kubernetes and did not require solutions from the Kubernetes ecosystem. That being said, policy-as-code (PAC) solutions are considerably more flexible. 
+The Pod Security Standards (PSS) were developed to replace the Pod Security Policy (PSP), by providing a solution that was built-in to Kubernetes and did not require solutions from the Kubernetes ecosystem. That being said, policy-as-code (PAC) solutions are considerably more flexible.
 
 The following list of Pros and Cons is designed help you make a more informed decision about your pod security solution.
 
-**Policy-as-code (as compared to Pod Security Standards)**
+#### Policy-as-code (as compared to Pod Security Standards)
 
 Pros:
 
-  + More flexible and more granular (down to attributes of resources if need be)
-  + Not just focused on pods, can be used against different resources and actions
-  + Not just applied at the namespace level
-  + More mature than the Pod Security Standards
-  + Decisions can be based on anything in the API server request payload, as well as existing cluster resources and external data (solution dependent)
-  + Supports mutating API server requests before validation (solution dependent)
-  + Can generate complementary policies and Kubernetes resources (solution dependent - From pod policies, Kyverno can [auto-gen](https://kyverno.io/docs/writing-policies/autogen/) policies for higher-level controllers, such as Deployments. Kyverno can also generate additional Kubernetes resources _"when a new resource is created or when the source is updated"_ by using [Generate Rules](https://kyverno.io/docs/writing-policies/generate/).)
-  + Can be used to shift left, into CICD pipelines, before making calls to the Kubernetes API server (solution dependent)
-  + Can be used to implement behaviors that are not necessarily security related, such as best practices, organizational standards, etc.
-  + Can be used in non-Kubernetes use cases (solution dependent)
-  + Because of flexibility, the user experience can be tuned to users' needs
+- More flexible and more granular (down to attributes of resources if need be)
+- Not just focused on pods, can be used against different resources and actions
+- Not just applied at the namespace level
+- More mature than the Pod Security Standards
+- Decisions can be based on anything in the API server request payload, as well as existing cluster resources and external data (solution dependent)
+- Supports mutating API server requests before validation (solution dependent)
+- Can generate complementary policies and Kubernetes resources (solution dependent - From pod policies, Kyverno can [auto-gen](https://kyverno.io/docs/writing-policies/autogen/) policies for higher-level controllers, such as Deployments. Kyverno can also generate additional Kubernetes resources _"when a new resource is created or when the source is updated"_ by using [Generate Rules](https://kyverno.io/docs/writing-policies/generate/).)
+- Can be used to shift left, into CICD pipelines, before making calls to the Kubernetes API server (solution dependent)
+- Can be used to implement behaviors that are not necessarily security related, such as best practices, organizational standards, etc.
+- Can be used in non-Kubernetes use cases (solution dependent)
+- Because of flexibility, the user experience can be tuned to users' needs
 
 Cons:
 
-  + Not built into Kubernetes
-  + More complex to learn, configure, and support
-  + Policy authoring may require new skills/languages/capabilities
+- Not built into Kubernetes
+- More complex to learn, configure, and support
+- Policy authoring may require new skills/languages/capabilities
 
-**Pod Security Admission (as compared to policy-as-code)**
+#### Pod Security Admission (as compared to policy-as-code)
 
 Pros:
 
-  + Built into Kubernetes
-  + Simpler to configure
-  + No new languages to use or policies to author
-  + If the cluster default admission level is configured to _privileged_, namespace labels can be used to opt namespaces into the pod security profiles.
+- Built into Kubernetes
+- Simpler to configure
+- No new languages to use or policies to author
+- If the cluster default admission level is configured to _privileged_, namespace labels can be used to opt namespaces into the pod security profiles.
 
 Cons:
 
-  + Not as flexible or granular as policy-as-code
-  + Only 3 levels of restrictions
-  + Primarily focused on pods
+- Not as flexible or granular as policy-as-code
+- Only 3 levels of restrictions
+- Primarily focused on pods
 
 #### Summary
 
@@ -310,14 +310,13 @@ metadata:
 
 In the above example, with _enforce_ mode defined, when a Deployment manifest with PSS violations in the respective podSpec is attempted to be applied to the Kubernetes API server, the Deployment will be successfully applied, but the pods will not. And, since the _audit_ and _warn_ modes are also enabled, the API server client will receive a warning message and the API server audit log event will be annotated with a message as well.
 
-
 ### Restrict the containers that can run as privileged
 
 As mentioned, containers that run as privileged inherit all of the Linux capabilities assigned to root on the host.  Seldom do containers need these types of privileges to function properly.  There are multiple methods that can be used to restrict the permissions and capabilities of containers.
 
-!!! Attention 
-    
-    Fargate is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or configure your pod to use hostNetwork or hostPort.
+!!! Attention
+
+  Fargate is a launch type that enables you to run "serverless" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or configure your pod to use hostNetwork or hostPort.
 
 ### Do not run processes in containers as root
 
@@ -327,15 +326,15 @@ To enforce the use of the `spec.securityContext`, and its associated elements, w
 
 ### Never run Docker in Docker or mount the socket in the container
 
-While this conveniently lets you to build/run images in Docker containers, you're basically relinquishing complete control of the node to the process running in the container. If you need to build container images on Kubernetes use [Kaniko](https://github.com/GoogleContainerTools/kaniko), [buildah](https://github.com/containers/buildah), or a build service like [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) instead. 
+While this conveniently lets you to build/run images in Docker containers, you're basically relinquishing complete control of the node to the process running in the container. If you need to build container images on Kubernetes use [Kaniko](https://github.com/GoogleContainerTools/kaniko), [buildah](https://github.com/containers/buildah), or a build service like [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) instead.
 
 !!! Tip
-    
-    Kubernetes clusters used for CICD processing, such as building container images, should be isolated from clusters running more generalized workloads.
+
+  Kubernetes clusters used for CICD processing, such as building container images, should be isolated from clusters running more generalized workloads.
 
 ### Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only
 
-`hostPath` is a volume that mounts a directory from the host directly to the container.  Rarely will pods need this type of access, but if they do, you need to be aware of the risks.  By default pods that run as root will have write access to the file system exposed by hostPath.  This could allow an attacker to modify the kubelet settings, create symbolic links to directories or files not directly exposed by the hostPath, e.g. /etc/shadow, install ssh keys, read secrets mounted to the host, and other malicious things. To mitigate the risks from hostPath, configure the `spec.containers.volumeMounts` as `readOnly`, for example: 
+`hostPath` is a volume that mounts a directory from the host directly to the container.  Rarely will pods need this type of access, but if they do, you need to be aware of the risks.  By default pods that run as root will have write access to the file system exposed by hostPath.  This could allow an attacker to modify the kubelet settings, create symbolic links to directories or files not directly exposed by the hostPath, e.g. /etc/shadow, install ssh keys, read secrets mounted to the host, and other malicious things. To mitigate the risks from hostPath, configure the `spec.containers.volumeMounts` as `readOnly`, for example:
 
 ```yaml
 volumeMounts:
@@ -350,29 +349,29 @@ For further information about the dangers of privileged escalation, read Seth Ar
 
 ### Set requests and limits for each container to avoid resource contention and DoS attacks
 
-A pod without requests or limits can theoretically consume all of the resources available on a host.  As additional pods are scheduled onto a node, the node may experience CPU or memory pressure which can cause the Kubelet to terminate or evict pods from the node.  While you can’t prevent this from happening all together, setting requests and limits will help minimize resource contention and mitigate the risk from poorly written applications that consume an excessive amount of resources. 
+A pod without requests or limits can theoretically consume all of the resources available on a host.  As additional pods are scheduled onto a node, the node may experience CPU or memory pressure which can cause the Kubelet to terminate or evict pods from the node.  While you can’t prevent this from happening all together, setting requests and limits will help minimize resource contention and mitigate the risk from poorly written applications that consume an excessive amount of resources.
 
 The `podSpec` allows you to specify requests and limits for CPU and memory.  CPU is considered a compressible resource because it can be oversubscribed.  Memory is incompressible, i.e. it cannot be shared among multiple containers.  
 
-When you specify _requests_ for CPU or memory, you’re essentially designating the amount of _memory_ that containers are guaranteed to get.  Kubernetes aggregates the requests of all the containers in a pod to determine which node to schedule the pod onto.  If a container exceeds the requested amount of memory it may be subject to termination if there’s memory pressure on the node. 
+When you specify _requests_ for CPU or memory, you’re essentially designating the amount of _memory_ that containers are guaranteed to get.  Kubernetes aggregates the requests of all the containers in a pod to determine which node to schedule the pod onto.  If a container exceeds the requested amount of memory it may be subject to termination if there’s memory pressure on the node.
 
-_Limits_ are the maximum amount of CPU and memory resources that a container is allowed to consume and directly corresponds to the `memory.limit_in_bytes` value of the cgroup created for the container.  A container that exceeds the memory limit will be OOM killed. If a container exceeds its CPU limit, it will be throttled. 
+_Limits_ are the maximum amount of CPU and memory resources that a container is allowed to consume and directly corresponds to the `memory.limit_in_bytes` value of the cgroup created for the container.  A container that exceeds the memory limit will be OOM killed. If a container exceeds its CPU limit, it will be throttled.
 
 !!! Tip
 
-    When using container `resources.limits` it is strongly recommended that container resource usage (a.k.a. Resource Footprints) be data-driven and accurate, based on load testing. Absent an accurate and trusted resource footprint, container `resources.limits` can be padded. For example, `resources.limits.memory` could be padded 20-30% higher than observable maximums, to account for potential memory resource limit inaccuracies.
+  When using container `resources.limits` it is strongly recommended that container resource usage (a.k.a. Resource Footprints) be data-driven and accurate, based on load testing. Absent an accurate and trusted resource footprint, container `resources.limits` can be padded. For example, `resources.limits.memory` could be padded 20-30% higher than observable maximums, to account for potential memory resource limit inaccuracies.
 
-Kubernetes uses three Quality of Service (QoS) classes to prioritize the workloads running on a node.  These include: 
+Kubernetes uses three Quality of Service (QoS) classes to prioritize the workloads running on a node.  These include:
 
-+ guaranteed
-+ burstable
-+ best-effort
+- guaranteed
+- burstable
+- best-effort
 
-If limits and requests are not set, the pod is configured as _best-effort_ (lowest priority).  Best-effort pods are the first to get killed when there is insufficient memory.  If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values and not equal to 0, the pod is configured as _guaranteed_ (highest priority).  Guaranteed pods will not be killed unless they exceed their configured memory limits. If the limits and requests are configured with different values and not equal to 0, or one container within the pod sets limits and the others don’t or have limits set for different resources, the pods are configured as _burstable_ (medium priority). These pods have some resource guarantees, but can be killed once they exceed their requested memory. 
+If limits and requests are not set, the pod is configured as _best-effort_ (lowest priority).  Best-effort pods are the first to get killed when there is insufficient memory.  If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values and not equal to 0, the pod is configured as _guaranteed_ (highest priority).  Guaranteed pods will not be killed unless they exceed their configured memory limits. If the limits and requests are configured with different values and not equal to 0, or one container within the pod sets limits and the others don’t or have limits set for different resources, the pods are configured as _burstable_ (medium priority). These pods have some resource guarantees, but can be killed once they exceed their requested memory.
 
 !!! Attention
-    
-    Requests don't affect the `memory_limit_in_bytes` value of the container's cgroup; the cgroup limit is set to the amount of memory available on the host. Nevertheless, setting the requests value too low could cause the pod to be targeted for termination by the kubelet if the node undergoes memory pressure. 
+
+  Requests don't affect the `memory_limit_in_bytes` value of the container's cgroup; the cgroup limit is set to the amount of memory available on the host. Nevertheless, setting the requests value too low could cause the pod to be targeted for termination by the kubelet if the node undergoes memory pressure.
 
 | Class | Priority | Condition | Kill Condition |
 | :-- | :-- | :-- | :-- |
@@ -397,14 +396,8 @@ automatic mounting of a ServiceAccount token on a pod spec, or for all pods that
 use a particular ServiceAccount.
 
 !!! Attention
-    
-    Disabling ServiceAccount mounting does not prevent a pod from having network
-    access to the Kubernetes API. To prevent a pod from having any network
-    access to the Kubernetes API, you will need to modify the [EKS cluster
-    endpoint access][eks-ep-access] and use
-    [NetworkPolicy](../network/#network-policy) to block pod access
 
-[eks-ep-access]: https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html
+  Disabling ServiceAccount mounting does not prevent a pod from having network access to the Kubernetes API. To prevent a pod from having any network access to the Kubernetes API, you will need to modify the [EKS cluster endpoint access](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html) and use a [NetworkPolicy](../network/#network-policy) to block pod access.
 
 ```yaml
 apiVersion: v1
@@ -438,13 +431,8 @@ the [Kubernetes docs on Pod DNS policy][dns-policy] for more information.
 [dns-policy]: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy
 
 !!! Attention
-    
-    Disabling service links and changing the pod's DNS policy does not prevent a
-    pod from having network access to the in-cluster DNS service. An attacker
-    can still enumerate services in a cluster by reaching the in-cluster DNS
-    service. (ex: `dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent
-    in-cluster service discovery, use [NetworkPolicy](../network/#network-policy)
-    to block pod access
+
+  Disabling service links and changing the pod's DNS policy does not prevent a pod from having network access to the in-cluster DNS service. An attacker can still enumerate services in a cluster by reaching the in-cluster DNS service. (ex: `dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent in-cluster service discovery, use a [NetworkPolicy](../network/#network-policy) to block pod access
 
 ```yaml
 apiVersion: v1
@@ -465,23 +453,21 @@ Configuring your images with a read-only root file system prevents an attacker f
 securityContext:
   readOnlyRootFilesystem: true
 ...
-``` 
+```
 
 Policy-as-code and Pod Security Standards can be used to enforce this behavior.
 
+!!! Info
 
-!!! Info 
-    
-    As per [Windows containers in Kubernetes](https://kubernetes.io/docs/concepts/windows/intro/) `securityContext.readOnlyRootFilesystem` cannot be set to
-    `true` for a container running on Windows as write access is required for registry and system processes to run inside the container.
+  As per [Windows containers in Kubernetes](https://kubernetes.io/docs/concepts/windows/intro/) `securityContext.readOnlyRootFilesystem` cannot be set to `true` for a container running on Windows as write access is required for registry and system processes to run inside the container.
 
 ## Tools and resources
 
-+ [Amazon EKS Security Immersion Workshop - Pod Security](https://catalog.workshops.aws/eks-security-immersionday/en-US/3-pod-security)
-+ [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitute for PSPs.
-+ [Kyverno Policy Library](https://kyverno.io/policies/)
-+ A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
-+ [Policy based countermeasures: part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
-+ [Policy based countermeasures: part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
-+ [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) a tool that converts PSPs to OPA/Gatekeeper, KubeWarden, or Kyverno policies
-+ [NeuVector by SUSE](https://www.suse.com/neuvector/) open source, zero-trust container security platform, provides process and filesystem policies as well as admission control rules.
+- [Amazon EKS Security Immersion Workshop - Pod Security](https://catalog.workshops.aws/eks-security-immersionday/en-US/3-pod-security)
+- [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitute for PSPs.
+- [Kyverno Policy Library](https://kyverno.io/policies/)
+- A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
+- [Policy based countermeasures: part 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
+- [Policy based countermeasures: part 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
+- [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) a tool that converts PSPs to OPA/Gatekeeper, KubeWarden, or Kyverno policies
+- [NeuVector by SUSE](https://www.suse.com/neuvector/) open source, zero-trust container security platform, provides process and filesystem policies as well as admission control rules.
