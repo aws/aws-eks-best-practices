@@ -527,7 +527,9 @@ kubectl apply -f istio-custom-config.yaml
 + [Private CA Kubernetes cert-manager plugin user guide](https://docs.aws.amazon.com/acm-pca/latest/userguide/PcaKubernetes.html).
 + [How to use AWS Private Certificate Authority short-lived certificate mode](https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode)
 
-## Tooling
+## Tools and Resources
+
++ [Amazon EKS Security Immersion Workshop - Network security](https://catalog.workshops.aws/eks-security-immersionday/en-US/6-network-security)
 + [Verifying Service Mesh TLS in Kubernetes, Using ksniff and Wireshark](https://itnext.io/verifying-service-mesh-tls-in-kubernetes-using-ksniff-and-wireshark-2e993b26bf95)
 + [ksniff](https://github.com/eldadru/ksniff)
 + [egress-operator](https://github.com/monzo/egress-operator) An operator and DNS plugin to control egress traffic from your cluster without protocol inspection

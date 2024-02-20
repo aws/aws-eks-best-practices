@@ -109,3 +109,8 @@ For additional information about the AWS Secrets & Configuration Provider (ASCP)
 + [Integrating Secrets Manager secrets with Kubernetes Secrets Store CSI Driver](https://docs.aws.amazon.com/secretsmanager/latest/userguide/integrating_csi_driver.html)
 
 [external-secrets](https://github.com/external-secrets/external-secrets) is yet another way to use an external secret store with Kubernetes. Like the CSI Driver, external-secrets works against a variety of different backends, including AWS Secrets Manager. The difference is, rather than retrieving secrets from the external secret store, external-secrets copies secrets from these backends to Kubernetes as Secrets.  This lets you manage secrets using your preferred secret store and interact with secrets in a Kubernetes-native way. 
+
+
+## Tools and Resources
+
+- [Amazon EKS Security Immersion Workshop - Data Encryption and Secrets Management](https://catalog.workshops.aws/eks-security-immersionday/en-US/13-data-encryption-and-secret-management)

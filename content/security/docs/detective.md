@@ -242,9 +242,11 @@ As the volume of logs increases, parsing and filtering them with Log Insights or
 
 Yet another option might be to store the audit logs in S3 and use the SageMaker [Random Cut Forest](https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html) algorithm to anomalous behaviors that warrant further investigation.
 
-## Tooling
+## Tools and Resources
+
 The following commercial and open source projects can be used to assess your cluster's alignment with established best practices:
 
++ [Amazon EKS Security Immersion Workshop - Detective Controls](https://catalog.workshops.aws/eks-security-immersionday/en-US/5-detective-controls)
 + [kubeaudit](https://github.com/Shopify/kubeaudit)
 + [kube-scan](https://github.com/octarinesec/kube-scan) Assigns a risk score to the workloads running in your cluster in accordance with the Kubernetes Common Configuration Scoring System framework
 + [kubesec.io](https://kubesec.io/)

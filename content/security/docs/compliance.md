@@ -49,6 +49,7 @@ Policy can be thought of as a set of rules for governing behaviors, i.e. behavio
 
 ## Tools and resources
 
++ [Amazon EKS Security Immersion Workshop - Regulatory Compliance](https://catalog.workshops.aws/eks-security-immersionday/en-US/10-regulatory-compliance)
 + [kube-bench](https://github.com/aquasecurity/kube-bench)
 + [docker-bench-security](https://github.com/docker/docker-bench-security)
 + [AWS Inspector](https://aws.amazon.com/inspector/)

@@ -704,4 +704,4 @@ While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requi
 
 ## Tools and Resources
 
-[Amazon EKS Security Immersion Workshop - Identity and Access Management](https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management)
+* [Amazon EKS Security Immersion Workshop - Identity and Access Management](https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management)

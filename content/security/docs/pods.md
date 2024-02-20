@@ -477,6 +477,7 @@ Policy-as-code and Pod Security Standards can be used to enforce this behavior.
 
 ## Tools and Resources
 
++ [Amazon EKS Security Immersion Workshop - Pod Security](https://catalog.workshops.aws/eks-security-immersionday/en-US/3-pod-security)
 + [open-policy-agent/gatekeeper-library: The OPA Gatekeeper policy library](https://github.com/open-policy-agent/gatekeeper-library) a library of OPA/Gatekeeper policies that you can use as a substitute for PSPs.
 + [Kyverno Policy Library](https://kyverno.io/policies/)
 + A collection of common OPA and Kyverno [policies](https://github.com/aws/aws-eks-best-practices/tree/master/policies) for EKS.
