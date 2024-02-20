@@ -701,3 +701,7 @@ If you're migrating an application from another AWS compute service, such as EC2
 ### Alternative approaches
 
 While IRSA is the _preferred way_ to assign an AWS "identity" to a pod, it requires that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html). If you have an application that you can't immediately update with a IRSA-compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse or condone the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA.
+
+## Tools and Resources
+
+[Amazon EKS Security Immersion Workshop - Identity and Access Management](https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management)
