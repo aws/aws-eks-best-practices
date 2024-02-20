@@ -6,19 +6,19 @@
 
 | 컴플라이언스 프로그램 | Amazon ECS 오케스트레이터 | Amazon EKS 오케스트레이터| ECS Fargete | 아마존 ECR |
 | --- |:----------:|:----------:|:---- -------:|:----------:|
-| PCI DSS Level 1	| 1 | 1 | 1 | 1 |
-| HIPAA Eligible	| 1 | 1	| 1	| 1 |
+| PCI DSS Level 1 | 1 | 1 | 1 | 1 |
+| HIPAA Eligible | 1 | 1 | 1 | 1 |
 | SOC I | 1 | 1 | 1 | 1 |
-| SOC II | 1 |	1 |	1 |	1 |
-| SOC III |	1 |	1 |	1 |	1 |
+| SOC II | 1 | 1 | 1 | 1 |
+| SOC III | 1 | 1 | 1 | 1 |
 | ISO 27001:2013 | 1 | 1 | 1 | 1 |
 | ISO 9001:2015 | 1 | 1 | 1 | 1 |
-| ISO 27017:2015 |	1 |	1 |	1 |	1 |
-| ISO 27018:2019 |	1 |	1 |	1 |	1 |
+| ISO 27017:2015 | 1 | 1 | 1 | 1 |
+| ISO 27018:2019 | 1 | 1 | 1 | 1 |
 | IRAP | 1 | 1 | 1 | 1 |
 | FedRAMP Moderate (East/West) | 1 | 1 | 0 | 1 |
 | FedRAMP High (GovCloud) | 1 | 1 | 0 | 1 |
-| DOD CC SRG | 1 |	DISA Review (IL5) |	0 |	1 |
+| DOD CC SRG | 1 | DISA Review (IL5) | 0 | 1 |
 | HIPAA BAA | 1 | 1 | 1 | 1 |
 | MTCS | 1 | 1 | 0 | 1 |
 | C5 | 1 | 1 | 0 | 1 |
@@ -47,8 +47,9 @@
 + [Conftest](https://github.com/open-policy-agent/conftest)는 OPA를 기반으로 구축되었으며 쿠버네티스 구성을 테스트하기 위한 개발자 중심의 경험을 제공합니다.
 + [Kyverno](https://kyverno.io/)는 쿠버네티스용으로 설계된 정책 엔진입니다.Kyverno를 사용하면 정책이 쿠버네티스 리소스로 관리되므로 정책을 작성하는 데 새로운 언어가 필요하지 않습니다. 이를 통해 kubectl, git, kustomize와 같은 친숙한 도구를 사용하여 정책을 관리할 수 있습니다. Kyverno 정책은 Kubernetes 리소스를 검증, 변경 및 생성하고 OCI 이미지 공급망 보안을 보장할 수 있습니다. [Kyverno CLI](https://kyverno.io/docs/kyverno-cli/)는 CI/CD 파이프라인의 일부로 정책을 테스트하고 리소스를 검증하는 데 사용할 수 있습니다. 모든 Kyverno 커뮤니티 정책은 [Kyverno 웹 사이트](https://kyverno.io/policies/)에서 확인할 수 있으며, Kyverno CLI를 사용하여 파이프라인에서 테스트를 작성하는 예는 [정책 리포지토리](https://github.com/kyverno/policies)를 참조하십시오.
 
-## 도구 및 리소스 
+## 도구 및 리소스
 
++ [Amazon EKS Security Immersion Workshop - Regulatory Compliance](https://catalog.workshops.aws/eks-security-immersionday/en-US/10-regulatory-compliance)
 + [kube-bench](https://github.com/aquasecurity/kube-bench)
 + [docker-bench-security](https://github.com/docker/docker-bench-security)
 + [AWS Inspector](https://aws.amazon.com/inspector/)
