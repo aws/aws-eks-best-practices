@@ -466,9 +466,9 @@ The kubelet will automatically rotate the projected token when it is older than 
 
 ### EKS Pod Identities
 
-[EKS Pod Identities](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) is a feature launched at re:Invent 2023 that allows you to assign an IAM role to a kubernetes service account, without the need to configure an Open Id Connect (OIDC) identity provider(IDP) for each cluster in your AWS account. EKS Pod Identities deploys an agent onto each EKS node that your applications communicate with in order to get temporary AWS credentials. You applications must use a [supported version of the AWS SDK](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html) to use this feature.
+[EKS Pod Identities](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) is a feature launched at re:Invent 2023 that allows you to assign an IAM role to a kubernetes service account, without the need to configure an Open Id Connect (OIDC) identity provider(IDP) for each cluster in your AWS account. To use EKS Pod Identity, you must deploy an agent which runs as a DaemonSet pod on every eligible worker node. This agent is made available to you as an EKS Add-on and is a pre-requisite to use EKS Pod Identity feature. Your applications must use a [supported version of the AWS SDK](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html) to use this feature.
 
-When EKS Pod Identities are configured for a Pod, EKS will mount and refresh a pod identity token at `/var/run/secrets/pods.eks.amazonaws.com/serviceaccount/eks-pod-identity-token` . This token will be used by the AWS SDK to communicate with the EKS Pod Identity Agent, which uses the pod identity token and the agent's IAM role to create temporary credentials for your pods by calling the [AssumeRoleForPodIdentity API](https://docs.aws.amazon.com/eks/latest/APIReference/API_auth_AssumeRoleForPodIdentity.html). The pod identity token delivered to your pods is a JWT issued from your EKS cluster and cryptographically signed, with appropriate JWT claims for use with EKS Pod Identities.
+When EKS Pod Identities are configured for a Pod, EKS will mount and refresh a pod identity token at `/var/run/secrets/pods.eks.amazonaws.com/serviceaccount/eks-pod-identity-token`. This token will be used by the AWS SDK to communicate with the EKS Pod Identity Agent, which uses the pod identity token and the agent's IAM role to create temporary credentials for your pods by calling the [AssumeRoleForPodIdentity API](https://docs.aws.amazon.com/eks/latest/APIReference/API_auth_AssumeRoleForPodIdentity.html). The pod identity token delivered to your pods is a JWT issued from your EKS cluster and cryptographically signed, with appropriate JWT claims for use with EKS Pod Identities.
 
 To learn more about EKS Pod Identities, please see [this blog](https://aws.amazon.com/blogs/containers/amazon-eks-pod-identity-a-new-way-for-applications-on-eks-to-obtain-iam-credentials/).
 
@@ -476,7 +476,7 @@ You do not have to make any modifications to your application code to use EKS Po
 
 #### Working with IAM roles for EKS Pod Identities
 
-* EKS Pod Identities can only directly assume IAM role that belongs to the same AWS account as the EKS cluster. To access an IAM role in another AWS account, you must assume that role by [configuring a profile in your SDK configuration](https://docs.aws.amazon.com/sdkref/latest/guide/feature-assume-role-credentials.html), or in your [application's code](https://docs.aws.amazon.com/IAM/latest/UserGuide/sts_example_sts_AssumeRole_section.html).
+* EKS Pod Identities can only directly assume an IAM role that belongs to the same AWS account as the EKS cluster. To access an IAM role in another AWS account, you must assume that role by [configuring a profile in your SDK configuration](https://docs.aws.amazon.com/sdkref/latest/guide/feature-assume-role-credentials.html), or in your [application's code](https://docs.aws.amazon.com/IAM/latest/UserGuide/sts_example_sts_AssumeRole_section.html).
 * When EKS Pod Identities are being configured for Service Accounts, the person or process configuring the Pod Identity Association must have the `iam:PassRole` entitlement for that role.
 * Each Service Account may only have one IAM role associated with it through EKS Pod Identities, however you can associate the same IAM role with multiple service accounts.
 * IAM roles used with EKS Pod Identities must allow the `pods.eks.amazonaws.com` Service Principal to assume them, *and* set session tags. The following is an example role trust policy which allows EKS Pod Identities to use an IAM role:
@@ -503,7 +503,7 @@ You do not have to make any modifications to your application code to use EKS Po
   ]
 }
 ```
-AWS recommends using condition keys like `aws:SourceOrgId` to help protect against the [cross-service confused deputy problem](https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html#cross-service-confused-deputy-prevention). In the above example role trust policy, the ResourceOrgId is a variable equal to the AWS Organizations Organization ID of the AWS Organization that the AWS account belongs to. EKS will pass in a value for aws:SourceOrgId equal to that when assuming a role with EKS Pod Identities.
+AWS recommends using condition keys like `aws:SourceOrgId` to help protect against the [cross-service confused deputy problem](https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html#cross-service-confused-deputy-prevention). In the above example role trust policy, the `ResourceOrgId` is a variable equal to the AWS Organizations Organization ID of the AWS Organization that the AWS account belongs to. EKS will pass in a value for `aws:SourceOrgId` equal to that when assuming a role with EKS Pod Identities.
 
 #### ABAC and EKS Pod Identities
 
@@ -514,7 +514,7 @@ When EKS Pod Identities assumes an IAM role, it sets the following session tags:
 |:--|:--|
 |kubernetes-namespace | The namespace the pod associated with EKS Pod Identities runs in.|
 |kubernetes-service-account | The name of the kubernetes service account associated with EKS Pod Identities|
-|eks-cluster-arn | The ARN of the EKS cluster, e.g. arn:${Partition}:eks:${Region}:${Account}:cluster/${ClusterName} . The cluster ARN is unique, but if a cluster is deleted and recreated in the same region with the same name, within the same AWS account, it will have the same ARN. |
+|eks-cluster-arn | The ARN of the EKS cluster, e.g. `arn:${Partition}:eks:${Region}:${Account}:cluster/${ClusterName}`. The cluster ARN is unique, but if a cluster is deleted and recreated in the same region with the same name, within the same AWS account, it will have the same ARN. |
 |eks-cluster-name | The name of the EKS cluster. Please note that EKS cluster names can be same within your AWS account, and EKS clusters in other AWS accounts. |
 |kubernetes-pod-name | The name of the pod in EKS. |
 |kubernetes-pod-uid | The UID of the pod in EKS. |
@@ -523,7 +523,7 @@ These session tags allow you to use [Attribute Based Access Control(ABAC)](https
 
 For example, if you wanted to grant access to only a specific service account to access an AWS resource in your account with an IAM or resource policy, you would need to check `eks-cluster-arn` and  `kubernetes-namespace` tags as well as the `kubernetes-service-account` to ensure that only that service accounts from the intended cluster have access to that resource as other clusters could have identical `kubernetes-service-accounts` and `kubernetes-namespaces`.
 
-This example S3 Bucket policy only grants access to objects in the S3 bucket it's attached to, only if `kubernetes-service-account`, `kubernetes-namespace`, `eks-cluster-arn` all meet their expected values, where the EKS cluster is hosted in the AWS account 111122223333.
+This example S3 Bucket policy only grants access to objects in the S3 bucket it's attached to, only if `kubernetes-service-account`, `kubernetes-namespace`, `eks-cluster-arn` all meet their expected values, where the EKS cluster is hosted in the AWS account `111122223333`.
 
 ```json
 {
@@ -564,9 +564,6 @@ Both EKS Pod Identities and IRSA are preferred ways to deliver temporary AWS cre
 |Can access other AWS accounts | Indirectly with role chaining | Directly with sts:AssumeRoleWithWebIdentity|
 |Compatible with AWS SDKs |Yes|Yes|
 |Requires Pod Identity Agent Daemonset on nodes? |Yes|No|
-
-
-
 
 ## Identities and Credentials for EKS pods Recommendations
 
@@ -829,6 +826,6 @@ If you're migrating an application from another AWS compute service, such as EC2
 
 ### Alternative approaches
 
-While IRSA and EKS Pod Identities are the _preferred ways_ to assign an AWS identity to a pod, they require that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html), for EKS Pod Identities, see [https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html). If you have an application that you can't immediately update with a compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam).  Although AWS doesn't endorse, condone, nor support the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA and EKS Pod Identities.
+While IRSA and EKS Pod Identities are the _preferred ways_ to assign an AWS identity to a pod, they require that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html), for EKS Pod Identities, see [https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html). If you have an application that you can't immediately update with a compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam). Although AWS doesn't endorse, condone, nor support the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA and EKS Pod Identities.
 
 If you need to use one of these non-aws provided solutions, please exercise due diligence and ensure you understand security implications of doing so.
