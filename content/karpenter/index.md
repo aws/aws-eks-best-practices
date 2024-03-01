@@ -258,7 +258,7 @@ spec:
 
 ### Use timers (TTL) to automatically delete nodes from the cluster
 
-You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [Expiration](https://karpenter.sh/docs/concepts/disruption/) in the Karpenter documentation for information on using a **`spec.disruption.expireAfter`** to configure node expiry.
+You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [Expiration](https://karpenter.sh/docs/concepts/disruption/) in the Karpenter documentation for information on using `spec.disruption.expireAfter` to configure node expiry.
 
 ### Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
