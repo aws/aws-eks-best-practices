@@ -142,7 +142,7 @@ $ aws eks list-access-entries --cluster-name <CLUSTER_NAME>
 
 > No Access Entries are available when the cluster is created without the cluster creator admin permission, which is the only entry created by default.
 
-### The `aws-auth` ConfigMap
+### The `aws-auth` ConfigMap _(deprecated)_
 
 One way Kubernetes integration with AWS authentication can be done is via the `aws-auth` ConfigMap, which resides in the `kube-system` Namespace. It is responsible for mapping the AWS IAM Identities (Users, Groups, and Roles) authentication, to Kubernetes role-based access control (RBAC) authorization. The `aws-auth` ConfigMap is automatically created in your Amazon EKS cluster during its provisioning phase. It was initially created to allow nodes to join your cluster, but as mentioned you can also use this ConfigMap to add RBACs access to IAM principals.
 
@@ -342,10 +342,6 @@ While IAM is the preferred way to authenticate users who need access to an EKS c
     EKS natively supports OIDC authentication without using a proxy. For further information, please read the launch blog, [Introducing OIDC identity provider authentication for Amazon EKS](https://aws.amazon.com/blogs/containers/introducing-oidc-identity-provider-authentication-amazon-eks/). For an example showing how to configure EKS with Dex, a popular open source OIDC provider with connectors for a variety of different authention methods, see [Using Dex & dex-k8s-authenticator to authenticate to Amazon EKS](https://aws.amazon.com/blogs/containers/using-dex-dex-k8s-authenticator-to-authenticate-to-amazon-eks/). As described in the blogs, the username/group of users authenticated by an OIDC provider will appear in the Kubernetes audit log.
 
 You can also use [AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html) to federate AWS with an external identity provider, e.g. Azure AD. If you decide to use this, the AWS CLI v2.0 includes an option to create a named profile that makes it easy to associate an SSO session with your current CLI session and assume an IAM role. Know that you must assume a role _prior_ to running `kubectl` as the IAM role is used to determine the user's Kubernetes RBAC group.
-
-### Additional Resources
-
-[rbac.dev](https://github.com/mhausenblas/rbac.dev) A list of additional resources, including blogs and tools, for Kubernetes RBAC
 
 ## Identities and Credentials for EKS pods
 
@@ -827,3 +823,15 @@ If you're migrating an application from another AWS compute service, such as EC2
 While IRSA and EKS Pod Identities are the _preferred ways_ to assign an AWS identity to a pod, they require that you include recent version of the AWS SDKs in your application. For a complete listing of the SDKs that currently support IRSA, see [https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html), for EKS Pod Identities, see [https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html). If you have an application that you can't immediately update with a compatible SDK, there are several community-built solutions available for assigning IAM roles to Kubernetes pods, including [kube2iam](https://github.com/jtblin/kube2iam) and [kiam](https://github.com/uswitch/kiam). Although AWS doesn't endorse, condone, nor support the use of these solutions, they are frequently used by the community at large to achieve similar results as IRSA and EKS Pod Identities.
 
 If you need to use one of these non-aws provided solutions, please exercise due diligence and ensure you understand security implications of doing so.
+
+## Tools and Resources
+
+- [Amazon EKS Security Immersion Workshop - Identity and Access Management](https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management)
+- [Terraform EKS Blueprints Pattern - Fully Private Amazon EKS Cluster](https://github.com/aws-ia/terraform-aws-eks-blueprints/tree/main/patterns/fully-private-cluster)
+- [Terraform EKS Blueprints Pattern - IAM Identity Center Single Sign-On for Amazon EKS Cluster](https://github.com/aws-ia/terraform-aws-eks-blueprints/tree/main/patterns/sso-iam-identity-center)
+- [Terraform EKS Blueprints Pattern - Okta Single Sign-On for Amazon EKS Cluster](https://github.com/aws-ia/terraform-aws-eks-blueprints/tree/main/patterns/sso-okta)
+- [audit2rbac](https://github.com/liggitt/audit2rbac)
+- [rbac.dev](https://github.com/mhausenblas/rbac.dev) A list of additional resources, including blogs and tools, for Kubernetes RBAC
+- [Action Hero](https://github.com/princespaghetti/actionhero)
+- [kube2iam](https://github.com/jtblin/kube2iam)
+- [kiam](https://github.com/uswitch/kiam)
