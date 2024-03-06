@@ -223,7 +223,7 @@ for p in $(kubectl get pods —namespace=kube-system -l k8s-app=kube-dns -o name
 ```
 
 ### 노드 로컬 DNS 캐시 사용
-[노드 로컬 DNS 캐시](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/)를 실행하여 클러스터 DNS 성능을 개선할 수 있습니다. 이 기능은 클러스터 노드에서 DNS 캐싱 에이전트를 데몬셋으로 실행합니다. 모든 포드는 이름 확인을 위해 `kube-dns` 서비스를 사용하는 대신 노드에서 실행되는 DNS 캐싱 에이전트를 사용합니다.
+[노드 로컬 DNS 캐시](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/)를 실행하여 클러스터 DNS 성능을 개선할 수 있습니다. 이 기능은 클러스터 노드에서 DNS 캐싱 에이전트를 데몬셋으로 실행합니다. 모든 파드는 이름 확인을 위해 `kube-dns` 서비스를 사용하는 대신 노드에서 실행되는 DNS 캐싱 에이전트를 사용합니다.
 
 ### CoreDNS의 cluster-proportional-scaler를 구성합니다.
 

@@ -8,7 +8,7 @@
 
 ### 싱글톤 파드를 실행하지 마세요
 
-전체 애플리케이션이 단일 파드에서 실행되는 경우, 해당 파드가 종료되면 애플리케이션을 사용할 수 없게 됩니다. 개별 포드를 사용하여 애플리케이션을 배포하는 대신 [디플로이먼트](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)를 생성하십시오. 디플로이먼트로 생성된 파드가 실패하거나 종료되는 경우, 디플로이먼트 [컨트롤러](https://kubernetes.io/docs/concepts/architecture/controller/)는 새 파드를 시작하여 지정된 개수의 레플리카 파드가 항상 실행되도록 합니다. 
+전체 애플리케이션이 단일 파드에서 실행되는 경우, 해당 파드가 종료되면 애플리케이션을 사용할 수 없게 됩니다. 개별 파드를 사용하여 애플리케이션을 배포하는 대신 [디플로이먼트](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)를 생성하십시오. 디플로이먼트로 생성된 파드가 실패하거나 종료되는 경우, 디플로이먼트 [컨트롤러](https://kubernetes.io/docs/concepts/architecture/controller/)는 새 파드를 시작하여 지정된 개수의 레플리카 파드가 항상 실행되도록 합니다. 
 
 ### 여러 개의 레플리카 실행 
 
@@ -22,7 +22,7 @@
 
 #### 파드 anti-affinity 규칙 사용
 
-아래 매니페스트는 쿠버네티스 스케줄러에게 파드를 별도의 노드와 AZ에 배치하도록 *prefer*라고 지시합니다. 이렇게 되어있다면 별도의 노드나 AZ가 필요하지 않습니다. 그렇게 하면 각 AZ에서 실행 중인 포드가 있으면 쿠버네티스가 어떤 파드도 스케줄링할 수 없기 때문입니다. 애플리케이션에 단 세 개의 복제본이 필요한 경우, `topologyKey: topology.kubernetes.io/zone`에 대해 `requiredDuringSchedulingIgnoredDuringExecution`를 사용할 수 있으며, 쿠버네티스 스케줄러는 동일한 AZ에 두 개의 파드를 스케줄링하지 않습니다.
+아래 매니페스트는 쿠버네티스 스케줄러에게 파드를 별도의 노드와 AZ에 배치하도록 *prefer*라고 지시합니다. 이렇게 되어있다면 별도의 노드나 AZ가 필요하지 않습니다. 그렇게 하면 각 AZ에서 실행 중인 파드가 있으면 쿠버네티스가 어떤 파드도 스케줄링할 수 없기 때문입니다. 애플리케이션에 단 세 개의 복제본이 필요한 경우, `topologyKey: topology.kubernetes.io/zone`에 대해 `requiredDuringSchedulingIgnoredDuringExecution`를 사용할 수 있으며, 쿠버네티스 스케줄러는 동일한 AZ에 두 개의 파드를 스케줄링하지 않습니다.
 
 ```
 apiVersion: apps/v1
@@ -67,11 +67,11 @@ spec:
         image: nginx:1.16-alpine
 ```
 
-#### 포드 topology spread constraints 사용
+#### 파드 topology spread constraints 사용
 
-포드 anti-affinity 규칙과 마찬가지로, 포드 topology spread constraints을 사용하면 호스트 또는 AZ와 같은 다양한 장애 (또는 토폴로지) 도메인에서 애플리케이션을 사용할 수 있습니다. 이 접근 방식은 서로 다른 토폴로지 도메인 각각에 여러 복제본을 보유하여 내결함성과 가용성을 보장하려는 경우에 매우 효과적입니다. 반면, 파드 anti-affinity 규칙은 anti-affinity가 있는 파드 서로에 대해 거부 효과가 있기 때문에 토폴로지 도메인에 단일 복제본이 있도록 쉽게 만들 수 있습니다. 이러한 경우 전용 노드의 단일 복제본은 내결함성 측면에서 이상적이지도 않고 리소스를 적절하게 사용하지도 않습니다. topology spread constraints을 사용하면 스케줄러가 토폴로지 도메인 전체에 적용하려고 시도하는 분배 또는 배포를 보다 효과적으로 제어할 수 있습니다. 이 접근 방식에서 사용할 수 있는 몇 가지 중요한 속성은 다음과 같습니다.
+파드 anti-affinity 규칙과 마찬가지로, 파드 topology spread constraints을 사용하면 호스트 또는 AZ와 같은 다양한 장애 (또는 토폴로지) 도메인에서 애플리케이션을 사용할 수 있습니다. 이 접근 방식은 서로 다른 토폴로지 도메인 각각에 여러 복제본을 보유하여 내결함성과 가용성을 보장하려는 경우에 매우 효과적입니다. 반면, 파드 anti-affinity 규칙은 anti-affinity가 있는 파드 서로에 대해 거부 효과가 있기 때문에 토폴로지 도메인에 단일 복제본이 있도록 쉽게 만들 수 있습니다. 이러한 경우 전용 노드의 단일 복제본은 내결함성 측면에서 이상적이지도 않고 리소스를 적절하게 사용하지도 않습니다. topology spread constraints을 사용하면 스케줄러가 토폴로지 도메인 전체에 적용하려고 시도하는 분배 또는 배포를 보다 효과적으로 제어할 수 있습니다. 이 접근 방식에서 사용할 수 있는 몇 가지 중요한 속성은 다음과 같습니다.
 1. `MaxSkew`는 토폴로지 도메인 전체에서 균등하지 않게 분산될 수 있는 최대 정도를 제어하거나 결정하는 데 사용됩니다. 예를 들어 애플리케이션에 10개의 복제본이 있고 3개의 AZ에 배포된 경우 균등하게 분산될 수는 없지만 분포의 불균일성에 영향을 미칠 수 있습니다. 이 경우 `MaxSkew`는 1에서 10 사이일 수 있습니다.값이 1이면 3개의 AZ에 걸쳐 `4,3,3`, `3,4,3` 또는 `3,3,4`와 같은 분배가 생성될 수 있습니다. 반대로 값이 10이면 3개의 AZ에 걸쳐 `10,0,0`, `0,10,0` 또는 `0,0,10`과 같은 분배가 나올 수 있다는 의미입니다.
-2. `TopologyKey`는 노드 레이블 중 하나의 키이며 포드 배포에 사용해야 하는 토폴로지 도메인 유형을 정의합니다. 예를 들어 존(zone)별 분배는 다음과 같은 키-값 쌍을 가집니다.
+2. `TopologyKey`는 노드 레이블 중 하나의 키이며 파드 배포에 사용해야 하는 토폴로지 도메인 유형을 정의합니다. 예를 들어 존(zone)별 분배는 다음과 같은 키-값 쌍을 가집니다.
 ```
 topologyKey: "topology.kubernetes.io/zone"
 ```
@@ -80,7 +80,7 @@ topologyKey: "topology.kubernetes.io/zone"
 
 위의 필드 외에도, 다른 필드에 대해서는 [쿠버네티스 설명서](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/)에서 더 자세히 알아볼 수 있습니다.
 
-![포드 토폴로지는 제약 조건을 3개 AZ에 분산시킵니다.](./images/pod-topology-spread-constraints.jpg)
+![파드 토폴로지는 제약 조건을 3개 AZ에 분산시킵니다.](./images/pod-topology-spread-constraints.jpg)
 
 ```
 apiVersion: apps/v1
@@ -145,7 +145,7 @@ HPA는 다음 API에서 메트릭을 검색할 수 있습니다.
 
 ## Vertical Pod Autoscaler (VPA)
 
-VPA는 파드의 CPU 및 메모리 예약을 자동으로 조정하여 애플리케이션을 “적절한 크기”로 조정할 수 있도록 합니다. 리소스 할당을 늘려 수직으로 확장해야 하는 애플리케이션의 경우 [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler)를 사용하여 포드 복제본을 자동으로 확장하거나 규모 조정 권장 사항을 제공할 수 있습니다.
+VPA는 파드의 CPU 및 메모리 예약을 자동으로 조정하여 애플리케이션을 “적절한 크기”로 조정할 수 있도록 합니다. 리소스 할당을 늘려 수직으로 확장해야 하는 애플리케이션의 경우 [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler)를 사용하여 파드 복제본을 자동으로 확장하거나 규모 조정 권장 사항을 제공할 수 있습니다.
 
 VPA의 현재 구현은 파드에 대한 인플레이스 조정을 수행하지 않고 대신 스케일링이 필요한 파드를 다시 생성하기 때문에 VPA가 애플리케이션을 확장해야 하는 경우 애플리케이션을 일시적으로 사용할 수 없게 될 수 있습니다. 
 
@@ -243,7 +243,7 @@ Readiness Probes 사용의 부작용은 디플로이먼트를 업데이트하는
 
 파드의 수명은 유한합니다. - 파드를 오래 실행하더라도 때가 되면 파드가 올바르게 종료되도록 하는 것이 현명합니다. 업그레이드 전략에 따라 쿠버네티스 클러스터를 업그레이드하려면 새 워커 노드를 생성해야 할 수 있으며, 이 경우 모든 파드를 새 노드에서 다시 생성해야 합니다. 적절한 종료 처리 및 파드 중단 예산을 마련하면 파드가 이전 노드에서 제거되고 새 노드에서 재생성될 때 서비스 중단을 피할 수 있습니다. 
 
-워커 노드를 업그레이드하는 가장 좋은 방법은 새 워커 노드를 만들고 기존 워커 노드를 종료하는 것입니다. 워커 노드를 종료하기 전에 먼저 워커 노드를 `drain` 해야 합니다. 워커 노드가 비워지면 해당 노드의 모든 포드가 *안전하게* 제거됩니다. 여기서 가장 중요한 단어는 안전입니다. 워커 노드에서 파드가 제거되면 단순히 `SIGKILL` 시그널이 전송되는 것이 아닙니다. 대신, `SIGTERM` 신호가 제거되는 파드에 있는 각 컨테이너의 메인 프로세스(PID 1)로 보내진다. `SIGTERM` 신호가 전송된 후, 쿠버네티스는 프로세스에 `SIGKILL` 신호가 전송되기까지 일정 시간(유예 기간)을 줍니다. 이 유예 기간은 기본적으로 30초입니다. kubectl에서 `grace-period` 플래그를 사용하여 기본값을 재정의하거나 Podspec에서 `terminationGracePeriodSeconds`를 선언할 수 있습니다.
+워커 노드를 업그레이드하는 가장 좋은 방법은 새 워커 노드를 만들고 기존 워커 노드를 종료하는 것입니다. 워커 노드를 종료하기 전에 먼저 워커 노드를 `drain` 해야 합니다. 워커 노드가 비워지면 해당 노드의 모든 파드가 *안전하게* 제거됩니다. 여기서 가장 중요한 단어는 안전입니다. 워커 노드에서 파드가 제거되면 단순히 `SIGKILL` 시그널이 전송되는 것이 아닙니다. 대신, `SIGTERM` 신호가 제거되는 파드에 있는 각 컨테이너의 메인 프로세스(PID 1)로 보내진다. `SIGTERM` 신호가 전송된 후, 쿠버네티스는 프로세스에 `SIGKILL` 신호가 전송되기까지 일정 시간(유예 기간)을 줍니다. 이 유예 기간은 기본적으로 30초입니다. kubectl에서 `grace-period` 플래그를 사용하여 기본값을 재정의하거나 Podspec에서 `terminationGracePeriodSeconds`를 선언할 수 있습니다.
 
 `kubectl delete pod <pod name> —grace-period=<seconds>`
 
