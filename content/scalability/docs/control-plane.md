@@ -286,10 +286,13 @@ Or list all pods that are running with:
 /api/v1/pods?fieldSelector=status.phase=Running&limit=500
 ```
 
-Another option to limit listed objects is to use [`resourceVersions` which you can read about in the Kubernetes documentation](https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions). Without a `resourceVersion` argument you will receive the most recent version available which requires an etcd quorum read which is the most expensive and slowest read for the database. The resourceVersion depends on what resources you are trying to query and can be found in the `metadata.resourseVersion` field.
+Another option to limit watch calls or listed objects is to use [`resourceVersions` which you can read about in the Kubernetes documentation](https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions). Without a `resourceVersion` argument you will receive the most recent version available which requires an etcd quorum read which is the most expensive and slowest read for the database. The resourceVersion depends on what resources you are trying to query and can be found in the `metadata.resourseVersion` field. This is also recommended in case of using watch calls and not just list calls
 
 There is a special `resourceVersion=0` available that will return results from the API server cache. This can reduce etcd load but it does not support pagination.
 
+```
+/api/v1/namespaces/default/pods?watch=true&resourceVersion=0
+```
 ```
 /api/v1/namespaces/default/pods?resourceVersion=0
 ```
