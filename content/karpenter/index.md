@@ -42,8 +42,7 @@ Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-st
 
 Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s NodePools while others are ignored by Karpenter, e.g. subnets and instance types.
 
-You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the EC2NodeClass.  More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
-
+You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
 
 ### Exclude instance types that do not fit your workload
 

@@ -98,7 +98,7 @@ See the following examples of common add-ons and their relevant upgrade document
 * **Amazon Elastic File System (Amazon EFS) Container Storage Interface (CSI) driver:** For installation and upgrade information, see [Amazon EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html).
 * **Kubernetes Metrics Server:** For more information, see [metrics-server](https://kubernetes-sigs.github.io/metrics-server/) on GitHub.
 * **Kubernetes Cluster Autoscaler****:** To upgrade the version of Kubernetes Cluster Autoscaler, change the version of the image in the deployment. The Cluster Autoscaler is tightly coupled with the Kubernetes scheduler. You will always need to upgrade it when you upgrade the cluster. Review the [GitHub releases](https://github.com/kubernetes/autoscaler/releases) to find the address of the latest release corresponding to your Kubernetes minor version.
-* **Karpenter:** For installation and upgrade information, see the [Karpenter documentation.](https://karpenter.sh/v0.27.3/faq/#which-versions-of-kubernetes-does-karpenter-support)
+* **Karpenter:** For installation and upgrade information, see the [Karpenter documentation.](https://karpenter.sh/docs/upgrading/)
 
 ## Verify basic EKS requirements before upgrading
 
@@ -427,7 +427,7 @@ Managed node groups automate the provisioning and lifecycle management of nodes.
 
 In the default configuration, Karpenter automatically creates new nodes using the latest compatible EKS Optimized AMI. As EKS releases updated EKS Optimized AMIs or the cluster is upgraded, Karpenter will automatically start using these images. [Karpenter also implements Node Expiry to update nodes.](#enable-node-expiry-for-karpenter-managed-nodes)
 
-[Karpenter can be configured to use custom AMIs.](https://karpenter.sh/docs/concepts/node-templates/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
+[Karpenter can be configured to use custom AMIs.](https://karpenter.sh/docs/concepts/nodeclasses/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
 
 ## Confirm version compatibility with existing nodes and the control plane
 
