@@ -1,0 +1,7 @@
+/security/ @aws/eks-bpg-security-wg
+/autoscaling/ @aws/eks-bpg-autoscaling-wg
+/resiliency/ @aws/eks-bpg-resiliency-wg
+/networking/ @aws/eks-bpg-networking-wg
+
+# Fallback
+* @aws/eks-bpg-steering-committee
