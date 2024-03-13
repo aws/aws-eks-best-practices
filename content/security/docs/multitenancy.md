@@ -1,5 +1,6 @@
 # Tenant Isolation
-When we think of multi-tenancy, we often want to isolate a user or application from other users or applications running on a shared infrastructure. 
+
+When we think of multi-tenancy, we often want to isolate a user or application from other users or applications running on a shared infrastructure.
 
 Kubernetes is a _single tenant orchestrator_, i.e. a single instance of the control plane is shared among all the tenants  within a cluster. There are, however, various Kubernetes objects that you can use to create the semblance of multi-tenancy. For example, Namespaces and Role-based access controls (RBAC) can be implemented to logically isolate tenants from each other. Similarly, Quotas and Limit Ranges can be used to control the amount of cluster resources each tenant can consume. Nevertheless, the cluster is the only construct that provides a strong security boundary. This is because an attacker that manages to gain access to a host within the cluster can retrieve _all_ Secrets, ConfigMaps, and Volumes, mounted on that host. They could also impersonate the Kubelet which would allow them to manipulate the attributes of the node and/or move laterally within the cluster.
 
@@ -9,32 +10,32 @@ The following sections will explain how to implement tenant isolation while miti
 
 With soft multi-tenancy, you use native Kubernetes constructs, e.g. namespaces, roles and role bindings, and network policies, to create logical separation between tenants. RBAC, for example, can prevent tenants from accessing or manipulate each other's resources. Quotas and limit ranges control the amount of cluster resources each tenant can consume while network policies can help prevent applications deployed into different namespaces from communicating with each other.
 
-None of these controls, however, prevent pods from different tenants from sharing a node. If stronger isolation is required, you can use a node selector, anti-affinity rules, and/or taints and tolerations to force pods from different tenants to be scheduled onto separate nodes; often referred to as _sole tenant nodes_. This could get rather complicated, and cost prohibitive, in an environment with many tenants. 
+None of these controls, however, prevent pods from different tenants from sharing a node. If stronger isolation is required, you can use a node selector, anti-affinity rules, and/or taints and tolerations to force pods from different tenants to be scheduled onto separate nodes; often referred to as _sole tenant nodes_. This could get rather complicated, and cost prohibitive, in an environment with many tenants.
 
 !!! attention
-    Soft multi-tenancy implemented with Namespaces does not allow you to provide tenants with a filtered list of Namespaces because Namespaces are a globally scoped Type. If a tenant has the ability to view a particular Namespace, it can view all Namespaces within the cluster. 
+    Soft multi-tenancy implemented with Namespaces does not allow you to provide tenants with a filtered list of Namespaces because Namespaces are a globally scoped Type. If a tenant has the ability to view a particular Namespace, it can view all Namespaces within the cluster.
 
 !!! warning
-    With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. An attacker could exploit this by running dig SRV *.*.svc.cluster.local from any pod in the cluster.  If you need to restrict access to DNS records of services that run within your clusters, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see [https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy](https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy). 
+    With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. An attacker could exploit this by running dig SRV `*.*.svc.cluster.local` from any pod in the cluster.  If you need to restrict access to DNS records of services that run within your clusters, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see [https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy](https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy).
 
-[Kiosk](https://github.com/kiosk-sh/kiosk) is an open source project that can aid in the implementation of soft multi-tenancy.  It is implemented as a series of CRDs and controllers that provide the following capabilities: 
+[Kiosk](https://github.com/kiosk-sh/kiosk) is an open source project that can aid in the implementation of soft multi-tenancy.  It is implemented as a series of CRDs and controllers that provide the following capabilities:
 
-  + **Accounts & Account Users** to separate tenants in a shared Kubernetes cluster
-  + **Self-Service Namespace Provisioning** for account users
-  + **Account Limits** to ensure quality of service and fairness when sharing a cluster
-  + **Namespace Templates** for secure tenant isolation and self-service namespace initialization
+- **Accounts & Account Users** to separate tenants in a shared Kubernetes cluster
+- **Self-Service Namespace Provisioning** for account users
+- **Account Limits** to ensure quality of service and fairness when sharing a cluster
+- **Namespace Templates** for secure tenant isolation and self-service namespace initialization
   
 [Loft](https://loft.sh) is a commercial offering from the maintainers of Kiosk and [DevSpace](https://github.com/devspace-cloud/devspace) that adds the following capabilities:
 
-  + **Multi-cluster access** for granting access to spaces in different clusters 
-  + **Sleep mode** scales down deployments in a space during periods of inactivity
-  + **Single sign-on** with OIDC authentication providers like GitHub
+- **Multi-cluster access** for granting access to spaces in different clusters
+- **Sleep mode** scales down deployments in a space during periods of inactivity
+- **Single sign-on** with OIDC authentication providers like GitHub
 
 There are three primary use cases that can be addressed by soft multi-tenancy.
 
 ### Enterprise Setting
 
-The first is in an Enterprise setting where the "tenants" are semi-trusted in that they are employees, contractors, or are otherwise authorized by the organization. Each tenant will typically align to an administrative division such as a department or team. 
+The first is in an Enterprise setting where the "tenants" are semi-trusted in that they are employees, contractors, or are otherwise authorized by the organization. Each tenant will typically align to an administrative division such as a department or team.
 
 In this type of setting, a cluster administrator will usually be responsible for creating namespaces and managing policies. They may also implement a delegated administration model where certain individuals are given oversight of a namespace, allowing them to perform CRUD operations for non-policy related objects like deployments, services, pods, jobs, etc.
 
@@ -54,7 +55,7 @@ Unlike the other use cases, the tenant in a SaaS setting does not directly inter
 
 ## Kubernetes Constructs
 
-In each of these instances the following constructs are used to isolate tenants from each other: 
+In each of these instances the following constructs are used to isolate tenants from each other:
 
 ### Namespaces
 
@@ -64,12 +65,12 @@ Namespaces are fundamental to implementing soft multi-tenancy. They allow you to
 
 By default, all pods in a Kubernetes cluster are allowed to communicate with each other. This behavior can be altered using network policies.
 
-Network policies restrict communication between pods using labels or IP address ranges. In a multi-tenant environment where strict network isolation between tenants is required, we recommend starting with a default rule that denies communication between pods, and another rule that allows all pods to query the DNS server for name resolution. With that in place, you can begin adding more permissive rules that allow for communication within a namespace. This can be further refined as required. 
+Network policies restrict communication between pods using labels or IP address ranges. In a multi-tenant environment where strict network isolation between tenants is required, we recommend starting with a default rule that denies communication between pods, and another rule that allows all pods to query the DNS server for name resolution. With that in place, you can begin adding more permissive rules that allow for communication within a namespace. This can be further refined as required.
 
 !!! note
     Amazon [VPC CNI now supports Kubernetes Network Policies](https://aws.amazon.com/blogs/containers/amazon-vpc-cni-now-supports-kubernetes-network-policies/) to create policies that can isolate sensitive workloads and protect them from unauthorized access when running Kubernetes on AWS. This means that you can use all the capabilities of the Network Policy API within your Amazon EKS cluster. This level of granular control enables you to implement the principle of least privilege, which ensures that only authorized pods are allowed to communicate with each other.
 
-!!! attention 
+!!! attention
     Network policies are necessary but not sufficient. The enforcement of network policies requires a policy engine such as Calico or Cilium.
 
 ### Role-based access control (RBAC)
@@ -90,25 +91,25 @@ You can also use quotas to apportion the cluster's resources to align with a ten
 
 Pod priority and preemption can be useful when you want to provide more importance to a Pod relative to other Pods.  For example, with pod priority you can configure pods from customer A to run at a higher priority than customer B. When there's insufficient capacity available, the scheduler will evict the lower-priority pods from customer B to accommodate the higher-priority pods from customer A.  This can be especially handy in a SaaS environment where customers willing to pay a premium receive a higher priority.
 
-!!! attention 
+!!! attention
     Pods priority can have an undesired effect on other Pods with lower priority. For example, although the victim pods are terminated gracefully but the PodDisruptionBudget is not guaranteed, which could break a application with lower priority that relies on a quorum of Pods, see [Limitations of preemption](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#limitations-of-preemption).
 
 ## Mitigating controls
 
-Your chief concern as an administrator of a multi-tenant environment is preventing an attacker from gaining access to the underlying host. The following controls should be considered to mitigate this risk: 
+Your chief concern as an administrator of a multi-tenant environment is preventing an attacker from gaining access to the underlying host. The following controls should be considered to mitigate this risk:
 
 ### Sandboxed execution environments for containers
 
 Sandboxing is a technique by which each container is run in its own isolated virtual machine. Technologies that perform pod sandboxing include [Firecracker](https://firecracker-microvm.github.io/) and Weave's [Firekube](https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite).
 
 For additional information about the effort to make Firecracker a supported runtime for EKS, see
-[https://threadreaderapp.com/thread/1238496944684597248.html](https://threadreaderapp.com/thread/1238496944684597248.html). 
+[https://threadreaderapp.com/thread/1238496944684597248.html](https://threadreaderapp.com/thread/1238496944684597248.html).
 
 ### Open Policy Agent (OPA) & Gatekeeper
 
-[Gatekeeper](https://github.com/open-policy-agent/gatekeeper) is a Kubernetes admission controller that enforces policies created with [OPA](https://www.openpolicyagent.org/). With OPA you can create a policy that runs pods from tenants on separate instances or at a higher priority than other tenants. A collection of common OPA policies can be found in the GitHub [repository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa) for this project. 
+[Gatekeeper](https://github.com/open-policy-agent/gatekeeper) is a Kubernetes admission controller that enforces policies created with [OPA](https://www.openpolicyagent.org/). With OPA you can create a policy that runs pods from tenants on separate instances or at a higher priority than other tenants. A collection of common OPA policies can be found in the GitHub [repository](https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa) for this project.
 
-There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredns/coredns-opa) that allows you to use OPA to filter/control the records returned by CoreDNS. 
+There is also an experimental [OPA plugin for CoreDNS](https://github.com/coredns/coredns-opa) that allows you to use OPA to filter/control the records returned by CoreDNS.
 
 ### Kyverno
 
@@ -297,11 +298,12 @@ In the above examples, we used policies written for OPA/Gatekeeper. However, the
 
 ### References
 
-+ [k-rail](https://github.com/cruise-automation/k-rail) Designed to help you secure a multi-tenant environment through the enforcement of certain policies. 
+- [k-rail](https://github.com/cruise-automation/k-rail) Designed to help you secure a multi-tenant environment through the enforcement of certain policies.
 
-+ [Security Practices for MultiTenant SaaS Applications using Amazon EKS](https://d1.awsstatic.com/whitepapers/security-practices-for-multi-tenant-saas-apps-using-eks.pdf)
+- [Security Practices for MultiTenant SaaS Applications using Amazon EKS](https://d1.awsstatic.com/whitepapers/security-practices-for-multi-tenant-saas-apps-using-eks.pdf)
 
 ## Hard multi-tenancy
+
 Hard multi-tenancy can be implemented by provisioning separate clusters for each tenant.  While this provides very strong isolation between tenants, it has several drawbacks.
 
 First, when you have many tenants, this approach can quickly become expensive. Not only will you have to pay for the control plane costs for each cluster, you will not be able to share compute resources between clusters.  This will eventually cause fragmentation where a subset of your clusters are underutilized while others are overutilized.
@@ -320,12 +322,12 @@ The Virtual Cluster proposal describes a mechanism for creating separate instanc
 
 The [Multi-Tenancy Benchmarks](https://github.com/kubernetes-sigs/multi-tenancy/blob/master/benchmarks/README.md) proposal provides guidelines for sharing clusters using namespaces for isolation and segmentation, and a command line tool [kubectl-mtb](https://github.com/kubernetes-sigs/multi-tenancy/blob/master/benchmarks/kubectl-mtb/README.md) to validate conformance to the guidelines.
 
-## Multi-cluster management resources
+## Multi-cluster management tools and resources
 
-+ [Banzai Cloud](https://banzaicloud.com/)
-+ [Kommander](https://d2iq.com/solutions/ksphere/kommander)
-+ [Lens](https://github.com/lensapp/lens)
-+ [Nirmata](https://nirmata.com)
-+ [Rafay](https://rafay.co/)
-+ [Rancher](https://rancher.com/products/rancher/)
-+ [Weave Flux](https://www.weave.works/oss/flux/)
+- [Banzai Cloud](https://banzaicloud.com/)
+- [Kommander](https://d2iq.com/solutions/ksphere/kommander)
+- [Lens](https://github.com/lensapp/lens)
+- [Nirmata](https://nirmata.com)
+- [Rafay](https://rafay.co/)
+- [Rancher](https://rancher.com/products/rancher/)
+- [Weave Flux](https://www.weave.works/oss/flux/)

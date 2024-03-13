@@ -11,14 +11,14 @@ Before the launch of Karpenter, Kubernetes users relied primarily on [Amazon EC2
 Karpenter consolidates instance orchestration responsibilities within a single system, which is simpler, more stable and cluster-aware. Karpenter was designed to overcome some of the challenges presented by Cluster Autoscaler by providing simplified ways to:
 
 * Provision nodes based on workload requirements.
-* Create diverse node configurations by instance type, using flexible workload provisioner options. Instead of managing many specific custom node groups, Karpenter could let you manage diverse workload capacity with a single, flexible provisioner.
+* Create diverse node configurations by instance type, using flexible NodePool options. Instead of managing many specific custom node groups, Karpenter could let you manage diverse workload capacity with a single, flexible NodePool.
 * Achieve improved pod scheduling at scale by quickly launching nodes and scheduling pods.
 
 For information and documentation on using Karpenter, visit the [karpenter.sh](https://karpenter.sh/) site.
 
 ## Recommendations
 
-Best practices are divided into sections on Karpenter itself, provisioners, and pod scheduling.
+Best practices are divided into sections on Karpenter itself, NodePools, and pod scheduling.
 
 ## Karpenter best practices
 
@@ -40,10 +40,9 @@ Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-st
 
 ### Avoid using custom launch templates with Karpenter
 
-Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s provisioners while others are ignored by Karpenter, e.g. subnets and instance types.
+Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s NodePools while others are ignored by Karpenter, e.g. subnets and instance types.
 
 You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
-
 
 ### Exclude instance types that do not fit your workload
 
@@ -53,18 +52,18 @@ The following example shows how to avoid provisioning large Graviton instances.
 
 ```yaml
 - key: node.kubernetes.io/instance-type
-    operator: NotIn
-    values:
-      'm6g.16xlarge'
-      'm6gd.16xlarge'
-      'r6g.16xlarge'
-      'r6gd.16xlarge'
-      'c6g.16xlarge'
+  operator: NotIn
+  values:
+  - m6g.16xlarge
+  - m6gd.16xlarge
+  - r6g.16xlarge
+  - r6gd.16xlarge
+  - c6g.16xlarge
 ```
 
 ### Enable Interruption Handling when using Spot
 
-Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/deprovisioning/#interruption), enabled through the `aws.interruptionQueue` value in [Karpenter settings](https://karpenter.sh/docs/concepts/settings/#configmap). Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
+Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/disruption/#interruption), enabled through the `--interruption-queue-name` CLI argument with the name of the SQS queue. Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
 
 * Spot Interruption Warnings
 * Scheduled Change Health Events (Maintenance Events)
@@ -80,7 +79,7 @@ Pods that require checkpointing or other forms of graceful draining, requiring t
 When provisioning an EKS Cluster into a VPC with no route to the internet, you have to make sure you’ve configured your environment in accordance with the private cluster [requirements](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements) that appear in EKS documentation. In addition, you need to make sure you’ve created an STS VPC regional endpoint in your VPC. If not, you will see errors similar to those that appear below.
 
 ```console
-ERROR controller.controller.metrics Reconciler error {"commit": "5047f3c", "reconciler group": "karpenter.sh", "reconciler kind": "Provisioner", "name": "default", "namespace": "", "error": "fetching instance types using ec2.DescribeInstanceTypes, WebIdentityErr: failed to retrieve credentials\ncaused by: RequestError: send request failed\ncaused by: Post \"https://sts.<region>.amazonaws.com/\": dial tcp x.x.x.x:443: i/o timeout"}
+{"level":"FATAL","time":"2024-02-29T14:28:34.392Z","logger":"controller","message":"Checking EC2 API connectivity, WebIdentityErr: failed to retrieve credentials\ncaused by: RequestError: send request failed\ncaused by: Post \"https://sts.<region>.amazonaws.com/\": dial tcp 54.239.32.126:443: i/o timeout","commit":"596ea97"}
 ```
 
 These changes are necessary in a private cluster because the Karpenter Controller uses IAM Roles for Service Accounts (IRSA). Pods configured with IRSA acquire credentials by calling the AWS Security Token Service (AWS STS) API. If there is no outbound internet access, you must create and use an ***AWS STS VPC endpoint in your VPC***.
@@ -88,11 +87,9 @@ These changes are necessary in a private cluster because the Karpenter Controlle
 Private clusters also require you to create a ***VPC endpoint for SSM***. When Karpenter tries to provision a new node, it queries the Launch template configs and an SSM parameter. If you do not have a SSM VPC endpoint in your VPC, it will cause the following error:
 
 ```console
-INFO    controller.provisioning Waiting for unschedulable pods  {"commit": "5047f3c", "provisioner": "default"}
-INFO    controller.provisioning Batched 3 pods in 1.000572709s  {"commit": "5047f3c", "provisioner": "default"}
-INFO    controller.provisioning Computed packing of 1 node(s) for 3 pod(s) with instance type option(s) [c4.xlarge c6i.xlarge c5.xlarge c5d.xlarge c5a.xlarge c5n.xlarge m6i.xlarge m4.xlarge m6a.xlarge m5ad.xlarge m5d.xlarge t3.xlarge m5a.xlarge t3a.xlarge m5.xlarge r4.xlarge r3.xlarge r5ad.xlarge r6i.xlarge r5a.xlarge]        {"commit": "5047f3c", "provisioner": "default"}
-ERROR   controller.provisioning Could not launch node, launching instances, getting launch template configs, getting launch templates, getting ssm parameter, RequestError: send request failed
-caused by: Post "https://ssm.<region>.amazonaws.com/": dial tcp x.x.x.x:443: i/o timeout  {"commit": "5047f3c", "provisioner": "default"}
+{"level":"ERROR","time":"2024-02-29T14:28:12.889Z","logger":"controller","message":"Unable to hydrate the AWS launch template cache, RequestCanceled: request context canceled\ncaused by: context canceled","commit":"596ea97","tag-key":"karpenter.k8s.aws/cluster","tag-value":"eks-workshop"}
+...
+{"level":"ERROR","time":"2024-02-29T15:08:58.869Z","logger":"controller.nodeclass","message":"discovering amis from ssm, getting ssm parameter \"/aws/service/eks/optimized-ami/1.27/amazon-linux-2/recommended/image_id\", RequestError: send request failed\ncaused by: Post \"https://ssm.<region>.amazonaws.com/\": dial tcp 67.220.228.252:443: i/o timeout","commit":"596ea97","ec2nodeclass":"default","query":"/aws/service/eks/optimized-ami/1.27/amazon-linux-2/recommended/image_id"}
 ```
 
 There is no ***VPC endpoint for the [Price List Query API](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-pelong.html)***.
@@ -101,9 +98,7 @@ Karpenter gets around this by including on-demand pricing data in its binary, bu
 Failed requests for pricing data will result in the following error messages:
 
 ```console
-ERROR   controller.aws.pricing  updating on-demand pricing, RequestError: send request failed
-caused by: Post "https://api.pricing.us-east-1.amazonaws.com/": dial tcp 52.94.231.236:443: i/o timeout; RequestError: send request failed
-caused by: Post "https://api.pricing.us-east-1.amazonaws.com/": dial tcp 52.94.231.236:443: i/o timeout, using existing pricing data from 2022-08-17T00:19:52Z  {"commit": "4b5f953"}
+{"level":"ERROR","time":"2024-02-29T15:08:58.522Z","logger":"controller.pricing","message":"retreiving on-demand pricing data, RequestError: send request failed\ncaused by: Post \"https://api.pricing.<region>.amazonaws.com/\": dial tcp 18.196.224.8:443: i/o timeout; RequestError: send request failed\ncaused by: Post \"https://api.pricing.<region>.amazonaws.com/\": dial tcp 18.185.143.117:443: i/o timeout","commit":"596ea97"}
 ```
 
 In summary, to use Karpenter in a completely Private EKS Clusters, you need to create the following VPC endpoints:
@@ -123,38 +118,58 @@ com.amazonaws.<region>.sqs - For accessing SQS if using interruption handling
 
 For further information, see [Issue 988](https://github.com/aws/karpenter/issues/988) and [Issue 1157](https://github.com/aws/karpenter/issues/1157).
 
-## Creating provisioners
+## Creating NodePools
 
-The following best practices cover topics related to creating provisioners.
+The following best practices cover topics related to creating NodePools.
 
-### Create multiple provisioners when...
+### Create multiple NodePools when...
 
-When different teams are sharing a cluster and need to run their workloads on different worker nodes, or have different OS or instance type requirements, create multiple provisioners. For example, one team may want to use Bottlerocket, while another may want to use Amazon Linux. Likewise, one team might have access to expensive GPU hardware that wouldn’t be needed by another team. Using multiple provisioners makes sure that the most appropriate assets are available to each team.
+When different teams are sharing a cluster and need to run their workloads on different worker nodes, or have different OS or instance type requirements, create multiple NodePools. For example, one team may want to use Bottlerocket, while another may want to use Amazon Linux. Likewise, one team might have access to expensive GPU hardware that wouldn’t be needed by another team. Using multiple NodePools makes sure that the most appropriate assets are available to each team.
 
-### Create provisioners that are mutually exclusive or weighted
+### Create NodePools that are mutually exclusive or weighted
 
-It is recommended to create Provisioners that are either mutually exclusive or weighted to provide consistent scheduling behavior. If they are not and multiple Provisioners are matched, Karpenter will randomly choose which to use, causing unexpected results. Useful examples for creating multiple provisioners include the following:
+It is recommended to create NodePools that are either mutually exclusive or weighted to provide consistent scheduling behavior. If they are not and multiple NodePools are matched, Karpenter will randomly choose which to use, causing unexpected results. Useful examples for creating multiple NodePools include the following:
 
-Creating a Provisioner with GPU and only allowing special workloads to run on these (expensive) nodes:
+Creating a NodePool with GPU and only allowing special workloads to run on these (expensive) nodes:
 
 ```yaml
-# Provisioner for GPU Instances with Taints
-apiVersion: karpenter.sh/v1alpha5
-kind: Provisioner
+# NodePool for GPU Instances with Taints
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
 metadata:
   name: gpu
 spec:
-  requirements:
-  - key: node.kubernetes.io/instance-type
-    operator: In
-    values:
-    - p3.8xlarge
-    - p3.16xlarge
-  taints:
-  - effect: NoSchedule
-    key: nvidia.com/gpu
-    value: "true"
-  ttlSecondsAfterEmpty: 60
+  disruption:
+    consolidateAfter: 1m0s
+    consolidationPolicy: WhenEmpty
+    expireAfter: Never
+  template:
+    metadata: {}
+    spec:
+      nodeClassRef:
+        name: default
+      requirements:
+      - key: node.kubernetes.io/instance-type
+        operator: In
+        values:
+        - p3.8xlarge
+        - p3.16xlarge
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+      taints:
+      - effect: NoSchedule
+        key: nvidia.com/gpu
+        value: "true"
 ```
 
 Deployment with toleration for the taint:
@@ -174,30 +189,49 @@ spec:
         effect: "NoSchedule"
 ```
 
-For a general deployment for another team, the provisioner spec could include nodeAffinify. A Deployment could then use nodeSelectorTerms to match `billing-team`.
+For a general deployment for another team, the NodePool spec could include nodeAffinify. A Deployment could then use nodeSelectorTerms to match `billing-team`.
 
 ```yaml
-# Provisioner for regular EC2 instances
-apiVersion: karpenter.sh/v1alpha5
-kind: Provisioner
+# NodePool for regular EC2 instances
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
 metadata:
   name: generalcompute
 spec:
-  labels:
-    billing-team: my-team
-  requirements:
-  - key: node.kubernetes.io/instance-type
-    operator: In
-    values:
-    - m5.large
-    - m5.xlarge
-    - m5.2xlarge
-    - c5.large
-    - c5.xlarge
-    - c5a.large
-    - c5a.xlarge
-    - r5.large
-    - r5.xlarge
+  disruption:
+    expireAfter: Never
+  template:
+    metadata:
+      labels:
+        billing-team: my-team
+    spec:
+      nodeClassRef:
+        name: default
+      requirements:
+      - key: node.kubernetes.io/instance-type
+        operator: In
+        values:
+        - m5.large
+        - m5.xlarge
+        - m5.2xlarge
+        - c5.large
+        - c5.xlarge
+        - c5a.large
+        - c5a.xlarge
+        - r5.large
+        - r5.xlarge
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
 ```
 
 Deployment using nodeAffinity:
@@ -223,7 +257,7 @@ spec:
 
 ### Use timers (TTL) to automatically delete nodes from the cluster
 
-You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [How Karpenter nodes are deprovisioned](https://karpenter.sh/docs/concepts/deprovisioning) in the Karpenter documentation for information on using  **`ttlSecondsUntilExpired`** and **`ttlSecondsAfterEmpty`** to deprovision nodes.
+You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [Expiration](https://karpenter.sh/docs/concepts/disruption/) in the Karpenter documentation for information on using `spec.disruption.expireAfter` to configure node expiry.
 
 ### Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
@@ -253,37 +287,36 @@ If you need to run highly available applications, follow general EKS best practi
 
 ### Use layered Constraints to constrain the compute features available from your cloud provider
 
-Karpenter’s model of layered constraints allows you to create a complex set of provisioner and pod deployment constraints to get the best possible matches for pod scheduling. Examples of constraints that a pod spec can request include the following:
+Karpenter’s model of layered constraints allows you to create a complex set of NodePool and pod deployment constraints to get the best possible matches for pod scheduling. Examples of constraints that a pod spec can request include the following:
 
 * Needing to run in availability zones where only particular applications are available. Say, for example, you have pod that has to communicate with another application that runs on an EC2 instance residing in a particular availability zone. If your aim is to reduce cross-AZ traffic in your VPC, you may want to co-locate the pods in the AZ where the EC2 instance is located. This sort of targeting is often accomplished using node selectors. For additional information on [Node selectors](https://karpenter.sh/docs/concepts/scheduling/#selecting-nodes), please refer to the Kubernetes documentation.
 * Requiring certain kinds of processors or other hardware. See the [Accelerators](https://karpenter.sh/docs/concepts/scheduling/#acceleratorsgpu-resources) section of the Karpenter docs for a podspec example that requires the pod to run on a GPU.
 
 ### Create billing alarms to monitor your compute spend
 
-When you configure your cluster to automatically scale, you should create billing alarms to warn you when your spend has exceeded a threshold and add resource limits to your Karpenter configuration. Setting resource limits with Karpenter is similar to setting an AWS autoscaling group’s maximum capacity in that it represents the maximum amount of compute resources that can be instantiated by a Karpenter provisioner.
+When you configure your cluster to automatically scale, you should create billing alarms to warn you when your spend has exceeded a threshold and add resource limits to your Karpenter configuration. Setting resource limits with Karpenter is similar to setting an AWS autoscaling group’s maximum capacity in that it represents the maximum amount of compute resources that can be instantiated by a Karpenter NodePool.
 
 !!! note
-    It is not possible to set a global limit for the whole cluster. Limits apply to specific provisioners.
+    It is not possible to set a global limit for the whole cluster. Limits apply to specific NodePools.
 
 The snippet below tells Karpenter to only provision a maximum of 1000 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only when the limit is met or exceeded. When a limit is exceeded the Karpenter controller will write `memory resource usage of 1001 exceeds limit of 1000` or a similar looking message to the controller’s logs. If you are routing your container logs to CloudWatch logs, you can create a [metrics filter](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html) to look for specific patterns or terms in your logs and then create a [CloudWatch alarm](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) to alert you when your configured metrics threshold is breached.
 
-For further information using limits with Karpenter, see [Setting Resource Limits](https://karpenter.sh/docs/concepts/nodepools/#speclimitsresources) in the Karpenter documentation.
+For further information using limits with Karpenter, see [Setting Resource Limits](https://karpenter.sh/docs/concepts/nodepools/#speclimits) in the Karpenter documentation.
 
 ```yaml
 spec:
   limits:
-    resources:
-      cpu: 1000
-      memory: 1000Gi
+    cpu: 1000
+    memory: 1000Gi
 ```
 
 If you don’t use limits or constrain the instance types that Karpenter can provision, Karpenter will continue adding compute capacity to your cluster as needed. While configuring Karpenter in this way allows your cluster to scale freely, it can also have significant cost implications. It is for this reason that we recommend that configuring billing alarms. Billing alarms allow you to be alerted and proactively notified when the calculated estimated charges in your account(s) exceed a defined threshold. See [Setting up an Amazon CloudWatch Billing Alarm to Proactively Monitor Estimated Charges](https://aws.amazon.com/blogs/mt/setting-up-an-amazon-cloudwatch-billing-alarm-to-proactively-monitor-estimated-charges/) for additional information.
 
 You may also want to enable Cost Anomaly Detection which is an AWS Cost Management feature that uses machine learning to continuously monitor your cost and usage to detect unusual spends. Further information can be found in the [AWS Cost Anomaly Detection Getting Started](https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html) guide. If you’ve gone so far as to create a budget in AWS Budgets, you can also configure an action to notify you when a specific threshold has been breached. With budget actions you can send an email, post a message to an SNS topic, or send a message to a chatbot like Slack. For further information see [Configuring AWS Budgets actions](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html).
 
-### Use the do-not-evict annotation to prevent Karpenter from deprovisioning a node
+### Use the karpenter.sh/do-not-disrupt annotation to prevent Karpenter from deprovisioning a node
 
-If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/do-not-evict` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `do-not-evict` annotation is removed. See [Deprovisioning](https://karpenter.sh/docs/concepts/deprovisioning/#disabling-deprovisioning) documentation for further information.
+If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/karpenter.sh/do-not-disrupt` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `karpenter.sh/do-not-disrupt` annotation is removed. See [Distruption](https://karpenter.sh/docs/concepts/disruption/#node-level-controls) documentation for further information.
 
 If the only non-daemonset pods left on a node are those associated with jobs, Karpenter is able to target and terminate those nodes so long as the job status is succeed or failed.
 
