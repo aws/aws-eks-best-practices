@@ -137,6 +137,7 @@ plugins:
             Home: 홈
             Identity and Access Management: 인증 및 접근 관리
             Image Security: 이미지 보안
+            Multi Account Strategy: 멀티 어카운트 전략
             Incident Response and Forensics: 사고 대응 및 포렌식
             Infrastructure Management: 인프라 관리
             Infrastructure Security: 인프라 보안
