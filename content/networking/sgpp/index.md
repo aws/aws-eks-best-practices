@@ -9,9 +9,9 @@ With security groups for Pods, you can improve compute efficiency by running app
 
 ![illustration of pod and node with different security groups connecting to RDS](./image-2.png)
 
-You can enable security groups for Pods by setting `ENABLE_POD_ENI = true` for VPC CNI. Once this setting is set to `true`, for each node in the cluster the add-on adds a label with the value `vpc.amazonaws.com/has-trunk-attached=true`. When you enable Pod ENI, the “[VPC Resource Controller](https://github.com/aws/amazon-vpc-resource-controller-k8s)“ running on the control plane (managed by EKS) creates and attaches a trunk interface called “aws-k8s-trunk-eni“ to the node. The trunk interface acts as a standard network interface attached to the instance. To manage trunk interfaces, you must add the `AmazonEKSVPCResourceController` managed policy to the cluster role that goes with your Amazon EKS cluster.
+You can enable security groups for Pods by setting `ENABLE_POD_ENI=true` for VPC CNI. Once enabled, the “[VPC Resource Controller](https://github.com/aws/amazon-vpc-resource-controller-k8s)“ running on the control plane (managed by EKS) creates and attaches a trunk interface called “aws-k8s-trunk-eni“ to the node. The trunk interface acts as a standard network interface attached to the instance. To manage trunk interfaces, you must add the `AmazonEKSVPCResourceController` managed policy to the cluster role that goes with your Amazon EKS cluster.
 
-The controller also creates branch interfaces named "aws-k8s-branch-eni" and associates them with the trunk interface. Pods are assigned a security group using the [SecurityGroupPolicy](https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/config/crd/bases/vpcresources.k8s.aws_securitygrouppolicies.yaml) custom resource and are associated with a branch interface. Since security groups are specified with network interfaces, we are now able to schedule Pods requiring specific security groups on these additional network interfaces. Review the[EKS User Guide Section on Security Groups for Pods,](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html) including deployment prerequisites.
+The controller also creates branch interfaces named "aws-k8s-branch-eni" and associates them with the trunk interface. Pods are assigned a security group using the [SecurityGroupPolicy](https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/config/crd/bases/vpcresources.k8s.aws_securitygrouppolicies.yaml) custom resource and are associated with a branch interface. Since security groups are specified with network interfaces, we are now able to schedule Pods requiring specific security groups on these additional network interfaces. Review the [EKS User Guide Section on Security Groups for Pods,](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html) including deployment prerequisites.
 
 ![illustration of worker subnet with security groups associated with ENIs](./image-3.png)
 
@@ -83,7 +83,7 @@ Windows-based and non-nitro instances do not support security groups for Pods. T
 
 If an application running within the EKS cluster has to communicate with another resource within the VPC, e.g. an RDS database, then consider using SGs for pods. While there are policy engines that allow you to specify an CIDR or a DNS name, they are a less optimal choice when communicating with AWS services that have endpoints that reside within a VPC.
 
-In contrast, Kubernetes [network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) provide a mechanism for controlling ingress and egress traffic both within and outside the cluster. Kubernetes network policies should be considered if your application has limited dependencies on other AWS services. You can configure may configure network policies that specify egress rules based on CIDR ranges to limit access to AWS services as opposed to AWS native semantics like SGs. You may use Kubernetes network policies to control network traffic between Pods (often referred to as East/West traffic) and between Pods and external services. Kubernetes network policies are implemented at OSI levels 3 and 4. 
+In contrast, Kubernetes [network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) provide a mechanism for controlling ingress and egress traffic both within and outside the cluster. Kubernetes network policies should be considered if your application has limited dependencies on other AWS services. You may configure network policies that specify egress rules based on CIDR ranges to limit access to AWS services as opposed to AWS native semantics like SGs. You may use Kubernetes network policies to control network traffic between Pods (often referred to as East/West traffic) and between Pods and external services. Kubernetes network policies are implemented at OSI levels 3 and 4. 
 
 Amazon EKS allows you to use network policy engines such as [Calico](https://projectcalico.docs.tigera.io/getting-started/kubernetes/managed-public-cloud/eks) and [Cilium](https://docs.cilium.io/en/stable/intro/). By default, the network policy engines are not installed. Please check the respective install guides for instructions on how to set up. For more information on how to use network policy, see [EKS Security best practices](https://aws.github.io/aws-eks-best-practices/security/docs/network/#network-policy). The DNS hostnames feature is available in the enterprise versions of network policy engines, which could be useful for controlling traffic between Kubernetes Services/Pods and resources that run outside of AWS. Also, you can consider DNS hostname support for AWS services that don't support security groups by default.
 
@@ -106,5 +106,52 @@ Pods that are assigned security groups must be run on nodes that are deployed on
 ### Verify *terminationGracePeriodSeconds* in Pod Specification File
 
 Ensure that `terminationGracePeriodSeconds` is non-zero in your Pod specification file (default 30 seconds). This is essential in order for Amazon VPC CNI to delete the Pod network from the worker node. When set to zero, the CNI plugin does not remove the Pod network from the host, and the branch ENI is not effectively cleaned up.
+
+### Using Security Groups for Pods with Fargate
+
+Security groups for Pods that run on Fargate work very similarly to Pods that run on EC2 worker nodes. For example, you have to create the security group before referencing it in the SecurityGroupPolicy you associate with your Fargate Pod. By default, the [cluster security group](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html) is assiged to all Fargate Pods when you don't explicitly assign a SecurityGroupPolicy to a Fargate Pod. For simplicity's sake, you may want to add the cluster security group to a Fagate Pod's SecurityGroupPolicy otherwise you will have to add the minimum security group rules to your security group. You can find the cluster security group using the describe-cluster API.
+
+```bash
+ aws eks describe-cluster --name CLUSTER_NAME --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId'
+```
+
+```bash
+cat >my-fargate-sg-policy.yaml <<EOF
+apiVersion: vpcresources.k8s.aws/v1beta1
+kind: SecurityGroupPolicy
+metadata:
+  name: my-fargate-sg-policy
+  namespace: my-fargate-namespace
+spec:
+  podSelector: 
+    matchLabels:
+      role: my-fargate-role
+  securityGroups:
+    groupIds:
+      - cluster_security_group_id
+      - my_fargate_pod_security_group_id
+EOF
+```
+
+The minimum security group rules are listed [here](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html). These rules allow Fargate Pods to communicate with in-cluster services like kube-apiserver, kubelet, and CoreDNS. You also need add rules to allow inbound and outbound connections to and from your Fargate Pod. This will allow your Pod to communicate with other Pods or resources in your VPC. Additionally, you have to include rules for Fargate to pull container images from Amazon ECR or other container registries such as DockerHub. For more information, see AWS IP address ranges in the [AWS General Reference](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html). 
+
+You can use the below commands to find the security groups applied to a Fargate Pod. 
+
+```bash
+kubectl get pod FARGATE_POD -o jsonpath='{.metadata.annotations.vpc\.amazonaws\.com/pod-eni}{"\n"}'
+```
+
+Note down the eniId from above command. 
+
+```bash
+aws ec2 describe-network-interfaces --network-interface-ids ENI_ID --query 'NetworkInterfaces[*].Groups[*]'
+```
+
+Existing Fargate pods must be deleted and recreated in order for new security groups to be applied. For instance, the following command initiates the deployment of the example-app. To update specific pods, you can change the namespace and deployment name in the below command.
+
+```bash
+kubectl rollout restart -n example-ns deployment example-pod
+```
+
 
 

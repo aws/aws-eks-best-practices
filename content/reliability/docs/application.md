@@ -16,9 +16,11 @@ Running multiple replicas Pods of an app using a Deployment helps it run in a hi
 
 ### Schedule replicas across nodes
 
-Running multiple replicas won’t be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity to spread replicas of a Deployment across multiple worker nodes. 
+Running multiple replicas won’t be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity or pod topology spread constraints to spread replicas of a Deployment across multiple worker nodes. 
 
 You can further improve a typical application’s reliability by running it across multiple AZs. 
+
+#### Using Pod anti-affinity rules
 
 The manifest below tells Kubernetes scheduler to *prefer* to place pods on separate nodes and AZs. It doesn’t require distinct nodes or AZ because if it did, then Kubernetes will not be able to schedule any pods once there is a pod running in each AZ. If your application requires just three replicas, you can use `requiredDuringSchedulingIgnoredDuringExecution` for `topologyKey: topology.kubernetes.io/zone`, and Kubernetes scheduler will not schedule two pods in the same AZ.
 
@@ -65,7 +67,49 @@ spec:
         image: nginx:1.16-alpine
 ```
 
-In version 1.18, Kubernetes introduced [pod topology spread constraints](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/), which allows you to spread Pods across AZs automatically.
+#### Using Pod topology spread constraints
+
+Similar to pod anti-affinity rules, pod topology spread constraints allow you to make your application available across different failure (or topology) domains like hosts or AZs. This approach works very well when you're trying to ensure fault tolerance as well as availability by having multiple replicas in each of the different topology domains. Pod anti-affinity rules, on the other hand, can easily produce a result where you have a single replica in a topology domain because the pods with an anti-affinity toward each other have a repelling effect. In such cases, a single replica on a dedicated node isn't ideal for fault tolerance nor is it a good use of resources. With topology spread constraints, you have more control over the spread or distribution that the scheduler should try to apply across the topology domains. Here are some important properties to use in this approach:
+1. The `maxSkew` is used to control or determine the maximum point to which things can be uneven across the topology domains. For example, if an application has 10 replicas and is deployed across 3 AZs, you can't get an even spread, but you can influence how uneven the distribution will be. In this case, the `maxSkew` can be anything between 1 and 10. A value of 1 means you can potentially end up with a spread like `4,3,3`, `3,4,3` or `3,3,4` across the 3 AZs. In contrast, a value of 10 means you can potentially end up with a spread like `10,0,0`, `0,10,0` or `0,0,10` across 3 AZs.
+2. The `topologyKey` is a key for one of the node labels and defines the type of topology domain that should be used for the pod distribution. For example, a zonal spread would have the following key-value pair:
+```
+topologyKey: "topology.kubernetes.io/zone"
+```
+3. The `whenUnsatisfiable` property is used to determine how you want the scheduler to respond if the desired constraints can't be satisfied.
+4. The `labelSelector` is used to find matching pods so that the scheduler can be aware of them when deciding where to place pods in accordance with the constraints that you specify.
+
+In addition to these above, there are other fields that you can read about further in the [Kubernetes documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/).
+
+![Pod topology spread constraints across 3 AZs](./images/pod-topology-spread-constraints.jpg)
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spread-host-az
+  labels:
+    app: web-server
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: web-server
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: "topology.kubernetes.io/zone"
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: express-test
+      containers:
+      - name: web-app
+        image: nginx:1.16-alpine
+```
 
 ### Run Kubernetes Metrics Server
 
@@ -88,14 +132,14 @@ You must use one of these three APIs to provide the metric to scale your applica
 
 ### Scaling applications based on custom or external metrics
 
-You can use custom or external metrics to scale your application on metrics other than CPU or memory utilization. [Custom Metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/custom-metrics-api.md) API servers provide the `custom-metrics.k8s.io` API that HPA can use to autoscale applications. 
+You can use custom or external metrics to scale your application on metrics other than CPU or memory utilization. [Custom Metrics](https://github.com/kubernetes-sigs/custom-metrics-apiserver) API servers provide the `custom-metrics.k8s.io` API that HPA can use to autoscale applications. 
 
-You can use the [Prometheus Adapter for Kubernetes Metrics APIs](https://github.com/directxman12/k8s-prometheus-adapter) to collect metrics from Prometheus and use with the HPA. In this case, Prometheus adapter will expose Prometheus metrics in [Metrics API format](https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/v1alpha1/types.go). A list of all custom metrics implementation can be found in [Kubernetes Documentation](https://github.com/kubernetes/metrics/blob/master/IMPLEMENTATIONS.md#custom-metrics-api). 
+You can use the [Prometheus Adapter for Kubernetes Metrics APIs](https://github.com/directxman12/k8s-prometheus-adapter) to collect metrics from Prometheus and use with the HPA. In this case, Prometheus adapter will expose Prometheus metrics in [Metrics API format](https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/types.go). 
 
 Once you deploy the Prometheus Adapter, you can query custom metrics using kubectl.
 `kubectl get —raw /apis/custom.metrics.k8s.io/v1beta1/`
 
-[External metrics](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md), as the name suggests, provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to the Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
+External metrics, as the name suggests, provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to the Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
 
 To autoscale a Deployment using a CloudWatch metric, for example, [scaling a batch-processor application based on SQS queue depth](https://github.com/awslabs/k8s-cloudwatch-adapter/blob/master/samples/sqs/README.md), you can use [`k8s-cloudwatch-adapter`](https://github.com/awslabs/k8s-cloudwatch-adapter). `k8s-cloudwatch-adapter` is a community project and not maintained by AWS. 
 
@@ -139,7 +183,7 @@ Changes are inherently risky, but changes that cannot be undone can be potential
 
 You can perform blue/green deployments in Kubernetes by creating a new Deployment that is identical to the existing version’s Deployment. Once you verify that the Pods in the new Deployment are running without errors, you can start sending traffic to the new Deployment by changing the `selector` spec in the Service that routes traffic to your application’s Pods.
 
-Many continuous integration tools such as [Flux](https://fluxcd.io), [Jenkins](https://www.jenkins.io), and [Spinnaker](https://spinnaker.io) let you automate blue/green deployments. Kubernetes blog includes a walkthrough using Jenkins: [Zero-downtime Deployment in Kubernetes with Jenkins](https://kubernetes.io/blog/2018/04/30/zero-downtime-deployment-kubernetes-jenkins/)
+Many continuous integration tools such as [Flux](https://fluxcd.io), [Jenkins](https://www.jenkins.io), and [Spinnaker](https://spinnaker.io) let you automate blue/green deployments. AWS Containers Blog includes a walkthrough using AWS Load Balancer Controller: [Using AWS Load Balancer Controller for blue/green deployment, canary deployment and A/B testing](https://aws.amazon.com/blogs/containers/using-aws-load-balancer-controller-for-blue-green-deployment-canary-deployment-and-a-b-testing/)
 
 ### Use Canary deployments
 

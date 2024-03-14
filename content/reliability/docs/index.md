@@ -14,7 +14,6 @@ The reliability best practices for EKS have been grouped under the following top
 * Applications
 * Control Plane 
 * Data Plane
-* Network
 
 ---
 

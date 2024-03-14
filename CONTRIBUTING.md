@@ -1,8 +1,9 @@
 # Guidelines for contributing
 
-Thank you for your interest in contributing to AWS documentation! We greatly value feedback and contributions from our community.
+We're so excited to have you join us and help make the Amazon EKS Best Practices project even better! Whether you're adding new content, code samples, or improving what's already here, there are just a few guidelines to follow. 
 
-Please read through this document before you submit any pull requests or issues. It will help us work together more effectively.
+## Goal and target audience
+It's important to note that our [open-source software (OSS) community](https://aws.amazon.com/what-is/open-source/) values our content most because it's openly governed and vendor-neutral in its guidance. Unless a vendor's product or service has an open source component and/or is widely recognized as a standard, we limit contributions to open source guidance and best practices, exclusively.
 
 ## What to expect when you contribute
 
@@ -32,14 +33,14 @@ To contribute, send us a pull request. For small changes, such as fixing a typo 
 Before you send us a pull request, please be sure that:
 
 1. You're working from the latest source on the **master** branch.
-2. You check [existing open](https://github.com/awsdocs/aws-eks-best-practices/pulls), and [recently closed](https://github.com/awsdocs/aws-eks-best-practices/pulls?q=is%3Apr+is%3Aclosed), pull requests to be sure that someone else hasn't already addressed the problem.
-3. You [create an issue](https://github.com/awsdocs/aws-eks-best-practices/issues/new) before working on a contribution that will take a significant amount of your time.
+2. You check [existing open](https://github.com/aws/aws-eks-best-practices/pulls), and [recently closed](https://github.com/aws/aws-eks-best-practices/pulls?q=is%3Apr+is%3Aclosed), pull requests to be sure that someone else hasn't already addressed the problem.
+3. You [create an issue](https://github.com/aws/aws-eks-best-practices/issues/new) before working on a contribution that will take a significant amount of your time.
 
-For contributions that will take a significant amount of time, [open a new issue](https://github.com/awsdocs/aws-eks-best-practices/issues/new) to pitch your idea before you get started. Explain the problem and describe the content you want to see added to the documentation. Let us know if you'll write it yourself or if you'd like us to help. We'll discuss your proposal with you and let you know whether we're likely to accept it. We don't want you to spend a lot of time on a contribution that might be outside the scope of the documentation or that's already in the works.
+For contributions that will take a significant amount of time, [open a new issue](https://github.com/aws/aws-eks-best-practices/issues/new) to pitch your idea before you get started. Explain the problem and describe the content you want to see added to the documentation. Let us know if you'll write it yourself or if you'd like us to help. We'll discuss your proposal with you and let you know whether we're likely to accept it. We don't want you to spend a lot of time on a contribution that might be outside the scope of the documentation or that's already in the works.
 
 ## Finding contributions to work on
 
-If you'd like to contribute, but don't have a project in mind, look at the [open issues](https://github.com/awsdocs/aws-eks-best-practices/issues) in this repository for some ideas. Any issues with the [help wanted](https://github.com/awsdocs/aws-eks-best-practices/labels/help%20wanted) or [enhancement](https://github.com/awsdocs/aws-eks-best-practices/labels/enhancement) labels are a great place to start.
+If you'd like to contribute, but don't have a project in mind, look at the [open issues](https://github.com/aws/aws-eks-best-practices/issues) in this repository for some ideas. Any issues with the [help wanted](https://github.com/aws/aws-eks-best-practices/labels/help%20wanted) or [enhancement](https://github.com/aws/aws-eks-best-practices/labels/enhancement) labels are a great place to start.
 
 In addition to written content, we really appreciate new examples and code samples for our documentation, such as examples for different platforms or environments, and code samples in additional languages.
 
@@ -53,4 +54,4 @@ If you discover a potential security issue, please notify AWS Security via our [
 
 ## Licensing
 
-See the [LICENSE](https://github.com/awsdocs/aws-eks-best-practices/blob/master/LICENSE) file for this project's licensing. We will ask you to confirm the licensing of your contribution. We may ask you to sign a [Contributor License Agreement (CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) for larger changes.
+See the [LICENSE](https://github.com/aws/aws-eks-best-practices/blob/master/LICENSE) file for this project's licensing. We will ask you to confirm the licensing of your contribution. We may ask you to sign a [Contributor License Agreement (CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) for larger changes.

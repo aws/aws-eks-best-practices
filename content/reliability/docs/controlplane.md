@@ -44,7 +44,7 @@ Consider monitoring these control plane metrics:
 
 | Metric | Description  |
 |:--|:--|
-|  `apiserver_request_total` | Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code. |
+| `apiserver_request_total` | Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, and HTTP response code. |
 | `apiserver_request_duration_seconds*`  | Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope, and component. |
 | `apiserver_admission_controller_admission_duration_seconds` | Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). |
 | `apiserver_admission_webhook_rejection_count` | Count of admission webhook rejections. Identified by name, operation, rejection_code, type (validating or admit), error_type (calling_webhook_error, apiserver_internal_error, no_error) |
@@ -53,18 +53,21 @@ Consider monitoring these control plane metrics:
 
 ### etcd
 
-| Metric | Description  |
-|:--|:--|
-| `etcd_request_duration_seconds` | Etcd request latency in seconds for each operation and object type. |
-| `etcd_db_total_size_in_bytes` | Etcd database size. |
+| Metric                                                                                                                                                                                    | Description  
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--|
+| `etcd_request_duration_seconds`                                                                                                                                                           | Etcd request latency in seconds for each operation and object type. |
+| `etcd_db_total_size_in_bytes` or <br />`apiserver_storage_db_total_size_in_bytes` (starting with EKS v1.26) or <br />`apiserver_storage_size_bytes` (starting with EKS v1.28) | Etcd database size. |
 
 Consider using the [Kubernetes Monitoring Overview Dashboard](https://grafana.com/grafana/dashboards/14623) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics.
 
-The following Prometheus query can be used to monitor the current size of etcd. The query assumes there is job called `kube-apiserver` for scraping metrics from API metrics endpoint. 
+The following Prometheus query can be used to monitor the current size of etcd. The query assumes there is job called `kube-apiserver` for scraping metrics from API metrics endpoint and the EKS version is below v1.26. 
 
 ```text
 max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
 ```
+
+!!! attention
+    When the database size limit is exceeded, etcd emits a no space alarm and stops taking further write requests. In other words, the cluster becomes read-only, and all requests to mutate objects such as creating new pods, scaling deployments, etc., will be rejected by the cluster’s API server.
 
 ## Cluster Authentication
 
@@ -166,25 +169,20 @@ In order to avoid impacting cluster critical operations either avoid setting "ca
 
 Or make sure the webhook has a fail open policy with a timeout shorter than 30 seconds to ensure that if your webhook is unavailable it will not impair cluster critical workloads.
 
+### Block Pods with unsafe `sysctls`
+
+`Sysctl` is a Linux utility that allows users to modify kernel parameters during runtime. These kernel parameters control various aspects of the operating system's behavior, such as network, file system, virtual memory, and process management.
+
+Kubernetes allows assigning `sysctl` profiles for Pods. Kubernetes categorizes `systcls` as safe and unsafe. Safe `sysctls` are namespaced in the container or Pod, and setting them doesn’t impact other Pods on the node or the node itself. In contrast, unsafe sysctls are disabled by default since they can potentially disrupt other Pods or make the node unstable.
+
+As unsafe `sysctls` are disabled by default, the kubelet will not create a Pod with unsafe `sysctl` profile. If you create such a Pod, the scheduler will repeatedly assign such Pods to nodes, while the node fails to launch it. This infinite loop ultimately strains the cluster control plane, making the cluster unstable.
+
+Consider using [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper-library/blob/377cb915dba2db10702c25ef1ee374b4aa8d347a/src/pod-security-policy/forbidden-sysctls/constraint.tmpl) or [Kyverno](https://kyverno.io/policies/pod-security/baseline/restrict-sysctls/restrict-sysctls/) to reject  Pods with unsafe `sysctls`.
+
+
+
 ## Handling Cluster Upgrades
-Since April 2021, Kubernetes release cycle has been changed from four releases a year (once a quarter) to three releases a year. A new minor version (like 1.**21** or 1.**22**) is released approximately [every fifteen weeks](https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when). Starting with Kubernetes 1.19, each minor version is supported for approximately twelve months after it's first released.. Kubernetes supports compatibility between the control plane and worker nodes for at least two minor versions.
-
-In line with the Kubernetes community support for Kubernetes versions, EKS provides at least three production-ready versions of Kubernetes at any given time, with a fourth version in deprecation.
-
-EKS will announce the deprecation of a given Kubernetes minor version at least 60 days before the end of support date. On the end of support date, clusters running the deprecated version will begin to be automatically updated to the next EKS-supported version of Kubernetes.
-
-EKS performs in-place cluster upgrades for both [Kubernetes](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) and [EKS platform versions](https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html). This simplifies cluster operations and lets you take advantage of the latest Kubernetes features and apply security patches, without any downtime.
-
-New Kubernetes versions introduce significant changes, and you cannot downgrade a cluster once upgraded. Having a well-documented process for handling cluster upgrades is necessary for a smooth transition to newer Kubernetes versions. You may consider migrating to new clusters when upgrading to newer Kubernetes versions instead of performing in-place cluster upgrades. Cluster backup and restore tools like [VMware’s Velero](https://github.com/vmware-tanzu/velero) can help you migrate to a new cluster.
-
-- You should familiarize yourself with the [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) as newer versions may deprecate APIs and features that may break existing applications.
-- Before upgrading the cluster, you should review the [Kubernetes change log](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) and [Amazon EKS Kubernetes versions](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) to understand any negative impact to your workloads.
-- Consider testing the cluster upgrade in a non-production environment and identify any impacts to current workloads and controllers. You can automate the testing by building a continuous integration workflow to test the compatibility of your applications, controllers, and custom integrations before moving to a new Kubernetes version.
-- You may also need to upgrade Kubernetes add-ons after upgrading the cluster. Review [Updating an Amazon EKS cluster Kubernetes version](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html) to validate the compatibility of cluster add-ons with the cluster version.
-- Consider turning on [control plane logging](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html) and review the logs for any errors.
-- Consider using `eksctl` to manage EKS cluster. You can use `eksctl` to [update the control plane, add-ons, and worker nodes](https://eksctl.io/usage/cluster-upgrade/).
-- EKS control plane upgrade doesn’t include upgrading worker nodes. You are responsible for updating EKS worker nodes. Consider using [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) or [EKS on Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html) to automate the process of upgrading worker nodes.
-- If required, you can use [`kubectl convert`](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin) plugin to [convert Kubernetes manifests files between different API versions](https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/).
+Since April 2021, Kubernetes release cycle has been changed from four releases a year (once a quarter) to three releases a year. A new minor version (like 1.**21** or 1.**22**) is released approximately [every fifteen weeks](https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when). Starting with Kubernetes 1.19, each minor version is supported for approximately twelve months after it's first released. With the advent of Kubernetes v1.28, the compatibility skew between the control plane and worker nodes has expanded from n-2 to n-3 minor versions. To learn more, see [Best Practices for Cluster Upgrades](../../upgrades/index.md).
 
 ## Running large clusters
 
@@ -193,14 +191,6 @@ EKS actively monitors the load on control plane instances and automatically scal
 - Clusters with more than 1000 services may experience network latency with using `kube-proxy` in `iptables` mode according to the [tests performed by the ProjectCalico team](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/). The solution is to switch to [running `kube-proxy` in `ipvs` mode](https://medium.com/@jeremy.i.cowan/the-problem-with-kube-proxy-enabling-ipvs-on-eks-169ac22e237e).
 - You may also experience [EC2 API request throttling](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html) if the CNI needs to request IP addresses for Pods or if you need to create new EC2 instances frequently. You can reduce calls EC2 API by configuring the CNI to cache IP addresses. You can use larger EC2 instance types to reduce EC2 scaling events.
 
-## Know limits and service quotas
-
-AWS sets service limits (an upper limit on the number of each resource your team can request) to protect you from accidentally over-provisioning resources. [Amazon EKS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html) lists the service limits. There are two types of limits, soft limits, that can be changed using [AWS Service Quotas](https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html). Hard limits cannot be changed. You should consider these values when architecting your applications. Consider reviewing these service limits periodically and incorporate them during in your application design.
-
-- Besides the limits from orchestration engines, there are limits in other AWS services, such as Elastic Load Balancing (ELB) and Amazon VPC, that may affect your application performance.
-- More about EC2 limits here: [EC2 service limits](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html).
-- Each EC2 instance limits the number of packets that can be sent to the [Amazon-provided DNS server](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-limits) to a maximum of 1024 packets per second per network interface.
-- In EKS environment, etcd storage limit is **8GB** as per [upstream guidance](https://etcd.io/docs/v3.5/dev-guide/limit/#storage-size-limit). Please monitor metric `etcd_db_total_size_in_bytes` to track etcd db size. You can refer to [alert rules](https://github.com/etcd-io/etcd/blob/main/contrib/mixin/mixin.libsonnet#L213-L240) `etcdBackendQuotaLowSpace` and `etcdExcessiveDatabaseGrowth` to setup this monitoring.
 
 ## Additional Resources:
 

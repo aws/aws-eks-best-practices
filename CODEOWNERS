@@ -1,0 +1,12 @@
+/content/cluster-autoscaling/ @aws/eks-bpg-autoscaling-wg
+/content/karpenter/ @aws/eks-bpg-autoscaling-wg
+/content/networking/ @aws/eks-bpg-networking-wg
+/content/operational_excellence/ @aws/eks-bpg-resiliency-wg
+/content/performance @aws/eks-bpg-autoscaling-wg
+/content/reliability/ @aws/eks-bpg-resiliency-wg
+/content/security/ @aws/eks-bpg-security-wg
+/content/upgrades/ @aws/eks-bpg-resiliency-wg
+/content/windows/ @aws/eks-bpg-windows-wg
+
+# Fallback
+* @aws/eks-bpg-steering-committee
