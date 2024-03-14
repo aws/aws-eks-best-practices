@@ -193,6 +193,7 @@ Determining resource requests can be difficult, but tools like the [Vertical Pod
 - [Parca](https://www.parca.dev/)
 - [Prodfiler](https://prodfiler.com/)
 - [rsg](https://mhausenblas.info/right-size-guide/)
+- [Optimize Live](https://www.stormforge.io/how-stormforge-optimize-live-works/)
 
 
 ### Configure resource quotas for namespaces
