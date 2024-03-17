@@ -291,12 +291,13 @@ Another option to limit watch calls or listed objects is to use [`resourceVersio
 There is a special `resourceVersion=0` available that will return results from the API server cache. This can reduce etcd load but it does not support pagination.
 
 ```
-/api/v1/namespaces/default/pods?watch=true&resourceVersion=0
-```
-```
 /api/v1/namespaces/default/pods?resourceVersion=0
 ```
+It's recommended to use watch with a resourceVersion set to be the most recent known value received from its preceding list or watch. This is handled automatically in client-go. But it's suggested to double check it if you are using a k8s client in other languages.
 
+```
+/api/v1/namespaces/default/pods?watch=true&resourceVersion=362812295
+```
 If you call the API without any arguments it will be the most resource intensive for the API server and etcd. This call will get all pods in all namespaces without pagination or limiting the scope and require a quorum read from etcd.
 
 ```
