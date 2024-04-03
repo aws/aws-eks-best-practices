@@ -4,7 +4,7 @@ authors:
   - Justin Garrison
   - Rajdeep Saha
 ---
-# Cost Optimization - Compute and Autoscaling.
+# Cost Optimization - Compute and Autoscaling
 
 As a developer, you'll make estimates about your application’s resource requirements, e.g. CPU and memory, but if you’re not continually adjusting them they may become outdated which could increase your costs and worsen performance and reliability. Continually adjusting an application's resource requirements is more important than getting them right the first time.
 
