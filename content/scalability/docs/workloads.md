@@ -96,6 +96,18 @@ request:
 
 Mutating webhooks can modify resources in frequent succession. If you have 5 mutating webhooks and deploy 50 resources etcd will store all versions of each resource until compaction runs—every 5 minutes—to remove old versions of modified resources. In this scenario when etcd removes superseded resources there will be 200 resource version removed from etcd and depending on the size of the resources may use considerable space on the etcd host until defragmentation runs every 15 minutes.
 
-Webhook endpoint under heavy load may take longer to respond to incoming requests. This will add latencies in the response times of the cluster. This can be influenced by factors such as the number of concurrent requests being handled, the resources available to the endpoint, and any rate limiting or throttling mechanisms in place. Review and optimize the performance of the webhook endpoint code to minimize response times. This may involve identifying and addressing bottlenecks in the code, optimizing database queries, and caching frequently accessed data.
+Webhook endpoint under heavy load may take longer to respond to incoming requests. This will add latencies in the response times of the cluster. This can be influenced by factors such as the number of concurrent requests being handled, the resources available to the endpoint, and any rate limiting or throttling mechanisms in place. Review and optimize the performance of the webhook endpoint code to minimize response times. This may involve identifying and addressing bottlenecks in the code, optimizing database queries, and caching frequently accessed data. Another recommended way to enhance webhook performance is by using [objectSelector](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#matching-requests-objectselector) whenever possible.
+
+To monitor latency caused by webhooks, following query can be used in log Insights
+```
+fields @timestamp, requestURI, start_time, end_time, duration
+| filter requestURI like 'YOUR_WEBHOOK_URI_PATTERN%'  // Replace YOUR_WEBHOOK_URI_PATTERN with the pattern to match your webhook URIs
+| parse @message /start_time:(?<start_time>\d+), end_time:(?<end_time>\d+)/
+| filter ispresent(start_time) and ispresent(end_time)
+| extend duration = end_time - start_time
+| sort @timestamp desc
+| limit 100   // Adjust the number of results as needed
+
+```
 
 This defragmentation may cause pauses in etcd which could have other affects on the Kubernetes API and controllers. You should avoid frequent modification of large resources or modifying hundreds of resources in quick succession.
