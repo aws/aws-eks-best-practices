@@ -47,7 +47,7 @@ Both Karpenter and the Kubernetes Cluster Autoscaler will scale the number of no
 
 As clusters grow in size and the variety of workloads increases it becomes more difficult to pre-configure node groups and instances. Just like with workload requests it’s important to set an initial baseline and continually adjust as needed.
 
-If you are using Cluster Autoscaler, it will respect the "minimum" and "maximum" values of each Autoscaling group and only adjusts the "desired" value. Its important to pay attention while setting these values for the underlying Autoscaling group since Cluster Autoscaler will not be able to scale down an Autoscaling group beyond its "minimum" count. Set the "desired" count as the number of nodes you need during normal business hours and "minimum" as the number of nodes you need during off-business hours. Please refer to [Cluster Autoscaler FAQ](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md#auto-discovery-setup) doc.
+If you are using Cluster Autoscaler, it will respect the "minimum" and "maximum" values of each Auto Scaling group (ASG) and only adjust the "desired" value. It's important to pay attention while setting these values for the underlying ASG since Cluster Autoscaler will not be able to scale down an ASG beyond its "minimum" count. Set the "desired" count as the number of nodes you need during normal business hours and "minimum" as the number of nodes you need during off-business hours. Please refer to [Cluster Autoscaler FAQ](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md#auto-discovery-setup) doc.
 
 ### Cluster Autoscaler Priority Expander
 
