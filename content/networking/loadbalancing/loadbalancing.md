@@ -78,7 +78,7 @@ By default the AWS Load Balancer controller will register targets using ‘Insta
 * Because the Load Balancer registers the Worker Node as its target this means its health check which gets sent to the target will not be directly received by the pod but by the Worker Node on its NodePort and health check traffic will follow the same path described above.
 * Monitoring and Troubleshooting is more complex since traffic forwarded by the Load Balancer isn’t directly sent to the pods and you’d have to carefully correlate the packet received on the Worker Node to to the Service ClusterIP and eventually the pod to have full end-to-end visibility into the packet’s path for proper troubleshooting.
 
-![targettype_instance.png](targettype_instance.png)
+![targettype_instance.png](target_type_instance.png)
 
 
 By contrast if you configure the target type as ‘IP’ as we recommend the implication will be the following: 
@@ -87,7 +87,7 @@ By contrast if you configure the target type as ‘IP’ as we recommend the imp
 * The Load Balancer’s health check is directly received and responded to by the pod, this means the target status ‘healthy’ or ‘unhealthy’ are a direct representation of the pod’s health status. 
 * Monitoring and Troubleshooting is easier and any tool used that captures packet IP address will directly reveal the bi-directional traffic between the Load Balancer and the pod in its source and destination fields.
 
-![targettype_ip.png](targettype_ip.png)
+![targettype_ip.png](target_type_ip.png)
 
 To create an AWS Elastic Load Balancing that uses IP Targets you add:
 
