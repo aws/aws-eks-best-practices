@@ -180,6 +180,75 @@ plugins:
             Workloads: 워크로드
             gMSA for Windows Containers: gMSA 윈도우 컨테이너
           site_name: EKS 모범 사례 가이드
+        - locale: zh-TW
+          name: 中文（繁體）
+          fixed_link: ./zh-TW/
+          build: true
+          nav_translations:
+            AMI Management: AMI 管理
+            Amazon VPC CNI: Amazon VPC CNI
+            Applications: 應用程式
+            Cloud Financial Management Framework: 雲端財務管理框架
+            Cluster Autoscaling: 集群自動擴展
+            Cluster Services: 集群服務
+            Cluster Upgrades: 集群升級
+            Cluster-Autoscaler: 集群自動擴展器
+            Compute: 計算
+            Control Plane: 控制平面
+            Control plane monitoring: 控制平面監控
+            Cost Optimization: 成本優化
+            Custom Networking: 自定義網路
+            Data Encryption and Secrets Management: 數據加密和密鑰管理
+            Data Plane: 數據平面
+            Detective Controls: 偵測控制
+            Guides: 指南
+            Home: 主頁
+            Identity and Access Management: 身份和訪問管理
+            Image Security: 映像安全
+            Incident Response and Forensics: 事件響應和取證
+            Infrastructure Management: 基礎設施管理
+            Infrastructure Security: 基礎設施安全
+            Introduction: 介紹
+            Karpenter: Karpenter
+            Known limits and service quotas: 已知限制和服務配額
+            Kubernetes SLOs: Kubernetes SLO
+            Load Balancing: 負載均衡
+            Logging: 日誌記錄
+            Memory and Systems Management: 內存和系統管理
+            Monitoring Windows Containers: 監控 Windows 容器
+            Monitoring for Network performance issues: 監控網絡性能問題
+            Multi Account Strategy: 多賬戶策略
+            Multi-tenancy: 多租戶
+            Network: 網絡
+            Network Security: 網絡安全
+            Networking: 網絡
+            Node efficiency and scaling: 節點效率和擴展
+            Observability: 可觀測性
+            Optimizing IP Address Utilization: 優化 IP 地址利用率
+            Pod Security: Pod 安全
+            Pod Security for Windows Containers: Windows 容器的 Pod 安全
+            Prefix Mode for Linux: Linux 的前綴模式
+            Prefix Mode for Windows: Windows 的前綴模式
+            Regulatory Compliance: 監管合規
+            Reliability: 可靠性
+            Running IPv6 Clusters: 運行 IPv6 集群
+            Runtime Security: 運行時安全
+            Scalability: 可擴展性
+            Scanning Windows Images: 掃描 Windows 映像
+            Scheduling: 調度
+            Security: 安全
+            Security Groups per Pod: 每個 Pod 的安全組
+            Storage: 存儲
+            Storage Options: 存儲選項
+            The theory behind scaling: 擴展背後的理論
+            VPC and Subnet Considerations: VPC 和子網考慮
+            Windows Containers: Windows 容器
+            Windows Networking: Windows 網絡
+            Windows Server Hardening: Windows Server 加固
+            Windows Versions and Licensing: Windows 版本和許可
+            Workloads: 工作負載
+            gMSA for Windows Containers: Windows 容器的 gMSA
+          site_name: EKS 最佳實踐指南
       reconfigure_material: true
       reconfigure_search: true
 extra:
