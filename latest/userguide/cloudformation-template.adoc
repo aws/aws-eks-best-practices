@@ -1,0 +1,44 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[creating-resources-with-cloudformation,creating-resources-with-cloudformation.title]]
+= Creating Amazon EKS resources with AWS CloudFormation
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Creating Amazon EKS resources with \
+   AWS CloudFormation
+:info_titleabbrev: AWS CloudFormation resources
+:info_abstract: Learn about how to create resources for Amazon EKS using an AWS CloudFormation template.
+
+[abstract]
+--
+Learn about how to create resources for Amazon EKS using an AWS CloudFormation template.
+--
+
+Amazon EKS is integrated with AWS CloudFormation, a service that helps you model and set up your AWS resources so that you can spend less time creating and managing your resources and infrastructure. You create a template that describes all the AWS resources that you want (like YOUR-RESOURCE-PLURAL), and AWS CloudFormation takes care of provisioning and configuring those resources for you.  
+
+When you use AWS CloudFormation, you can reuse your template to set up your Amazon EKS resources consistently and repeatedly. Just describe your resources once, and then provision the same resources over and over in multiple AWS accounts and Regions. 
+
+[[working-with-templates,working-with-templates.title]]
+== Amazon EKS and AWS CloudFormation templates
+
+To provision and configure resources for Amazon EKS and related services, you must understand  https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-guide.html[AWS CloudFormation templates]. Templates are formatted text files in JSON or YAML. These templates describe the resources that you want to provision in your AWS CloudFormation stacks. If you're unfamiliar with JSON or YAML, you can use AWS CloudFormation Designer to help you get started with AWS CloudFormation templates. For more information, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/working-with-templates-cfn-designer.html[What is AWS CloudFormation Designer?] in the __AWS CloudFormation User Guide__.
+
+Amazon EKS supports creating YOUR-RESOURCE-PLURAL in AWS CloudFormation. For more information, including examples of JSON and YAML templates for YOUR-RESOURCE-PLURAL, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html[YOUR-SERVICE-RESOURCE-TOPNODE-IN-CLOUDFORMATION, modify this link in the local-phrases.ent file] in the __AWS CloudFormation User Guide__.
+
+[[learn-more-cloudformation,learn-more-cloudformation.title]]
+== Learn more about AWS CloudFormation
+
+To learn more about AWS CloudFormation, see the following resources:
+
+
+
+* http://aws.amazon.com/cloudformation/[AWS CloudFormation]
+* https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html[AWS CloudFormation User Guide]
+* https://docs.aws.amazon.com/cloudformation-cli/latest/userguide/what-is-cloudformation-cli.html[AWS CloudFormation Command Line Interface User Guide]

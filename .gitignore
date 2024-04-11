@@ -1,0 +1,8 @@
+
+*.running.properties.txt
+*\~
+*.mobi
+/build
+*.DS_Store
+*.aws-oxygen
+.attach_pid*

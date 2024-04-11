@@ -1,0 +1,89 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[getting-started,getting-started.title]]
+= Getting started with Amazon EKS
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Getting started with Amazon EKS
+:info_titleabbrev: Getting started
+:info_abstract: Get started with Amazon EKS.
+
+[abstract]
+--
+Get started with Amazon EKS.
+--
+
+Introductory paragraph here. This paragraph should be brief, explain why to do the task, approximately how long it will take, costs (if any), and the outcome of the task. It should include the service name and service long name if appropriate.
+
+[.topiclist]
+[[Topic List]]
+
+[[getting-started-prerequisites,getting-started-prerequisites.title]]
+== Prerequisites
+
+Text that introduces the steps that must occur before the tutorial is started. Include a link to your Setting up section if you have one.
+
+
+
+* Text
+* Text
+* Text
+
+
+[[getting-started-step1,getting-started-step1.title]]
+== Step 1: Name of step
+
+Text
+
+. Text
+. Text
+. Text
+
+
+[[getting-started-step2,getting-started-step2.title]]
+== Step 2: Name of step
+
+Text
+
+. Text
+. Text
+. Text
+
+
+[[getting-started-step3,getting-started-step3.title]]
+== Step 3: Name of step
+
+Text
+
+. Text
+. Text
+. Text
+
+
+[[getting-started-cleanup,getting-started-cleanup.title]]
+== Step 4: Clean up
+
+Text
+
+. Text
+. Text
+. Text
+
+
+[[getting-started-next-steps,getting-started-next-steps.title]]
+== Next steps
+
+Text
+
+
+
+* Text
+* Text
+* Text

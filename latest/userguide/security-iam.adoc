@@ -1,0 +1,640 @@
+//!!NODE_ROOT <section>
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-common-scenarios-federated-users-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_federated-users.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-common-scenarios-third-party-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_third-party.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-common-scenarios-aws-accounts-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_aws-accounts.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-getting-started-create-delegated-user-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started_create-delegated-user.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-credentials-access-keys-html-Using-CreateAccessKey: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-operators-html-Conditions-IPAddress: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_condition_operators.html#Conditions_IPAddress
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-users-change-permissions-html-users-change-permissions-add-console: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html#users_change_permissions-add-console
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-best-practices-html-grant-least-privilege: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-best-practices-html-bp-use-aws-defined-policies: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-vs-inline.html#aws-managed-policies
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-create-html-access-policies-create-json-editor: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html#access_policies_create-json-editor
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-terms-and-concepts-html-iam-term-service-role: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html#iam-term-service-role
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-terms-and-concepts-html-iam-term-service-linked-role: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html#iam-term-service-linked-role
+:https---docs-aws-amazon-com-STS-latest-APIReference-API-GetFederationToken-html: https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html
+:https---docs-aws-amazon-com-STS-latest-APIReference-API-AssumeRole-html: https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_condition.html
+:https---docs-aws-amazon-com-general-latest-gr-acct-identifiers-html-FindingCanonicalId: https://docs.aws.amazon.com/general/latest/gr/acct-identifiers.html#FindingCanonicalId
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-principal-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-policy-keys: https://docs.aws.amazon.com/IAM/latest/UserGuide/list_awskeymanagementservice.html#awskeymanagementservice-policy-keys
+:https---docs-aws-amazon-com-AWSEC2-latest-UserGuide-ExamplePolicies-EC2-html-iam-example-region: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ExamplePolicies_EC2.html#iam-example-region
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-condition-keys-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-variables-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-operators-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_condition_operators.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-resources-for-iam-policies: https://docs.aws.amazon.com/IAM/latest/UserGuide/list_awskeymanagementservice.html#awskeymanagementservice-resources-for-iam-policies
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-actions-as-permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/list_awskeymanagementservice.html#awskeymanagementservice-actions-as-permissions
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-aws-services-that-work-with-iam-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-services-that-work-with-iam.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-evaluation-logic-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-html-policies-session: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session
+:https---docs-aws-amazon-com-organizations-latest-userguide-orgs-manage-policies-about-scps-html: https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_about-scps.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-boundaries-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-managed-vs-inline-html-choosing-managed-or-inline: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-vs-inline.html#choosing-managed-or-inline
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-create-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-html-access-policies-json: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#access_policies-json
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-html-id-which-to-choose-role: https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html#id_which-to-choose_role
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-use-switch-role-ec2-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-create-for-service-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-service.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-compare-resource-policies-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_compare-resource-policies.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-introduction-access-management-html-intro-access-roles: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_access-management.html#intro-access-roles
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-providers-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-use-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-use-switch-role-console-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-console.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-html-id-which-to-choose: https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html#id_which-to-choose
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-groups-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-credentials-access-keys-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-users-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-best-practices-html-create-iam-users: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-access-analyzer-policy-validation: https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-policy-validation.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-credentials-mfa-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html
+:https---docs-aws-amazon-com-IAM-latest-UserGuide-id-credentials-mfa-configure-api-require-html: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_configure-api-require.html
+
+[."topic"]
+[[security-iam,security-iam.title]]
+= Identity and access management for Amazon EKS
+:info_doctype: section
+:info_title: Identity and access management for Amazon EKS
+:info_titleabbrev: Identity and access management
+:info_abstract: How to authenticate requests and manage access your Amazon EKS \
+            resources.
+
+[abstract]
+--
+How to authenticate requests and manage access your Amazon EKS resources.
+--
+
+[.shared]`IAMlong` ([.shared]`IAM`) is an [.shared]`AWS-service` that helps an administrator securely control access to [.shared]`AWS` resources. [.shared]`IAM` administrators control who can be  _authenticated_ (signed in) and _authorized_ (have permissions) to use Amazon EKS resources. [.shared]`IAM` is an [.shared]`AWS-service` that you can use with no additional charge.
+
+[.topiclist]
+[[Topic List]]
+
+[[security-iam-audience,security_iam_audience.title]]
+== Audience
+
+How you use [.shared]`IAMlong` ([.shared]`IAM`) differs, depending on the work you do in Amazon EKS.
+
+*Service user* – If you use the Amazon EKS service to do your job, then your administrator provides you with the credentials and permissions that you need. As you use more Amazon EKS features to do your work, you might need additional permissions. Understanding how access is managed can help you request the right permissions from your administrator. If you cannot access a feature in Amazon EKS, see xref:security-iam-troubleshoot[Troubleshooting Amazon EKS identity and access,linkend=security_iam_troubleshoot].
+
+*Service administrator* – If you're in charge of Amazon EKS resources at your company, you probably have full access to Amazon EKS. It's your job to determine which Amazon EKS features and resources your service users should access. You must then submit requests to your [.shared]`IAM` administrator to change the permissions of your service users. Review the information on this page to understand the basic concepts of [.shared]`IAM`. To learn more about how your company can use [.shared]`IAM` with Amazon EKS, see xref:security-iam-service-with-iam[How Amazon EKS works with [.shared]`IAM`,linkend=security_iam_service-with-iam].
+
+*[.shared]`IAM` administrator* – If you're an [.shared]`IAM` administrator, you might want to learn details about how you can write policies to manage access to Amazon EKS. To view example Amazon EKS identity-based policies that you can use in [.shared]`IAM`, see xref:security-iam-id-based-policy-examples[Amazon EKS identity-based policy examples,linkend=security_iam_id-based-policy-examples].
+
+[[security-iam-authentication,security_iam_authentication.title]]
+== Authenticating with identities
+
+Authentication is how you sign in to [.shared]`AWS` using your identity credentials. You must be _authenticated_ (signed in to [.shared]`AWS`) as the AWS account root user, an [.shared]`IAM-user`, or by assuming an [.shared]`IAM` role. 
+
+You can sign in to [.shared]`AWS` as a federated identity by using credentials provided through an identity source. [.shared]`SSOlong` ([.shared]`SSO`) users, your company's single sign-on authentication, and your Google or Facebook credentials are examples of federated identities. When you sign in as a federated identity, your administrator previously set up identity federation using [.shared]`IAM` roles. When you access [.shared]`AWS` by using federation, you are indirectly assuming a role.
+
+Depending on the type of user you are, you can sign in to the [.shared]`console` or the [.shared]`AWS` access portal. For more information about signing in to [.shared]`AWS`, see https://docs.aws.amazon.com/signin/latest/userguide/how-to-sign-in.html[How to sign in to your [.shared]`AWS-account`] in the _AWS Sign-In User Guide_.
+
+If you access [.shared]`AWS` programmatically, [.shared]`AWS` provides a software development kit (SDK) and a command line interface (CLI) to cryptographically sign your requests using your credentials. If you don't use [.shared]`AWS` tools, you must sign requests yourself. For more information about using the recommended method to sign requests yourself, see https://docs.aws.amazon.com/general/latest/gr/signature-version-4.html[Signature Version 4 signing process] in the _AWS General Reference_.
+
+Regardless of the authentication method that you use, you might also be required to provide additional security information. For example, [.shared]`AWS` recommends that you use multi-factor authentication (MFA) to increase the security of your account. To learn more, see https://docs.aws.amazon.com/singlesignon/latest/userguide/enable-mfa.html[Multi-factor authentication] in the _AWS IAM Identity Center (successor to AWS Single Sign-On) User Guide_ and {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-credentials-mfa-html}[Using multi-factor authentication (MFA) in [.shared]`AWS`] in the _IAM User Guide_.
+
+[[security-iam-authentication-rootuser,security_iam_authentication-rootuser.title]]
+=== AWS account root user
+
+When you first create an [.shared]`AWS-account`, you begin with a single sign-in identity that has complete access to all [.shared]`AWS-services` and resources in the account. This identity is called the AWS account root user and is accessed by signing in with the email address and password that you used to create the account. We strongly recommend that you don't use the root user for your everyday tasks. Safeguard your root user credentials and use them to perform tasks that only the root user can perform. For the complete list of tasks that require you to sign in as the root user, see https://docs.aws.amazon.com/accounts/latest/reference/root-user-tasks.html[Tasks that require root user credentials] in the _Account Management Reference Guide_.
+
+[[security-iam-authentication-federateduser,security_iam_authentication-federateduser.title]]
+===  Federated identity
+
+As a best practice, require human users, including users that require administrator access, to use federation with an identity provider to access [.shared]`AWS-services` by using temporary credentials.
+
+A federated identity is a user from your enterprise user directory, a web identity provider, the [.shared]`ADSlong`, the Identity Center directory, or any user that accesses [.shared]`AWS-services` by using credentials provided through an identity source. When federated identities access [.shared]`AWS-accounts`, they assume roles, and the roles provide temporary credentials.
+
+For centralized access management, we recommend that you use [.shared]`SSOlong`. You can create users and groups in IAM Identity Center, or you can connect and synchronize to a set of users and groups in your own identity source for use across all your [.shared]`AWS-accounts` and applications. For information about IAM Identity Center, see https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html[What is IAM Identity Center?] in the _AWS IAM Identity Center (successor to AWS Single Sign-On) User Guide_.
+
+[[security-iam-authentication-iamuser,security_iam_authentication-iamuser.title]]
+=== [.shared]`IAM-users` and groups
+
+An _{https---docs-aws-amazon-com-IAM-latest-UserGuide-id-users-html}[[.shared]`IAM-user`]_ is an identity within your [.shared]`AWS-account` that has specific permissions for a single person or application. Where possible, we recommend relying on temporary credentials instead of creating [.shared]`IAM-users` who have long-term credentials such as passwords and access keys. However, if you have specific use cases that require long-term credentials with [.shared]`IAM-users`, we recommend that you rotate access keys. For more information, see https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#rotate-credentials[Rotate access keys regularly for use cases that require long-term credentials] in the __IAM User Guide__.
+
+An {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-groups-html}[[.shared]`IAM` group] is an identity that specifies a collection of [.shared]`IAM-users`. You can't sign in as a group. You can use groups to specify permissions for multiple users at a time. Groups make permissions easier to manage for large sets of users. For example, you could have a group named _IAMAdmins_ and give that group permissions to administer [.shared]`IAM` resources.
+
+Users are different from roles. A user is uniquely associated with one person or application, but a role is intended to be assumable by anyone who needs it. Users have permanent long-term credentials, but roles provide temporary credentials. To learn more, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-html-id-which-to-choose}[When to create an [.shared]`IAM-user` (instead of a role)] in the __IAM User Guide__.
+
+[[security-iam-authentication-iamrole,security_iam_authentication-iamrole.title]]
+=== [.shared]`IAM` roles
+
+An _{https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-html}[[.shared]`IAM` role]_ is an identity within your [.shared]`AWS-account` that has specific permissions. It is similar to an [.shared]`IAM-user`, but is not associated with a specific person. You can temporarily assume an [.shared]`IAM` role in the [.shared]`console` by {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-use-switch-role-console-html}[switching roles]. You can assume a role by calling an [.shared]`CLI` or [.shared]`AWS` API operation or by using a custom URL. For more information about methods for using roles, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-use-html}[Using [.shared]`IAM` roles] in the __IAM User Guide__.
+
+[.shared]`IAM` roles with temporary credentials are useful in the following situations:
+
+* *Federated user access* – To assign permissions to a federated identity, you create a role and define permissions for the role. When a federated identity authenticates, the identity is associated with the role and is granted the permissions that are defined by the role. For information about roles for federation, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-idp.html[Creating a role for a third-party Identity Provider] in the _IAM User Guide_. If you use IAM Identity Center, you configure a permission set. To control what your identities can access after they authenticate, IAM Identity Center correlates the permission set to a role in [.shared]`IAM`. For information about permissions sets, see https://docs.aws.amazon.com/singlesignon/latest/userguide/permissionsetsconcept.html[Permission sets] in the _AWS IAM Identity Center (successor to AWS Single Sign-On) User Guide_.
+
+* *Temporary [.shared]`IAM-user` permissions* – An [.shared]`IAM-user` can assume an [.shared]`IAM` role to temporarily take on different permissions for a specific task. 
+
+* *Cross-account access* – You can use an [.shared]`IAM` role to allow someone (a trusted principal) in a different account to access resources in your account. Roles are the primary way to grant cross-account access. However, with some [.shared]`AWS-services`, you can attach a policy directly to a resource (instead of using a role as a proxy). To learn the difference between roles and resource-based policies for cross-account access, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-compare-resource-policies-html}[How [.shared]`IAM` roles differ from resource-based policies] in the __IAM User Guide__.
+
+* *Cross-service access* – Some [.shared]`AWS-services` use features in other [.shared]`AWS-services`. For example, when you make a call in a service, it's common for that service to run applications in [.shared]`EC2` or store objects in [.shared]`S3`. A service might do this using the calling principal's permissions, using a service role, or using a service-linked role.
+
+    ** *Principal permissions* – When you use an [.shared]`IAM-user` or role to perform actions in [.shared]`AWS`, you are considered a principal. Policies grant permissions to a principal. When you use some services, you might perform an action that then triggers another action in a different service. In this case, you must have permissions to perform both actions.
+
+    ** *Service role* – A service role is an [.shared]`IAM` role that a service assumes to perform actions on your behalf. An [.shared]`IAM` administrator can create, modify, and delete a service role from within [.shared]`IAM`. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-create-for-service-html}[Creating a role to delegate permissions to an [.shared]`AWS-service`] in the _IAM User Guide_.
+
+    ** *Service-linked role* – A service-linked role is a type of service role that is linked to an [.shared]`AWS-service`. The service can assume the role to perform an action on your behalf. Service-linked roles appear in your [.shared]`AWS-account` and are owned by the service. An [.shared]`IAM` administrator can view, but not edit the permissions for service-linked roles.
+
+* *Applications running on [.shared]`EC2`* – You can use an [.shared]`IAM` role to manage temporary credentials for applications that are running on an [.shared]`EC2` instance and making [.shared]`CLI` or [.shared]`AWS` API requests. This is preferable to storing access keys within the [.shared]`EC2` instance. To assign an [.shared]`AWS` role to an [.shared]`EC2` instance and make it available to all of its applications, you create an instance profile that is attached to the instance. An instance profile contains the role and enables programs that are running on the [.shared]`EC2` instance to get temporary credentials. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-use-switch-role-ec2-html}[Using an [.shared]`IAM` role to grant permissions to applications running on [.shared]`EC2` instances] in the __IAM User Guide__. 
+
+To learn whether to use [.shared]`IAM` roles, see  {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-html-id-which-to-choose-role}[When to create an [.shared]`IAM` role (instead of a user)] in the __IAM User Guide__.
+
+[[security-iam-access-manage,security_iam_access-manage.title]]
+== Managing access using policies
+
+You control access in [.shared]`AWS` by creating policies and attaching them to [.shared]`AWS` identities or resources. A policy is an object in [.shared]`AWS` that, when associated with an identity or resource, defines their permissions. [.shared]`AWS` evaluates these policies when a principal (user, root user, or role session) makes a request. Permissions in the policies determine whether the request is allowed or denied. Most policies are stored in [.shared]`AWS` as JSON documents. For more information about the structure and contents of JSON policy documents, see  {https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-html-access-policies-json}[Overview of JSON policies] in the __IAM User Guide__.
+
+Administrators can use [.shared]`AWS` JSON policies to specify who has access to what. That is, which *principal* can perform *actions* on what *resources*, and under what *conditions*.
+
+Every [.shared]`IAM` entity (user or role) starts with no permissions. By default, users can do nothing, not even change their own password. To give a user permission to do something, an administrator must attach a permissions policy to a user. Or the administrator can add the user to a group that has the intended permissions. When an administrator gives permissions to a group, all users in that group are granted those permissions.
+
+[.shared]`IAM` policies define permissions for an action regardless of the method that you use to perform the operation. For example, suppose that you have a policy that allows the `iam:GetRole` action. A user with that policy can get role information from the [.shared]`console`, the [.shared]`CLI`, or the [.shared]`AWS` API.
+
+[[security-iam-access-manage-id-based-policies,security_iam_access-manage-id-based-policies.title]]
+=== Identity-based policies
+
+Identity-based policies are JSON permissions policy documents that you can attach to an identity, such as an [.shared]`IAM-user`, role, or group. These policies control what actions users and roles can perform, on which resources, and under what conditions. To learn how to create an identity-based policy, see  {https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-create-html}[Creating [.shared]`IAM` policies] in the __IAM User Guide__.
+
+Identity-based policies can be further categorized as _inline policies_ or __managed policies__. Inline policies are embedded directly into a single user, group, or role. Managed policies are standalone policies that you can attach to multiple users, groups, and roles in your [.shared]`AWS-account`. Managed policies include [.shared]`AWS` managed policies and customer managed policies. To learn how to choose between a managed policy or an inline policy, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-managed-vs-inline-html-choosing-managed-or-inline}[Choosing between managed policies and inline policies] in the __IAM User Guide__.
+
+[[security-iam-access-manage-resource-based-policies,security_iam_access-manage-resource-based-policies.title]]
+=== Resource-based policies
+
+Resource-based policies are JSON policy documents that you attach to a resource such as an [.shared]`S3` bucket. Service administrators can use these policies to define what actions a specified principal (account member, user, or role) can perform on that resource and under what conditions. Resource-based policies are inline policies. There are no managed resource-based policies.
+
+[[security-iam-access-manage-acl,security_iam_access-manage-acl.title]]
+=== Access control lists (ACLs)
+
+Access control lists (ACLs) are a type of policy that controls which principals (account members, users, or roles) have permissions to access a resource. ACLs are similar to resource-based policies, although they do not use the JSON policy document format. [.shared]`S3`, [.shared]`WAF`, and [.shared]`VPC` are examples of services that support ACLs. To learn more about ACLs, see  https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html[Access Control List (ACL) overview] in the __Amazon Simple Storage Service Developer Guide__.
+
+[[security-iam-access-manage-other-policies,security_iam_access-manage-other-policies.title]]
+=== Other policy types
+
+[.shared]`AWS` supports additional, less-common policy types. These policy types can set the maximum permissions granted to you by the more common policy types.  
+
+
+
+* *Permissions boundaries* – A permissions boundary is an advanced feature in which you set the maximum permissions that an identity-based policy can grant to an [.shared]`IAM` entity ([.shared]`IAM-user` or role). You can set a permissions boundary for an entity. The resulting permissions are the intersection of entity's identity-based policies and its permissions boundaries. Resource-based policies that specify the user or role in the `Principal` field are not limited by the permissions boundary. An explicit deny in any of these policies overrides the allow. For more information about permissions boundaries, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-boundaries-html}[Permissions boundaries for [.shared]`IAM` entities] in the __IAM User Guide__.
+* *Service control policies (SCPs)* – SCPs are JSON policies that specify the maximum permissions for an organization or organizational unit (OU) in [.shared]`AOlong`. [.shared]`AOlong` is a service for grouping and centrally managing multiple [.shared]`AWS-accounts` that your business owns. If you enable all features in an organization, then you can apply service control policies (SCPs) to any or all of your accounts. The SCP limits permissions for entities in member accounts, including each AWS account root user. For more information about Organizations and SCPs, see {https---docs-aws-amazon-com-organizations-latest-userguide-orgs-manage-policies-about-scps-html}[How SCPs work] in the __AWS Organizations User Guide__.
+* *Session policies* – Session policies are advanced policies that you pass as a parameter when you programmatically create a temporary session for a role or federated user. The resulting session's permissions are the intersection of the user or role's identity-based policies and the session policies. Permissions can also come from a resource-based policy. An explicit deny in any of these policies overrides the allow. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-html-policies-session}[Session policies] in the __IAM User Guide__. 
+
+
+[[security-iam-access-manage-multiple-policies,security_iam_access-manage-multiple-policies.title]]
+=== Multiple policy types
+
+When multiple types of policies apply to a request, the resulting permissions are more complicated to understand. To learn how [.shared]`AWS` determines whether to allow a request when multiple policy types are involved, see  {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-evaluation-logic-html}[Policy evaluation logic] in the __IAM User Guide__.
+
+[."topic"]
+[[security-iam-service-with-iam,security_iam_service-with-iam.title]]
+== How Amazon EKS works with [.shared]`IAM`
+
+Before you use [.shared]`IAM` to manage access to Amazon EKS, learn what [.shared]`IAM` features are available to use with Amazon EKS. To get a high-level view of how Amazon EKS and other [.shared]`AWS-services` work with [.shared]`IAM`, see  {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-aws-services-that-work-with-iam-html}[[.shared]`AWS-services` that work with [.shared]`IAM`] in the __IAM User Guide__.
+
+[.topiclist]
+[[Topic List]]
+
+[[security-iam-service-with-iam-id-based-policies,security_iam_service-with-iam-id-based-policies.title]]
+=== Amazon EKS Identity-based policies
+
+With [.shared]`IAM` identity-based policies, you can specify allowed or denied actions and resources as well as the conditions under which actions are allowed or denied. You can't specify the principal in an identity-based policy because it applies to the user or role to which it is attached. To learn about all of the elements that you use in a JSON policy, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-html}[[.shared]`IAM` JSON policy elements reference] in the __IAM User Guide__.
+
+[[security-iam-service-with-iam-id-based-policies-actions,security_iam_service-with-iam-id-based-policies-actions.title]]
+==== Actions
+
+The  `Action` element of an [.shared]`IAM` identity-based policy describes the specific action or actions that will be allowed or denied by the policy. Policy actions usually have the same name as the associated [.shared]`AWS` API operation. The action is used in a policy to grant permissions to perform the associated operation. 
+
+Policy actions in Amazon EKS use the following prefix before the action: ``YOUR-SERVICE-PREFIX:``. For example, to grant someone permission to run an [.shared]`EC2` instance with the [.shared]`EC2` `RunInstances` API operation, you include the `ec2:RunInstances` action in their policy. Policy statements must include either an `Action` or `NotAction` element. Amazon EKS defines its own set of actions that describe tasks that you can perform with this service.
+
+To specify multiple actions in a single statement, separate them with commas as follows:
+
+[source]
+----
+"Action": [
+      "ec2:action1",
+      "ec2:action2"
+----
+
+You can specify multiple actions using wildcards (*). For example, to specify all actions that begin with the word  ``Describe``, include the following action:
+
+[source]
+----
+"Action": "ec2:Describe*"
+----
+
+
+To see a list of Amazon EKS actions, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-actions-as-permissions}[Actions Defined by Amazon EKS] in the __IAM User Guide__.
+
+[[security-iam-service-with-iam-id-based-policies-resources,security_iam_service-with-iam-id-based-policies-resources.title]]
+==== Resources
+
+The  `Resource` element specifies the object or objects to which the action applies. Statements must include either a `Resource` or a `NotResource` element. You specify a resource using an ARN or using the wildcard (*) to indicate that the statement applies to all resources.
+
+
+The [.shared]`EC2` instance resource has the following ARN:
+
+[source]
+----
+arn:${Partition}:ec2:${Region}:${Account}:instance/${InstanceId}
+----
+
+For more information about the format of ARNs, see  https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html[Amazon Resource Names (ARNs) and [.shared]`AWS-service` Namespaces].
+
+For example, to specify the `i-1234567890abcdef0` instance in your statement, use the following ARN:
+
+[source]
+----
+"Resource": "arn:aws:ec2:us-east-1:123456789012:instance/i-1234567890abcdef0"
+----
+
+To specify all instances that belong to a specific account, use the wildcard (*):
+
+[source]
+----
+"Resource": "arn:aws:ec2:us-east-1:123456789012:instance/*"
+----
+
+Some Amazon EKS actions, such as those for creating resources, cannot be performed on a specific resource. In those cases, you must use the wildcard (*).
+
+[source]
+----
+"Resource": "*"
+----
+
+Many [.shared]`EC2` API actions involve multiple resources. For example,  `AttachVolume` attaches an Amazon EBS volume to an instance, so an [.shared]`IAM-user` must have permissions to use the volume and the instance. To specify multiple resources in a single statement, separate the ARNs with commas. 
+
+[source]
+----
+"Resource": [
+      "resource1",
+      "resource2"
+----
+
+To see a list of Amazon EKS resource types and their ARNs, see  {https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-resources-for-iam-policies}[Resources Defined by Amazon EKS] in the __IAM User Guide__. To learn with which actions you can specify the ARN of each resource, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-actions-as-permissions}[Actions Defined by Amazon EKS].
+
+[[security-iam-service-with-iam-id-based-policies-conditionkeys,security_iam_service-with-iam-id-based-policies-conditionkeys.title]]
+==== Condition keys
+
+The  `Condition` element (or `Condition`__block__) lets you specify conditions in which a statement is in effect. The `Condition` element is optional. You can create conditional expressions that use {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-operators-html}[condition operators], such as equals or less than, to match the condition in the policy with values in the request. 
+
+If you specify multiple `Condition` elements in a statement, or multiple keys in a single `Condition` element, [.shared]`AWS` evaluates them using a logical `AND` operation. If you specify multiple values for a single condition key, [.shared]`AWS` evaluates the condition using a logical `OR` operation. All of the conditions must be met before the statement's permissions are granted.
+
+You can also use placeholder variables when you specify conditions. For example, you can grant an [.shared]`IAM-user` permission to access a resource only if it is tagged with their [.shared]`IAM-user` name. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-variables-html}[[.shared]`IAM` policy elements: variables and tags] in the __IAM User Guide__. 
+
+Amazon EKS defines its own set of condition keys and also supports using some global condition keys. To see all [.shared]`AWS` global condition keys, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-condition-keys-html}[[.shared]`AWS` global condition context keys] in the __IAM User Guide__.
+
+
+All [.shared]`EC2` actions support the `aws:RequestedRegion` and `ec2:Region` condition keys. For more information, see {https---docs-aws-amazon-com-AWSEC2-latest-UserGuide-ExamplePolicies-EC2-html-iam-example-region}[Example: Restricting access to a specific region]. 
+
+To see a list of Amazon EKS condition keys, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-policy-keys}[Condition Keys for Amazon EKS] in the __IAM User Guide__. To learn with which actions and resources you can use a condition key, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-list-awskeymanagementservice-html-awskeymanagementservice-actions-as-permissions}[Actions defined by Amazon EKS].
+
+[[security-iam-service-with-iam-id-based-policies-examples,security_iam_service-with-iam-id-based-policies-examples.title]]
+==== Examples
+
+
+To view examples of Amazon EKS identity-based policies, see xref:security-iam-id-based-policy-examples[Amazon EKS identity-based policy examples,linkend=security_iam_id-based-policy-examples].
+
+[[security-iam-service-with-iam-resource-based-policies,security_iam_service-with-iam-resource-based-policies.title]]
+=== Amazon EKS resource-based policies
+
+Resource-based policies are JSON policy documents that specify what actions a specified principal can perform on the Amazon EKS resource and under what conditions. [.shared]`S3` supports resource-based permissions policies for [.shared]`S3`  [replaceable]``buckets``. Resource-based policies let you grant usage permission to other accounts on a per-resource basis. You can also use a resource-based policy to allow an [.shared]`AWS-service` to access your [.shared]`S3` [replaceable]``buckets``.
+
+To enable cross-account access, you can specify an entire account or [.shared]`IAM` entities in another account as the {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-principal-html}[principal in a resource-based policy]. Adding a cross-account principal to a resource-based policy is only half of establishing the trust relationship. When the principal and the resource are in different [.shared]`AWS-accounts`, you must also grant the principal entity permission to access the resource. Grant permission by attaching an identity-based policy to the entity. However, if a resource-based policy grants access to a principal in the same account, no additional identity-based policy is required. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-compare-resource-policies-html}[How [.shared]`IAM` roles differ from resource-based policies]in the __IAM User Guide__.
+
+The [.shared]`S3` service supports only one type of resource-based policy called a __[replaceable]``__bucket__`` policy__, which is attached to a [replaceable]``bucket``. This policy defines which principal entities (accounts, users, roles, and federated users) can perform actions on the [replaceable]``widget``.
+
+To learn how to attach a resource-based policy to a [replaceable]``bucket``, see [replaceable]``**ADD XREF TO YOUR DOCS HERE**``.
+
+[[security-iam-service-with-iam-resource-based-policies-examples,security_iam_service-with-iam-resource-based-policies-examples.title]]
+==== Examples
+
+
+To view examples of Amazon EKS resource-based policies, see xref:security-iam-resource-based-policy-examples[Amazon EKS resource-based policy examples,linkend=security_iam_resource-based-policy-examples],
+
+[[security-iam-service-with-iam-acls,security_iam_service-with-iam-acls.title]]
+=== Access control lists (ACLs)
+
+Access control lists (ACLs) are lists of grantees that you can attach to resources. They grant accounts permissions to access the resource to which they are attached. You can attach ACLs to an [.shared]`S3`  [replaceable]``bucket`` resource. For more information about attaching ACLs to [replaceable]``buckets``, see [replaceable]``**ADD XREF TO YOUR DOCS HERE**``.
+
+With [.shared]`S3` access control lists (ACLs), you can manage access to [replaceable]``bucket`` resources. Each [replaceable]``bucket`` has an ACL attached to it as a subresource. It defines which [.shared]`AWS-accounts`, [.shared]`IAM-users` or groups of users, or [.shared]`IAM` roles are granted access and the type of access. When a request is received for a resource, [.shared]`AWS` checks the corresponding ACL to verify that the requester has the necessary access permissions.
+
+When you create a [replaceable]``bucket`` resource, [.shared]`S3` creates a default ACL that grants the resource owner full control over the resource. In the following example [replaceable]``bucket`` ACL, John Doe is listed as the owner of the [replaceable]``bucket`` and is granted full control over that [replaceable]``bucket``. An ACL can have up to 100 grantees.
+
+[source]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<AccessControlPolicy xmlns="http://YOUR-SERVICE-PREFIX.amazonaws.com/doc/2006-03-01/">
+  <Owner>
+    <ID>c1daexampleaaf850ea79cf0430f33d72579fd1611c97f7ded193374c0b163b6</ID>
+    <DisplayName>john-doe</DisplayName>
+  </Owner>
+  <AccessControlList>
+    <Grant>
+      <Grantee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+               xsi:type="Canonical User">
+        <ID>c1daexampleaaf850ea79cf0430f33d72579fd1611c97f7ded193374c0b163b6</ID>
+        <DisplayName>john-doe</DisplayName>
+      </Grantee>
+      <Permission>FULL_CONTROL</Permission>
+    </Grant>
+  </AccessControlList>
+</AccessControlPolicy>
+----
+
+The ID field in the ACL is the [.shared]`AWS-account` canonical user ID. To learn how to view this ID in an account that you own, see  {https---docs-aws-amazon-com-general-latest-gr-acct-identifiers-html-FindingCanonicalId}[Finding an [.shared]`AWS-account` canonical user ID]. 
+
+[[security-iam-service-with-iam-tags,security_iam_service-with-iam-tags.title]]
+=== Authorization based on Amazon EKS tags
+
+You can attach tags to Amazon EKS resources or pass tags in a request to Amazon EKS. To control access based on tags, you provide tag information in the  {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-html}[condition element] of a policy using the ``YOUR-SERVICE-PREFIX:ResourceTag/[replaceable]``key-name````, ``aws:RequestTag/[replaceable]``key-name````, or `aws:TagKeys` condition keys. For more information about tagging Amazon EKS resources, see [replaceable]``**ADD XREF TO YOUR DOCS HERE**``.
+
+To view an example identity-based policy for limiting access to a resource based on the tags on that resource, see xref:security-iam-id-based-policy-examples-view-widget-tags[Viewing Amazon EKS widgets based on tags,linkend=security_iam_id-based-policy-examples-view-widget-tags].
+
+[[security-iam-service-with-iam-roles,security_iam_service-with-iam-roles.title]]
+=== Amazon EKS [.shared]`IAM` roles
+
+An  {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-html}[[.shared]`IAM` role] is an entity within your [.shared]`AWS-account` that has specific permissions.
+
+[[security-iam-service-with-iam-roles-tempcreds,security_iam_service-with-iam-roles-tempcreds.title]]
+==== Using temporary credentials with Amazon EKS
+
+You can use temporary credentials to sign in with federation, assume an [.shared]`IAM` role, or to assume a cross-account role. You obtain temporary security credentials by calling [.shared]`STS` API operations such as  {https---docs-aws-amazon-com-STS-latest-APIReference-API-AssumeRole-html}[AssumeRole] or {https---docs-aws-amazon-com-STS-latest-APIReference-API-GetFederationToken-html}[GetFederationToken]. 
+
+Amazon EKS supports using temporary credentials. 
+
+[[security-iam-service-with-iam-roles-service-linked,security_iam_service-with-iam-roles-service-linked.title]]
+==== Service-linked roles
+
+{https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-terms-and-concepts-html-iam-term-service-linked-role}[Service-linked roles] allow [.shared]`AWS-services` to access resources in other services to complete an action on your behalf. Service-linked roles appear in your [.shared]`IAM` account and are owned by the service. An [.shared]`IAM` administrator can view but not edit the permissions for service-linked roles.
+
+Amazon EKS supports service-linked roles. For details about creating or managing Amazon EKS service-linked roles, see [replaceable]``**ADD XREF TO YOUR DOCS HERE**``.
+
+[[security-iam-service-with-iam-roles-service,security_iam_service-with-iam-roles-service.title]]
+==== Service roles
+
+This feature allows a service to assume a  {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-terms-and-concepts-html-iam-term-service-role}[service role] on your behalf. This role allows the service to access resources in other services to complete an action on your behalf. Service roles appear in your [.shared]`IAM` account and are owned by the account. This means that an [.shared]`IAM` administrator can change the permissions for this role. However, doing so might break the functionality of the service.
+
+Amazon EKS supports service roles. 
+
+[[security-iam-service-with-iam-roles-choose,security_iam_service-with-iam-roles-choose.title]]
+==== Choosing an [.shared]`IAM` role in Amazon EKS
+
+When you create a  [replaceable]``widget`` resource in Amazon EKS, you must choose a role to allow Amazon EKS to access [.shared]`EC2` on your behalf. If you have previously created a service role or service-linked role, then Amazon EKS provides you with a list of roles to choose from. It's important to choose a role that allows access to start and stop [.shared]`EC2` instances. For more information, see [replaceable]``**ADD XREF TO YOUR DOCS HERE**``.
+
+[."topic"]
+[[security-iam-id-based-policy-examples,security_iam_id-based-policy-examples.title]]
+== Amazon EKS identity-based policy examples
+
+By default, [.shared]`IAM-users` and roles don't have permission to create or modify Amazon EKS resources. They also can't perform tasks using the [.shared]`console`, [.shared]`CLI`, or [.shared]`AWS` API. An [.shared]`IAM` administrator must create [.shared]`IAM` policies that grant users and roles permission to perform specific API operations on the specified resources they need. The administrator must then attach those policies to the [.shared]`IAM-users` or groups that require those permissions.
+
+To learn how to create an [.shared]`IAM` identity-based policy using these example JSON policy documents, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-access-policies-create-html-access-policies-create-json-editor}[Creating policies on the JSON tab] in the __IAM User Guide__.
+
+[.topiclist]
+[[Topic List]]
+
+[[security-iam-service-with-iam-policy-best-practices,security_iam_service-with-iam-policy-best-practices.title]]
+=== Policy best practices
+
+Identity-based policies determine whether someone can create, access, or delete Amazon EKS resources in your account. These actions can incur costs for your [.shared]`AWS-account`. When you create or edit identity-based policies, follow these guidelines and recommendations:
+
+
+
+* *Get started with [.shared]`AWS` managed policies and move toward least-privilege permissions* – To get started granting permissions to your users and workloads, use the [.shared]`AWS` managed policies that grant permissions for many common use cases. They are available in your [.shared]`AWS-account`. We recommend that you reduce permissions further by defining [.shared]`AWS` customer managed policies that are specific to your use cases. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-best-practices-html-bp-use-aws-defined-policies}[[.shared]`AWS` managed policies] or https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html[[.shared]`AWS` managed policies for job functions] in the __IAM User Guide__.
+
+* *Apply least-privilege permissions* – When you set permissions with [.shared]`IAM` policies, grant only the permissions required to perform a task. You do this by defining the actions that can be taken on specific resources under specific conditions, also known as _least-privilege permissions_. For more information about using [.shared]`IAM` to apply permissions, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-best-practices-html-grant-least-privilege}[Policies and permissions in [.shared]`IAM`] in the __IAM User Guide__.
+
+* *Use conditions in [.shared]`IAM` policies to further restrict access* – You can add a condition to your policies to limit access to actions and resources. For example, you can write a policy condition to specify that all requests must be sent using SSL. You can also use conditions to grant access to service actions if they are used through a specific [.shared]`AWS-service`, such as [.shared]`CFN`. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-html}[[.shared]`IAM` JSON policy elements: condition] in the __IAM User Guide__.
+
+* *Use [.shared]`iam-citadel` to validate your [.shared]`IAM` policies to ensure secure and functional permissions* – [.shared]`iam-citadel` validates new and existing policies so that the policies adhere to the [.shared]`IAM` policy language (JSON) and [.shared]`IAM` best practices. [.shared]`iam-citadel` provides more than 100 policy checks and actionable recommendations to help you author secure and functional policies. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-access-analyzer-policy-validation}[[.shared]`iam-citadel` policy validation] in the __IAM User Guide__.
+
+* *Require multi-factor authentication (MFA)* – If you have a scenario that requires [.shared]`IAM-users` or root users in your account, turn on MFA for additional security. To require MFA when API operations are called, add MFA conditions to your policies. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-credentials-mfa-configure-api-require-html}[Configuring MFA-protected API access] in the __IAM User Guide__.
+
+
+
+[[security-iam-id-based-policy-examples-console,security_iam_id-based-policy-examples-console.title]]
+=== Using the Amazon EKS console
+
+To access the Amazon EKS console, you must have a minimum set of permissions. These permissions must allow you to list and view details about the Amazon EKS resources in your [.shared]`AWS-account`. If you create an identity-based policy that is more restrictive than the minimum required permissions, the console won't function as intended for entities (users or roles) with that policy.
+
+To ensure that those entities can still use the Amazon EKS console, also attach the following [.shared]`AWS` managed policy to the entities. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-users-change-permissions-html-users-change-permissions-add-console}[Adding permissions to a user] in the __IAM User Guide__:
+
+[source]
+----
+AWSAwesomeConsoleAccess
+----
+
+You don't need to allow minimum console permissions for users that are making calls only to the [.shared]`CLI` or the [.shared]`AWS` API. Instead, allow access to only the actions that match the API operation that you're trying to perform.
+
+[[security-iam-id-based-policy-examples-view-own-permissions,security_iam_id-based-policy-examples-view-own-permissions.title]]
+=== Allow users to view their own permissions
+
+This example shows how you might create a policy that allows [.shared]`IAM-users` to view the inline and managed policies that are attached to their user identity. This policy includes permissions to complete this action on the console or programmatically using the [.shared]`CLI` or [.shared]`AWS` API.
+
+[source]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "ViewOwnUserInfo",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetUserPolicy",
+                "iam:ListGroupsForUser",
+                "iam:ListAttachedUserPolicies",
+                "iam:ListUserPolicies",
+                "iam:GetUser"
+            ],
+            "Resource": ["arn:aws:iam::*:user/${aws:username}"]
+        },
+        {
+            "Sid": "NavigateInConsole",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetGroupPolicy",
+                "iam:GetPolicyVersion",
+                "iam:GetPolicy",
+                "iam:ListAttachedGroupPolicies",
+                "iam:ListGroupPolicies",
+                "iam:ListPolicyVersions",
+                "iam:ListPolicies",
+                "iam:ListUsers"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+----
+
+
+[[security-iam-id-based-policy-examples-access-one-bucket,security_iam_id-based-policy-examples-access-one-bucket.title]]
+=== Accessing one [.shared]`S3` bucket
+
+In this example, you want to grant an [.shared]`IAM-user` in your [.shared]`AWS-account` access to one of your [.shared]`S3` buckets,  ``examplebucket``. You also want to allow the user to add, update, and delete objects.
+
+In addition to granting the ``s3:PutObject``, ``s3:GetObject``, and `s3:DeleteObject` permissions to the user, the policy also grants the ``s3:ListAllMyBuckets``, ``s3:GetBucketLocation``, and `s3:ListBucket` permissions. These are the additional permissions required by the console. Also, the `s3:PutObjectAcl` and the `s3:GetObjectAcl` actions are required to be able to copy, cut, and paste objects in the console. For an example walkthrough that grants permissions to users and tests them using the console, see https://docs.aws.amazon.com/AmazonS3/latest/dev/walkthrough1.html[An Example Walkthrough: Using user policies to control access to your bucket].
+
+[source]
+----
+{
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+         "Sid":"ListBucketsInConsole",
+         "Effect":"Allow",
+         "Action":[
+            "s3:ListAllMyBuckets"
+         ],
+         "Resource":"arn:aws:s3:::*"
+      },
+      {
+         "Sid":"ViewSpecificBucketInfo",
+         "Effect":"Allow",
+         "Action":[
+            "s3:ListBucket",
+            "s3:GetBucketLocation"
+         ],
+         "Resource":"arn:aws:s3:::examplebucket"
+      },
+      {
+         "Sid":"ManageBucketContents",
+         "Effect":"Allow",
+         "Action":[
+            "s3:PutObject",
+            "s3:PutObjectAcl",
+            "s3:GetObject",
+            "s3:GetObjectAcl",
+            "s3:DeleteObject"
+         ],
+         "Resource":"arn:aws:s3:::examplebucket/*"
+      }
+   ]
+}
+----
+
+
+[[security-iam-id-based-policy-examples-view-widget-tags,security_iam_id-based-policy-examples-view-widget-tags.title]]
+=== Viewing Amazon EKS  [replaceable]``widgets`` based on tags
+
+You can use conditions in your identity-based policy to control access to Amazon EKS resources based on tags. This example shows how you might create a policy that allows viewing a  [replaceable]``widget``. However, permission is granted only if the [replaceable]``widget`` tag `Owner` has the value of that user's user name. This policy also grants the permissions necessary to complete this action on the console.
+
+[source]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "ListWidgetsInConsole",
+            "Effect": "Allow",
+            "Action": "YOUR-SERVICE-PREFIX:ListWidgets",
+            "Resource": "*"
+        },
+        {
+            "Sid": "ViewWidgetIfOwner",
+            "Effect": "Allow",
+            "Action": "YOUR-SERVICE-PREFIX:GetWidget",
+            "Resource": "arn:aws:YOUR-SERVICE-PREFIX:*:*:widget/*",
+            "Condition": {
+                "StringEquals": {"YOUR-SERVICE-PREFIX:ResourceTag/Owner": "${aws:username}"}
+            }
+        }
+    ]
+}
+----
+
+You can attach this policy to the [.shared]`IAM-users` in your account. If a user named  `richard-roe` attempts to view an Amazon EKS [replaceable]``widget``, the [replaceable]``widget`` must be tagged `Owner=richard-roe` or ``owner=richard-roe``. Otherwise he is denied access. The condition tag key `Owner` matches both `Owner` and `owner` because condition key names are not case-sensitive. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-html}[[.shared]`IAM` JSON policy elements: condition] in the __IAM User Guide__.
+
+[."topic"]
+[[security-iam-resource-based-policy-examples,security_iam_resource-based-policy-examples.title]]
+== Amazon EKS resource-based policy examples
+
+To learn how to create a  [replaceable]``widget``, see [replaceable]``**ADD XREF TO YOUR DOCS HERE**``.
+
+[.topiclist]
+[[Topic List]]
+
+[[security-iam-resource-based-policy-examples-restrict-bucket-by-ip,security_iam_id-based-policy-examples-restrict-bucket-by-ip.title]]
+=== Restricting [.shared]`S3` bucket access to specific IP addresses
+
+The following example grants permissions to any user to perform any [.shared]`S3` operations on objects in the specified bucket. However, the request must originate from the range of IP addresses specified in the condition.
+
+The condition in this statement identifies the 54.240.143.* range of allowed Internet Protocol version 4 (IPv4) IP addresses, with one exception: 54.240.143.188.
+
+The `Condition` block uses the `IpAddress` and `NotIpAddress` conditions and the `aws:SourceIp` condition key, which is an [.shared]`AWS` wide condition key. For more information about these condition keys, see https://docs.aws.amazon.com/AmazonS3/latest/dev/amazon-s3-policy-keys.html[Specifying Conditions in a Policy]. The``aws:sourceIp`` IPv4 values use the standard CIDR notation. For more information, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-reference-policies-elements-condition-operators-html-Conditions-IPAddress}[IP address condition operators] in the __IAM User Guide__.
+
+[source]
+----
+{
+  "Version": "2012-10-17",
+  "Id": "S3PolicyId1",
+  "Statement": [
+    {
+      "Sid": "IPAllow",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::examplebucket/*",
+      "Condition": {
+         "IpAddress": {"aws:SourceIp": "54.240.143.0/24"},
+         "NotIpAddress": {"aws:SourceIp": "54.240.143.188/32"} 
+      } 
+    } 
+  ]
+}
+----
+
+
+[."topic"]
+[[security-iam-troubleshoot,security_iam_troubleshoot.title]]
+== Troubleshooting Amazon EKS identity and access
+
+Use the following information to help you diagnose and fix common issues that you might encounter when working with Amazon EKS and [.shared]`IAM`.
+
+[.topiclist]
+[[Topic List]]
+
+[[security-iam-troubleshoot-no-permissions,security_iam_troubleshoot-no-permissions.title]]
+=== I am not authorized to perform an action in Amazon EKS
+
+If the [.shared]`console` tells you that you're not authorized to perform an action, then you must contact your administrator for assistance. Your administrator is the person that provided you with your user name and password.
+
+The following example error occurs when the `mateojackson` [.shared]`IAM-user` tries to use the console to view details about a [replaceable]``widget`` but does not have `YOUR-SERVICE-PREFIX:[replaceable]``GetWidget``` permissions.
+
+[source]
+----
+User: arn:aws:iam::123456789012:user/mateojackson is not authorized to perform: YOUR-SERVICE-PREFIX:GetWidget on resource: my-example-widget
+----
+
+In this case, Mateo asks his administrator to update his policies to allow him to access the  `[replaceable]``my-example-widget``` resource using the `YOUR-SERVICE-PREFIX:[replaceable]``GetWidget``` action.
+
+[[security-iam-troubleshoot-passrole,security_iam_troubleshoot-passrole.title]]
+=== I am not authorized to perform iam:PassRole
+
+If you receive an error that you're not authorized to perform the  `iam:PassRole` action, then you must contact your administrator for assistance. Your administrator is the person that provided you with your user name and password. Ask that person to update your policies to allow you to pass a role to Amazon EKS.
+
+Some [.shared]`AWS-services` allow you to pass an existing role to that service, instead of creating a new service role or service-linked role. To do this, you must have permissions to pass the role to the service.
+
+The following example error occurs when an [.shared]`IAM-user` named `marymajor` tries to use the console to perform an action in Amazon EKS. However, the action requires the service to have permissions granted by a service role. Mary does not have permissions to pass the role to the service.
+
+[source]
+----
+User: arn:aws:iam::123456789012:user/marymajor is not authorized to perform: iam:PassRole
+----
+
+In this case, Mary asks her administrator to update her policies to allow her to perform the  `iam:PassRole` action.
+
+[[security-iam-troubleshoot-cross-account-access,security_iam_troubleshoot-cross-account-access.title]]
+=== I want to allow people outside of my [.shared]`AWS-account` to access my Amazon EKS resources
+
+You can create a role that users in other accounts or people outside of your organization can use to access your resources. You can specify who is trusted to assume the role. For services that support resource-based policies or access control lists (ACLs), you can use those policies to grant people access to your resources.
+
+To learn more, consult the following:
+
+
+
+* To learn whether Amazon EKS supports these features, see xref:security-iam-service-with-iam[How Amazon EKS works with [.shared]`IAM`,linkend=security_iam_service-with-iam].
+* To learn how to provide access to your resources across [.shared]`AWS-accounts` that you own, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-common-scenarios-aws-accounts-html}[Providing access to an [.shared]`IAM-user` in another [.shared]`AWS-account` that you own] in the __IAM User Guide__.
+* To learn how to provide access to your resources to third-party [.shared]`AWS-accounts`, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-common-scenarios-third-party-html}[Providing access to [.shared]`AWS-accounts` owned by third parties] in the __IAM User Guide__.
+* To learn how to provide access through identity federation, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-common-scenarios-federated-users-html}[Providing Access to Externally Authenticated Users (Identity Federation)] in the __IAM User Guide__.
+* To learn the difference between using roles and resource-based policies for cross-account access, see {https---docs-aws-amazon-com-IAM-latest-UserGuide-id-roles-compare-resource-policies-html}[How [.shared]`IAM` roles differ from resource-based policies] in the __IAM User Guide__.

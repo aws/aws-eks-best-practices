@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<project xmlns:ht="happytrails" name="AmazonEKSBestPracticesDocs" basedir="." default="build">
+ <description>This is the entry point for happy trails builds (package builder and eclipse).</description>
+ <import file="${happytrails.root}/happytrails.xml"/>
+ <ht:import file="zfast/zonbook-4.5.xml"/>
+</project>

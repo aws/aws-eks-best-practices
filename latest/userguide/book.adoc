@@ -1,0 +1,56 @@
+//!!NODE_ROOT <book>
+[[top]]
+= Amazon EKS
+:doctype: book
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:info_doctype: book
+:info_title: Amazon EKS
+:info_subtitle: Best Practices Guide
+:info_abstract: Insert abstract text
+:info_corpauthor: AWS
+:info_publisher: AWS
+:info_copyright: 2020 \
+     Amazon Web Services, Inc. and/or its affiliates. All rights reserved.
+:info_legalnotice: Amazon's trademarks and trade dress may not be used in  \
+     connection with any product or service that is not Amazon's,  \
+     in any manner that is likely to cause confusion among customers,  \
+     or in any manner that disparages or discredits Amazon. All other  \
+     trademarks not owned by Amazon are the property of their respective \
+     owners, who may or may not be affiliated with, connected to, or  \
+     sponsored by Amazon.
+
+[abstract]
+--
+Insert abstract text
+--
+:sectnums:
+
+include::what-is.adoc[leveloffset=+1]
+
+
+include::setting-up.adoc[leveloffset=+1]
+
+
+include::getting-started.adoc[leveloffset=+1]
+
+
+include::security.adoc[leveloffset=+1]
+
+
+include::monitoring.adoc[leveloffset=+1]
+
+
+include::cloudformation-template.adoc[leveloffset=+1]
+
+
+include::private-link-template.adoc[leveloffset=+1]
+
+
+include::quotas.adoc[leveloffset=+1]
+
+
+// include::doc-history.adoc[leveloffset=+1]  Commenting out until can fix syntax issue

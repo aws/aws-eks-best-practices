@@ -1,0 +1,52 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[what-is-service,what-is-service.title]]
+= What is Amazon EKS?
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: What is Amazon EKS?
+:info_abstract: Learn about Amazon EKS, a service that...
+
+[abstract]
+--
+Learn about Amazon EKS, a service that...
+--
+
+Amazon EKS is... Describe what your service is and how customers can use it.
+
+[.topiclist]
+[[Topic List]]
+
+[[first-time-user,first-time-user.title]]
+== Are you a first-time Amazon EKS user?
+
+If you are a first-time user of Amazon EKS, we recommend that you begin by reading the following sections:
+
+
+
+* Text
+* Text
+* Text
+
+
+[[servicename-feature-overview,servicename-feature-overview.title]]
+== Features of Amazon EKS
+
+Include a brief but descriptive list of service features. If you need to go into more depth on a feature, consider adding a How It Works conceptual topic.
+
+[[related-services,related-services.title]]
+== Related services
+
+Offer a list of related services complete with links to the best place to start for each service. Briefly explain how the service is related. If you don't have any, remove this section.
+
+[[acessing-servicename,acessing-servicename.title]]
+== Accessing Amazon EKS
+
+Briefly explain the different ways to gain access to the service, whether by console, CLI, or API.

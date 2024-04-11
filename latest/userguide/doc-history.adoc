@@ -1,0 +1,51 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[doc-history,doc-history.title]]
+= Document history for the Amazon EKS User Guide
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Document history for the Amazon EKS User Guide
+:info_titleabbrev: Document history
+:info_abstract: Find the revision dates and related releases for Amazon EKS.
+
+[abstract]
+--
+Find the revision dates and related releases for Amazon EKS.
+--
+
+[.updates]
+== updates
+
+[.update,date="2020-09-20"]
+=== Initial Creation of AsciiDoc Syntax Page
+
+[.update-ulink]
+http://amazon.com[Ignored Text]
+
+The AsciiDoc Syntax Page was added
+
+[.details]
+==== details
+This is some additional details as an example
+
+[.update,date="2021-09-20"]
+=== Added Updates
+Added ability to add updates
+
+
+[.details]
+==== details
+Also added details feature
+
+The following table describes the documentation releases for Amazon EKS.
+
+[.update-history]
+|===
+|===

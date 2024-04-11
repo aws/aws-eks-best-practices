@@ -1,0 +1,82 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[monitoring-overview,monitoring-overview.title]]
+= Monitoring Amazon EKS
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Monitoring Amazon EKS
+:info_titleabbrev: Monitoring
+:info_abstract: Monitor Amazon EKS to maintain reliability, availability, and performance.
+
+[abstract]
+--
+Monitor Amazon EKS to maintain reliability, availability, and performance.
+--
+
+Monitoring is an important part of maintaining the reliability, availability, and performance of Amazon EKS and your other AWS solutions. AWS provides the following monitoring tools to watch Amazon EKS, report when something is wrong, and take automatic actions when appropriate:
+
+
+
+* _Amazon CloudWatch_ monitors your AWS resources and and the applications you run on AWS in real time. You can collect and track metrics, create customized dashboards, and set alarms that notify you or take actions when a specified metric reaches a threshold that you specify. For example, you can have CloudWatch track CPU usage or other metrics of your Amazon EC2 instances and automatically launch new instances when needed. For more information, see the https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/[Amazon CloudWatch User Guide].
+* _Amazon CloudWatch Logs_ enables you to monitor, store, and access your log files from Amazon EC2 instances, CloudTrail, and other sources. CloudWatch Logs can monitor information in the log files and notify you when certain thresholds are met. You can also archive your log data in highly durable storage. For more information, see the https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/[Amazon CloudWatch Logs User Guide].
+* _Amazon EventBridge_ can be used to automate your AWS services and respond automatically to system events, such as application availability issues or resource changes. Events from AWS services are delivered to EventBridge in near real time. You can write simple rules to indicate which events are of interest to you and which automated actions to take when an event matches a rule. For more information, see https://docs.aws.amazon.com/eventbridge/latest/userguide/[Amazon EventBridge User Guide].
+* _AWS CloudTrail_ captures API calls and related events made by or on behalf of your AWS account and delivers the log files to an Amazon S3 bucket that you specify. You can identify which users and accounts called AWS, the source IP address from which the calls were made, and when the calls occurred. For more information, see the https://docs.aws.amazon.com/awscloudtrail/latest/userguide/[AWS CloudTrail User Guide].
+
+
+[."topic"]
+[[monitoring-cloudwatch,monitoring-cloudwatch.title]]
+== Monitoring Amazon EKS with Amazon CloudWatch
+
+You can monitor Amazon EKS using CloudWatch, which collects raw data and processes it into readable, near real-time metrics. These statistics are kept for 15 months, so that you can access historical information and gain a better perspective on how your web application or service is performing. You can also set alarms that watch for certain thresholds, and send notifications or take actions when those thresholds are met. For more information, see the  https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/[Amazon CloudWatch User Guide].
+
+For Amazon EKS, you might want to watch for [replaceable]``XXX``, and also watch [replaceable]``XXX`` and [replaceable]``Take Automatic Action`` when [replaceable]``This Happens``.
+
+The following tables list the metrics and dimensions for Amazon EKS.
+
+[."topic"]
+[[monitoring-events,monitoring-events.title]]
+== Monitoring Amazon EKS events in Amazon EventBridge
+
+You can monitor Amazon EKS events in EventBridge, which delivers a stream of real-time data from your own applications, software-as-a-service (SaaS) applications, and AWS services. EventBridge routes that data to targets such as AWS Lambda and Amazon Simple Notification Service. These events are the same as those that appear in Amazon CloudWatch Events, which delivers a near real-time stream of system events that describe changes in AWS resources.  
+
+The following examples show events for Amazon EKS.
+
+[.topiclist]
+[[Topic List]]
+
+[[eventname,eventName.title]]
+=== eventName event
+
+In this example event, .
+
+[source]
+----
+{
+   "version": "0",
+   "id": "01234567-EXAMPLE",
+   "detail-type": "ServiceName ResourceType State Change",
+   "source": "aws.servicename",
+   "account": "123456789012",
+   "time": "2019-06-12T10:23:43Z",
+   "region": "us-east-2",
+   "resources": [
+     "arn:aws:servicename:us-east-2:123456789012:resourcename"
+   ],
+   "detail": {
+     "event": "eventName",
+     "detailOne": "something",
+     "detailTwo": "12345678-1234-5678-abcd-12345678abcd",
+     "detailThree": "something",
+     "detailFour": "something"
+   }
+}
+----
+
+include::cloudtrail.adoc[leveloffset=+1]
