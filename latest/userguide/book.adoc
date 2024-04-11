@@ -31,26 +31,3 @@ Insert abstract text
 
 include::what-is.adoc[leveloffset=+1]
 
-
-include::setting-up.adoc[leveloffset=+1]
-
-
-include::getting-started.adoc[leveloffset=+1]
-
-
-include::security.adoc[leveloffset=+1]
-
-
-include::monitoring.adoc[leveloffset=+1]
-
-
-include::cloudformation-template.adoc[leveloffset=+1]
-
-
-include::private-link-template.adoc[leveloffset=+1]
-
-
-include::quotas.adoc[leveloffset=+1]
-
-
-// include::doc-history.adoc[leveloffset=+1]  Commenting out until can fix syntax issue
