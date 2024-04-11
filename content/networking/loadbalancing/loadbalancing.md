@@ -5,7 +5,7 @@ intended application hosted in an EKS Cluster. This improves the resilience of t
 application. 
 When deployed in an EKS Cluster the [AWS Load Balancer controller](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html) will 
 create and manage AWS Elastic Load Balancers for that cluster. 
-When a Kubernetes Service of type `LoadBalancer` is created, the AWS Load Balancer controller creates a [Network Load Balancer (NLB)](https://https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html) which load balances received traffic
+When a Kubernetes Service of type `LoadBalancer` is created, the AWS Load Balancer controller creates a [Network Load Balancer (NLB)](https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html) which load balances received traffic
  at Layer 4 of the [OSI model](https://en.wikipedia.org/wiki/OSI_model). While when a Kubernetes `Ingress` object is created, the 
 AWS Load Balancer Controller creates an [Application Load Balancer (NLB)](https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html)which load 
 balances traffic at Layer 7 of the OSI model.
