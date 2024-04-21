@@ -101,7 +101,7 @@ $ aws eks update-cluster-config \
     --access-config authenticationMode=API
 ```
 
-The API support commands to add and revoke access to the cluster, as well as validate the existing Access Policies and Access Entries for the specified cluster. The default policies are created to match Kubernets RBACs as follows.
+The API support commands to add and revoke access to the cluster, as well as validate the existing Access Policies and Access Entries for the specified cluster. The default policies are created to match Kubernetes RBACs as follows.
 
 | EKS Access Policy | Kubernetes RBAC |
 |--|--|
