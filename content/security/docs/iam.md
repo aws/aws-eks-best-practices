@@ -78,7 +78,7 @@ With this feature, Amazon EKS supports three modes of authentication:
 
 1. `CONFIG_MAP` to continue using `aws-auth` configMap exclusively.
 2. `API_AND_CONFIG_MAP` to source authenticated IAM principals from both EKS Access Entry APIs and the `aws-auth` configMap, prioritizing the Access Entries. Ideal to migrate existing `aws-auth` permissions to Access Entries.
-3. `API` to exclusively rely on EKS Access Entry APIs. Being this one the new **recommended approach**.
+3. `API` to exclusively rely on EKS Access Entry APIs. This is the new **recommended approach**.
 
 To get started, cluster administrators can create or update Amazon EKS clusters, setting the preferred authentication to `API_AND_CONFIG_MAP` or `API` method and define Access Entries to grant access the desired AWS IAM principals.
 
