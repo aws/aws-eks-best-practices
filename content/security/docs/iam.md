@@ -72,7 +72,7 @@ This API relies on two concepts:
 
 > At launch Amazon EKS supports only predefined and AWS managed policies. Access policies are not IAM entities and are defined and managed by Amazon EKS.
 
-Cluster Access Manager allows the combination of upstream RBAC with Access Policies supporting allow and pass (but not deny) on Kubernetes AuthZ decisions regarding API server requests. A deny descision will happen when both, the upstream RBAC and Amazon EKS authorizers can't determine the outcome of a request evaluation.
+Cluster Access Manager allows the combination of upstream RBAC with Access Policies supporting allow and pass (but not deny) on Kubernetes AuthZ decisions regarding API server requests. A deny decision will happen when both, the upstream RBAC and Amazon EKS authorizers can't determine the outcome of a request evaluation.
 
 With this feature, Amazon EKS supports three modes of authentication:
 
