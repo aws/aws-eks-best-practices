@@ -20,7 +20,7 @@
           <abbr>eks-bpg</abbr>
           <api>latest</api>
           <version>latest</version>
-          <asciidoc-source>latest/userguide</asciidoc-source>
+          <asciidoc-source>latest/bpg</asciidoc-source>
           <locale>en_us</locale>
 <!--     
           <options>

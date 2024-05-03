@@ -30,3 +30,5 @@ Insert abstract text
 
 include::index.adoc[leveloffset=+1]
 
+include::upgrades/index.adoc[leveloffset=+1]
+
