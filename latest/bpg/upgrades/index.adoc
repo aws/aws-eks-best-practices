@@ -13,6 +13,7 @@
 :info_doctype: chapter
 :info_title: Best Practices for Cluster Upgrades
 :info_abstract: Best Practices for Cluster Upgrades
+:info_titleabbrev: Cluster Upgrades
 
 [abstract]
 --
@@ -148,8 +149,7 @@ https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html[Learn
 how to initiate an upgrade.] When you initiate a cluster upgrade, AWS
 manages upgrading the cluster control plane. You are responsible for
 upgrading the data plane, including Fargate pods and
-link:#upgrade-add-ons-and-components-using-the-kubernetes-api[other
-add-ons.] You must validate and plan upgrades for workloads running on
+<<upgrade-addons, addons>>. You must validate and plan upgrades for workloads running on
 your cluster to ensure their availability and operations are not
 impacted after cluster upgrade
 
@@ -168,29 +168,27 @@ from 1.24 to 1.25).
 
 This means that if you need to update multiple versions, a series of
 sequential upgrades will be required. Planning sequential upgrades is
-more complicated, and has a higher risk of downtime. In this situation,
-link:#evaluate-bluegreen-clusters-as-an-alternative-to-in-place-cluster-upgrades[evaluate
-a blue/green cluster upgrade strategy.]
+more complicated, and has a higher risk of downtime. In this situation, see <<bluegreen>>.
 
 == Upgrade your control plane and data plane in sequence
 
 To upgrade a cluster you will need to take the following actions:
 
 [arabic]
-. link:#use-the-eks-documentation-to-create-an-upgrade-checklist[Review
+. xref:usedocs[Review
 the Kubernetes and EKS release notes.]
-. link:#backup-the-cluster-before-upgrading[Take a backup of the
+. xref:backup-the-cluster-before-upgrading[Take a backup of the
 cluster. (optional)]
-. link:#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane[Identify
+. xref:identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane[Identify
 and remediate deprecated and removed API usage in your workloads.]
-. link:#track-the-version-skew-of-nodes-ensure-managed-node-groups-are-on-the-same-version-as-the-control-plane-before-upgrading[Ensure
+. xref:node-compatibility[Ensure
 Managed Node Groups&#44; if used&#44; are on the same Kubernetes version
 as the control plane.] EKS managed node groups and nodes created by EKS
 Fargate Profiles only support 1 minor version skew between the control
 plane and data plane.
 . https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html[Upgrade
 the cluster control plane using the AWS console or cli.]
-. link:#upgrade-add-ons-and-components-using-the-kubernetes-api[Review
+. xref:upgrade-addons[Review
 add-on compatibility.] Upgrade your Kubernetes add-ons and custom
 controllers, as required.
 . https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html[Update
@@ -199,6 +197,7 @@ kubectl.]
 the cluster data plane.] Upgrade your nodes to the same Kubernetes minor
 version as your upgraded cluster.
 
+[[usedocs, usedocs.title]]
 == Use the EKS Documentation to create an upgrade checklist
 
 The EKS Kubernetes
@@ -222,6 +221,7 @@ notable changes and considerations for each version.
 * https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.22[EKS
 1.22]
 
+[[upgrade-addons]]
 == Upgrade add-ons and components using the Kubernetes API
 
 Before you upgrade a cluster, you should understand what versions of
@@ -419,7 +419,7 @@ aws eks list-addons --cluster-name <cluster name>
 ....
 EKS Add-ons are not automatically upgraded during a control plane upgrade. You must initiate EKS add-on updates, and select the desired version. 
 
-* You are responsible for selecting a compatible version from all available versions. [Review the guidance on add-on version compatibility.](#upgrade-add-ons-and-components-using-the-kubernetes-api)
+* You are responsible for selecting a compatible version from all available versions. [Review the guidance on add-on version compatibility.](#upgrade-addons)
 * Amazon EKS Add-ons may only be upgraded one minor version at a time. 
 ....
 
@@ -737,13 +737,14 @@ In the default configuration, Karpenter automatically creates new nodes
 using the latest compatible EKS Optimized AMI. As EKS releases updated
 EKS Optimized AMIs or the cluster is upgraded, Karpenter will
 automatically start using these images.
-link:#enable-node-expiry-for-karpenter-managed-nodes[Karpenter also
+xref:enable-node-expiry-for-karpenter-managed-nodes[Karpenter also
 implements Node Expiry to update nodes.]
 
 https://karpenter.sh/docs/concepts/nodeclasses/[Karpenter can be
 configured to use custom AMIs.] If you use custom AMIs with Karpenter,
 you are responsible for the version of kubelet.
 
+[[node-compatibility, node-compatibility.title]]
 == Confirm version compatibility with existing nodes and the control plane
 
 Before proceeding with a Kubernetes upgrade in Amazon EKS, it’s vital to
@@ -867,6 +868,7 @@ You can identify which workloads are running on fargate nodes by listing
 all pods with the `+-o wide+` option. Any node name that begins with
 `+fargate-+` will need to be redeployed in the cluster.
 
+[[bluegreen, bluegreen.title]]
 == Evaluate Blue/Green Clusters as an alternative to in-place cluster upgrades
 
 Some customers prefer to do a blue/green upgrade strategy. This can have
