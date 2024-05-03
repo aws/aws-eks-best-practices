@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <buildinfo>
   <docsets>
-    <docset id="EKS">
-      <pathslug>EKS</pathslug>
+    <docset id="eks">
+      <pathslug>eks</pathslug>
       <title>Amazon EKS</title>
       <forumID>0</forumID>
      <feedbackCTI>Amazon EKS</feedbackCTI>
@@ -14,10 +14,10 @@
 
       <guides>
         <guide id="eks-bpg" region="-BJS,-DCA,-LCK">
-          <pathslug>userguide</pathslug>
+          <pathslug>best-practices</pathslug>
           <basename>eks-bpg</basename>
           <title>Best Practices Guide</title>
-          <abbr>EKS</abbr>
+          <abbr>eks-bpg</abbr>
           <api>latest</api>
           <version>latest</version>
           <asciidoc-source>latest/userguide</asciidoc-source>
@@ -29,7 +29,7 @@
           <builds>
             <html>
               <rss>
-                <title>Best Practices Guide Updates</title>
+                <title>EKS Best Practices Guide Updates</title>
                 <filename>eks-bpg</filename>
               </rss>
             </html>

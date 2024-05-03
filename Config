@@ -7,6 +7,7 @@ package.AmazonEKSBestPracticesDocs = {
             HappyTrails = 3.2;
             JavaBuildAndTestMin = jdk8;
             ZonBook = 4.0;
+            AWSEC2ContainerChecklist = 1.0;
         };
     };
 };

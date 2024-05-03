@@ -10,11 +10,10 @@
 :info_doctype: book
 :info_title: Amazon EKS
 :info_subtitle: Best Practices Guide
-:info_abstract: Insert abstract text
+:info_abstract: Learn best practices for operating EKS clusters.
 :info_corpauthor: AWS
 :info_publisher: AWS
-:info_copyright: 2020 \
-     Amazon Web Services, Inc. and/or its affiliates. All rights reserved.
+:info_copyright: 2024. Review license at https://github.com/aws/aws-eks-best-practices/blob/master/LICENSE
 :info_legalnotice: Amazon's trademarks and trade dress may not be used in  \
      connection with any product or service that is not Amazon's,  \
      in any manner that is likely to cause confusion among customers,  \
@@ -29,5 +28,5 @@ Insert abstract text
 --
 :sectnums:
 
-include::what-is.adoc[leveloffset=+1]
+include::index.adoc[leveloffset=+1]
 

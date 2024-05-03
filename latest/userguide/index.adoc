@@ -1,0 +1,22 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[introduction,introduction.title]]
+= Introduction
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Introduction
+:info_abstract: Learn best practices for operating EKS clusters.
+
+[abstract]
+--
+Learn best practices for operating EKS clusters.
+--
+
+Welcome to the EKS Best Practices Guides. The primary goal of this project is to offer a set of best practices for day 2 operations for Amazon EKS. We elected to publish this guidance to GitHub so we could iterate quickly, provide timely and effective recommendations for variety of concerns, and easily incorporate suggestions from the broader community.
