@@ -1,0 +1,25 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: clusterip-svc-ext-ips-allowed
+  namespace: opa
+  labels:
+    app: opa
+    owner: jimmy
+    openpolicyagent.org/policy: rego
+data:
+  main: |
+    package kubernetes.admission
+
+    import data.lib.k8s.helpers as helpers   
+
+    deny[msg] {
+      helpers.request_kind = "Service"
+      helpers.allowed_operations[helpers.request_operation]
+      helpers.request_object.spec.type = "ClusterIP"
+      aips := helpers.allowed_ext_ips
+      ips := helpers.request_object.spec.externalIPs
+      helpers.ips_allowed(aips,ips)
+      msg = sprintf("%q: ClusterIP service external IPs are not found in the Allowed IPs list. Allowed IPs: %q, Submitted IPs: %q. Resource ID (ns/name/kind): %q", [helpers.service_error,aips,ips,helpers.request_id])
+    }
+

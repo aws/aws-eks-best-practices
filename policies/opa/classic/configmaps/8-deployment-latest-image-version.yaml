@@ -1,0 +1,30 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: deployment-valid-image-version
+  namespace: opa
+  labels:
+    app: opa
+    owner: jimmy
+    openpolicyagent.org/policy: rego
+data:
+  main: |
+    package kubernetes.admission
+
+    import data.lib.k8s.helpers as helpers   
+
+    deny[msg] {
+      helpers.request_kind = "Deployment"
+      helpers.allowed_operations[helpers.request_operation]
+      image = helpers.deployment_containers[_].image
+      invalid_image_version(image)
+      msg = sprintf("%q: %q container image \"latest\" tag/version is not allowed. Resource ID (ns/name/kind): %q", [helpers.deployment_error,image,helpers.request_id])
+    }
+
+    invalid_image_version(image) {
+      not contains(image, ":")
+    }
+
+    invalid_image_version(image) {
+      contains(image, "latest")
+    }

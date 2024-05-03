@@ -1,0 +1,25 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: deployment-labels
+  namespace: opa
+  labels:
+    app: opa
+    owner: jimmy
+    openpolicyagent.org/policy: rego
+data:
+  main: |
+    package kubernetes.admission
+
+    import data.lib.k8s.helpers as helpers
+
+    deny[msg] {
+      helpers.request_kind = "Deployment"
+      helpers.allowed_operations[helpers.request_operation]
+      required_labels := helpers.required_deployment_labels
+      provided_labels := {k | helpers.request_metadata_labels[k]}  # use set comprehension to construct set from input
+      missing_labels := required_labels - provided_labels # perform set difference
+      count(missing_labels) > 0
+
+      msg = sprintf("%q: %q label(s) missing. %q are required labels in the metadata element. Resource ID (ns/name/kind): %q", [helpers.deployment_error,concat(", ",missing_labels),concat(", ",required_labels),helpers.request_id])
+    }

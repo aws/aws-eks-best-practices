@@ -1,0 +1,19 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredTolerationPod
+metadata:
+  name: pod-toleration
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "tenants-x"
+  parameters:
+    ops: ["CREATE","UPDATE"]
+    tolerations:
+    - effect: NoSchedule
+      key: tenant
+      operator: Equal
+      value: tenants-x
+    errMsg: "INVALID_POD_TOLERATIONS"

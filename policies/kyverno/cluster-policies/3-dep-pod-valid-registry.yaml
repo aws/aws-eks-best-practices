@@ -1,0 +1,24 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: deployment-pod-valid-registry
+  labels:
+    app: kyverno
+    owner: jimmy
+  annotations:
+    policies.kyverno.io/category: Compliance
+    policies.kyverno.io/description: Rules to enforce correct image source registry
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: validate-registries
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "Unknown image registry"
+      pattern:
+        spec:
+          containers:
+          - image: "GOOD_REGISTRY/* | VERY_GOOD_REGISTRY/*"

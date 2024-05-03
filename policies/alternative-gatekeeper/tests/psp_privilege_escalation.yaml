@@ -1,0 +1,42 @@
+# This is an example of a PodSpec that passes all our default checks
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-privilege-escalation
+  labels:
+    app: nginx-privilege-escalation
+spec:
+  securityContext:
+    supplementalGroups:
+      - 101
+    fsGroup: 101
+  containers:
+    - name: nginx
+      image: nginxinc/nginx-unprivileged:1.19
+      resources:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 1
+          memory: 1Gi
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      securityContext:
+        runAsUser: 101
+        runAsGroup: 101
+        capabilities:
+          drop:
+            - ALL
+        allowPrivilegeEscalation: true
+      readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /index.html
+            port: 8080
+      livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /index.html
+            port: 8080

@@ -1,0 +1,18 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDeprecatedRegistry
+metadata:
+  name: denied-deprecated-registry
+  labels:
+    policy.kubernetes.amazon-eks.com/gatekeeper: constraint
+spec:
+  # enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: ["*"]
+        kinds: ["Pod","Deployment","DaemonSet","Job","CronJob","StatefulSet","ReplicaSet"]
+    # namespaces:
+    #   - "policy-test"
+  parameters:
+    allowedOps: ["CREATE","UPDATE"]
+    deniedRegistries: ["k8s.gcr.io"]
+    errMsg: "INVALID_REGISTRY"

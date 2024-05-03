@@ -1,0 +1,22 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredNodeAffinityPod
+metadata:
+  name: pod-node-affinity
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "tenants-x"
+  parameters:
+    ops: ["CREATE","UPDATE"]
+    errMsg: "INVALID_POD_NODEAFFINITY"
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: tenant
+            operator: In
+            values:
+            - tenants-x
