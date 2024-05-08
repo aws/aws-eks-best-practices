@@ -1,0 +1,13 @@
+package.AmazonEKSBestPracticesDocs = {
+    interfaces = (3.0);
+
+    build-system = happytrails;
+    build-tools = {
+        3.0 = {
+            HappyTrails = 3.2;
+            JavaBuildAndTestMin = jdk8;
+            ZonBook = 4.0;
+            AWSEC2ContainerChecklist = 1.0;
+        };
+    };
+};
