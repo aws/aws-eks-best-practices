@@ -1,4 +1,16 @@
-﻿# Custom Networking
+﻿//!!NODE_ROOT <section>
+[."topic"]
+[[custom-networking,custom-networking.title]]
+= Custom Networking
+:info_doctype: section
+:info_title: Custom Networking
+:info_abstract: Custom Networking
+:info_titleabbrev: Custom Networking
+
+[abstract]
+--
+Custom Networking
+--
 
 By default, Amazon VPC CNI will assign Pods an IP address selected from the primary subnet.  The primary subnet is the subnet CIDR that the primary ENI is attached to, usually the subnet of the node/host.
 
@@ -53,7 +65,7 @@ Custom networking is indeed an ideal option for deploying multiple EKS clusters 
 
 ==== Ready to Implement IPv6
 
-Custom networking can mitigate IP exhaustion issues, but it requires additional operational overhead. If you are currently deploying a dual-stack (IPv4/IPv6) VPC or if your plan includes IPv6 support, we recommend implementing IPv6 clusters instead. You can set up IPv6 EKS clusters and migrate your apps. In an IPv6 EKS cluster, both Kubernetes and Pods get an IPv6 address and can communicate in and out to both IPv4 and IPv6 endpoints. Please review best practices for xref:../ipv6/index.adoc[Running IPv6 EKS Clusters].
+Custom networking can mitigate IP exhaustion issues, but it requires additional operational overhead. If you are currently deploying a dual-stack (IPv4/IPv6) VPC or if your plan includes IPv6 support, we recommend implementing IPv6 clusters instead. You can set up IPv6 EKS clusters and migrate your apps. In an IPv6 EKS cluster, both Kubernetes and Pods get an IPv6 address and can communicate in and out to both IPv4 and IPv6 endpoints. Please review best practices for xref:ipv6[Running IPv6 EKS Clusters].
 
 ==== Exhausted CG-NAT Space
 

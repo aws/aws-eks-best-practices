@@ -1,8 +1,21 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[prefix-mode-linux,prefix-mode-linux.title]]
 = Prefix Mode for Linux
+:info_doctype: section
+:info_title: Prefix Mode for Linux
+:info_abstract: Prefix Mode for Linux
+:info_titleabbrev: Prefix Mode for Linux
+
+[abstract]
+--
+Prefix Mode for Linux
+--
+
 
 Amazon VPC CNI assigns network prefixes to https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html[Amazon EC2 network interfaces] to increase the number of IP addresses available to nodes and increase pod density per node. You can configure version 1.9.0 or later of the Amazon VPC CNI add-on to assign IPv4 and IPv6 CIDRs instead of assigning individual secondary IP addresses to network interfaces.
 
-Prefix mode is enabled by default on IPv6 clusters and is the only option supported. The VPC CNI assigns a /80 IPv6 prefix to a slot on an ENI. Please refer to the xref:../ipv6/index.adoc[IPv6 section of this guide] for further information.
+Prefix mode is enabled by default on IPv6 clusters and is the only option supported. The VPC CNI assigns a /80 IPv6 prefix to a slot on an ENI. Please refer to the xref:ipv6[IPv6 section of this guide] for further information.
 
 With prefix assignment mode, the maximum number of elastic network interfaces per instance type remains the same, but you can now configure Amazon VPC CNI to assign /28 (16 IP addresses) IPv4 address prefixes, instead of assigning individual IPv4 addresses to the slots on network interfaces. When `ENABLE_PREFIX_DELEGATION` is set to true VPC CNI allocates an IP address to a Pod from the prefix assigned to an ENI.  Please follow the instructions mentioned in the https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html[EKS user guide] to enable Prefix IP mode.
 
@@ -39,7 +52,7 @@ Prefix assignment mode is especially relevant for users of https://docs.aws.amaz
 
 If your subnet is very fragmented and has insufficient available IP addresses to create /28 prefixes, avoid using prefix mode. The prefix attachment may fail if the subnet from which the prefix is produced is fragmented (a heavily used subnet with scattered secondary IP addresses). This problem may be avoided by creating a new subnet and reserving a prefix.
 
-In prefix mode, the security group assigned to the worker nodes is shared by the Pods. Consider using xref:../sgpp/index.adoc[Security groups for Pods]if you have a security requirement to achieve compliance by running applications with varying network security requirements on shared compute resources.
+In prefix mode, the security group assigned to the worker nodes is shared by the Pods. Consider using xref:sgpp[Security groups for Pods]if you have a security requirement to achieve compliance by running applications with varying network security requirements on shared compute resources.
 
 === Use Similar Instance Types in the same Node Group
 

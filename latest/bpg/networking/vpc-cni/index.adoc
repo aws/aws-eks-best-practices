@@ -1,6 +1,20 @@
-﻿# Amazon VPC CNI+++<iframe width="560" height="315" src="https://www.youtube.com/embed/RBE3yk2UlYA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="">++++++</iframe>+++
+﻿//!!NODE_ROOT <section>
+[."topic"]
+[[vpc-cni,vpc-cni.title]]
+= Amazon VPC CNI
+:info_doctype: section
+:info_title: Amazon VPC CNI
+:info_abstract: Amazon VPC CNI
+:info_titleabbrev: Amazon VPC CNI
 
-Amazon EKS implements cluster networking through the https://github.com/aws/amazon-vpc-cni-k8s[Amazon VPC Container Network Interface]https://github.com/aws/amazon-vpc-cni-k8s[(VPC CNI)] plugin. The CNI plugin allows Kubernetes Pods to have the same IP address as they do on the VPC network. More specifically, all containers inside the Pod share a network namespace, and they can communicate with each-other using local ports.
+[abstract]
+--
+Amazon VPC CNI
+--
+
++++<iframe width="560" height="315" src="https://www.youtube.com/embed/RBE3yk2UlYA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="">++++++</iframe>+++
+
+Amazon EKS implements cluster networking through the https://github.com/aws/amazon-vpc-cni-k8s[Amazon VPC Container Network Interface] plugin, also known as VPC CNI. The CNI plugin allows Kubernetes Pods to have the same IP address as they do on the VPC network. More specifically, all containers inside the Pod share a network namespace, and they can communicate with each-other using local ports.
 
 Amazon VPC CNI has two components:
 
@@ -19,7 +33,7 @@ The maximum number of network interfaces, and the maximum number of slots that y
 
 == Overview
 
-Secondary IP mode is the default mode for VPC CNI. This guide provides a generic overview of VPC CNI behavior when Secondary IP mode is enabled. The functionality of ipamd (allocation of IP addresses) may vary depending on the configuration settings for VPC CNI, such as xref:../prefix-mode/index_linux.adoc[Prefix Mode], xref:../sgpp/index.adoc[Security Groups Per Pod], and xref:../custom-networking/index.adoc[Custom Networking].
+Secondary IP mode is the default mode for VPC CNI. This guide provides a generic overview of VPC CNI behavior when Secondary IP mode is enabled. The functionality of ipamd (allocation of IP addresses) may vary depending on the configuration settings for VPC CNI, such as xref:prefix-mode-linux[Prefix Mode], xref:sgpp[Security Groups Per Pod], and xref:custom-networking[Custom Networking].
 
 The Amazon VPC CNI is deployed as a Kubernetes Daemonset named aws-node on worker nodes. When a worker node is provisioned, it has a default ENI, called the primary ENI, attached to it. The CNI allocates a warm pool of ENIs and secondary IP addresses from the subnet attached to the node's primary ENI. By default, ipamd attempts to allocate an additional ENI to the node. The IPAMD allocates additional ENI when a single Pod is scheduled and assigned a secondary IP address from the primary ENI. This "warm" ENI enables faster Pod networking. As the pool of secondary IP addresses runs out, the CNI adds another ENI to assign more.
 
@@ -39,7 +53,7 @@ The number of ENIs and IP addresses in a pool are configured through environment
  ** The minimum number of IP addresses to be allocated at any time. This is commonly used to front-load the assignment of multiple ENIs at instance launch.
  ** Example: Consider a newly launched instance. It has 1 ENI and each ENI supports 10 IP addresses. MINIMUM_IP_TARGET is set to 100. The ENI immediately attaches 9 more ENIs for a total of 100 addresses. This happens regardless of any WARM_IP_TARGET or WARM_ENI_TARGET values.
 
-This project includes a link:../subnet-calc/subnet-calc.xlsx[Subnet Calculator Excel Document]. This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`.
+This project includes a https://github.com/aws/aws-eks-best-practices/blob/master/content/networking/subnet-calc/subnet-calc.xlsx[Subnet Calculator Excel Document]. This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`.
 
 image::./image-2.png[illustration of components involved in assigning an IP address to a pod]
 

@@ -1,4 +1,18 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[sgpp,sgpp.title]]
 = Security Groups Per Pod
+:info_doctype: section
+:info_title: Security Groups Per Pod
+:info_abstract: Security Groups Per Pod
+:info_titleabbrev: Security Groups Per Pod
+
+[abstract]
+--
+Security Groups Per Pod
+--
+
+
 
 An AWS security group acts as a virtual firewall for EC2 instances to control inbound and outbound traffic. By default, the Amazon VPC CNI will use security groups associated with the primary ENI on the node. More specifically, every ENI associated with the instance will have the same EC2 Security Groups. Thus, every Pod on a node shares the same security groups as the node it runs on.
 

@@ -1,16 +1,8 @@
-﻿//!!NODE_ROOT <chapter>
+﻿//!!NODE_ROOT <section>
 [."topic"]
 [[subnets,subnets.title]]
 = VPC and Subnet Considerations
-:doctype: book
-:sectnums:
-:toc: left
-:icons: font
-:experimental:
-:idprefix:
-:idseparator: -
-:sourcedir: .
-:info_doctype: chapter
+:info_doctype: section
 :info_title: VPC and Subnet Considerations
 :info_abstract: VPC and Subnet Considerations
 :info_titleabbrev: VPC and Subnets
@@ -105,7 +97,7 @@ You can use https://aws.amazon.com/vpc/lattice/[Amazon VPC Lattice] to consisten
 
 image::./vpc-lattice.gif[Amazon VPC Lattice, traffic flow]
 
-Amazon VPC Lattice operates in the link-local address space in IPv4 and IPv6, providing connectivity between services that may have overlapping IPv4 addresses. For operational efficiency, we strongly recommend deploying EKS clusters and nodes to IP ranges that do not overlap. In case your infrastructure includes VPCs with overlapping IP ranges, you need to architect your network accordingly. We suggest https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html#nat-gateway-basics[Private NAT Gateway], or VPC CNI in xref:../custom-networking/index.adoc[custom networking] mode in conjunction with https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-transit-gateway.html[transit gateway] to integrate workloads on EKS to solve overlapping CIDR challenges while preserving routable RFC1918 IP addresses.
+Amazon VPC Lattice operates in the link-local address space in IPv4 and IPv6, providing connectivity between services that may have overlapping IPv4 addresses. For operational efficiency, we strongly recommend deploying EKS clusters and nodes to IP ranges that do not overlap. In case your infrastructure includes VPCs with overlapping IP ranges, you need to architect your network accordingly. We suggest https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html#nat-gateway-basics[Private NAT Gateway], or VPC CNI in xref:custom-networking[custom networking] mode in conjunction with https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-transit-gateway.html[transit gateway] to integrate workloads on EKS to solve overlapping CIDR challenges while preserving routable RFC1918 IP addresses.
 
 image::./private-nat-gw.gif[Private Nat Gateway with Custom Networking, traffic flow]
 

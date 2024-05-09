@@ -1,4 +1,18 @@
-= Running IPv6 EKS Clusters
+//!!NODE_ROOT <section>
+[."topic"]
+[[ipv6,ipv6.title]]
+= 
+:info_doctype: section
+:info_title: Running IPv6 EKS Clusters
+:info_abstract: Running IPv6 EKS Clusters
+:info_titleabbrev: IPv6 
+
+[abstract]
+--
+Running IPv6 EKS Clusters
+--
+
+
 
 +++<iframe width="560" height="315" src="https://www.youtube.com/embed/zdXpTT0bZXo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="">++++++</iframe>+++
 

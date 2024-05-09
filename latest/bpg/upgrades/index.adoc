@@ -43,7 +43,7 @@ AWS API.
 * *Data plane* — The data plane version is associated with the Kubelet
 versions running on your individual nodes. It’s possible to have nodes
 in the same cluster running different versions. You can check the
-versions of all nodes by running `+kubectl get nodes+`.
+versions of all nodes by running `kubectl get nodes`.
 
 == Before Upgrading
 
