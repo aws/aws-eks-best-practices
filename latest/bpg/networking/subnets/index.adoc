@@ -1,4 +1,24 @@
-﻿# VPC and Subnet Considerations
+﻿//!!NODE_ROOT <chapter>
+[."topic"]
+[[subnets,subnets.title]]
+= VPC and Subnet Considerations
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: VPC and Subnet Considerations
+:info_abstract: VPC and Subnet Considerations
+:info_titleabbrev: VPC and Subnets
+
+[abstract]
+--
+VPC and Subnet Considerations
+--
 
 Operating an EKS cluster requires knowledge of AWS VPC networking, in addition to Kubernetes networking.
 

@@ -1,4 +1,26 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[networking,networking.title]]
 = Amazon EKS Best Practices Guide for Networking
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Best Practices for Networking
+:info_abstract: Best Practices for Networking
+:info_titleabbrev: Networking
+
+[abstract]
+--
+Learn best practices for cluster Networking.
+--
+
+
 
 It is critical to understand Kubernetes networking to operate your cluster and applications efficiently. Pod networking, also called the cluster networking, is the center of Kubernetes networking. Kubernetes supports https://github.com/containernetworking/cni[Container Network Interface] (CNI) plugins for cluster networking.
 
@@ -61,3 +83,5 @@ Outputs:
 * Instance Level Details
  ** Number of Warm IPs/ENIs per instance
  ** Number of Active IPs/ENIs per instance
+
+include::../subnets/index.adoc[leveloffset=+1]
