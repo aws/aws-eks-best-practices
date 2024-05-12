@@ -63,7 +63,7 @@ Once the user's identity has been authenticated by the AWS IAM service, the kube
 
 ### Cluster Access Manager
 
-Cluster Access Manager, now the preferred way to manage access of AWS IAM principals to Amazon EKS clusters, is a functionality of the AWS API and is an opt-in feature for EKS v1.23 and later clusters (new or existing). It simplifies identity mapping between AWS IAM and Kubernetes RBACs, eliminating the need to switch between AWS and Kubernetes APIs or editing the the `aws-auth` ConfigMap for access management, reducing operational overhead, and helping address misconfigurations. The tool also enables cluster administrators to revoke or refine `cluster-admin` permissions automatically granted to the AWS IAM principal used to create the cluster.
+Cluster Access Manager, now the preferred way to manage access of AWS IAM principals to Amazon EKS clusters, is a functionality of the AWS API and is an opt-in feature for EKS v1.23 and later clusters (new or existing). It simplifies identity mapping between AWS IAM and Kubernetes RBACs, eliminating the need to switch between AWS and Kubernetes APIs or editing the `aws-auth` ConfigMap for access management, reducing operational overhead, and helping address misconfigurations. The tool also enables cluster administrators to revoke or refine `cluster-admin` permissions automatically granted to the AWS IAM principal used to create the cluster.
 
 This API relies on two concepts:
 
@@ -72,13 +72,13 @@ This API relies on two concepts:
 
 > At launch Amazon EKS supports only predefined and AWS managed policies. Access policies are not IAM entities and are defined and managed by Amazon EKS.
 
-Cluster Access Manager allows the combination of upstream RBAC with Access Policies supporting allow and pass (but not deny) on Kubernetes AuthZ decisions regarding API server requests. A deny descision will happen when both, the upstream RBAC and Amazon EKS authorizers can't determine the outcome of a request evaluation.
+Cluster Access Manager allows the combination of upstream RBAC with Access Policies supporting allow and pass (but not deny) on Kubernetes AuthZ decisions regarding API server requests. A deny decision will happen when both, the upstream RBAC and Amazon EKS authorizers can't determine the outcome of a request evaluation.
 
 With this feature, Amazon EKS supports three modes of authentication:
 
 1. `CONFIG_MAP` to continue using `aws-auth` configMap exclusively.
 2. `API_AND_CONFIG_MAP` to source authenticated IAM principals from both EKS Access Entry APIs and the `aws-auth` configMap, prioritizing the Access Entries. Ideal to migrate existing `aws-auth` permissions to Access Entries.
-3. `API` to exclusively rely on EKS Access Entry APIs. Being this one the new **recommended approach**.
+3. `API` to exclusively rely on EKS Access Entry APIs. This is the new **recommended approach**.
 
 To get started, cluster administrators can create or update Amazon EKS clusters, setting the preferred authentication to `API_AND_CONFIG_MAP` or `API` method and define Access Entries to grant access the desired AWS IAM principals.
 
@@ -101,7 +101,7 @@ $ aws eks update-cluster-config \
     --access-config authenticationMode=API
 ```
 
-The API support commands to add and revoke access to the cluster, as well as validate the existing Access Policies and Access Entries for the specified cluster. The default policies are created to match Kubernets RBACs as follows.
+The API support commands to add and revoke access to the cluster, as well as validate the existing Access Policies and Access Entries for the specified cluster. The default policies are created to match Kubernetes RBACs as follows.
 
 | EKS Access Policy | Kubernetes RBAC |
 |--|--|
@@ -256,7 +256,7 @@ Like the earlier point about granting access to AWS Resources, RoleBindings and 
 
 ### Create cluster using an automated process
 
-As seen in earlier steps, when creating an Amazon EKS cluster, if not using the using `API_AND_CONFIG_MAP` or `API` authentication mode, and not opting out to delegate `cluster-admin` permissions to the cluster creator, the IAM entity user or role, such as a federated user that creates the cluster, is automatically granted `system:masters` permissions in the cluster's RBAC configuration. Even being a best practice to remove this permission, as described [here](Rremove-the-cluster-admin-permissions-from-the-cluster-creator-principal) if using the `CONFIG_MAP` authentication method, relying on `aws-auth` ConfigMap, this access cannot be revoked. Therefore it is a good idea to create the cluster with an infrastructure automation pipeline tied to dedicated IAM role, with no permissions to be assumed by other users or entities and regularly audit this role permissions, policies, and who have access to the trigger the pipeline. Also, this role should not be used to perform routine actions on the cluster, and be exclusively used to cluster level actions triggered by the pipeline, via SCM code changes for example.
+As seen in earlier steps, when creating an Amazon EKS cluster, if not using the using `API_AND_CONFIG_MAP` or `API` authentication mode, and not opting out to delegate `cluster-admin` permissions to the cluster creator, the IAM entity user or role, such as a federated user that creates the cluster, is automatically granted `system:masters` permissions in the cluster's RBAC configuration. Even being a best practice to remove this permission, as described [here](#remove-the-cluster-admin-permissions-from-the-cluster-creator-principal) if using the `CONFIG_MAP` authentication method, relying on `aws-auth` ConfigMap, this access cannot be revoked. Therefore it is a good idea to create the cluster with an infrastructure automation pipeline tied to dedicated IAM role, with no permissions to be assumed by other users or entities and regularly audit this role's permissions, policies, and who has access to trigger the pipeline. Also, this role should not be used to perform routine actions on the cluster, and be exclusively used to cluster level actions triggered by the pipeline, via SCM code changes for example.
 
 ### Create the cluster with a dedicated IAM role
 
