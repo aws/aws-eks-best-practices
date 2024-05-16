@@ -14,10 +14,10 @@ The working groups are led by chairs (semi-permanent) and maintainers (6 month t
 | :-------------------- | :------------------------------------------------------- | :--------------------------------------------------- |
 | Infrastructure        |                                                          | |
 | Security              | [Rodrigo Bersa](https://github.com/rodrigobersa)         | |
-| Autoscaling           | Rajdeep Saha                                             | | [Robert Northard](https://github.com/robertnorthard)
+| Autoscaling           | Rajdeep Saha                                             | [Robert Northard](https://github.com/robertnorthard) |
 | Resiliency            | [Sheetal Joshi](https://github.com/sheetaljoshi)         | |
 | Windows Containers    |                                                          | |
-| Networking            | [Tim Dormer](https://github.com/Tim-AWS)                 | | [Ikenna Izugbokwe](https://github.com/izugbokwe)
+| Networking            | [Tim Dormer](https://github.com/Tim-AWS)                 | [Ikenna Izugbokwe](https://github.com/izugbokwe) |
 | Cost Optimization     |                                                          | |
 
 ## Contact
