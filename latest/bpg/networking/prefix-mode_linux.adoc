@@ -59,8 +59,7 @@ In prefix mode, the security group assigned to the worker nodes is shared by the
 
 Your node group may contain instances of many types. If an instance has a low maximum pod count, that value is applied to all nodes in the node group. Consider using similar instance types in a node group to maximize node use. We recommend configuring https://karpenter.sh/docs/concepts/nodepools/[node.kubernetes.io/instance-type] in the requirements part of the provisioner API if you are using Karpenter for automated node scaling.
 
-!!! warning
-    The maximum pod count for all nodes in a particular node group is defined by the _lowest_ maximum pod count of any single instance type in the node group.
+WARNING: The maximum pod count for all nodes in a particular node group is defined by the _lowest_ maximum pod count of any single instance type in the node group.
 
 === Configure `WARM_PREFIX_TARGET` to conserve IPv4 addresses
 

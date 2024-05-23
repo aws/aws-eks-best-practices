@@ -125,8 +125,7 @@ Enabling prefix attachments increases the number of Pods to 290.
 
 However, we suggest setting max-pods to 110 rather than 290 because the instance has a rather small number of virtual CPUs. On bigger instances, EKS recommends a max pods value of 250. When utilizing prefix attachments with smaller instance types (e.g. m5.large), it is possible that you will exhaust the instance's CPU and memory resources well before its IP addresses.
 
-!!! info
-    When the CNI prefix allocates a /28 prefix to an ENI, it has to be a contiguous block of IP addresses. If the subnet that the prefix is generated from is highly fragmented, the prefix attachment may fail. You can mitigate this from happening by creating a new dedicated VPC for the cluster or by reserving subnet a set of CIDR exclusively for prefix attachments. Visit https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html[Subnet CIDR reservations] for more information on this topic.
+NOTE: When the CNI prefix allocates a /28 prefix to an ENI, it has to be a contiguous block of IP addresses. If the subnet that the prefix is generated from is highly fragmented, the prefix attachment may fail. You can mitigate this from happening by creating a new dedicated VPC for the cluster or by reserving subnet a set of CIDR exclusively for prefix attachments. Visit https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html[Subnet CIDR reservations] for more information on this topic.
 
 === Identify Existing Usage of CG-NAT Space
 

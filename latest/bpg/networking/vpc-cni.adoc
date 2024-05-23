@@ -44,8 +44,7 @@ The number of ENIs and IP addresses in a pool are configured through environment
  ** The number of Warm ENIs to be maintained. An ENI is "`warm`" when it is attached as a secondary ENI to a node, but it is not in use by any Pod. More specifically, no IP addresses of the ENI have been associated with a Pod.
  ** Example: Consider an instance with 2 ENIs, each ENI supporting 5 IP addresses. WARM_ENI_TARGET is set to 1. If exactly 5 IP addresses are associated with the instance, the CNI maintains 2 ENIs attached to the instance. The first ENI is in use, and all 5 possible IP addresses of this ENI are used. The second ENI is "`warm`" with all 5 IP addresses in pool. If another Pod is launched on the instance, a 6th IP address will be needed. The CNI will assign this 6th Pod an IP address from the second ENI and from 5 IPs from the pool. The second ENI is now in use, and no longer in a "`warm`" status. The CNI will allocate a 3rd ENI to maintain at least 1 warm ENI.
 
-!!! Note
-    The warm ENIs still consume IP addresses from the CIDR of your VPC. IP addresses are "`unused`" or "`warm`" until they are associated with a workload, such as a Pod.
+NOTE: The warm ENIs still consume IP addresses from the CIDR of your VPC. IP addresses are "`unused`" or "`warm`" until they are associated with a workload, such as a Pod.
 
 * `WARM_IP_TARGET`, Integer, Values >0 indicate requirement Enabled
  ** The number of Warm IP addresses to be maintained. A Warm IP is available on an actively attached ENI, but has not been assigned to a Pod. In other words, the number of Warm IPs available is the number of IPs that may be assigned to a Pod without requiring an additional ENI.
@@ -116,8 +115,7 @@ Managed add-ons prevents configuration drift by automatically overwriting config
 
 The fields managed by EKS are listed under managedFields with manager as EKS. Fields managed by EKS include service account, image, image url, liveness probe, readiness probe, labels, volumes, and volume mounts.
 
-!!! Info
-The most frequently used fields such as WARM_ENI_TARGET, WARM_IP_TARGET, and MINIMUM_IP_TARGET are not managed and will not be reconciled. The changes to these fields will be preserved upon updating of the add-on.
+NOTE: The most frequently used fields such as WARM_ENI_TARGET, WARM_IP_TARGET, and MINIMUM_IP_TARGET are not managed and will not be reconciled. The changes to these fields will be preserved upon updating of the add-on.
 
 We suggest testing the add-on behavior in your non-production clusters for a specific configuration before updating production clusters. Additionally, follow the steps in the EKS user guide for https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html[add-on] configurations.
 

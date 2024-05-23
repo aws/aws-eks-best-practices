@@ -234,13 +234,12 @@ CSI], https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html[EFS
 CSI]), ingress controllers, and any other workloads or add-ons that rely
 on the Kubernetes API directly.
 
-!!! tip Critical cluster components are often installed in a
+TIP: Critical cluster components are often installed in a
 `+*-system+` namespace
 
+
 ....
-```
 kubectl get ns | grep '-system'
-```
 ....
 
 Once you have identified components that rely the Kubernetes API, check
@@ -414,14 +413,11 @@ Check if you have any EKS Add-ons with:
 aws eks list-addons --cluster-name <cluster name>
 ....
 
-!!! warning
+WARNING: EKS Add-ons are not automatically upgraded during a control plane upgrade. You must initiate EKS add-on updates, and select the desired version. 
 
-....
-EKS Add-ons are not automatically upgraded during a control plane upgrade. You must initiate EKS add-on updates, and select the desired version. 
-
-* You are responsible for selecting a compatible version from all available versions. [Review the guidance on add-on version compatibility.](#upgrade-addons)
+* You are responsible for selecting a compatible version from all available versions. xref:upgrade-addons[Review the guidance on add-on version compatibility.]
 * Amazon EKS Add-ons may only be upgraded one minor version at a time. 
-....
+
 
 https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html[Learn
 more about what components are available as EKS Add-ons&#44; and how to

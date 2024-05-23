@@ -24,7 +24,7 @@ With security groups for Pods, you can improve compute efficiency by running app
 
 image::sgpp_image-2.png[illustration of pod and node with different security groups connecting to RDS]
 
-You can enable security groups for Pods by setting `ENABLE_POD_ENI=true` for VPC CNI. Once enabled, the "`https://github.com/aws/amazon-vpc-resource-controller-k8s[VPC Resource Controller]"` running on the control plane (managed by EKS) creates and attaches a trunk interface called "`aws-k8s-trunk-eni"` to the node. The trunk interface acts as a standard network interface attached to the instance. To manage trunk interfaces, you must add the `AmazonEKSVPCResourceController` managed policy to the cluster role that goes with your Amazon EKS cluster.
+You can enable security groups for Pods by setting `ENABLE_POD_ENI=true` for VPC CNI. Once enabled, the https://github.com/aws/amazon-vpc-resource-controller-k8s[VPC Resource Controller] running on the control plane (managed by EKS) creates and attaches a trunk interface called "`aws-k8s-trunk-eni"` to the node. The trunk interface acts as a standard network interface attached to the instance. To manage trunk interfaces, you must add the `AmazonEKSVPCResourceController` managed policy to the cluster role that goes with your Amazon EKS cluster.
 
 The controller also creates branch interfaces named "aws-k8s-branch-eni" and associates them with the trunk interface. Pods are assigned a security group using the https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/config/crd/bases/vpcresources.k8s.aws_securitygrouppolicies.yaml[SecurityGroupPolicy] custom resource and are associated with a branch interface. Since security groups are specified with network interfaces, we are now able to schedule Pods requiring specific security groups on these additional network interfaces. Review the https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html[EKS User Guide Section on Security Groups for Pods,] including deployment prerequisites.
 
@@ -61,15 +61,13 @@ In Strict Mode, only the branch ENI security groups are enforced. The source NAT
 
 In Standard Mode, the security groups associated with both the primary ENI and branch ENI (associated with the pod) are applied. Network traffic must comply with both security groups.
 
-!!! Warning
-    Any mode change will only impact newly launched Pods. Existing Pods will use the mode that was configured when the Pod was created. Customers will need to recycle existing Pods with security groups if they want to change the traffic behavior.
+WARNING: Any mode change will only impact newly launched Pods. Existing Pods will use the mode that was configured when the Pod was created. Customers will need to recycle existing Pods with security groups if they want to change the traffic behavior.
 
 === Enforcing Mode: Use Strict mode for isolating pod and node traffic:
 
 By default, security groups for Pods is set to "strict mode." Use this setting if you must completely separate Pod traffic from the rest of the node's traffic. In strict mode, the source NAT is turned off so the branch ENI outbound security groups can be used.
 
-!!! Warning
-    When strict mode is enabled, all outbound traffic from a pod will leave the node and enter the VPC network. Traffic between pods on the same node will go over the VPC. This increases VPC traffic and limits node-based features. The NodeLocal DNSCache is not supported with strict mode.
+WARNING: When strict mode is enabled, all outbound traffic from a pod will leave the node and enter the VPC network. Traffic between pods on the same node will go over the VPC. This increases VPC traffic and limits node-based features. The NodeLocal DNSCache is not supported with strict mode.
 
 === Enforcing Mode: Use Standard mode in the following situations
 

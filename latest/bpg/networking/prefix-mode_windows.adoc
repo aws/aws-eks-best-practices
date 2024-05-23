@@ -82,8 +82,7 @@ When using managed node groups, the steps for transition would be:
 * Enable/Disable the Prefix Delegation feature for Windows
 * Update the node group using the steps mentioned https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html[here]. This performs similar steps as above but are managed by EKS.
 
-!!! warning
-    Run all Pods on a node in the same mode
+WARNING: Run all Pods on a node in the same mode
 
 For Windows, we recommend that you avoid running Pods in both secondary IP mode and prefix delegation mode at the same time. Such a situation can arise when you migrate from secondary IP mode to prefix delegation mode or vice versa with running Windows workloads.
 

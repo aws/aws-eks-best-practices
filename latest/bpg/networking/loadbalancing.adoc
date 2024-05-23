@@ -21,8 +21,7 @@ When a pod that is a member of a NodePort Service is created, Kubernetes will go
 . `kube-proxy` receives an update (via `watch`) that there is a new IP/Port to add to the iptables rules for the Service.
  .. The local iptables rules on the worker node will be updated with the additional target pod for the NodePort Service.
 
-!!! note
-    When using an Ingress resource and Ingress Controller (like the AWS Load Balancer Controller) step 5 is handled by the relevant controller instead of `kube-proxy`. The controller will then take the necessary configuration steps (such as registering/deregistering the target to a load balancer) to allow traffic to flow as expected.
+NOTE: When using an Ingress resource and Ingress Controller (like the AWS Load Balancer Controller) step 5 is handled by the relevant controller instead of `kube-proxy`. The controller will then take the necessary configuration steps (such as registering/deregistering the target to a load balancer) to allow traffic to flow as expected.
 
 https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination[When a pod is terminated], or changes to a not-ready state, a similar process occurs. The API server will receive either an update from a controller, kubelet, or kubectl client to terminate the pod. Steps 3-5 continue from there but will remove the Pod IP/Tuple from the endpoints list and iptables rules rather than insert.
 
@@ -47,8 +46,7 @@ To avoid these problems we can add configuration to ensure the Kubernetes system
 
 When creating a `LoadBalancer` type service the traffic is sent from the load balancer to _any node in the cluster_ via *Instance target type* registration. Each node then redirects the traffic from the `NodePort` to a Pod/IP tuple in the Service's Endpoints array, this target could be running on a separate worker node
 
-!!! note
-    Remember that array should only have "`Ready`" pods
+NOTE: Remember that array should only have "`Ready`" pods
 
 image::nodeport.png[nodeport.png]
 
@@ -143,8 +141,7 @@ A https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption
 
 The PDB will protect the application against things like the nodes being drained, or application deployments. The PDB ensures that a minimum number or percentage of pods remain available while taking these actions.
 
-!!! attention
-    PDB's will NOT protect the application against involuntary disruptions like a failure in the host OS or loss of network connectivity.
+IMPORTANT: PDB's will NOT protect the application against involuntary disruptions like a failure in the host OS or loss of network connectivity.
 
 The example below ensures that there is always at least 1 Pod available with the label `app: echoserver`. https://kubernetes.io/docs/tasks/run-application/configure-pdb/#think-about-how-your-application-reacts-to-disruptions[You can configure the correct replica count for your application or use a percentage]:
 
@@ -167,8 +164,7 @@ When a pod is Terminated the application running inside the container will recei
 
 These Signals are used by the container runtime to trigger your application to shutdown. The `SIGTERM` signal will also be sent *after* the `preStop` hook has executed. With the above configuration the `preStop` hook will ensure the pod has been deregistered from the Load Balancer, so the application can then gracefully closes any remaining open connections when the `SIGTERM` signal is received.
 
-!!! note
-    https://petermalmgren.com/signal-handling-docker/[Signal handling in container environments can be complicated when using "`wrapper scripts`" for the entrypoint of your application] as the script will be PID 1 and may not forward the signal to your application.
+NOTE: https://petermalmgren.com/signal-handling-docker/[Signal handling in container environments can be complicated when using "`wrapper scripts`" for the entrypoint of your application] as the script will be PID 1 and may not forward the signal to your application.
 
 === Be Wary of the Deregistration Delay
 
@@ -177,8 +173,7 @@ The initial state of a deregistering target is `draining`. After the deregistrat
 
 If a deregistering target has no in-flight requests and no active connections, Elastic Load Balancing immediately completes the deregistration process, without waiting for the deregistration delay to elapse.
 
-!!! attention
-    Even though target deregistration is complete, the status of the target is displayed as `draining` until the deregistration delay timeout expires. After the timeout expires, the target transitions to an `unused` state.
+IMPORTANT: Even though target deregistration is complete, the status of the target is displayed as `draining` until the deregistration delay timeout expires. After the timeout expires, the target transitions to an `unused` state.
 
 https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#deregistration-delay[If a deregistering target terminates the connection before the deregistration delay elapses, the client receives a 500-level error response].
 

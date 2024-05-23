@@ -42,8 +42,8 @@ As a first line of defense against IP exhaustion, we strongly recommend to size 
 
 Before building VPC and subnets, it is advised to work backwards from the required workload scale. For example, when clusters are built using https://eksctl.io/[eksctl] (a simple CLI tool for creating and managing clusters on EKS) /19 subnets are created by default. A netmask of /19 is suitable for the majority of workload types allowing more than 8000 addresses to be allocated.
 
-!!! attention
-    When you size VPCs and subnets, there might be a number of elements (other than pods and nodes) which can consume IP addresses, for example Load Balancers, RDS Databases and other in-vpc services.
+IMPORTANT: When you size VPCs and subnets, there might be a number of elements (other than pods and nodes) which can consume IP addresses, for example Load Balancers, RDS Databases and other in-vpc services.
+
 Additionally, Amazon EKS, can create up to 4 elastic network interfaces (X-ENI) that are required to allow communication towards the control plane (more info link:../subnets/[here]). During cluster upgrades, Amazon EKS creates new X-ENIs and deletes the old ones when the upgrade is successful. For this reason we recommend a netmask of at least /28 (16 IP addresses) for subnets associated with an EKS cluster.
 
 You can use the link:../subnet-calc/subnet-calc.xlsx[sample EKS Subnet Calculator] spreadsheet to plan for your network. The spreadsheet calculates IP usage based on workloads and VPC ENI configuration. The IP usage is compared to an IPv4 subnet to determine if the configuration and subnet size is sufficient for your workload. Keep in mind that, if subnets in your VPC run out of available IP addresses, we suggest https://docs.aws.amazon.com/vpc/latest/userguide/working-with-subnets.html#create-subnets[creating a new subnet] using the VPC's original CIDR blocks. Notice that now https://aws.amazon.com/about-aws/whats-new/2023/10/amazon-eks-modification-cluster-subnets-security/[Amazon EKS now allows modification of cluster subnets and security groups].
@@ -73,13 +73,11 @@ Please be mindful that setting the value of `WARM_IP_TARGET` too low, will cause
 
 To configure these options, you can download the `aws-k8s-cni.yaml` manifest and set the environment variables. At the time of writing, the latest release is located https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni.yaml[here]. Check the version of the configuration value matches the installed VPC CNI version.
 
-!!! Warning
-    These settings will be reset to defaults when you update the CNI. Please take a backup of the CNI, before you update it. Review the configuration settings to determine if you need to reapply them after update is successful.
+WARNING: These settings will be reset to defaults when you update the CNI. Please take a backup of the CNI, before you update it. Review the configuration settings to determine if you need to reapply them after update is successful.
 
 You can adjust the CNI parameters on the fly without downtime for your existing applications, but you should choose values that will support your scalability needs. For example, if you're working with batch workloads, we recommend updating the default `WARM_ENI_TARGET` to match the Pod scale needs. Setting `WARM_ENI_TARGET` to a high value always maintains the warm IP pool required to run large batch workloads and hence avoid data processing delays.
 
-!!! warning
-    Improving your VPC design is the recommended response to IP address exhaustion. Consider solutions like IPv6 and Secondary CIDRs. Adjusting these values to minimize the number of Warm IPs should be a temporary solution after other options are excluded. Misconfiguring these values may interfere with cluster operation.
+WARNING: Improving your VPC design is the recommended response to IP address exhaustion. Consider solutions like IPv6 and Secondary CIDRs. Adjusting these values to minimize the number of Warm IPs should be a temporary solution after other options are excluded. Misconfiguring these values may interfere with cluster operation.
 
  **Before making any changes to a production system**, be sure to review the considerations on [this page](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/docs/eni-and-ip-target.md).
 
@@ -94,8 +92,7 @@ In addition to the solutions described above, it is also important to have visib
 
 You can also set https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch alarms] to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html[CNI metrics helper]
 
-!!! warning
-    Make sure `DISABLE_METRICS` variable for VPC CNI is set to false.
+WARNING: Make sure `DISABLE_METRICS` variable for VPC CNI is set to false.
 
 ==== Further considerations
 
