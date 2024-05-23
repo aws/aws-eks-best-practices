@@ -6,6 +6,7 @@
 :info_title: Amazon VPC CNI
 :info_abstract: Amazon VPC CNI
 :info_titleabbrev: Amazon VPC CNI
+:imagesdir: images/
 
 [abstract]
 --
@@ -27,7 +28,7 @@ When an instance is created, EC2 creates and attaches a primary ENI associated w
 
 The CNI plugin manages https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html[Elastic Network Interfaces (ENI)] on the node. When a node is provisioned, the CNI plugin automatically allocates a pool of slots (IPs or Prefix's) from the node's subnet to the primary ENI. This pool is known as the _warm pool_, and its size is determined by the node's instance type. Depending on CNI settings, a slot may be an IP address or a prefix. When a slot on an ENI has been assigned, the CNI may attach additional ENIs with warm pool of slots to the nodes. These additional ENIs are called Secondary ENIs. Each ENI can only support a certain number of slots, based on instance type. The CNI attaches more ENIs to instances based on the number of slots needed, which usually corresponds to the number of Pods. This process continues until the node can no longer support additional ENI. The CNI also pre-allocates "`warm`" ENIs and slots for faster Pod startup. Note each instance type has a maximum number of ENIs that may be attached. This is one constraint on Pod density (number of Pods per node), in addition to compute resources.
 
-image::./image.png[flow chart illustrating procedure when new ENI delegated prefix is needed]
+image::cni_image.png[flow chart illustrating procedure when new ENI delegated prefix is needed]
 
 The maximum number of network interfaces, and the maximum number of slots that you can use varies by the type of EC2 Instance. Since each Pod consumes an IP address on a slot, the number of Pods you can run on a particular EC2 Instance depends on how many ENIs can be attached to it and how many slots each ENI supports. We suggest setting the maximum Pods per EKS user guide to avoid exhaustion of the instance's CPU and memory resources. Pods using `hostNetwork` are excluded from this calculation. You may consider using a script called https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh[max-pod-calculator.sh] to calculate EKS's recommended maximum Pods for a given instance type.
 
@@ -55,17 +56,17 @@ The number of ENIs and IP addresses in a pool are configured through environment
 
 This project includes a https://github.com/aws/aws-eks-best-practices/blob/master/content/networking/subnet-calc/subnet-calc.xlsx[Subnet Calculator Excel Document]. This calculator document simulates the IP address consumption of a specified workload under different ENI configuration options, such as `WARM_IP_TARGET` and `WARM_ENI_TARGET`.
 
-image::./image-2.png[illustration of components involved in assigning an IP address to a pod]
+image::cni_image-2.png[illustration of components involved in assigning an IP address to a pod]
 
 When Kubelet receives an add Pod request, the CNI binary queries ipamd for an available IP address, which ipamd then provides to the Pod. The CNI binary wires up the host and Pod network.
 
 Pods deployed on a node are, by default, assigned to the same security groups as the primary ENI. Alternatively, Pods may be configured with different security groups.
 
-image::./image-3.png[second illustration of components involved in assigning an IP address to a pod]
+image::cni_image-3.png[second illustration of components involved in assigning an IP address to a pod]
 
 As the pool of IP addresses is depleted, the plugin automatically attaches another elastic network interface to the instance and allocates another set of secondary IP addresses to that interface. This process continues until the node can no longer support additional elastic network interfaces.
 
-image::./image-4.png[third illustration of components involved in assigning an IP address to a pod]
+image::cni_image-4.png[third illustration of components involved in assigning an IP address to a pod]
 
 When a Pod is deleted, VPC CNI places the Pod's IP address in a 30-second cool down cache. The IPs in a cool down cache are not assigned to new Pods. When the cooling-off period is over, VPC CNI moves Pod IP back to the warm pool. The cooling-off period prevents Pod IP addresses from being recycled prematurely and allows kube-proxy on all cluster nodes to finish updating the iptables rules. When the number of IPs or ENIs exceeds the number of warm pool settings, the ipamd plugin returns IPs and ENIs to the VPC.
 
@@ -95,7 +96,7 @@ Keep in mind that infrastructure pods, often running as daemon sets, each contri
 
 We suggest that you plan your infrastructure by combining these Pods' capacities. For a list of the maximum number of Pods supported by each instance type, see https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt[eni-max-Pods.txt] on GitHub.
 
-image::./image-5.png[illustration of multiple ENIs attached to a node]
+image::cni_image-5.png[illustration of multiple ENIs attached to a node]
 
 == Recommendations
 

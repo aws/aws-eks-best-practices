@@ -6,6 +6,7 @@
 :info_title: Security Groups Per Pod
 :info_abstract: Security Groups Per Pod
 :info_titleabbrev: Security Groups Per Pod
+:imagesdir: images/
 
 [abstract]
 --
@@ -18,16 +19,16 @@ An AWS security group acts as a virtual firewall for EC2 instances to control in
 
 As seen in the image below, all application Pods operating on worker nodes will have access to the RDS database service (considering RDS inbound allows node security group). Security groups are too coarse grained because they apply to all Pods running on a node. Security groups for Pods provides network segmentation for workloads which is an essential part a good defense in depth strategy.
 
-image:./image.png[illustration of node with security group connecting to RDS]
+image::sgpp_image.png[illustration of node with security group connecting to RDS]
 With security groups for Pods, you can improve compute efficiency by running applications with varying network security requirements on shared compute resources. Multiple types of security rules, such as Pod-to-Pod and Pod-to-External AWS services, can be defined in a single place with EC2 security groups and applied to workloads with Kubernetes native APIs. The image below shows security groups applied at the Pod level and how they simplify your application deployment and node architecture. The Pod can now access Amazon RDS database.
 
-image::./image-2.png[illustration of pod and node with different security groups connecting to RDS]
+image::sgpp_image-2.png[illustration of pod and node with different security groups connecting to RDS]
 
 You can enable security groups for Pods by setting `ENABLE_POD_ENI=true` for VPC CNI. Once enabled, the "`https://github.com/aws/amazon-vpc-resource-controller-k8s[VPC Resource Controller]"` running on the control plane (managed by EKS) creates and attaches a trunk interface called "`aws-k8s-trunk-eni"` to the node. The trunk interface acts as a standard network interface attached to the instance. To manage trunk interfaces, you must add the `AmazonEKSVPCResourceController` managed policy to the cluster role that goes with your Amazon EKS cluster.
 
 The controller also creates branch interfaces named "aws-k8s-branch-eni" and associates them with the trunk interface. Pods are assigned a security group using the https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/config/crd/bases/vpcresources.k8s.aws_securitygrouppolicies.yaml[SecurityGroupPolicy] custom resource and are associated with a branch interface. Since security groups are specified with network interfaces, we are now able to schedule Pods requiring specific security groups on these additional network interfaces. Review the https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html[EKS User Guide Section on Security Groups for Pods,] including deployment prerequisites.
 
-image::./image-3.png[illustration of worker subnet with security groups associated with ENIs]
+image::sgpp_image-3.png[illustration of worker subnet with security groups associated with ENIs]
 
 Branch interface capacity is _additive_ to existing instance type limits for secondary IP addresses. Pods that use security groups are not accounted for in the max-pods formula and when you use security group for pods you need to consider raising the max-pods value or be ok with running fewer pods than the node can actually support.
 

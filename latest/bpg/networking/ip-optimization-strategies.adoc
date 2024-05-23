@@ -30,7 +30,7 @@ Amazon EKS clusters support both IPv4 and IPv6. By default, EKS clusters use IPv
 
 For detailed information please see the link:../ipv6/[Running IPv6 EKS Clusters] section and for hands-on experience please see the https://catalog.workshops.aws/ipv6-on-aws/en-US/lab-6[Understanding IPv6 on Amazon EKS] section of the https://catalog.workshops.aws/ipv6-on-aws/en-US[Get hands-on with IPv6 workshop].
 
-image::./ipv6.gif[EKS Cluster in IPv6 Mode, traffic flow]
+image::opt-ipv6.gif[EKS Cluster in IPv6 Mode, traffic flow]
 
 === Optimize IP consumption in IPv4 clusters
 

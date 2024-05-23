@@ -13,7 +13,7 @@
 :info_title: Best Practices for Networking
 :info_abstract: Best Practices for Networking
 :info_titleabbrev: Networking
-:imagesdir: images/networking/
+:imagesdir: images/
 
 [abstract]
 --
@@ -84,14 +84,14 @@ Outputs:
  ** Number of Warm IPs/ENIs per instance
  ** Number of Active IPs/ENIs per instance
 
-include::../subnets/index.adoc[leveloffset=+1]
+include::subnets.adoc[leveloffset=+1]
 
-include::../vpc-cni/index.adoc[leveloffset=+1]
+include::vpc-cni.adoc[leveloffset=+1]
 
-include::../prefix-mode/index_linux.adoc[leveloffset=+1]
+include::prefix-mode_linux.adoc[leveloffset=+1]
 
-include::../sgpp/index.adoc[leveloffset=+1]
+include::sgpp.adoc[leveloffset=+1]
 
-include::../custom-networking/index.adoc[leveloffset=+1]
+include::custom-networking.adoc[leveloffset=+1]
 
-include::../ipv6/index.adoc[leveloffset=+1]
+include::ipv6.adoc[leveloffset=+1]
