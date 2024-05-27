@@ -71,6 +71,30 @@ DSR enablement can be verified following the instructions in the [Microsoft Netw
 
 ![](./images/dsr.png)
 
+If preserving your available IPv4 addresses and minimizing wastage is crucial for your subnet, it is generally
+recommended to avoid using prefix delegation mode as mentioned in
+[Prefix Mode for Windows - When to avoid](https://aws.github.io/aws-eks-best-practices/networking/prefix-mode/index_windows/#avoid-prefix-delegation-when).
+If using prefix delegation is still desired, you can take steps to optimize IPv4 address utilization in your subnet. The
+documentation Prefix Mode for 
+[Windows - Configure parameters](https://aws.github.io/aws-eks-best-practices/networking/prefix-mode/index_windows/#configure-parameters-for-prefix-delegation-to-conserve-ipv4-addresses)
+outlines configuration setting that allow you to fine-tune the IPv4 address request and allocation process to suit your
+needs. Adjusting these configurations can help you strike a balance between conserving IPv4 addresses and pod density
+benefits of prefix delegation.
+
+When using the default setting of assigning secondary IPv4 addresses, at the current time, there are currently no
+supported configurations to manipulate how the VPC Resource Controller requests and allocates IPv4 addresses. More
+specifically, `minimum-ip-target` and `warm-ip-target` are only supported for prefix delegation mode. Also take note
+that in secondary IP mode, based on the number of IP addresses available on the interface, the VPC Resource Controller
+will typically allocate 3 unused IPv4 addresses on the node on your behalf as a means of maintaining warm IPs to enable
+faster pod startup times. If you would like to minimize IP wastage of unused warm IP addresses, you could aim to
+schedule more pods on a given Windows node such that you use as much IP address capacity of the ENI as possible. More
+explicitly, you could avoid having warm unused IPs if all IP addresses on the ENI are already in use by the node and
+running pods. Another workaround to help you resolve constraints with IP address availability in your subnet(s) could be
+to explore [increasing your subnet size](https://docs.aws.amazon.com/vpc/latest/userguide/modify-subnets.html) or
+separating your Windows nodes into their own dedicated subnets.
+
+Also take note that IPv6 is not supported on Windows nodes at the moment.
+
 ## Container Network Interface (CNI) options
 The AWSVPC CNI is the de facto CNI plugin for Windows and Linux worker nodes. While the AWSVPC CNI satisfies the needs of many customers, still there may be times when you need to consider alternatives like an overlay network to avoid IP exhaustion. In these cases, the Calico CNI can be used in place of the AWSVPC CNI. [Project Calico](https://www.projectcalico.org/) is open source software that was developed by [Tigera](https://www.tigera.io/). That software includes a CNI that works with EKS. Instructions for installing Calico CNI in EKS can be found on the [Project Calico EKS installation](https://docs.projectcalico.org/getting-started/kubernetes/managed-public-cloud/eks) page.
 
