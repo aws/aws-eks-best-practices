@@ -103,23 +103,7 @@ Note : The explanations below are based on the [EndpointSlices](https://kubernet
 
 Kubernetes by default runs the [process health check](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-states) where the kubelet process on the node verifies whether or not the main process of the container is running. If not then by default it restarts that container. However you can also configure [Kubernetes probes](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#types-of-probe) to identify when a container process is running but in a deadlock state, or whether an application has started successfully or not. Probes can be based on exec, grpc, httpGet and tcpSocket [mechanisms](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#probe-check-methods). Based on the type and result of the probe the container can be restarted. 
 
----
-
-<details>
-  <summary> <b> Pod Creation (Expand to revisit the sequence of events) </b> </summary>
-
-It is imperative to understand what is the sequence of events in a scenario where a Pod is deployed and then it becomes healthy/ready to receive and process client requests.  Let’s talk about the sequence of events.
-
-1. A Pod is created on the Kubernetes control plane (i.e. by a kubectl command, or Deployment update, or scaling action).
-2. `kube-scheduler` assigns the Pod to a node in the cluster.
-3. The kubelet process running on the assigned node receives the update (via `watch`) and communicates with the container runtime to start the containers defined in the Pod spec.
-4. When the containers starts running, the kubelet updates the [Pod condition](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-conditions) as `Ready` in the Pod object in the Kubernetes API.
-5. The [EndpointSlice Controller](https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager) receives the Pod condition update (via `watch`) and adds the Pod IP/Port as a new endpoint to the [EndpointSlice](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/) object (list of Pod IPs) of the respective Kubernetes Service. 
-6. [kube-proxy](https://kubernetes.io/docs/concepts/overview/components/#kube-proxy) process on each node receives the update (via `watch`) on the EndpointSlice object and then updates the [iptables](https://en.wikipedia.org/wiki/Iptables) rules on each node, with the new Pod IP/port.
-
-</details>
-
----
+Please see the [Pod Creation] in the Appendix section below to revisit the sequence of events in Pod creation process.
 
 ### Use readiness probes
 
@@ -135,27 +119,6 @@ When you perform a rolling update of a Deployment, new Pods get created, and as 
 
 [Pod Readiness Gates](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-readiness-gate) enables you to define additional requirements that must be met before the Pod condition is considered to be “Ready”. In the case of AWS ELB, the AWS Load Balancer Controller monitors the status of the target (the Pod) on the AWS ELB and once the target registration completes and its status turns “Healthy” then [the controller updates the Pod’ s condition to “Ready”](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/pod_readiness_gate/). With this approach you influence the Pod condition based on the state of the external network, which is the target status on the AWS ELB. Pod Readiness Gates is crucial in rolling update scenarios as it enables you to prevent the rolling update of a deployment from terminating old pods until the newly created Pods target status turn “Healthy” on the AWS ELB. 
 
----
-
-<details>
-  <summary> <b> Pod Deletion (Expand to revisit the sequence of events) </b> </summary>
-
-Just like Pod creation, it is imperative to understand what is the sequence of events during Pod deletion. Let’ s talk about the sequence of events. 
-
-1. A Pod deletion request is sent to the Kubernetes API server (i.e. by a `kubectl` command, or Deployment update, or scaling action). 
-2. Kubernetes API server [starts a grace period](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), which is 30 seconds by default, by setting the [deletionTimestamp](https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion) field in the Pod object. (Grace period can be configured in Pod spec through `terminationGracePeriodSeconds`)
-3. The `kubelet` process running on the node receives the update (via watch) on the Pod object and sends a [SIGTERM](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGTERM) signal to process identifier 1 (PID 1) inside each container in that Pod. It then watches the `terminationGracePeriodSeconds`.
-4. The [EndpointSlice Controller](https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager) also receives the update (via `watch`) from Step 2 and sets the endpoint condition to “terminating”  in the [EndpointSlice](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/#conditions) object (list of Pod IPs) of the respective Kubernetes Service. 
-5. [kube-proxy](https://kubernetes.io/docs/concepts/overview/components/#kube-proxy) process on each node receives the update (via `watch`) on the EndpointSlice object then [iptables](https://en.wikipedia.org/wiki/Iptables) rules on each node get updated by the kube-proxy to stop forwarding clients requests to the Pod.
-6. When the `terminationGracePeriodSeconds` expires then the `kubelet` sends  [SIGKILL](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGKILL)  signal to the parent process of each container in the Pod and forcibly terminates them. 
-7. [TheEndpointSlice Controller](https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager) removes the endpoint from the [EndpointSlice](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/#conditions) object.
-8. API server deletes the Pod object. 
-
-</details>
-
----
-
-
 ### Gracefully shutdown applications
 
 Your application should respond to a SIGTERM signal by starting its graceful shutdown so that clients do not experience any downtime. What this means is your application should run cleanup procedures such as saving data, closing file descriptors, closing database connections, completing in-flight requests gracefully and exit in a timely manner to fulfill the Pod termination request. You should set the grace period to long enough so that cleanup can finish. To learn how to respond to the SIGTERM signal you can refer to the resources of the respective programming language that you use for your application. 
@@ -165,6 +128,8 @@ If your application is unable to shutdown gracefully upon receipt of a SIGTERM s
 The overall sequence of events is shown in the diagram below. Note: regardless of the result of graceful shutdown procedure of the application, or the result of the PreStop hook, the application containers are eventually terminated at the end of the grace period via SIGKILL.
 
 ![podterminationlifecycle.png](podterminationlifecycle.png)
+
+Please see the [Pod Deletion] in the Appendix section below to revisit the sequence of events in Pod deletion process.
 
 ### Gracefully handle the  client requests
 
@@ -186,10 +151,34 @@ The behavior and the recommendation mentioned above would be equally applicable 
 
 Configure a [Pod Disruption Budget](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets) (PDB) for your applications. PDBlimits the number of Pods of a replicated application that are down simultaneously from [voluntary disruptions](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#voluntary-and-involuntary-disruptions). It ensures that a minimum number or percentage of pods remain available in a StatefulSet or Deployment. For example, a quorum-based application needs to ensure that the number of replicas running is never brought below the number needed for a quorum. Or a web front end might ensure that the number of replicas serving load never falls below a certain percentage of the total. PDB will protect the application against actions such as nodes being drained, or new versions of Deployments being rolled out. Keep in mind that PDB’s will not protect the application against involuntary disruptions such as a failure of the node operating system or loss of network connectivity. For more information please refer to the [Specifying a Disruption Budget for your Application](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) in Kubernetes documentation.
 
-
-
 ## References
 
 * KubeCon Europe 2019 Session - [Ready? A Deep Dive into Pod Readiness Gates for Service Health](https://www.youtube.com/watch?v=Vw9GmSeomFg) 
 * Book - [Kubernetes in Action](https://www.amazon.com/Kubernetes-Action-Marko-Luksa/dp/1617293725/) 
 * AWS Blog - [How to rapidly scale your application with ALB on EKS (without losing traffic)](https://aws.amazon.com/blogs/containers/how-to-rapidly-scale-your-application-with-alb-on-eks-without-losing-traffic/)
+
+## Appendix
+
+### Pod Creation
+
+It is imperative to understand what is the sequence of events in a scenario where a Pod is deployed and then it becomes healthy/ready to receive and process client requests.  Let’s talk about the sequence of events.
+
+1. A Pod is created on the Kubernetes control plane (i.e. by a kubectl command, or Deployment update, or scaling action).
+2. `kube-scheduler` assigns the Pod to a node in the cluster.
+3. The kubelet process running on the assigned node receives the update (via `watch`) and communicates with the container runtime to start the containers defined in the Pod spec.
+4. When the containers starts running, the kubelet updates the [Pod condition](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-conditions) as `Ready` in the Pod object in the Kubernetes API.
+5. The [EndpointSlice Controller](https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager) receives the Pod condition update (via `watch`) and adds the Pod IP/Port as a new endpoint to the [EndpointSlice](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/) object (list of Pod IPs) of the respective Kubernetes Service. 
+6. [kube-proxy](https://kubernetes.io/docs/concepts/overview/components/#kube-proxy) process on each node receives the update (via `watch`) on the EndpointSlice object and then updates the [iptables](https://en.wikipedia.org/wiki/Iptables) rules on each node, with the new Pod IP/port.
+
+### Pod Deletion
+
+Just like Pod creation, it is imperative to understand what is the sequence of events during Pod deletion. Let’ s talk about the sequence of events. 
+
+1. A Pod deletion request is sent to the Kubernetes API server (i.e. by a `kubectl` command, or Deployment update, or scaling action). 
+2. Kubernetes API server [starts a grace period](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), which is 30 seconds by default, by setting the [deletionTimestamp](https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion) field in the Pod object. (Grace period can be configured in Pod spec through `terminationGracePeriodSeconds`)
+3. The `kubelet` process running on the node receives the update (via watch) on the Pod object and sends a [SIGTERM](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGTERM) signal to process identifier 1 (PID 1) inside each container in that Pod. It then watches the `terminationGracePeriodSeconds`.
+4. The [EndpointSlice Controller](https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager) also receives the update (via `watch`) from Step 2 and sets the endpoint condition to “terminating”  in the [EndpointSlice](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/#conditions) object (list of Pod IPs) of the respective Kubernetes Service. 
+5. [kube-proxy](https://kubernetes.io/docs/concepts/overview/components/#kube-proxy) process on each node receives the update (via `watch`) on the EndpointSlice object then [iptables](https://en.wikipedia.org/wiki/Iptables) rules on each node get updated by the kube-proxy to stop forwarding clients requests to the Pod.
+6. When the `terminationGracePeriodSeconds` expires then the `kubelet` sends  [SIGKILL](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGKILL)  signal to the parent process of each container in the Pod and forcibly terminates them. 
+7. [TheEndpointSlice Controller](https://kubernetes.io/docs/concepts/overview/components/#kube-controller-manager) removes the endpoint from the [EndpointSlice](https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/#conditions) object.
+8. API server deletes the Pod object. 
