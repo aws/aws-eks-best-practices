@@ -63,8 +63,6 @@ You can use the following formula to determine maximum number of Pods you can de
 
 `(Number of network interfaces for the instance type × (the number of IP addresses per network interface - 1)) + 2`
 
-The +2 indicates Pods that require host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be operating on each node, and these requirements are factored into the max-pods value. If you want to run additional host networking pods, consider updating the max-pods value.
-
 The +2 indicates Kubernetes Pods that use host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be running on every node and are calculated towards max-pods. Consider updating max-pods if you plan to run more host networking Pods. You can specify `--kubelet-extra-args "—max-pods=110"` as user data in the launch template.
 
 As an example, on a cluster with 3 c5.large nodes (3 ENIs and max 10 IPs per ENI), when the cluster starts up and has 2 CoreDNS pods, the CNI will consume 49 IP addresses and keeps them in warm pool. The warm pool enables faster Pod launches when the application is deployed.
