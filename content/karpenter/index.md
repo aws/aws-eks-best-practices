@@ -8,7 +8,7 @@
 * Provision new nodes that meet the requirements of those pods.
 * Remove nodes when they are no longer needed.
   
-With Karpenter, you can define NodePools with constraints on node provisioning like taints, labels, requirements (instance types, zones, etc.), and limits on total cluster resources.
+With Karpenter, you can define NodePools with constraints on node provisioning like taints, labels, requirements (instance types, zones, etc.), and limits on total provisioned resources.
 When deploying workloads, you can specify scheduling constraints in the pod spec like resource requests/limits, node selectors, node/pod affinities, tolerations, and topology spread constraints. Karpenter will then provision right sized nodes for those pods.
 
 **Reasons to use Karpenter**
