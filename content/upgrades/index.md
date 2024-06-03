@@ -427,7 +427,7 @@ Managed node groups automate the provisioning and lifecycle management of nodes.
 
 For Karpenter data plane upgrades, refer to below sections:
 * [Use Drift for Karpenter managed nodes](#use-drift-for-karpenter-managed-nodes)
-* [Use Node expiry for Karpenter managed nodes](#use-node-expiry-for-karpenter-managed-nodes)
+* [Use ExpireAfter for Karpenter managed nodes](#use-expire-after-for-karpenter-managed-nodes)
 
 ## Confirm version compatibility with existing nodes and the control plane
 
