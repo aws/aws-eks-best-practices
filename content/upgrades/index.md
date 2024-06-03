@@ -426,7 +426,7 @@ Managed Node Groups and Karpenter both simplify node upgrades, but they take dif
 Managed node groups automate the provisioning and lifecycle management of nodes. This means that you can create, automatically update, or terminate nodes with a single operation.
 
 For Karpenter data plane updgrades, refer to below sections:
-* [Use Drift feature for Karpenter managed nodes](#use-drift-feature-for-karpenter-managed-nodes)
+* [Use Drift for Karpenter managed nodes](#use-drift-for-karpenter-managed-nodes)
 * [Use Node expiry for Karpenter managed nodes](#use-node-expiry-for-karpenter-managed-nodes)
 
 ## Confirm version compatibility with existing nodes and the control plane
