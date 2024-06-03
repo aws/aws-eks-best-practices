@@ -447,7 +447,9 @@ To understand how Karpenter manages AMIs and the different options available to 
 
 ## Use ExpireAfter for Karpenter managed nodes
 
-One way Karpenter implements node upgrades is using the concept of node expiry. This reduces the planning required for node upgrades. Karpenter will mark nodes as expired and disrupt them after they have lived a set number of seconds, based on the NodePool’s `spec.disruption.expireAfter` value. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see [Disruption](https://karpenter.sh/docs/concepts/disruption/#methods) on the Karpenter website.
+Karpenter will mark nodes as expired and disrupt them after they have lived a set number of seconds, based on the NodePool’s `spec.disruption.expireAfter` value. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see [Disruption](https://karpenter.sh/docs/concepts/disruption/#methods) on the Karpenter website.
+
+If you're using automatic AMI upgrades, ExpireAfter can periodically refresh and upgrade your nodes.
 
 If it’s happened that the node is drifted, but hasn’t been cleaned up, node expiration will also replace the instance with the new AMI in EC2NodeClass.
 
