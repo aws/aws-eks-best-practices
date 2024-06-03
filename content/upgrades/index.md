@@ -445,7 +445,7 @@ To understand how Karpenter manages AMIs and the different options available to 
 
 [Karpenter can be configured to use custom AMIs.](https://karpenter.sh/docs/concepts/nodeclasses/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
 
-## Use Node expiry for Karpenter managed nodes
+## Use ExpireAfter for Karpenter managed nodes
 
 One way Karpenter implements node upgrades is using the concept of node expiry. This reduces the planning required for node upgrades. Karpenter will mark nodes as expired and disrupt them after they have lived a set number of seconds, based on the NodePool’s `spec.disruption.expireAfter` value. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see [Disruption](https://karpenter.sh/docs/concepts/disruption/#methods) on the Karpenter website.
 
