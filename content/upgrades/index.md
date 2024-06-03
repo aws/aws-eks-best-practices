@@ -438,7 +438,7 @@ Before proceeding with a Kubernetes upgrade in Amazon EKS, it's vital to ensure 
 
 ## Use Drift for Karpenter managed nodes
 
-Karpenter’s [Drift feature](https://karpenter.sh/docs/concepts/disruption/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Refer to [How to upgrade an EKS Cluster with Karpenter](https://karpenter.sh/docs/faq/#how-do-i-upgrade-an-eks-cluster-with-karpenter) for more details.
+Karpenter’s [Drift](https://karpenter.sh/docs/concepts/disruption/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Refer to [How to upgrade an EKS Cluster with Karpenter](https://karpenter.sh/docs/faq/#how-do-i-upgrade-an-eks-cluster-with-karpenter) for more details.
 
 This means that if the AMI ID specified in the Karpenter EC2 Nodeclass is updated, Karpenter will detect the drift and start replacing the nodes with the new AMI. 
 To understand how Karpenter manages AMIs and the different options available to Karpenter users to control the AMI upgrade process see the documentation on [how to manage AMIs in Karpenter](https://karpenter.sh/docs/tasks/managing-amis/).
