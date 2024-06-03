@@ -443,8 +443,6 @@ Karpenter’s [Drift](https://karpenter.sh/docs/concepts/disruption/#drift) can 
 This means that if the AMI ID specified in the Karpenter EC2 Nodeclass is updated, Karpenter will detect the drift and start replacing the nodes with the new AMI. 
 To understand how Karpenter manages AMIs and the different options available to Karpenter users to control the AMI upgrade process see the documentation on [how to manage AMIs in Karpenter](https://karpenter.sh/docs/tasks/managing-amis/).
 
-[Karpenter can be configured to use custom AMIs.](https://karpenter.sh/docs/concepts/nodeclasses/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
-
 ## Use ExpireAfter for Karpenter managed nodes
 
 Karpenter will mark nodes as expired and disrupt them after they have lived a set number of seconds, based on the NodePool’s `spec.disruption.expireAfter` value. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see [Disruption](https://karpenter.sh/docs/concepts/disruption/#methods) on the Karpenter website.
