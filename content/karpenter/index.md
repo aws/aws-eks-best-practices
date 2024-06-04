@@ -68,7 +68,7 @@ The following example shows how to avoid provisioning large Graviton instances.
 
 ### Enable Interruption Handling when using Spot
 
-Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/disruption/#interruption) and can handle involuntary interruption events like Spot Instance interruptions, scheduled maintenance events, instance termination/stopping events that could disrupt your workloads. When Karpenter detects such events for nodes, it automatically taints, drains and terminates the affected nodes ahead of time to allow graceful cleanup of workloads before disruption.
+Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/disruption/#interruption) and can handle involuntary interruption events like Spot Instance interruptions, scheduled maintenance events, instance termination/stopping events that could disrupt your workloads. When Karpenter detects such events for nodes, it automatically taints, drains and terminates the affected nodes ahead of time to start graceful cleanup of workloads before disruption.
 For Spot interruptions with 2 minute notice, Karpenter quickly starts a new node so pods can be moved before the instance is reclaimed. To enable interruption handling, you configure the `--interruption-queue` CLI argument with the name of the SQS queue provisioned for this purpose.
 It is not advised to use Karpenter interruption handling alongside Node Termination Handler as explained [here](https://karpenter.sh/docs/faq/#interruption-handling).
 
