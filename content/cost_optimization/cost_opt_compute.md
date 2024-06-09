@@ -188,7 +188,7 @@ After optimizing the total capacity of compute in your cluster and utilizing bin
 * On-Demand
 * Fargate
 
-Each capacity type has different trade-offs for management overhead, availability, and long term commitments and you will need to decide which is right for your environment. No environment should rely on a single capacity type and you can mix multiple run types in a single cluster to optimize specific workload requirements and cost.
+Each capacity type has different trade-offs for management overhead, availability, and long term commitments and you will need to decide which is right for your environment. No environment should rely on a single capacity type and you can mix multiple run types in a single cluster to optimize specific workload requirements and cost. For example, you can use Savings Plans to serve your regular traffic and use Spot instances to serve your irregular peak demands.
 
 ### Spot
 
