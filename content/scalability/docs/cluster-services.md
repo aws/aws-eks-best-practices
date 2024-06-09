@@ -92,4 +92,6 @@ The ability to configure sampling depends on the agent software and can be imple
 
 If you are using CloudWatch and CloudWatch Logs you can add agent filtering using patterns [described in the documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html).
 
+Note that Amazon Managed Service for Prometheus offers agentless collector for Prometheus metrics from Amazon EKS. You can read more [on the documentation](https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-collector.html).
+
 To avoid losing logs and metrics you should send your data to a system that can buffer data in case of an outage on the receiving endpoint. With fluentbit you can use [Amazon Kinesis Data Firehose](https://docs.fluentbit.io/manual/pipeline/outputs/firehose) to temporarily keep data which can reduce the chance of overloading your final data storage location.
