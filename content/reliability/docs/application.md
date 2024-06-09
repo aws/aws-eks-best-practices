@@ -115,7 +115,7 @@ spec:
 
 Install the Kubernetes [metrics server](https://github.com/kubernetes-sigs/metrics-server) to help scale your applications. Kubernetes autoscaler add-ons like [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) and [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) need to track metrics of applications to scale them. The metrics-server collects resource metrics that can be used to make scaling decisions. The metrics are collected from kubelets and served in [Metrics API format](https://github.com/kubernetes/metrics).
 
-The metrics server doesn’t retain any data, and it’s not a monitoring solution. Its purpose is to expose CPU and memory usage metrics to other systems. If you want to track your application's state over time, you need a monitoring tool like Prometheus or Amazon CloudWatch. 
+The metrics server doesn’t retain any data, and it’s not a monitoring solution. Its purpose is to expose CPU and memory usage metrics to other systems. If you want to track your application's state over time and get notified, you need a monitoring tool like Amazon Managed Service for Prometheus or Amazon CloudWatch. 
 
 Follow the [EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html) to install metrics-server in your EKS cluster. 
 
