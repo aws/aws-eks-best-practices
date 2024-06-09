@@ -154,3 +154,5 @@ Generally, schedulers ensure that pods are placed only on nodes that have suffic
 #### Monitoring 
 #### Deployment Best Practices 
 #### Trade-Offs
+
+Remember that in software engineering “Everything is a trade-off" and there is no free lunch. Therefore, before making any architectural decision make sure to analyze those trade-offs. Also, you need to pay more attention to "why" you are making an architectural decision than to "how" to do it.
