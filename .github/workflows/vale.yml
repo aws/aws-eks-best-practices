@@ -1,0 +1,25 @@
+name: Style check
+
+on:
+  pull_request:
+  workflow_dispatch:
+ 
+jobs:
+  style-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+          
+      - name: Run Vale
+        uses: errata-ai/vale-action@reviewdog
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          fail_on_error: false
+          reporter: github-pr-check
+          filter_mode: added
+          vale_flags: "--no-exit"
+          version: 2.28.0
+          files: latest/bpg
+        continue-on-error: true
