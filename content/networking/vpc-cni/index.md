@@ -17,7 +17,7 @@ The CNI plugin manages [Elastic Network Interfaces (ENI)](https://docs.aws.amazo
 
 ![flow chart illustrating procedure when new ENI delegated prefix is needed](./image.png)
 
-The maximum number of network interfaces, and the maximum number of slots that you can use varies by the type of EC2 Instance. Since each Pod consumes an IP address on a slot, the number of Pods you can run on a particular EC2 Instance depends on how many ENIs can be attached to it and how many slots each ENI supports. We suggest setting the maximum Pods per EKS user guide to avoid exhaustion of the instance’s CPU and memory resources. Pods using `hostNetwork` are excluded from this calculation. You may consider using a script called [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh) to calculate EKS’s recommended maximum Pods for a given instance type.
+The maximum number of network interfaces, and the maximum number of slots that you can use varies by the type of EC2 Instance. Since each Pod consumes an IP address on a slot, the number of Pods you can run on a particular EC2 Instance depends on how many ENIs can be attached to it and how many slots each ENI supports. We suggest setting the maximum Pods per EKS user guide to avoid exhaustion of the instance’s CPU and memory resources. Pods using `hostNetwork` are excluded from this calculation. You may consider using a script called [max-pods-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/al2/runtime/max-pods-calculator.sh) to calculate EKS’s recommended maximum Pods for a given instance type.
 
 ## Overview
 
