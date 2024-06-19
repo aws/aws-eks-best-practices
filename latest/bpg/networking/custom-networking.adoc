@@ -3,10 +3,11 @@
 [[custom-networking,custom-networking.title]]
 = Custom Networking
 :info_doctype: section
+:imagesdir: images/
 :info_title: Custom Networking
 :info_abstract: Custom Networking
 :info_titleabbrev: Custom Networking
-:imagesdir: images/
+
 
 [abstract]
 --
@@ -117,11 +118,11 @@ Consider the maximum number of Pods for an m5.large instance with custom network
 
 The maximum number of Pods you can run without prefix assignment is 29
 
-* ((3 ENIs - 1) * (10 secondary IPs per ENI - 1)) + 2 = 20
+* `((3 ENIs - 1) * (10 secondary IPs per ENI - 1)) + 2 = 20`
 
 Enabling prefix attachments increases the number of Pods to 290.
 
-* (((3 ENIs - 1) * ((10 secondary IPs per ENI - 1) * 16)) + 2 = 290
+* `(((3 ENIs - 1) * ((10 secondary IPs per ENI - 1) * 16)) + 2 = 290`
 
 However, we suggest setting max-pods to 110 rather than 290 because the instance has a rather small number of virtual CPUs. On bigger instances, EKS recommends a max pods value of 250. When utilizing prefix attachments with smaller instance types (e.g. m5.large), it is possible that you will exhaust the instance's CPU and memory resources well before its IP addresses.
 

@@ -316,6 +316,7 @@ account with the necessary permissions.
 cluster IAM role has permission to use the AWS Key Management Service
 (AWS KMS) key.
 
+[[upgrades-ips, upgrades-ips.title]]
 === Verify available IP addresses
 
 To update the cluster, Amazon EKS requires up to five available IP

@@ -1,4 +1,9 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[prefix-mode-win,prefix-mode-win.title]]
 = Prefix Mode for Windows
+:info_doctype: section
+:imagesdir: images/
 
 In Amazon EKS, each Pod that runs on a Windows host is assigned a secondary IP address by the https://github.com/aws/amazon-vpc-resource-controller-k8s[VPC resource controller] by default. This IP address is a VPC-routable address that is allocated from the host's subnet. On Linux, each ENI attached to the instance has multiple slots that can be populated by a secondary IP address or a /28 CIDR (a prefix). Windows hosts, however, only support a single ENI and its available slots. Using only secondary IP addresses can artifically limit the number of pods you can run on a Windows host, even when there is an abundance of IP addresses available for assignment.
 
@@ -6,7 +11,7 @@ In order to increase the pod density on Windows hosts, especially when using sma
 
 Please follow the instructions mentioned in the https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html[EKS user guide] to enable Prefix Delegation mode for Windows nodes.
 
-image::./windows-1.jpg[illustration of two worker subnets, comparing ENI secondary IPvs to ENIs with delegated prefixes]
+image::pm_windows-1.jpg[illustration of two worker subnets, comparing ENI secondary IPvs to ENIs with delegated prefixes]
 
 Figure: Comparison of Secondary IP mode with Prefix Delegation mode
 
@@ -21,7 +26,7 @@ During worker node initialization, the VPC Resource Controller assigns one or mo
 
 As more Pods are scheduled on the node, additional prefixes will be requested for the existing ENI. When a Pod is scheduled on the node, VPC Resource Controller would first try to assign an IPv4 address from the existing prefixes on the node. If that is not possible, then a new IPv4 prefix will be requested as long as the subnet has the required capacity.
 
-image::./windows-2.jpg[flow chart of procedure for assigning IP to pod]
+image::pm_windows-2.jpg[flow chart of procedure for assigning IP to pod]
 
 Figure: Workflow during assignment of IPv4 address to the Pod
 

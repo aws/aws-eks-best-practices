@@ -13,11 +13,9 @@
 Running IPv6 EKS Clusters
 --
 
+video::youtube[zdXpTT0bZXo]
 
-
-+++<iframe width="560" height="315" src="https://www.youtube.com/embed/zdXpTT0bZXo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="">++++++</iframe>+++
-
-EKS in IPv6 mode solves the IPv4 exhaustion challenge often manifested in large scale EKS clusters. EKS's support for IPv6 is focused on resolving the IPv4 exhaustion problem, which stems from the limited size of the IPv4 address space. This is a significant concern raised by a number of our customers and is distinct from Kubernetes`' "`https://kubernetes.io/docs/concepts/services-networking/dual-stack/[IPv4/IPv6 dual-stack]`" feature.
+EKS in IPv6 mode solves the IPv4 exhaustion challenge often manifested in large scale EKS clusters. EKS's support for IPv6 is focused on resolving the IPv4 exhaustion problem, which stems from the limited size of the IPv4 address space. This is a significant concern raised by a number of our customers and is distinct from Kubernetes https://kubernetes.io/docs/concepts/services-networking/dual-stack/[IPv4/IPv6 dual-stack] feature.
 EKS/IPv6 will also provide the flexability to inter-connect network boundaries using IPv6 CIDRs hence minimizing the chances to suffer from CIDR overlap, therefor solving a 2-Fold problem (In-Cluster, Cross-Cluster).
 When deploying EKS clusters in IPv6 mode (--ip-family ipv6), the action is not a reversible. In simple words EKS IPv6 support is enabled for the entire lifetime of your cluster.
 
@@ -40,12 +38,10 @@ image::ipv6_eks-cluster-ipv6-foundation.png[Dual Stack VPC, EKS Cluster in IPv6 
 
 == Overview
 
-EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on https://aws.github.io/aws-eks-best-practices/networking/prefix-mode/index_linux/[Prefix
+EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix
 Mode].
 
-____
 Prefix assignment only works on Nitro-based EC2 instances, hence EKS/IPv6 is only supported when the cluster data-plane uses EC2 Nitro-based instances.
-____
 
 In simple words an IPv6 prefix of /80 (Per worker-node) will yield ~10{caret}14 IPv6 addresses, the limiting factor will no longer be IPs but Pod density (Resources wise).
 
@@ -86,7 +82,7 @@ image::ipv6_ipv4-internet-to-eks-ipv6.png[Internet IPv4 user to EKS/IPv6 Ingress
 
 NOTE: The above pattern requires to deploy the https://kubernetes-sigs.github.io/aws-load-balancer-controller[most recent version] of the AWS load balancer controller
 
-=== EKS Control Plane \<-> Data Plane communication
+=== EKS Control Plane & Data Plane communication
 
 EKS will provision Cross-Account ENIs (X-ENIs) in dual stack mode (IPv4/IPv6). Kubernetes node components such as kubelet and kube-proxy are configured to support dual stack. Kubelet and kube-proxy run in a hostNetwork mode and bind to both IPv4 and IPv6 addresses attached to the primary network interface of a node. The Kubernetes api-server communicates to Pods and node components via the X-ENIs is IPv6 based. Pods communicate with the api-servers via the X-ENIs, and Pod to api-server communication always uses IPv6 mode.
 

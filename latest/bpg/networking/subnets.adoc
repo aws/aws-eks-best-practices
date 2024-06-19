@@ -68,7 +68,7 @@ Amazon EKS clusters support both IPv4 and IPv6. By default, EKS clusters use IPv
 
 Amazon EKS recommends you use at least two subnets that are in different Availability Zones during cluster creation. The subnets you pass in during cluster creation are known as cluster subnets. When you create a cluster, Amazon EKS creates up to 4 cross account (x-account or x-ENIs) ENIs in the subnets that you specify. The x-ENIs are always deployed and are used for cluster administration traffic such as log delivery, exec, and proxy. Please refer to the EKS user guide for complete https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html#network-requirements-subnets[VPC and subnet requirement] details.
 
-Kubernetes worker nodes can run in the cluster subnets, but it is not recommended. During https://aws.github.io/aws-eks-best-practices/upgrades/#verify-available-ip-addresses[cluster upgrades] Amazon EKS provisions additional ENIs in the cluster subnets. When your cluster scales out, worker nodes and pods may consume the available IPs in the cluster subnet. Hence in order to make sure there are enough available IPs you might want to consider using dedicated cluster subnets with /28 netmask.
+Kubernetes worker nodes can run in the cluster subnets, but it is not recommended. During xref:upgrades-ips[cluster upgrades] Amazon EKS provisions additional ENIs in the cluster subnets. When your cluster scales out, worker nodes and pods may consume the available IPs in the cluster subnet. Hence in order to make sure there are enough available IPs you might want to consider using dedicated cluster subnets with /28 netmask.
 
 Kubernetes worker nodes can run in either a public or a private subnet. Whether a subnet is public or private refers to whether traffic within the subnet is routed through an https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html[internet gateway]. Public subnets have a route table entry to the internet through the internet gateway, but private subnets don't.
 
@@ -90,6 +90,7 @@ Nodes are created on private subnets, whereas Ingress resources are instantiated
 
 Both nodes and ingress are created in private subnets. Using the http://kubernetes.io/role/internal-elb:1[`kubernetes.io/role/internal-elb`] subnet tag to construct internal load balancers. Accessing your cluster's endpoint will require a VPN connection. You must activate https://docs.aws.amazon.com/vpc/latest/userguide/endpoint-service.html[AWS PrivateLink] for EC2 and all Amazon ECR and S3 repositories. Only the private endpoint of the cluster should be enabled. We suggest going through the https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html[EKS private cluster requirements] before provisioning private clusters.
 
+[[cross-vpcs,cross-vpcs.title]]
 === Communication across VPCs
 
 There are many scenarios when you require multiple VPCs and separate EKS clusters deployed to these VPCs.
@@ -104,6 +105,7 @@ image::subnet_private-nat-gw.gif[Private Nat Gateway with Custom Networking, tra
 
 Consider utilizing https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-share-your-services.html[AWS PrivateLink], also known as an endpoint service, if you are the service provider and would want to share your Kubernetes service and ingress (either ALB or NLB) with your customer VPC in separate accounts.
 
+[[subnets-multiple-accounts, subnets-multiple-accounts.title]]
 === Sharing VPC across multiple accounts
 
 Many enterprises adopted shared Amazon VPCs as a means to streamline network administration, reduce costs and improve security across multiple AWS Accounts in an AWS Organization. They utilize AWS Resource Access Manager (RAM) to securely share supported https://docs.aws.amazon.com/ram/latest/userguide/shareable.html[AWS resources] with individual AWS Accounts, organizational units (OUs) or entire AWS Organization.
