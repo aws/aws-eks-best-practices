@@ -2,7 +2,14 @@
 
 ## Karpenter
 
-Karpenter is an open-source cluster autoscaler that automatically provisions new nodes in response to unschedulable pods. Karpenter evaluates the aggregate resource requirements of the pending pods and chooses the optimal instance type to run them. It will automatically scale-in or terminate instances that don’t have any non-daemonset pods to reduce waste. It also supports a consolidation feature which will actively move pods around and either delete or replace nodes with cheaper versions to reduce cluster cost.
+[Karpenter](https://karpenter.sh/) is an open-source project that provides node lifecycle management for Kubernetes clusters. It automates provisioning and deprovisioning of nodes based on the scheduling needs of pods, allowing efficient scaling and cost optimization. Its main functions are:
+* Monitor pods that the Kubernetes scheduler cannot schedule due to resource constraints.
+* Evaluate the scheduling requirements (resource requests, node selectors, affinities, tolerations, etc.) of the unschedulable pods.
+* Provision new nodes that meet the requirements of those pods.
+* Remove nodes when they are no longer needed.
+  
+With Karpenter, you can define NodePools with constraints on node provisioning like taints, labels, requirements (instance types, zones, etc.), and limits on total provisioned resources.
+When deploying workloads, you can specify scheduling constraints in the pod spec like resource requests/limits, node selectors, node/pod affinities, tolerations, and topology spread constraints. Karpenter will then provision right sized nodes for those pods.
 
 **Reasons to use Karpenter**
 
@@ -38,11 +45,9 @@ You need features that are still being developed in Karpenter. Because Karpenter
 
 Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-started/). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
 
-### Avoid using custom launch templates with Karpenter
+### No custom launch templates support with Karpenter
 
-Karpenter strongly recommends against using custom launch templates. Using custom launch templates prevents multi-architecture support, the ability to automatically upgrade nodes, and securityGroup discovery. Using launch templates may also cause confusion because certain fields are duplicated within Karpenter’s NodePools while others are ignored by Karpenter, e.g. subnets and instance types.
-
-You can often avoid using launch templates by using custom user data and/or directly specifying custom AMIs in the AWS node template.  More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
+There is no custom launch template support with v1beta1 APIs (v0.32+). You can use custom user data and/or directly specifying custom AMIs in the EC2NodeClass. More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
 
 ### Exclude instance types that do not fit your workload
 
@@ -63,14 +68,9 @@ The following example shows how to avoid provisioning large Graviton instances.
 
 ### Enable Interruption Handling when using Spot
 
-Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/disruption/#interruption), enabled through the `--interruption-queue-name` CLI argument with the name of the SQS queue. Interruption handling watches for upcoming involuntary interruption events that would cause disruption to your workloads such as:
-
-* Spot Interruption Warnings
-* Scheduled Change Health Events (Maintenance Events)
-* Instance Terminating Events
-* Instance Stopping Events
-
-When Karpenter detects one of these events will occur to your nodes, it automatically cordons, drains, and terminates the node(s) ahead of the interruption event to give the maximum amount of time for workload cleanup prior to interruption. It is not advised to use AWS Node Termination Handler alongside Karpenter as explained [here](https://karpenter.sh/docs/faq/#interruption-handling).
+Karpenter supports [native interruption handling](https://karpenter.sh/docs/concepts/disruption/#interruption) and can handle involuntary interruption events like Spot Instance interruptions, scheduled maintenance events, instance termination/stopping events that could disrupt your workloads. When Karpenter detects such events for nodes, it automatically taints, drains and terminates the affected nodes ahead of time to start graceful cleanup of workloads before disruption.
+For Spot interruptions with 2 minute notice, Karpenter quickly starts a new node so pods can be moved before the instance is reclaimed. To enable interruption handling, you configure the `--interruption-queue` CLI argument with the name of the SQS queue provisioned for this purpose.
+It is not advised to use Karpenter interruption handling alongside Node Termination Handler as explained [here](https://karpenter.sh/docs/faq/#interruption-handling).
 
 Pods that require checkpointing or other forms of graceful draining, requiring the 2-mins before shutdown should enable Karpenter interruption handling in their clusters.
 
@@ -101,22 +101,7 @@ Failed requests for pricing data will result in the following error messages:
 {"level":"ERROR","time":"2024-02-29T15:08:58.522Z","logger":"controller.pricing","message":"retreiving on-demand pricing data, RequestError: send request failed\ncaused by: Post \"https://api.pricing.<region>.amazonaws.com/\": dial tcp 18.196.224.8:443: i/o timeout; RequestError: send request failed\ncaused by: Post \"https://api.pricing.<region>.amazonaws.com/\": dial tcp 18.185.143.117:443: i/o timeout","commit":"596ea97"}
 ```
 
-In summary, to use Karpenter in a completely Private EKS Clusters, you need to create the following VPC endpoints:
-
-```console
-com.amazonaws.<region>.ec2
-com.amazonaws.<region>.ecr.api
-com.amazonaws.<region>.ecr.dkr
-com.amazonaws.<region>.s3 – For pulling container images
-com.amazonaws.<region>.sts – For IAM roles for service accounts
-com.amazonaws.<region>.ssm - For resolving default AMIs
-com.amazonaws.<region>.sqs - For accessing SQS if using interruption handling
-```
-
-!!! note
-    Karpenter (controller and webhook deployment) container images must be in or copied to Amazon ECR private or to a another private registry accessible from inside the VPC. The reason for this is that the Karpenter controller and webhook pods currently use Public ECR images. If these are not available from within the VPC, or from networks peered with the VPC, you will get Image pull errors when Kubernetes tries to pull these images from ECR public.
-
-For further information, see [Issue 988](https://github.com/aws/karpenter/issues/988) and [Issue 1157](https://github.com/aws/karpenter/issues/1157).
+Refer to this [documentation](https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#private-clusters) to use Karpenter in a completely Private EKS Clusters and to know which VPC endpoints to be created.
 
 ## Creating NodePools
 
