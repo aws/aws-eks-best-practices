@@ -3,6 +3,7 @@
 ## Karpenter
 
 [Karpenter](https://karpenter.sh/) is an open-source project that provides node lifecycle management for Kubernetes clusters. It automates provisioning and deprovisioning of nodes based on the scheduling needs of pods, allowing efficient scaling and cost optimization. Its main functions are:
+
 * Monitor pods that the Kubernetes scheduler cannot schedule due to resource constraints.
 * Evaluate the scheduling requirements (resource requests, node selectors, affinities, tolerations, etc.) of the unschedulable pods.
 * Provision new nodes that meet the requirements of those pods.
