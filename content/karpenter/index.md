@@ -174,7 +174,7 @@ spec:
         effect: "NoSchedule"
 ```
 
-For a general deployment for another team, the NodePool spec could include nodeAffinify. A Deployment could then use nodeSelectorTerms to match `billing-team`.
+For a general deployment for another team, the NodePool spec could include nodeAffinity. A Deployment could then use nodeSelectorTerms to match `billing-team`.
 
 ```yaml
 # NodePool for regular EC2 instances
