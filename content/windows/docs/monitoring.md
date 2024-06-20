@@ -1,6 +1,6 @@
 # Monitoring
 
-Prometheus, a [graduated CNCF project](https://www.cncf.io/projects/) is by far the most popular monitoring system with native integration into Kubernetes. Prometheus collects metrics around containers, pods, nodes, and clusters. Additionally, Prometheus leverages AlertsManager which lets you program alerts to warn you if something in your cluster is going wrong. Prometheus stores the metric data as a time series data identified by metric name and key/value pairs. Prometheus includes away to query using a language called PromQL, which is short for Prometheus Query Language. 
+Prometheus, a [graduated CNCF project](https://www.cncf.io/projects/) is by far the most popular monitoring system with native integration into Kubernetes. Prometheus collects metrics around containers, pods, nodes, and clusters. Additionally, Prometheus leverages AlertsManager which lets you program alerts to warn you if something in your cluster is going wrong. Prometheus stores the metric data as a time series data identified by metric name and key/value pairs. Prometheus includes away to query using a language called PromQL, which is short for Prometheus Query Language. Amazon Managed Service for Prometheus is a serverless, Prometheus-compatible monitoring service which offers [agentless collector](https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-collector.html) for Prometheus metrics from Amazon EKS.
 
 The high level architecture of Prometheus metrics collection is shown below:
 
