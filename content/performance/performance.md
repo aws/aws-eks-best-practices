@@ -152,6 +152,9 @@ Generally, schedulers ensure that pods are placed only on nodes that have suffic
      Please have a look at the reliability pillar for detailed information.
      
 #### Monitoring 
+
+Please have a look at Monitoring and Observability sections in ["Running highly-available application"](https://aws.github.io/aws-eks-best-practices/reliability/docs/application) for detailed information.
+
 #### Deployment Best Practices 
 #### Trade-Offs
 
