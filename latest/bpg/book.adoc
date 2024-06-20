@@ -34,4 +34,8 @@ include::upgrades/index.adoc[leveloffset=+1]
 
 include::networking/index.adoc[leveloffset=+1]
 
+include::autoscaling/index.adoc[leveloffset=+1]
+
+include::reliability/index.adoc[leveloffset=+1]
+
 
