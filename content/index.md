@@ -1,6 +1,8 @@
 # Introduction
 Welcome to the EKS Best Practices Guides.  The primary goal of this project is to offer a set of best practices for day 2 operations for Amazon EKS. We elected to publish this guidance to GitHub so we could iterate quickly, provide timely and effective recommendations for variety of concerns, and easily incorporate suggestions from the broader community.  
 
+Before taking any of our recommendations, remember that in software engineering everything is a trade-off. Also, you need to pay more attention to "why" you are making a decision than "how" to do it.
+
 We currently have published guides for the following topics: 
 
 * [Best Practices for Security](security/docs/)
