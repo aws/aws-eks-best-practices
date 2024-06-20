@@ -145,12 +145,17 @@ Generally, schedulers ensure that pods are placed only on nodes that have suffic
 
   + You can use  [Vertical Pod Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) which automatically adjusts the CPU and memory reservations for your pods to help &quot;right size&quot; your applications. This adjustment can improve cluster resource utilization and free up CPU and memory for other pods.  This is useful in scenarios like your production database &quot;MongoDB&quot; does not scale the same way as a stateless application frontend, In this scenario you could use VPA to scale up the MongoDB Pod.
 
-  + To enable VPA you need to use  Kubernetes metrics server, which is an aggregator of resource usage data in your cluster. It is not deployed by default in Amazon EKS clusters.  You need to configure it before [configure VPA](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) alternatively you can also use Prometheus to provide metrics for the Vertical Pod Autoscaler.
+  + To enable VPA you need to use Kubernetes metrics server, which is an aggregator of resource usage data in your cluster. It is not deployed by default in Amazon EKS clusters. You need to configure it before [configure VPA](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) alternatively you can also use Prometheus or Amazon Managed Service for Prometheus to provide metrics for the Vertical Pod Autoscaler.
 
   + While HPA and VPA scale the deployments and pods, [Cluster Autoscaler](https://github.com/kubernetes/autoscaler) will scale-out  and scale-in the size of the pool of worker nodes. It adjusts the size of a Kubernetes cluster based on the current utilization. Cluster Autoscaler increases the size of the cluster when there are pods that failed to schedule on any of the current nodes due to insufficient resources or when adding a new node would increase the overall availability of cluster resources. Please follow this [step by step](https://eksworkshop.com/scaling/deploy_ca/) guide to setup Cluster Autoscaler.  If you are using Amazon EKS on AWS Fargate, AWS Manages the control plane for you. 
 
      Please have a look at the reliability pillar for detailed information.
      
 #### Monitoring 
+
+Please have a look at Monitoring and Observability sections in ["Running highly-available application"](https://aws.github.io/aws-eks-best-practices/reliability/docs/application) for detailed information.
+
 #### Deployment Best Practices 
 #### Trade-Offs
+
+Remember that in software engineering “Everything is a trade-off" and there is no free lunch. Therefore, before making any architectural decision make sure to analyze those trade-offs. Also, you need to pay more attention to "why" you are making an architectural decision than to "how" to do it.

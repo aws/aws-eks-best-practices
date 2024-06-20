@@ -115,7 +115,7 @@ spec:
 
 Install the Kubernetes [metrics server](https://github.com/kubernetes-sigs/metrics-server) to help scale your applications. Kubernetes autoscaler add-ons like [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) and [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) need to track metrics of applications to scale them. The metrics-server collects resource metrics that can be used to make scaling decisions. The metrics are collected from kubelets and served in [Metrics API format](https://github.com/kubernetes/metrics).
 
-The metrics server doesn’t retain any data, and it’s not a monitoring solution. Its purpose is to expose CPU and memory usage metrics to other systems. If you want to track your application's state over time, you need a monitoring tool like Prometheus or Amazon CloudWatch. 
+The metrics server doesn’t retain any data, and it’s not a monitoring solution. Its purpose is to expose CPU and memory usage metrics to other systems. If you want to track your application's state over time and get notified, you need a monitoring tool like Amazon Managed Service for Prometheus or Amazon CloudWatch.
 
 Follow the [EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html) to install metrics-server in your EKS cluster. 
 
@@ -309,7 +309,7 @@ If you operate multiple clusters, you can use a service mesh to enable cross-clu
 
 ## Observability 
 
-Observability is an umbrella term that includes monitoring, logging, and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in a distributed application architecture, you need to monitor each component’s performance. You can use cluster-level monitoring, logging, and distributed tracing systems to identify issues in your cluster before they disrupt your customers. 
+Observability is an umbrella term that includes monitoring, logging, and tracing. One of the fallacies of distributed computing states that observability is optional. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in a distributed application architecture, you need to monitor each component’s performance. You can use cluster-level monitoring, logging, and distributed tracing systems to identify issues in your cluster before they disrupt your customers. 
 
 Kubernetes built-in tools for troubleshooting and monitoring are limited. The metrics-server collects resource metrics and stores them in memory but doesn’t persist them. You can view the logs of a Pod using kubectl, but Kubernetes doesn't automatically retain logs. And the implementation of distributed tracing is done either at the application code level or using services meshes. 
 
@@ -319,7 +319,7 @@ Kubernetes' extensibility shines here. Kubernetes allows you to bring your prefe
 
 ### Monitor your applications
 
-The number of metrics you need to monitor in modern applications is growing continuously. It helps if you have an automated way to track your applications so you can focus on solving your customer’s challenges. Cluster-wide monitoring tools like [Prometheus](https://prometheus.io) or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) can monitor your cluster and workload and provide you signals when, or preferably, before things go wrong. 
+The number of metrics you need to monitor in modern applications is growing continuously. It helps if you have an automated way to track your applications so you can focus on solving your customer’s challenges. Cluster-wide monitoring tools like [Prometheus](https://prometheus.io), [Amazon Managed Service for Prometheus](https://aws.amazon.com/prometheus/), or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) can monitor your cluster and workload and provide you signals when, or preferably, before things go wrong. 
 
 Monitoring tools allow you to create alerts that your operations team can subscribe to. Consider rules to activate alarms for events that can, when exacerbated, lead to an outage or impact application performance. 
 
