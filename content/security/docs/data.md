@@ -115,7 +115,7 @@ There are several viable alternatives to using Kubernetes secrets, including [AW
 As the use of external secrets stores has grown, so has need for integrating them with Kubernetes. The [Secret Store CSI Driver](https://github.com/kubernetes-sigs/secrets-store-csi-driver) is a community project that uses the CSI driver model to fetch secrets from external secret stores. Currently, the Driver has support for [AWS Secrets Manager](https://github.com/aws/secrets-store-csi-driver-provider-aws), Azure, Vault, and GCP. The AWS provider supports both AWS Secrets Manager **and** AWS Parameter Store. It can also be configured to rotate secrets when they expire and can synchronize AWS Secrets Manager secrets to Kubernetes Secrets. Synchronization of secrets can be useful when you need to reference a secret as an environment variable instead of reading them from a volume.
 
 !!! note
-    When the the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that references a secret. The code for this operation can be found [here](https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go).
+    When the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that references a secret. The code for this operation can be found [here](https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go).
 
 For additional information about the AWS Secrets & Configuration Provider (ASCP) refer to the following resources:
 

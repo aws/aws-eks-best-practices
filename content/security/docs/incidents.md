@@ -10,7 +10,7 @@ Your first course of action should be to isolate the damage.  Start by identifyi
 
 ### Identify the offending Pods and worker nodes using workload name
 
-If you know the name and namespace of the offending pod, you can identify the the worker node running the pod as follows:
+If you know the name and namespace of the offending pod, you can identify the worker node running the pod as follows:
 
 ```bash
 kubectl get pods <name> --namespace <namespace> -o=jsonpath='{.spec.nodeName}{"\n"}'   
