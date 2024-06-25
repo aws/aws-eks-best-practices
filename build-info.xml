@@ -8,9 +8,6 @@
      <feedbackCTI>Amazon EKS</feedbackCTI>
       
       
-      <options>
-        <referenced-images-only>enabled</referenced-images-only>
-      </options>
 
       <guides>
         <guide id="eks-bpg" region="-BJS,-DCA,-LCK">

@@ -28,7 +28,8 @@ community.
 
 We currently have published guides for the following topics:
 
-* None.
+* xref:networking[Networking]
+* xref:cluster-upgrades[Cluster Upgrades]
 
 We also open sourced a Python based CLI (Command Line Interface) called
 https://github.com/aws-samples/hardeneks[hardeneks] to check some of the
