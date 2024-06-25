@@ -180,6 +180,74 @@ plugins:
             Workloads: 워크로드
             gMSA for Windows Containers: gMSA 윈도우 컨테이너
           site_name: EKS 모범 사례 가이드
+        - locale: zh
+          name: 简体中文
+          fixed_link: ./zh/
+          build: true
+          site_name: EKS 最佳实践指南
+          nav_translations:
+            AMI Management: AMI 管理
+            Amazon VPC CNI: Amazon VPC CNI
+            Applications: 应用程序
+            Cloud Financial Management Framework: 云财务管理框架
+            Cluster Autoscaling: 集群自动扩缩容
+            Cluster Services: 集群服务
+            Cluster Upgrades: 集群升级
+            Cluster-Autoscaler: Cluster Autoscaler
+            Compute: 计算
+            Control Plane: 控制平面
+            Control plane monitoring: 控制平面监控
+            Cost Optimization: 成本优化
+            Custom Networking: 自定义网络
+            Data Encryption and Secrets Management: 数据加密与密钥管理
+            Data Plane: 数据平面
+            Detective Controls: 检测控制
+            Guides: 指南
+            Home: Home
+            Identity and Access Management: 身份和访问管理
+            Image Security: 镜像安全
+            Incident Response and Forensics: 事件响应和取证
+            Infrastructure Management: 基础设施管理
+            Infrastructure Security: 基础设施安全
+            Introduction: 介绍
+            Karpenter: Karpenter
+            Load Balancing: 负载均衡
+            Logging: 日志
+            Memory and Systems Management: 内存和系统管理
+            Monitoring Windows Containers: 监控Windows容器
+            Monitoring for DNS Throttling Issues: 监控DNS限流问题
+            Monitoring for Network performance issues: 监控网络性能问题
+            Multi-tenancy: 多租户
+            Network: 网络
+            Network Security: 网络安全
+            Networking: 网络
+            Node efficiency and scaling: 节点效率与扩缩容
+            Observability: 可观测性
+            Pod Security: Pod安全
+            Pod Security for Windows Containers: Windows容器的安全
+            Prefix Mode: Prefix 模式
+            Prefix Mode for Linux: Linux的Prefix模式
+            Prefix Mode for Windows: Windows的Prefix模式
+            Regulatory Compliance: 合规
+            Reliability: 可靠性
+            Running IPv6 Clusters: 运行IPv6集群
+            Running Mixed Workloads: 运行混合工作负载
+            Runtime Security: 运行时安全
+            Scalability: 可扩展性
+            Scanning Windows Images: 扫描Windows镜像
+            Scheduling: 调度
+            Security: 安全
+            Security Groups per Pod: Pod级别的安全组
+            Storage: 存储
+            Storage Options: 存储选项
+            The theory behind scaling: 扩展背后的理论
+            VPC and Subnet Considerations: VPC和子网注意事项
+            Windows Containers: Windows容器
+            Windows Networking: Windows网络
+            Windows Server Hardening: Windows服务器加固
+            Windows Versions and Licensing: Windows版本与许可
+            Workloads: 工作负载
+            gMSA for Windows Containers: Windows容器的gMSA
       reconfigure_material: true
       reconfigure_search: true
 extra:
