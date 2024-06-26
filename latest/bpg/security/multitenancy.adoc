@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[tenant-isolation,tenant-isolation.title]]
 = Tenant Isolation
+:info_doctype: section
+:info_title: Tenant Isolation
+:info_abstract: Tenant Isolation
+:info_titleabbrev: Tenant Isolation
+:imagesdir: images/
 
 When we think of multi-tenancy, we often want to isolate a user or
 application from other users or applications running on a shared

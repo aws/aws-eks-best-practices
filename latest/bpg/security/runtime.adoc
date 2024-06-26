@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[runtime-security,runtime-security.title]]
 = Runtime security
+:info_doctype: section
+:info_title: Runtime security
+:info_abstract: Runtime security
+:info_titleabbrev: Runtime security
+:imagesdir: images/
 
 Runtime security provides active protection for your containers while
 they’re running. The idea is to detect and/or prevent malicious activity

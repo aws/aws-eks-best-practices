@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[pod-security,pod-security.title]]
 = Pod Security
+:info_doctype: section
+:info_title: Pod Security
+:info_abstract: Pod Security
+:info_titleabbrev: Pod Security
+:imagesdir: images/
 
 The pod specification includes a variety of different attributes that
 can strengthen or weaken your overall security posture. As a Kubernetes

@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[auditing-and-logging,auditing-and-logging.title]]
 = Auditing and logging
+:info_doctype: section
+:info_title: Auditing and logging
+:info_abstract: Auditing and logging
+:info_titleabbrev: Auditing and logging
+:imagesdir: images/
 
 Collecting and analyzing [audit] logs is useful for a variety of
 different reasons. Logs can help with root cause analysis and

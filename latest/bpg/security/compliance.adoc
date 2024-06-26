@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[compliance,compliance.title]]
 = Compliance
+:info_doctype: section
+:info_title: Compliance
+:info_abstract: Compliance
+:info_titleabbrev: Compliance
+:imagesdir: images/
 
 Compliance is a shared responsibility between AWS and the consumers of
 its services. Generally speaking, AWS is responsible for "`security of

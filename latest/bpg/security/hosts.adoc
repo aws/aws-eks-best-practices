@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[protecting-the-infrastructure-(hosts),protecting-the-infrastructure-(hosts).title]]
 = Protecting the infrastructure (hosts)
+:info_doctype: section
+:info_title: Protecting the infrastructure (hosts)
+:info_abstract: Protecting the infrastructure (hosts)
+:info_titleabbrev: Protecting the infrastructure (hosts)
+:imagesdir: images/
 
 Inasmuch as it’s important to secure your container images, it’s equally
 important to safeguard the infrastructure that runs them. This section

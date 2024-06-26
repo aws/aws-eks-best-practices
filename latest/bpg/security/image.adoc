@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[image-security,image-security.title]]
 = Image security
+:info_doctype: section
+:info_title: Image security
+:info_abstract: Image security
+:info_titleabbrev: Image security
+:imagesdir: images/
 
 You should consider the container image as your first line of defense
 against an attack. An insecure, poorly constructed image can allow an

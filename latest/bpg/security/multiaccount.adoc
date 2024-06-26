@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[multi-account-strategy,multi-account-strategy.title]]
 = Multi Account Strategy
+:info_doctype: section
+:info_title: Multi Account Strategy
+:info_abstract: Multi Account Strategy
+:info_titleabbrev: Multi Account Strategy
+:imagesdir: images/
 
 AWS recommends using a
 https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/organizing-your-aws-environment.html[multi

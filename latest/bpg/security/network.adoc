@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[network-security,network-security.title]]
 = Network security
+:info_doctype: section
+:info_title: Network security
+:info_abstract: Network security
+:info_titleabbrev: Network security
+:imagesdir: images/
 
 Network security has several facets. The first involves the application
 of rules which restrict the flow of network traffic between services.

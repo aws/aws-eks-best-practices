@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[incident-response-and-forensics,incident-response-and-forensics.title]]
 = Incident response and forensics
+:info_doctype: section
+:info_title: Incident response and forensics
+:info_abstract: Incident response and forensics
+:info_titleabbrev: Incident response and forensics
+:imagesdir: images/
 
 Your ability to react quickly to an incident can help minimize damage
 caused from a breach. Having a reliable alerting system that can warn

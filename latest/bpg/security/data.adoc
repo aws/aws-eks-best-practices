@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[data-encryption-and-secrets-management,data-encryption-and-secrets-management.title]]
 = Data encryption and secrets management
+:info_doctype: section
+:info_title: Data encryption and secrets management
+:info_abstract: Data encryption and secrets management
+:info_titleabbrev: Data encryption and secrets management
+:imagesdir: images/
 
 == Encryption at rest
 
