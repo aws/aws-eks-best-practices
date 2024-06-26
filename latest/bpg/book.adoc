@@ -38,4 +38,6 @@ include::autoscaling/index.adoc[leveloffset=+1]
 
 include::reliability/index.adoc[leveloffset=+1]
 
+include::security/index.adoc[leveloffset=+1]
+
 
