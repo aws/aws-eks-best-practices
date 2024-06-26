@@ -1,4 +1,4 @@
-== Pod Security
+= Pod Security
 
 The pod specification includes a variety of different attributes that
 can strengthen or weaken your overall security posture. As a Kubernetes
@@ -6,7 +6,7 @@ practitioner your chief concern should be preventing a process that’s
 running in a container from escaping the isolation boundaries of the
 container runtime and gaining access to the underlying host.
 
-=== Linux Capabilities
+== Linux Capabilities
 
 The processes that run within a container run under the context of the
 [Linux] root user by default. Although the actions of root within a
@@ -30,7 +30,7 @@ Fargate pods.
 Pods that are run as privileged, inherit _all_ of the Linux capabilities
 associated with root on the host. This should be avoided if possible.
 
-==== Node Authorization
+=== Node Authorization
 
 All Kubernetes worker nodes use an authorization mode called
 https://kubernetes.io/docs/reference/access-authn-authz/node/[Node
@@ -71,9 +71,9 @@ will still be able to glean sensitive information about the environment
 from the Kubernetes API that could allow them to move laterally within
 the cluster.
 
-=== Pod Security Solutions
+== Pod Security Solutions
 
-==== Pod Security Policy (PSP)
+=== Pod Security Policy (PSP)
 
 In the past,
 https://kubernetes.io/docs/concepts/policy/pod-security-policy/[Pod
@@ -90,7 +90,7 @@ are deprecated] in Kubernetes version 1.21. You will have until version
 https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation[document]
 explains the motivation for this deprecation.
 
-==== Migrating to a new pod security solution
+=== Migrating to a new pod security solution
 
 Since PSPs have been removed as of Kubernetes v1.25, cluster
 administrators and operators must replace those security controls. Two
@@ -116,7 +116,7 @@ information and guidance on migration to Kyverno with respect to Pod
 Security Admission (PSA) has been published on the AWS blog
 https://aws.amazon.com/blogs/containers/managing-pod-security-on-amazon-eks-with-kyverno/[here].
 
-==== Policy-as-code (PAC)
+=== Policy-as-code (PAC)
 
 Policy-as-code (PAC) solutions provide guardrails to guide cluster
 users, and prevent unwanted behaviors, through prescribed and automated
@@ -147,7 +147,7 @@ countermeasures for Kubernetes – Part 1]
 * https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/[Policy-based
 countermeasures for Kubernetes – Part 2]
 
-==== Pod Security Standards (PSS) and Pod Security Admission (PSA)
+=== Pod Security Standards (PSS) and Pod Security Admission (PSA)
 
 In response to the PSP deprecation and the ongoing need to control pod
 security out-of-the-box, with a built-in Kubernetes solution, the
@@ -304,7 +304,7 @@ pods that satisfy the _baseline_ profile level, and then _warn_ on pods
 level. This is a useful approach to determine the possible impacts when
 changing from the _baseline_ to _restricted_ profiles.
 
-===== Existing Pods
+==== Existing Pods
 
 If a namespace with existing pods is modified to use a more restrictive
 PSS profile, the _audit_ and _warn_ modes will produce appropriate
@@ -318,7 +318,7 @@ Warning: test-688f68dc87-htm8x: allowPrivilegeEscalation != false, unrestricted 
 namespace/policy-test configured
 ----
 
-===== Exemptions
+==== Exemptions
 
 PSA uses _Exemptions_ to exclude enforcement of violations against pods
 that would have otherwise been applied. These exemptions are listed
@@ -405,7 +405,7 @@ controller (mutating webhook). The instructions for installing and
 configuring the webhook can be found
 https://github.com/kubernetes/pod-security-admission/tree/master/webhook[here].
 
-==== Choosing between policy-as-code and Pod Security Standards
+=== Choosing between policy-as-code and Pod Security Standards
 
 The Pod Security Standards (PSS) were developed to replace the Pod
 Security Policy (PSP), by providing a solution that was built-in to
@@ -416,7 +416,7 @@ flexible.
 The following list of Pros and Cons is designed help you make a more
 informed decision about your pod security solution.
 
-===== Policy-as-code (as compared to Pod Security Standards)
+==== Policy-as-code (as compared to Pod Security Standards)
 
 Pros:
 
@@ -452,7 +452,7 @@ Cons:
 * More complex to learn, configure, and support
 * Policy authoring may require new skills/languages/capabilities
 
-===== Pod Security Admission (as compared to policy-as-code)
+==== Pod Security Admission (as compared to policy-as-code)
 
 Pros:
 
@@ -469,7 +469,7 @@ Cons:
 * Only 3 levels of restrictions
 * Primarily focused on pods
 
-===== Summary
+==== Summary
 
 If you currently do not have a pod security solution, beyond PSP, and
 your required pod security posture fits the model defined in the Pod
@@ -479,9 +479,9 @@ posture does not fit the PSS model, or you envision adding additional
 controls, beyond that defined by PSS, then a policy-as-code solution
 would seem a better fit.
 
-=== Recommendations
+== Recommendations
 
-==== Use multiple Pod Security Admission (PSA) modes for a better user experience
+=== Use multiple Pod Security Admission (PSA) modes for a better user experience
 
 As mentioned earlier, PSA _enforce_ mode prevents pods with PSS
 violations from being applied, but does not stop higher-level
@@ -512,7 +512,7 @@ _warn_ modes are also enabled, the API server client will receive a
 warning message and the API server audit log event will be annotated
 with a message as well.
 
-==== Restrict the containers that can run as privileged
+=== Restrict the containers that can run as privileged
 
 As mentioned, containers that run as privileged inherit all of the Linux
 capabilities assigned to root on the host. Seldom do containers need
@@ -527,7 +527,7 @@ container(s) where the containers of a pod are run on infrastructure
 that AWS manages. With Fargate, you cannot run a privileged container or
 configure your pod to use hostNetwork or hostPort.
 
-==== Do not run processes in containers as root
+=== Do not run processes in containers as root
 
 All containers run as root by default. This could be problematic if an
 attacker is able to exploit a vulnerability in the application and get
@@ -547,7 +547,7 @@ server request payloads, before they are persisted into etcd.
 Furthermore, policy-as-code solutions can mutate inbound requests, and
 in some cases, generate new requests.
 
-==== Never run Docker in Docker or mount the socket in the container
+=== Never run Docker in Docker or mount the socket in the container
 
 While this conveniently lets you to build/run images in Docker
 containers, you’re basically relinquishing complete control of the node
@@ -564,7 +564,7 @@ Kubernetes clusters used for CICD processing, such as building container
 images, should be isolated from clusters running more generalized
 workloads.
 
-==== Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only
+=== Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only
 
 `+hostPath+` is a volume that mounts a directory from the host directly
 to the container. Rarely will pods need this type of access, but if they
@@ -595,7 +595,7 @@ Seth Art’s blog
 https://labs.bishopfox.com/tech-blog/bad-pods-kubernetes-pod-privilege-escalation[Bad
 Pods: Kubernetes Pod Privilege Escalation].
 
-==== Set requests and limits for each container to avoid resource contention and DoS attacks
+=== Set requests and limits for each container to avoid resource contention and DoS attacks
 
 A pod without requests or limits can theoretically consume all of the
 resources available on a host. As additional pods are scheduled onto a
@@ -694,7 +694,7 @@ Policy-as-code solutions can be used enforce requests and limits. or to
 even create the resource quotas and limit ranges when namespaces are
 created.
 
-==== Do not allow privileged escalation
+=== Do not allow privileged escalation
 
 Privileged escalation allows a process to change the security context
 under which its running. Sudo is a good example of this as are binaries
@@ -709,7 +709,7 @@ from succeeding if incorrect settings are detected. Pod Security
 Standards can also be used to prevent pods from using privilege
 escalation.
 
-==== Disable ServiceAccount token mounts
+=== Disable ServiceAccount token mounts
 
 For pods that do not need to access the Kubernetes API, you can disable
 the automatic mounting of a ServiceAccount token on a pod spec, or for
@@ -743,7 +743,7 @@ metadata:
 automountServiceAccountToken: false
 ----
 
-==== Disable service discovery
+=== Disable service discovery
 
 For pods that do not need to lookup or call in-cluster services, you can
 reduce the amount of information given to a pod. You can set the Pod’s
@@ -778,7 +778,7 @@ spec:
     enableServiceLinks: false
 ----
 
-==== Configure your images with read-only root file system
+=== Configure your images with read-only root file system
 
 Configuring your images with a read-only root file system prevents an
 attacker from overwriting a binary on the file system that your
@@ -805,7 +805,7 @@ cannot be set to `+true+` for a container running on Windows as write
 access is required for registry and system processes to run inside the
 container.
 
-=== Tools and resources
+== Tools and resources
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/3-pod-security[Amazon
 EKS Security Immersion Workshop - Pod Security]

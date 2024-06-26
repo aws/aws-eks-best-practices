@@ -1,4 +1,4 @@
-== Tenant Isolation
+= Tenant Isolation
 
 When we think of multi-tenancy, we often want to isolate a user or
 application from other users or applications running on a shared
@@ -22,7 +22,7 @@ The following sections will explain how to implement tenant isolation
 while mitigating the risks of using a single tenant orchestrator like
 Kubernetes.
 
-=== Soft multi-tenancy
+== Soft multi-tenancy
 
 With soft multi-tenancy, you use native Kubernetes constructs,
 e.g. namespaces, roles and role bindings, and network policies, to
@@ -79,7 +79,7 @@ inactivity
 There are three primary use cases that can be addressed by soft
 multi-tenancy.
 
-==== Enterprise Setting
+=== Enterprise Setting
 
 The first is in an Enterprise setting where the "`tenants`" are
 semi-trusted in that they are employees, contractors, or are otherwise
@@ -98,7 +98,7 @@ this setting or it may need to be augmented with additional controls for
 pod security. It may also be necessary to restrict communication between
 services in different namespaces if stricter isolation is required.
 
-==== Kubernetes as a Service
+=== Kubernetes as a Service
 
 By contrast, soft multi-tenancy can be used in settings where you want
 to offer Kubernetes as a service (KaaS). With KaaS, your application is
@@ -116,7 +116,7 @@ Sandboxing is where you run the containers of a pod inside a micro VM
 like Firecracker or in a user-space kernel. Today, you can create
 sandboxed pods with EKS Fargate.
 
-==== Software as a Service (SaaS)
+=== Software as a Service (SaaS)
 
 The final use case for soft multi-tenancy is in a Software-as-a-Service
 (SaaS) setting. In this environment, each tenant is associated with a
@@ -129,19 +129,19 @@ directly interface with the Kubernetes API. Instead, the SaaS
 application is responsible for interfacing with the Kubernetes API to
 create the necessary objects to support each tenant.
 
-=== Kubernetes Constructs
+== Kubernetes Constructs
 
 In each of these instances the following constructs are used to isolate
 tenants from each other:
 
-==== Namespaces
+=== Namespaces
 
 Namespaces are fundamental to implementing soft multi-tenancy. They
 allow you to divide the cluster into logical partitions. Quotas, network
 policies, service accounts, and other objects needed to implement
 multi-tenancy are scoped to a namespace.
 
-==== Network policies
+=== Network policies
 
 By default, all pods in a Kubernetes cluster are allowed to communicate
 with each other. This behavior can be altered using network policies.
@@ -169,7 +169,7 @@ are allowed to communicate with each other.
 enforcement of network policies requires a policy engine such as Calico
 or Cilium.
 
-==== Role-based access control (RBAC)
+=== Role-based access control (RBAC)
 
 Roles and role bindings are the Kubernetes objects used to enforce
 role-based access control (RBAC) in Kubernetes. *Roles* contain lists of
@@ -178,7 +178,7 @@ bindings* specify the individuals or groups to whom the roles apply. In
 the enterprise and KaaS settings, RBAC can be used to permit
 administration of objects by selected groups or individuals.
 
-==== Quotas
+=== Quotas
 
 Quotas are used to define limits on workloads hosted in your cluster.
 With quotas, you can specify the maximum amount of CPU and memory that a
@@ -203,7 +203,7 @@ of resources a pod can consume.
 You can also use quotas to apportion the cluster’s resources to align
 with a tenant’s spend. This is particularly useful in the KaaS scenario.
 
-==== Pod priority and preemption
+=== Pod priority and preemption
 
 Pod priority and preemption can be useful when you want to provide more
 importance to a Pod relative to other Pods. For example, with pod
@@ -222,13 +222,13 @@ quorum of Pods, see
 https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#limitations-of-preemption[Limitations
 of preemption].
 
-=== Mitigating controls
+== Mitigating controls
 
 Your chief concern as an administrator of a multi-tenant environment is
 preventing an attacker from gaining access to the underlying host. The
 following controls should be considered to mitigate this risk:
 
-==== Sandboxed execution environments for containers
+=== Sandboxed execution environments for containers
 
 Sandboxing is a technique by which each container is run in its own
 isolated virtual machine. Technologies that perform pod sandboxing
@@ -239,7 +239,7 @@ For additional information about the effort to make Firecracker a
 supported runtime for EKS, see
 https://threadreaderapp.com/thread/1238496944684597248.html.
 
-==== Open Policy Agent (OPA) & Gatekeeper
+=== Open Policy Agent (OPA) & Gatekeeper
 
 https://github.com/open-policy-agent/gatekeeper[Gatekeeper] is a
 Kubernetes admission controller that enforces policies created with
@@ -254,7 +254,7 @@ There is also an experimental https://github.com/coredns/coredns-opa[OPA
 plugin for CoreDNS] that allows you to use OPA to filter/control the
 records returned by CoreDNS.
 
-==== Kyverno
+=== Kyverno
 
 https://kyverno.io[Kyverno] is a Kubernetes native policy engine that
 can validate, mutate, and generate configurations with policies as
@@ -269,7 +269,7 @@ https://github.com/aws/aws-eks-best-practices/tree/master/policies/kyverno[repos
 for this project. Many others are included in the
 https://kyverno.io/policies/[policy library] on the Kyverno website.
 
-==== Isolating tenant workloads to specific nodes
+=== Isolating tenant workloads to specific nodes
 
 Restricting tenant workloads to run on specific nodes can be used to
 increase isolation in the soft multi-tenancy model. With this approach,
@@ -279,7 +279,7 @@ properties (node affinity, and taints and tolerations) are used to
 target specific nodes for pod scheduling, and prevent pods, from other
 tenants, from being scheduled on the tenant-specific nodes.
 
-===== Part 1 - Node affinity
+==== Part 1 - Node affinity
 
 Kubernetes
 https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity[node
@@ -334,7 +334,7 @@ please see this CNCF blog post on
 https://www.cncf.io/blog/2021/07/27/advanced-kubernetes-pod-to-node-scheduling/[Advanced
 Kubernetes pod to node scheduling].
 
-===== Part 2 - Taints and tolerations
+==== Part 2 - Taints and tolerations
 
 Attracting pods to nodes is just the first part of this three-part
 approach. For this approach to work, we must repel pods from scheduling
@@ -392,7 +392,7 @@ as https://github.com/open-policy-agent/gatekeeper[OPA/Gatekeeper] and
 https://kyverno.io/[Kyverno] can be used to write validating policies
 that prevent unauthorized pods from using these permissive tolerations.
 
-===== Part 3 - Policy-based management for node selection
+==== Part 3 - Policy-based management for node selection
 
 There are several tools that can be used to help manage the node
 affinity and tolerations of pod specifications, including enforcement of
@@ -565,7 +565,7 @@ important when using these policies for tenant-to-node isolation. It is
 also a good idea to include _Audit_ policies to routinely check your
 cluster for unwanted configurations.
 
-==== References
+=== References
 
 * https://github.com/cruise-automation/k-rail[k-rail] Designed to help
 you secure a multi-tenant environment through the enforcement of certain
@@ -573,7 +573,7 @@ policies.
 * https://d1.awsstatic.com/whitepapers/security-practices-for-multi-tenant-saas-apps-using-eks.pdf[Security
 Practices for MultiTenant SaaS Applications using Amazon EKS]
 
-=== Hard multi-tenancy
+== Hard multi-tenancy
 
 Hard multi-tenancy can be implemented by provisioning separate clusters
 for each tenant. While this provides very strong isolation between
@@ -594,7 +594,7 @@ creating a namespace. Nevertheless, a hard-tenancy approach may be
 necessary in highly-regulated industries or in SaaS environments where
 strong isolation is required.
 
-=== Future directions
+== Future directions
 
 The Kubernetes community has recognized the current shortcomings of soft
 multi-tenancy and the challenges with hard multi-tenancy. The
@@ -619,7 +619,7 @@ namespaces for isolation and segmentation, and a command line tool
 https://github.com/kubernetes-sigs/multi-tenancy/blob/master/benchmarks/kubectl-mtb/README.md[kubectl-mtb]
 to validate conformance to the guidelines.
 
-=== Multi-cluster management tools and resources
+== Multi-cluster management tools and resources
 
 * https://banzaicloud.com/[Banzai Cloud]
 * https://d2iq.com/solutions/ksphere/kommander[Kommander]

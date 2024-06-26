@@ -1,6 +1,6 @@
-== Data encryption and secrets management
+= Data encryption and secrets management
 
-=== Encryption at rest
+== Encryption at rest
 
 There are three different AWS-native storage options you can use with
 Kubernetes:
@@ -72,12 +72,12 @@ industry-standard AES-256 cryptographic algorithm. No modifications to
 your application are necessary as encryption and decryption are handled
 seamlessly by the service.
 
-==== Encrypt data at rest
+=== Encrypt data at rest
 
 Encrypting data at rest is considered a best practice. If you’re unsure
 whether encryption is necessary, encrypt your data.
 
-==== Rotate your CMKs periodically
+=== Rotate your CMKs periodically
 
 Configure KMS to automatically rotate your CMKs. This will rotate your
 keys once a year while saving old keys indefinitely so that your data
@@ -85,7 +85,7 @@ can still be decrypted. For additional information see
 https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html[Rotating
 customer master keys]
 
-==== Use EFS access points to simplify access to shared datasets
+=== Use EFS access points to simplify access to shared datasets
 
 If you have shared datasets with different POSIX file permissions or
 want to restrict access to part of the shared file system by creating
@@ -103,7 +103,7 @@ system can have up to 120 PVs. See
 https://aws.amazon.com/blogs/containers/introducing-efs-csi-dynamic-provisioning/[Introducing
 Amazon EFS CSI dynamic provisioning] for additional information.
 
-=== Secrets management
+== Secrets management
 
 Kubernetes secrets are used to store sensitive information, such as user
 certificates, passwords, or API keys. They are persisted in etcd as
@@ -122,7 +122,7 @@ pods in the secret’s namespace.
 !!! caution The node authorizer allows the Kubelet to read all of the
 secrets mounted to the node.
 
-==== Use AWS KMS for envelope encryption of Kubernetes secrets
+=== Use AWS KMS for envelope encryption of Kubernetes secrets
 
 This allows you to encrypt your secrets with a unique data encryption
 key (DEK). The DEK is then encrypted using a key encryption key (KEK)
@@ -133,7 +133,7 @@ the Kubernetes API server. For additional details, see
 https://aws.amazon.com/blogs/containers/using-eks-encryption-provider-support-for-defense-in-depth/[using
 EKS encryption provider support for defense in depth]
 
-==== Audit the use of Kubernetes Secrets
+=== Audit the use of Kubernetes Secrets
 
 On EKS, turn on audit logging and create a CloudWatch metrics filter and
 alarm to alert you when a secret is used (optional). The following is an
@@ -166,25 +166,25 @@ This query will display the secret, along with the namespace and
 username of the user who attempted to access the secret and the response
 code.
 
-==== Rotate your secrets periodically
+=== Rotate your secrets periodically
 
 Kubernetes doesn’t automatically rotate secrets. If you have to rotate
 secrets, consider using an external secret store, e.g. Vault or AWS
 Secrets Manager.
 
-==== Use separate namespaces as a way to isolate secrets from different applications
+=== Use separate namespaces as a way to isolate secrets from different applications
 
 If you have secrets that cannot be shared between applications in a
 namespace, create a separate namespace for those applications.
 
-==== Use volume mounts instead of environment variables
+=== Use volume mounts instead of environment variables
 
 The values of environment variables can unintentionally appear in logs.
 Secrets mounted as volumes are instantiated as tmpfs volumes (a RAM
 backed file system) that are automatically removed from the node when
 the pod is deleted.
 
-==== Use an external secrets provider
+=== Use an external secrets provider
 
 There are several viable alternatives to using Kubernetes secrets,
 including https://aws.amazon.com/secrets-manager/[AWS Secrets Manager]
@@ -239,7 +239,7 @@ copies secrets from these backends to Kubernetes as Secrets. This lets
 you manage secrets using your preferred secret store and interact with
 secrets in a Kubernetes-native way.
 
-=== Tools and resources
+== Tools and resources
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/13-data-encryption-and-secret-management[Amazon
 EKS Security Immersion Workshop - Data Encryption and Secrets

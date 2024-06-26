@@ -1,4 +1,4 @@
-== Network security
+= Network security
 
 Network security has several facets. The first involves the application
 of rules which restrict the flow of network traffic between services.
@@ -6,12 +6,12 @@ The second involves the encryption of traffic while it is in transit.
 The mechanisms to implement these security measures on EKS are varied
 but often include the following items:
 
-=== Traffic control
+== Traffic control
 
 * Network Policies
 * Security Groups
 
-=== Network encryption
+== Network encryption
 
 * Service Mesh
 * Container Network Interfaces (CNIs)
@@ -19,7 +19,7 @@ but often include the following items:
 * Nitro Instances
 * ACM Private CA with cert-manager
 
-=== Network policy
+== Network policy
 
 Within a Kubernetes cluster, all Pod to Pod communication is allowed by
 default. While this flexibility may help promote experimentation, it is
@@ -54,11 +54,11 @@ to `+true+` on the vpc-cni add-on to enable this. Refer
 https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html[Amazon
 EKS User guide] for detailed instructions.
 
-=== Recommendations
+== Recommendations
 
-==== Getting Started with Network Policies - Follow Principle of Least Privilege
+=== Getting Started with Network Policies - Follow Principle of Least Privilege
 
-===== Create a default deny policy
+==== Create a default deny policy
 
 As with RBAC policies, it is recommended to follow least privileged
 access principles with network policies. Start by creating a deny all
@@ -85,7 +85,7 @@ image::./images/default-deny.jpg[default-deny]
 !!! tip The image above was created by the network policy viewer from
 https://orca.tufin.io/netpol/[Tufin].
 
-===== Create a rule to allow DNS queries
+==== Create a rule to allow DNS queries
 
 Once you have the default deny all rule in place, you can begin layering
 on additional rules, such as a rule that allows pods to query CoreDNS
@@ -119,7 +119,7 @@ spec:
 .allow-dns-access
 image::./images/allow-dns-access.jpg[allow-dns-access]
 
-===== Incrementally add rules to selectively allow the flow of traffic between namespaces/pods
+==== Incrementally add rules to selectively allow the flow of traffic between namespaces/pods
 
 Understand the application requirements and create fine-grained ingress
 and egress rules as needed. Below example shows how to restrict ingress
@@ -152,7 +152,7 @@ spec:
 .allow-ingress-app-one
 image::./images/allow-ingress-app-one.png[allow-ingress-app-one]
 
-==== Monitoring network policy enforcement
+=== Monitoring network policy enforcement
 
 * *Use Network Policy editor*
 ** https://networkpolicy.io/[Network policy editor] helps with
@@ -202,9 +202,9 @@ contains_label(arr, val) {
 }
 ----
 
-==== Troubleshooting
+=== Troubleshooting
 
-===== Monitor the vpc-network-policy-controller, node-agent logs
+==== Monitor the vpc-network-policy-controller, node-agent logs
 
 Enable the EKS Control plane controller manager logs to diagnose the
 network policy functionality. You can stream the control plane logs to a
@@ -235,7 +235,7 @@ eBPF programs and maps.
 sudo /opt/cni/bin/aws-eks-na-cli ebpf progs
 ----
 
-===== Log network traffic metadata
+==== Log network traffic metadata
 
 https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html[AWS VPC
 Flow Logs] captures metadata about the traffic flowing through a VPC,
@@ -247,7 +247,7 @@ change as they are replaced, Flow Logs may not be sufficient on its own.
 Calico Enterprise extends the Flow Logs with pod labels and other
 metadata, making it easier to decipher the traffic flows between pods.
 
-=== Security groups
+== Security groups
 
 EKS uses
 https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS
@@ -331,16 +331,16 @@ option, read the three part series on
 https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/[egress
 traffic control in Istio].
 
-=== When to use Network Policy vs Security Group for Pods?
+== When to use Network Policy vs Security Group for Pods?
 
-==== When to use Kubernetes network policy
+=== When to use Kubernetes network policy
 
 * *Controlling pod-to-pod traffic*
 ** Suitable for controlling network traffic between pods inside a
 cluster (east-west traffic)
 * *Control traffic at the IP address or port level (OSI layer 3 or 4)*
 
-==== When to use AWS Security groups for pods (SGP)
+=== When to use AWS Security groups for pods (SGP)
 
 * *Leverage existing AWS configurations*
 ** If you already have complex set of EC2 security groups that manage
@@ -356,7 +356,7 @@ mechanism to control the traffic from the pods to AWS services.
 node traffic, use SGP in `+POD_SECURITY_GROUP_ENFORCING_MODE=strict+`
 mode.
 
-==== Best practices using `+Security groups for pods+` and `+Network Policy+`
+=== Best practices using `+Security groups for pods+` and `+Network Policy+`
 
 * *Layered security*
 ** Use a combination of SGP and kubernetes network policy for a layered
@@ -387,7 +387,7 @@ effective solution. Using kubernetes network policy and SGP in
 combination can provide a robust defense-in-depth strategy for your
 applications running in EKS.
 
-=== Service Mesh Policy Enforcement or Kubernetes network policy
+== Service Mesh Policy Enforcement or Kubernetes network policy
 
 A `+service mesh+` is a dedicated infrastructure layer that you can add
 to your applications. It allows you to transparently add capabilities
@@ -399,7 +399,7 @@ whereas kubernetes network policies operate at Layer 3 (network) and
 Layer 4 (transport). There are many offerings in this space like AWS
 AppMesh, Istio, Linkerd, etc.,
 
-==== When to use Service mesh for policy enforcement
+=== When to use Service mesh for policy enforcement
 
 * Have existing investment in a service mesh
 * Need more advanced capabilities like traffic management, observability
@@ -411,7 +411,7 @@ error rates, requests per second, request volumes etc.)
 ** You want to implement and leverage service mesh for security features
 like mTLS
 
-==== Choose Kubernetes network policy for simpler use cases
+=== Choose Kubernetes network policy for simpler use cases
 
 * Limit which pods can communicate with each other
 * Network policies require fewer resources than a service mesh making
@@ -423,7 +423,7 @@ network policies to provide a baseline level of security and isolation
 between your pods and then use a service mesh to add additional
 capabilities like traffic management, observability and security.
 
-=== ThirdParty Network Policy Engines
+== ThirdParty Network Policy Engines
 
 Consider a Third Party Network Policy Engine when you have advanced
 policy requirements like Global Network Policies, support for DNS
@@ -453,7 +453,7 @@ https://github.com/ahmetb/kubernetes-network-policy-recipes. A similar
 set of rules for Calico are available at
 https://docs.projectcalico.org/security/calico-network-policy.
 
-==== Migration to Amazon VPC CNI Network Policy Engine
+=== Migration to Amazon VPC CNI Network Policy Engine
 
 To maintain consistency and avoid unexpected pod communication behavior,
 it is recommended to deploy only one Network Policy Engine in your
@@ -465,7 +465,7 @@ cluster before applying them in you production environment. This allows
 you to identify and address any potential issues or inconsistencies in
 pod communication behavior.
 
-===== Migration Tool
+==== Migration Tool
 
 To assist in your migration process, we have developed a tool called
 https://github.com/awslabs/k8s-network-policy-migrator[K8s Network
@@ -489,7 +489,7 @@ https://github.com/awslabs/k8s-network-policy-migrator/issues[GitHub
 issue]. Your feedback is invaluable to us and will assist in the
 continuous improvement of our services.
 
-==== Additional Resources
+=== Additional Resources
 
 * https://youtu.be/lEY2WnRHYpg[Kubernetes & Tigera: Network
 Policies&#44; Security&#44; and Audit]
@@ -502,7 +502,7 @@ Editor] an interactive policy editor from Cilium
 Gadget advise network-policy gadget] Suggests network policies based on
 an analysis of network traffic
 
-=== Encryption in transit
+== Encryption in transit
 
 Applications that need to conform to PCI, HIPAA, or other regulations
 may need to encrypt data while it is in transit. Nowadays TLS is the de
@@ -513,7 +513,7 @@ encrypt the data are generated based on a shared secret that is
 negotiated at the beginning of the session. The following are a few ways
 that you can encrypt data in a Kubernetes environment.
 
-==== Nitro Instances
+=== Nitro Instances
 
 Traffic exchanged between the following Nitro instance types, e.g. C5n,
 G4, I3en, M5dn, M5n, P3dn, R5dn, and R5n, is automatically encrypted by
@@ -524,13 +524,13 @@ in transit] for further details on encryption in transit as well as the
 complete list of instances types that support network encryption by
 default.
 
-==== Container Network Interfaces (CNIs)
+=== Container Network Interfaces (CNIs)
 
 https://www.weave.works/oss/net/[WeaveNet] can be configured to
 automatically encrypt all traffic using NaCl encryption for sleeve
 traffic, and IPsec ESP for fast datapath traffic.
 
-==== Service Mesh
+=== Service Mesh
 
 Encryption in transit can also be implemented with a service mesh like
 App Mesh, Linkerd v2, and Istio. AppMesh supports
@@ -564,7 +564,7 @@ TLS with File Provided TLS Certificates]
 * https://github.com/aws/aws-app-mesh-examples/tree/master/walkthroughs/tls-with-acm[Configuring
 TLS with AWS Certificate Manager]
 
-==== Ingress Controllers and Load Balancers
+=== Ingress Controllers and Load Balancers
 
 Ingress controllers are a way for you to intelligently route HTTP/S
 traffic that emanates from outside the cluster to services running
@@ -581,7 +581,7 @@ establishing the initial handshake. Overall SSL/TLS processing is very
 CPU intensive. Consequently, if you have the flexibility, try performing
 the SSL offload at the Ingress or the load balancer.
 
-===== Use encryption with AWS Elastic load balancers
+==== Use encryption with AWS Elastic load balancers
 
 The
 https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html[AWS
@@ -658,7 +658,7 @@ do I terminate HTTPS traffic on Amazon EKS workloads with ACM?]
 !!! attention Some Ingresses, like the AWS LB controller, implement the
 SSL/TLS using Annotations instead of as part of the Ingress Spec.
 
-==== ACM Private CA with cert-manager
+=== ACM Private CA with cert-manager
 
 You can enable TLS and mTLS to secure your EKS application workloads at
 the ingress, on the pod, and between pods using ACM Private Certificate
@@ -674,7 +674,7 @@ keys encoded in memory (less secure). A centralized CA also gives you
 more control and improved auditability for private certificates both
 inside and outside of a Kubernetes environment.
 
-===== Short-Lived CA Mode for Mutual TLS Between Workloads
+==== Short-Lived CA Mode for Mutual TLS Between Workloads
 
 When using ACM Private CA for mTLS in EKS, it is recommended that you
 use short lived certificates with _short-lived CA mode_. Although it is
@@ -687,7 +687,7 @@ pods in your EKS cluster.
 https://aws.amazon.com/certificate-manager/private-certificate-authority/[Learn
 more about ACM Private CA and its benefits here].
 
-===== ACM Setup Instructions
+==== ACM Setup Instructions
 
 Start by creating a Private CA by following procedures provided in the
 https://docs.aws.amazon.com/acm-pca/latest/userguide/create-CA.html[ACM
@@ -760,7 +760,7 @@ guide].
 https://github.com/cert-manager/aws-privateca-issuer/tree/main/config/samples/[See
 examples here].
 
-==== ACM Private CA with Istio and cert-manager
+=== ACM Private CA with Istio and cert-manager
 
 If you are running Istio in your EKS cluster, you can disable the Istio
 control plane (specifically `+istiod+`) from functioning as the root
@@ -772,7 +772,7 @@ section] and this
 https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode[blog
 post] for more details.
 
-===== How Certificate Signing Works in Istio (Default)
+==== How Certificate Signing Works in Istio (Default)
 
 Workloads in Kubernetes are identified using service accounts. If you
 don’t specify a service account, Kubernetes will automatically assign
@@ -803,7 +803,7 @@ the communicating services.
 image::./images/default-istio-csr-flow.png[Default flow for Istio
 Certificate Signing Requests]
 
-===== How Certificate Signing Works in Istio with ACM Private CA
+==== How Certificate Signing Works in Istio with ACM Private CA
 
 You can use a cert-manager add-on called the Istio Certificate Signing
 Request agent
@@ -830,7 +830,7 @@ workload that initiated the CSR.
 image::./images/istio-csr-with-acm-private-ca.png[Flow for Istio
 Certificate Signing Requests with istio-csr]
 
-===== Istio with Private CA Setup Instructions
+==== Istio with Private CA Setup Instructions
 
 [arabic]
 . Start by following the same
@@ -943,7 +943,7 @@ mTLS].
 image::./images/istio-csr-requests.png[Istio certificate signing
 requests]
 
-=== Tools and resources
+== Tools and resources
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/6-network-security[Amazon
 EKS Security Immersion Workshop - Network security]

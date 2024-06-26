@@ -1,4 +1,19 @@
-== Amazon EKS Best Practices Guide for Security
+//!!NODE_ROOT <chapter>
+[[security,security.title]]
+= Amazon EKS Best Practices Guide for Security
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Best Practices for Security
+:info_abstract: Best Practices for Security
+:info_titleabbrev: Security
+:imagesdir: images/
 
 This guide provides advice about protecting information, systems, and
 assets that are reliant on EKS while delivering business value through
@@ -8,7 +23,7 @@ customers implement EKS in accordance with best practices. Guides for
 Performance, Operational Excellence, Cost Optimization, and Reliability
 will be available in the coming months.
 
-=== How to use this guide
+== How to use this guide
 
 This guide is meant for security practitioners who are responsible for
 implementing and monitoring the effectiveness of security controls for
@@ -18,7 +33,7 @@ brief overview, followed by a list of recommendations and best practices
 for securing your EKS clusters. The topics do not need to be read in a
 particular order.
 
-=== Understanding the Shared Responsibility Model
+== Understanding the Shared Responsibility Model
 
 Security and compliance are considered shared responsibilities when
 using a managed service like EKS. Generally speaking, AWS is responsible
@@ -61,7 +76,7 @@ service (AWS).
 For additional information about the shared responsibility model, see
 https://aws.amazon.com/compliance/shared-responsibility-model/
 
-=== Introduction
+== Introduction
 
 There are several security best practice areas that are pertinent when
 using a managed Kubernetes service like EKS:
@@ -98,7 +113,7 @@ highly secure foundation, customers can spend less time on
 "`undifferentiated heavy lifting`" and more time on achieving their
 business objectives.
 
-=== Feedback
+== Feedback
 
 This guide is being released on GitHub so as to collect direct feedback
 and suggestions from the broader EKS/Kubernetes community. If you have a
@@ -107,7 +122,7 @@ file an issue or submit a PR in the GitHub repository. Our intention is
 to update the guide periodically as new features are added to the
 service or when a new best practice evolves.
 
-=== Further Reading
+== Further Reading
 
 https://github.com/kubernetes/sig-security/blob/main/sig-security-external-audit/security-audit-2019/findings/Kubernetes%20White%20Paper.pdf[Kubernetes
 Security Whitepaper], sponsored by the Security Audit Working Group,
@@ -121,7 +136,21 @@ paper] on cloud native security. The paper examines how the technology
 landscape has evolved and advocates for the adoption of security
 practices that align with DevOps processes and agile methodologies.
 
-=== Tools and resources
+== Tools and resources
 
 https://catalog.workshops.aws/eks-security-immersionday/en-US[Amazon EKS
 Security Immersion Workshop]
+
+include::iam.adoc[leveloffset=+1]
+include::pods.adoc[leveloffset=+1]
+include::multitenancy.adoc[leveloffset=+1]
+include::detective.adoc[leveloffset=+1]
+include::network.adoc[leveloffset=+1]
+include::data.adoc[leveloffset=+1]
+include::runtime.adoc[leveloffset=+1]
+include::hosts.adoc[leveloffset=+1]
+include::compliance.adoc[leveloffset=+1]
+include::incidents.adoc[leveloffset=+1]
+include::image.adoc[leveloffset=+1]
+include::multiaccount.adoc[leveloffset=+1]
+

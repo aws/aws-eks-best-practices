@@ -1,4 +1,4 @@
-== Identity and Access Management
+= Identity and Access Management
 
 https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html[Identity
 and Access Management] (IAM) is an AWS service that performs two
@@ -16,7 +16,7 @@ are expressed as
 https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html[IAM
 policies].
 
-=== Controlling Access to EKS Clusters
+== Controlling Access to EKS Clusters
 
 The Kubernetes project supports a variety of different strategies to
 authenticate requests to the kube-apiserver service, e.g. Bearer Tokens,
@@ -111,7 +111,7 @@ ClusterRoleBindings. They are similar to IAM Roles in that they define a
 set of actions (verbs) that can be performed against a collection of
 Kubernetes resources (objects).
 
-==== Cluster Access Manager
+=== Cluster Access Manager
 
 Cluster Access Manager, now the preferred way to manage access of AWS
 IAM principals to Amazon EKS clusters, is a functionality of the AWS API
@@ -240,7 +240,7 @@ cluster creator admin permission, which is the only entry created by
 default.
 ____
 
-==== The `+aws-auth+` ConfigMap _(deprecated)_
+=== The `+aws-auth+` ConfigMap _(deprecated)_
 
 One way Kubernetes integration with AWS authentication can be done is
 via the `+aws-auth+` ConfigMap, which resides in the `+kube-system+`
@@ -310,9 +310,9 @@ Check the subsection
 https://aws.github.io/aws-eks-best-practices/security/docs/iam/#use-tools-to-make-changes-to-the-aws-auth-configmap[Use
 tools to make changes to the aws-auth ConfigMap] below for more details.
 
-=== Cluster Access Recommendations
+== Cluster Access Recommendations
 
-==== Make the EKS Cluster Endpoint private
+=== Make the EKS Cluster Endpoint private
 
 By default when you provision an EKS cluster, the API cluster endpoint
 is set to public, i.e. it can be accessed from the Internet. Despite
@@ -337,7 +337,7 @@ the kubelets (workers) and the Kubernetes API through the cross-account
 ENIs that get provisioned into the cluster VPC when the control plane is
 provisioned.
 
-==== Don’t use a service account token for authentication
+=== Don’t use a service account token for authentication
 
 A service account token is a long-lived, static credential. If it is
 compromised, lost, or stolen, an attacker may be able to perform all the
@@ -348,14 +348,14 @@ pipeline application. If such applications run on AWS infrastructure,
 like EC2 instances, consider using an instance profile and mapping that
 to a Kubernetes RBAC role.
 
-==== Employ least privileged access to AWS Resources
+=== Employ least privileged access to AWS Resources
 
 An IAM User does not need to be assigned privileges to AWS resources to
 access the Kubernetes API. If you need to grant an IAM user access to an
 EKS cluster, create an entry in the `+aws-auth+` ConfigMap for that user
 that maps to a specific Kubernetes RBAC group.
 
-==== Remove the cluster-admin permissions from the cluster creator principal
+=== Remove the cluster-admin permissions from the cluster creator principal
 
 By default Amazon EKS clusters are created with a permanent
 `+cluster-admin+` permission bound to the cluster creator principal.
@@ -411,7 +411,7 @@ break glass scenario, or where the `+aws-auth+` ConfigMap is corrupted
 and the cluster is otherwise inaccessible. This can be particularly
 useful in production clusters.
 
-==== Use IAM Roles when multiple users need identical access to the cluster
+=== Use IAM Roles when multiple users need identical access to the cluster
 
 Rather than creating an entry for each individual IAM User, allow those
 users to assume an IAM Role and map that role to a Kubernetes RBAC
@@ -442,7 +442,7 @@ In Kubernetes 1.20 and above, this change is no longer required, since
 `+user.extra.sessionName.0+` was added to the Kubernetes audit log.
 ____
 
-==== Employ least privileged access when creating RoleBindings and ClusterRoleBindings
+=== Employ least privileged access when creating RoleBindings and ClusterRoleBindings
 
 Like the earlier point about granting access to AWS Resources,
 RoleBindings and ClusterRoleBindings should only include the set of
@@ -453,7 +453,7 @@ tool like https://github.com/liggitt/audit2rbac[audit2rbac] to
 automatically generate Roles and binding based on the observed API calls
 in the Kubernetes Audit Log.
 
-==== Create cluster using an automated process
+=== Create cluster using an automated process
 
 As seen in earlier steps, when creating an Amazon EKS cluster, if not
 using the using `+API_AND_CONFIG_MAP+` or `+API+` authentication mode,
@@ -474,7 +474,7 @@ should not be used to perform routine actions on the cluster, and be
 exclusively used to cluster level actions triggered by the pipeline, via
 SCM code changes for example.
 
-==== Create the cluster with a dedicated IAM role
+=== Create the cluster with a dedicated IAM role
 
 When you create an Amazon EKS cluster, the IAM entity user or role, such
 as a federated user that creates the cluster, is automatically
@@ -491,7 +491,7 @@ scenarios where the cluster is otherwise inaccessible. This can be
 particularly useful in clusters which do not have direct user access
 configured.
 
-==== Regularly audit access to the cluster
+=== Regularly audit access to the cluster
 
 Who requires access is likely to change over time. Plan to periodically
 audit the `+aws-auth+` ConfigMap to see who has been granted access and
@@ -504,7 +504,7 @@ link:detective.md[auditing]. Additional ideas can be found in this
 https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D[article]
 from NCC Group.
 
-==== If relying on `+aws-auth+` configMap use tools to make changes
+=== If relying on `+aws-auth+` configMap use tools to make changes
 
 An improperly formatted aws-auth ConfigMap may cause you to lose access
 to the cluster. If you need to make changes to the ConfigMap, use a
@@ -586,7 +586,7 @@ $ ./aws-iam-authenticator add role --rolearn arn:aws:iam::185309785115:role/lil-
 ...
 ----
 
-==== Alternative Approaches to Authentication and Access Management
+=== Alternative Approaches to Authentication and Access Management
 
 While IAM is the preferred way to authenticate users who need access to
 an EKS cluster, it is possible to use an OIDC identity provider such as
@@ -621,7 +621,7 @@ current CLI session and assume an IAM role. Know that you must assume a
 role _prior_ to running `+kubectl+` as the IAM role is used to determine
 the user’s Kubernetes RBAC group.
 
-=== Identities and Credentials for EKS pods
+== Identities and Credentials for EKS pods
 
 Certain applications that run within a Kubernetes cluster need
 permission to call the Kubernetes API to function properly. For example,
@@ -631,7 +631,7 @@ Endpoints. The controller also needs to be able to invoke AWS APIs to
 provision and configure an ALB. In this section we will explore the best
 practices for assigning rights and privileges to Pods.
 
-==== Kubernetes Service Accounts
+=== Kubernetes Service Accounts
 
 A service account is a special type of object that allows you to assign
 a Kubernetes RBAC role to a pod. A default service account is created
@@ -715,7 +715,7 @@ references the service account such as
 `+metadata.annotations.kubernetes.io/service-account.name: <SERVICE_ACCOUNT_NAME>+`.
 Secrets created in this way do not expire.
 
-==== IAM Roles for Service Accounts (IRSA)
+=== IAM Roles for Service Accounts (IRSA)
 
 IRSA is a feature that allows you to assign an IAM role to a Kubernetes
 service account. It works by leveraging a Kubernetes feature known as
@@ -802,7 +802,7 @@ responsible for reloading the token when it rotates. For further
 information about IRSA, see
 https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html.
 
-==== EKS Pod Identities
+=== EKS Pod Identities
 
 https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html[EKS
 Pod Identities] is a feature launched at re:Invent 2023 that allows you
@@ -837,7 +837,7 @@ https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html[cr
 provider chain]. Like IRSA, EKS pod identities sets variables within
 your pods to direct them how to find AWS credentials.
 
-===== Working with IAM roles for EKS Pod Identities
+==== Working with IAM roles for EKS Pod Identities
 
 * EKS Pod Identities can only directly assume an IAM role that belongs
 to the same AWS account as the EKS cluster. To access an IAM role in
@@ -890,7 +890,7 @@ Organization ID of the AWS Organization that the AWS account belongs to.
 EKS will pass in a value for `+aws:SourceOrgId+` equal to that when
 assuming a role with EKS Pod Identities.
 
-===== ABAC and EKS Pod Identities
+==== ABAC and EKS Pod Identities
 
 When EKS Pod Identities assumes an IAM role, it sets the following
 session tags:
@@ -970,7 +970,7 @@ values, where the EKS cluster is hosted in the AWS account
 }
 ----
 
-==== EKS Pod Identities compared to IRSA
+=== EKS Pod Identities compared to IRSA
 
 Both EKS Pod Identities and IRSA are preferred ways to deliver temporary
 AWS credentials to your EKS pods. Unless you have specific usecases for
@@ -999,9 +999,9 @@ with sts:AssumeRoleWithWebIdentity
 |Requires Pod Identity Agent Daemonset on nodes? |Yes |No
 |===
 
-=== Identities and Credentials for EKS pods Recommendations
+== Identities and Credentials for EKS pods Recommendations
 
-==== Update the aws-node daemonset to use IRSA
+=== Update the aws-node daemonset to use IRSA
 
 At present, the aws-node daemonset is configured to use a role assigned
 to the EC2 instances to assign IPs to pods. This role includes several
@@ -1016,7 +1016,7 @@ for this guide.
 
 The aws-node daemonset does not support EKS Pod Identities at this time.
 
-==== Restrict access to the instance profile assigned to the worker node
+=== Restrict access to the instance profile assigned to the worker node
 
 When you use IRSA or EKS Pod Identities, it updates the credential chain
 of the pod to use IRSA or EKS Pod Identities first, however, the pod
@@ -1059,7 +1059,7 @@ If you have an application that is using an older version of the AWS SDK
 that doesn’t support IRSA or EKS Pod Identities, you should update the
 SDK version.
 
-==== Scope the IAM Role trust policy for IRSA Roles to the service account name, namespace, and cluster
+=== Scope the IAM Role trust policy for IRSA Roles to the service account name, namespace, and cluster
 
 The trust policy can be scoped to a Namespace or a specific service
 account within a Namespace. When using IRSA it’s best to make the role
@@ -1088,7 +1088,7 @@ a given namespace from your cluster can assume that role:
   }
 ----
 
-==== Use one IAM role per application
+=== Use one IAM role per application
 
 With both IRSA and EKS Pod Identity, it is a best practice to give each
 application its own IAM role. This gives you improved isolation as you
@@ -1101,7 +1101,7 @@ across multiple service accounts and rely on their session attributes
 for access control. This is especially useful when operating at scale,
 as ABAC allows you to operate with fewer IAM roles.
 
-==== When your application needs access to IMDS, use IMDSv2 and increase the hop limit on EC2 instances to 2
+=== When your application needs access to IMDS, use IMDSv2 and increase the hop limit on EC2 instances to 2
 
 https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html[IMDSv2]
 requires you use a PUT request to get a session token. The initial PUT
@@ -1115,7 +1115,7 @@ IMDSv1 data flow. EKS adds support IMDSv2 by _enabling_ both v1 and v2
 and changing the hop limit to 2 on nodes provisioned by eksctl or with
 the official CloudFormation templates.
 
-==== Disable auto-mounting of service account tokens
+=== Disable auto-mounting of service account tokens
 
 If your application doesn’t need to call the Kubernetes API set the
 `+automountServiceAccountToken+` attribute to `+false+` in the PodSpec
@@ -1128,7 +1128,7 @@ example:
 kubectl patch serviceaccount default -p $'automountServiceAccountToken: false'
 ----
 
-==== Use dedicated service accounts for each application
+=== Use dedicated service accounts for each application
 
 Each application should have its own dedicated service account. This
 applies to service accounts for the Kubernetes API as well as IRSA and
@@ -1146,7 +1146,7 @@ Identity, you would create pod identity associations between the IAM
 roles and service accounts in the new cluster. And update the IAM role
 trust policy if you have a `+sourceArn+` condition.
 
-==== Run the application as a non-root user
+=== Run the application as a non-root user
 
 Containers run as root by default. While this allows them to read the
 web identity token file, running a container as root is not considered a
@@ -1190,7 +1190,7 @@ In Kubernetes 1.19 and above, this change is no longer required and
 applications can read the IRSA service account token without adding them
 to the Nobody group.
 
-==== Grant least privileged access to applications
+=== Grant least privileged access to applications
 
 https://github.com/princespaghetti/actionhero[Action Hero] is a utility
 that you can run alongside your application to identify the AWS API
@@ -1212,7 +1212,7 @@ permissions boundary policy, please see this
 https://github.com/aws-samples/example-permissions-boundary[github
 repo].
 
-==== Review and revoke unnecessary anonymous access to your EKS cluster
+=== Review and revoke unnecessary anonymous access to your EKS cluster
 
 Ideally anonymous access should be disabled for all API actions.
 Anonymous access is granted by creating a RoleBinding or
@@ -1349,7 +1349,7 @@ section in the above editor screen.
 
 Repeat the same steps for system:basic-user ClusterRoleBinding.
 
-==== Reuse AWS SDK sessions with IRSA
+=== Reuse AWS SDK sessions with IRSA
 
 When you use IRSA, applications written using the AWS SDK use the token
 delivered to your pods to call `+sts:AssumeRoleWithWebIdentity+` to
@@ -1372,14 +1372,14 @@ with both Amazon S3 and Amazon SQS. `+AssumeRoleWithWebIdentity+` is
 only called once, and the AWS SDK will refresh the credentials of
 `+my_session+` when they expire automatically.
 
-```py hl_lines="`4 7 8`" +
+```python
 import boto3
 
-== Create your own session
+= Create your own session
 
 my_session = boto3.session.Session()
 
-== Now we can create low-level clients from our session
+= Now we can create low-level clients from our session
 
 sqs = my_session.client('`sqs`') s3 = my_session.client('`s3`')
 
@@ -1388,13 +1388,15 @@ s3response = s3.list_buckets() sqsresponse = sqs.list_queues()
 #print the response from the S3 and SQS APIs print("`s3 response:`")
 print(s3response) print("`—`") print("`sqs response:`")
 print(sqsresponse) ```
+```
+
 
 If you’re migrating an application from another AWS compute service,
 such as EC2, to EKS with IRSA, this is a particularly important detail.
 On other compute services initializing an AWS SDK session does not call
 AWS STS unless you instruct it to.
 
-==== Alternative approaches
+=== Alternative approaches
 
 While IRSA and EKS Pod Identities are the _preferred ways_ to assign an
 AWS identity to a pod, they require that you include recent version of
@@ -1416,7 +1418,7 @@ If you need to use one of these non-aws provided solutions, please
 exercise due diligence and ensure you understand security implications
 of doing so.
 
-=== Tools and Resources
+== Tools and Resources
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management[Amazon
 EKS Security Immersion Workshop - Identity and Access Management]

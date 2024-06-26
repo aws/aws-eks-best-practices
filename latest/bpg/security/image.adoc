@@ -1,4 +1,4 @@
-== Image security
+= Image security
 
 You should consider the container image as your first line of defense
 against an attack. An insecure, poorly constructed image can allow an
@@ -8,9 +8,9 @@ information or move laterally within the cluster or with your AWS
 account. The following best practices will help mitigate risk of this
 happening.
 
-=== Recommendations
+== Recommendations
 
-==== Create minimal images
+=== Create minimal images
 
 Start by removing all extraneous binaries from the container image. If
 you’re using an unfamiliar image from Dockerhub, inspect the image using
@@ -36,7 +36,7 @@ RUN find / -xdev -perm /6000 -type f -exec chmod a-s {} \; || true
 
 Colloquially, this is known as de-fanging your image.
 
-==== Use multi-stage builds
+=== Use multi-stage builds
 
 Using multi-stage builds is a way to create minimal images. Oftentimes,
 multi-stage builds are used to automate parts of the Continuous
@@ -52,7 +52,7 @@ additional information about multi-stage builds, see
 https://docs.docker.com/develop/develop-images/multistage-build/[Docker’s
 multi-stage builds documentation].
 
-==== Create Software Bill of Materials (SBOMs) for your container image
+=== Create Software Bill of Materials (SBOMs) for your container image
 
 A "`software bill of materials`" (SBOM) is a nested inventory of the
 software artifacts that make up your container image. SBOM is a key
@@ -99,7 +99,7 @@ Learn more about securing your software supply chain by reviewing
 https://project.linuxfoundation.org/hubfs/CNCF_SSCP_v1.pdf[CNCF Software
 Supply Chain Best Practices guide].
 
-==== Scan images for vulnerabilities regularly
+=== Scan images for vulnerabilities regularly
 
 Like their virtual machine counterparts, container images can contain
 binaries and application libraries with vulnerabilities or develop
@@ -145,7 +145,7 @@ describeImageScanFindings API to determine whether a pod is pulling an
 image with critical vulnerabilities. If vulnerabilities are found, the
 pod is rejected and a message with list of CVEs is returned as an Event.
 
-==== Use attestations to validate artifact integrity
+=== Use attestations to validate artifact integrity
 
 An attestation is a cryptographically signed "`statement`" that claims
 something - a "`predicate`" e.g. a pipeline run or the SBOM or the
@@ -176,7 +176,7 @@ to learn more about software supply chain management best practices on
 AWS using open source tools with topics including creating and attaching
 attestations to a container image.
 
-==== Create IAM policies for ECR repositories
+=== Create IAM policies for ECR repositories
 
 Nowadays, it is not uncommon for an organization to have multiple
 development teams operating independently within a shared AWS account.
@@ -214,7 +214,7 @@ restrict access might look like the following:
 }
 ----
 
-==== Consider using ECR private endpoints
+=== Consider using ECR private endpoints
 
 The ECR API has a public endpoint. Consequently, ECR registries can be
 accessed from the Internet so long as the request has been authenticated
@@ -227,7 +227,7 @@ information on this topic, see
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html[Amazon
 ECR interface VPC endpoints].
 
-==== Implement endpoint policies for ECR
+=== Implement endpoint policies for ECR
 
 The default endpoint policy for allows access to all ECR repositories
 within a region. This might allow an attacker/insider to exfiltrate data
@@ -283,7 +283,7 @@ For further information about using endpoint policies, see
 https://aws.amazon.com/blogs/containers/using-vpc-endpoint-policies-to-control-amazon-ecr-access/[Using
 VPC endpoint policies to control Amazon ECR access].
 
-==== Implement lifecycle policies for ECR
+=== Implement lifecycle policies for ECR
 
 The
 https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf[NIST
@@ -310,7 +310,7 @@ be sure you have good CI/CD practices in place to keep deployments and
 the images that they reference up to date and always create [image]
 expiry rules that account for how often you do releases/deployments.
 
-==== Create a set of curated images
+=== Create a set of curated images
 
 Rather than allowing developers to create their own images, consider
 creating a set of vetted images for the different application stacks in
@@ -328,7 +328,7 @@ fifth] of the top 1000 images have vulnerabilities. A list of those
 images and their vulnerabilities can be found
 https://vulnerablecontainers.org/[here].
 
-==== Add the USER directive to your Dockerfiles to run as a non-root user
+=== Add the USER directive to your Dockerfiles to run as a non-root user
 
 As was mentioned in the pod security section, you should avoid running
 container as root. While you can configure this as part of the podSpec,
@@ -337,7 +337,7 @@ The `+USER+` directive sets the UID to use when running `+RUN+`,
 `+ENTRYPOINT+`, or `+CMD+` instruction that appears after the USER
 directive.
 
-==== Lint your Dockerfiles
+=== Lint your Dockerfiles
 
 Linting can be used to verify that your Dockerfiles are adhering to a
 set of predefined guidelines, e.g. the inclusion of the `+USER+`
@@ -348,7 +348,7 @@ includes a rule engine that you can use to build your own rules for
 linting Dockerfiles. It can be incorporated into a CI pipeline, in that
 builds with Dockerfiles that violate a rule will automatically fail.
 
-==== Build images from Scratch
+=== Build images from Scratch
 
 Reducing the attack surface of your container images should be primary
 aim when building images. The ideal way to do this is by creating
@@ -382,7 +382,7 @@ ENTRYPOINT ["/go/bin/hello"]
 This creates a container image that consists of your application and
 nothing else, making it extremely secure.
 
-==== Use immutable tags with ECR
+=== Use immutable tags with ECR
 
 https://aws.amazon.com/about-aws/whats-new/2019/07/amazon-ecr-now-supports-immutable-image-tags/[Immutable
 tags] force you to update the image tag on each push to the image
@@ -390,7 +390,7 @@ repository. This can thwart an attacker from overwriting an image with a
 malicious version without changing the image’s tags. Additionally, it
 gives you a way to easily and uniquely identify an image.
 
-==== Sign your images, SBOMs, pipeline runs and vulnerability reports
+=== Sign your images, SBOMs, pipeline runs and vulnerability reports
 
 When Docker was first introduced, there was no cryptographic model for
 verifying container images. With v2, Docker added digests to the image
@@ -419,7 +419,7 @@ repository.
 In the next section we will see how to use the attested artifacts for
 audits and admissions controller verification.
 
-==== Image integrity verification using Kubernetes admission controller
+=== Image integrity verification using Kubernetes admission controller
 
 We can verify image signatures, attested artifacts in an automated way
 before deploying the image to target Kubernetes cluster using
@@ -445,7 +445,7 @@ Examples of admission controller include:
 * https://github.com/kelseyhightower/grafeas-tutorial[Grafeas tutorial]
 * https://github.com/Shopify/voucher[Voucher]
 
-==== Update the packages in your container images
+=== Update the packages in your container images
 
 You should include RUN `+apt-get update && apt-get upgrade+` in your
 Dockerfiles to upgrade the packages in your images. Although upgrading
@@ -472,7 +472,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 ----
 
-=== Tools and resources
+== Tools and resources
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/12-image-security[Amazon
 EKS Security Immersion Workshop - Image Security]

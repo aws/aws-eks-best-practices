@@ -1,4 +1,4 @@
-== Protecting the infrastructure (hosts)
+= Protecting the infrastructure (hosts)
 
 Inasmuch as it’s important to secure your container images, it’s equally
 important to safeguard the infrastructure that runs them. This section
@@ -6,9 +6,9 @@ explores different ways to mitigate risks from attacks launched directly
 against the host. These guidelines should be used in conjunction with
 those outlined in the link:runtime.md[Runtime Security] section.
 
-=== Recommendations
+== Recommendations
 
-==== Use an OS optimized for running containers
+=== Use an OS optimized for running containers
 
 Consider using Flatcar Linux, Project Atomic, RancherOS, and
 https://github.com/bottlerocket-os/bottlerocket/[Bottlerocket], a
@@ -28,7 +28,7 @@ which can be used for building a custom Amazon EKS AMI running on Red
 Hat Enterprise Linux using Hashicorp Packer. This script can be further
 leveraged to build STIG compliant EKS custom AMIs.
 
-==== Keep your worker node OS updated
+=== Keep your worker node OS updated
 
 Regardless of whether you use a container-optimized host OS like
 Bottlerocket or a larger, but still minimalist, Amazon Machine Image
@@ -41,7 +41,7 @@ and/or https://github.com/awslabs/amazon-eks-ami/releases[release notes
 channel] and automate the rollout of updated worker node images into
 your cluster.
 
-==== Treat your infrastructure as immutable and automate the replacement of your worker nodes
+=== Treat your infrastructure as immutable and automate the replacement of your worker nodes
 
 Rather than performing in-place upgrades, replace your workers when a
 new patch or update becomes available. This can be approached a couple
@@ -68,7 +68,7 @@ seamlessly, but there may be times when an update will cause your pod to
 be rescheduled. Hence, we recommend that you create deployments with
 multiple replicas when running your application as a Fargate pod.
 
-==== Periodically run kube-bench to verify compliance with https://www.cisecurity.org/benchmark/kubernetes/[CIS benchmarks for Kubernetes]
+=== Periodically run kube-bench to verify compliance with https://www.cisecurity.org/benchmark/kubernetes/[CIS benchmarks for Kubernetes]
 
 kube-bench is an open source project from Aqua that evaluates your
 cluster against the CIS benchmarks for Kubernetes. The benchmark
@@ -88,7 +88,7 @@ instructions] from Aqua Security. For further information see
 https://aws.amazon.com/blogs/containers/introducing-cis-amazon-eks-benchmark/[Introducing
 The CIS Amazon EKS Benchmark].
 
-==== Minimize access to worker nodes
+=== Minimize access to worker nodes
 
 Instead of enabling SSH access, use
 https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html[SSM
@@ -105,7 +105,7 @@ the SSM agent with a DaemonSet as in
 https://github.com/aws-samples/ssm-agent-daemonset-installer[this
 example].
 
-===== Minimal IAM policy for SSM based SSH Access
+==== Minimal IAM policy for SSM based SSH Access
 
 The `+AmazonSSMManagedInstanceCore+` AWS managed policy contains a
 number of permissions that are not required for SSM Session Manager /
@@ -167,7 +167,7 @@ to access the node.
 https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging[enable
 Session Manager logging].
 
-==== Deploy workers onto private subnets
+=== Deploy workers onto private subnets
 
 By deploying workers onto private subnets, you minimize their exposure
 to the Internet where attacks often originate. Beginning April 22, 2020,
@@ -177,7 +177,7 @@ nodes in a Managed Node Group were automatically assigned a public IP.
 If you choose to deploy your worker nodes on to public subnets,
 implement restrictive AWS security group rules to limit their exposure.
 
-==== Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices
+=== Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices
 
 You can use
 https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html[Amazon
@@ -200,9 +200,9 @@ Amazon EC2 instances].
 !!! attention Inspector cannot be run on the infrastructure used to run
 Fargate pods.
 
-=== Alternatives
+== Alternatives
 
-==== Run SELinux
+=== Run SELinux
 
 !!! info Available on Red Hat Enterprise Linux (RHEL), CentOS,
 Bottlerocket, and Amazon Linux 2023
@@ -334,7 +334,7 @@ requirements of highly regulated customers, such as STIG, CJIS, and C2S.
 
 !!! caution SELinux will ignore containers where the type is unconfined.
 
-=== Tools and resources
+== Tools and resources
 
 * https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/[SELinux
 Kubernetes RBAC and Shipping Security Policies for On-prem Applications]

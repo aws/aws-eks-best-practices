@@ -1,4 +1,4 @@
-== Auditing and logging
+= Auditing and logging
 
 Collecting and analyzing [audit] logs is useful for a variety of
 different reasons. Logs can help with root cause analysis and
@@ -158,9 +158,9 @@ rules:
       - "RequestReceived"
 ----
 
-=== Recommendations
+== Recommendations
 
-==== Enable audit logs
+=== Enable audit logs
 
 The audit logs are part of the EKS managed Kubernetes control plane logs
 that are managed by EKS. Instructions for enabling/disabling the control
@@ -183,21 +183,21 @@ whereas the maximum Kubernetes API request size is 1.5MiB. Log entries
 greater than 256KB will either be truncated or only include the request
 metadata.
 
-==== Utilize audit metadata
+=== Utilize audit metadata
 
 Kubernetes audit logs include two annotations that indicate whether or
 not a request was authorized `+authorization.k8s.io/decision+` and the
 reason for the decision `+authorization.k8s.io/reason+`. Use these
 attributes to ascertain why a particular API call was allowed.
 
-==== Create alarms for suspicious events
+=== Create alarms for suspicious events
 
 Create an alarm to automatically alert you where there is an increase in
 403 Forbidden and 401 Unauthorized responses, and then use attributes
 like `+host+`, `+sourceIPs+`, and `+k8s_user.username+` to find out
 where those requests are coming from.
 
-==== Analyze logs with Log Insights
+=== Analyze logs with Log Insights
 
 Use CloudWatch Log Insights to monitor changes to RBAC objects,
 e.g. Roles, RoleBindings, ClusterRoles, and ClusterRoleBindings. A few
@@ -286,7 +286,7 @@ fields @timestamp, @message, sourceIPs.0
 | filter user.username="system:anonymous" and responseStatus.code in ["401", "403"]
 ----
 
-==== Audit your CloudTrail logs
+=== Audit your CloudTrail logs
 
 AWS APIs called by pods that are utilizing IAM Roles for Service
 Accounts (IRSA) are automatically logged to CloudTrail along with the
@@ -296,7 +296,7 @@ be an indication that the IAM role’s trust policy was misconfigured.
 Generally speaking, Cloudtrail is a great way to ascribe AWS API calls
 to specific IAM principals.
 
-==== Use CloudTrail Insights to unearth suspicious activity
+=== Use CloudTrail Insights to unearth suspicious activity
 
 CloudTrail insights automatically analyzes write management events from
 CloudTrail trails and alerts you of unusual activity. This can help you
@@ -307,7 +307,7 @@ https://aws.amazon.com/blogs/aws/announcing-cloudtrail-insights-identify-and-res
 CloudTrail Insights: Identify and Response to Unusual API Activity] for
 further information.
 
-==== Additional resources
+=== Additional resources
 
 As the volume of logs increases, parsing and filtering them with Log
 Insights or another log analysis tool may become ineffective. As an
@@ -326,7 +326,7 @@ https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html[Random
 Cut Forest] algorithm to anomalous behaviors that warrant further
 investigation.
 
-=== Tools and resources
+== Tools and resources
 
 The following commercial and open source projects can be used to assess
 your cluster’s alignment with established best practices:

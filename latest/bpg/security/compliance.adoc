@@ -1,4 +1,4 @@
-== Compliance
+= Compliance
 
 Compliance is a shared responsibility between AWS and the consumers of
 its services. Generally speaking, AWS is responsible for "`security of
@@ -68,7 +68,7 @@ practices, see the AWS whitepaper,
 https://d1.awsstatic.com/whitepapers/accreditation-models-for-secure-cloud-adoption.pdf[Accreditation
 Models for Secure Cloud Adoption]
 
-=== Shifting Left
+== Shifting Left
 
 The concept of shifting left involves catching policy violations and
 errors earlier in the software development lifecycle. From a security
@@ -77,7 +77,7 @@ fix issues with their configuration before their application is deployed
 to the cluster. Catching mistakes like this earlier will help prevent
 configurations that violate your policies from being deployed.
 
-==== Policy as Code
+=== Policy as Code
 
 Policy can be thought of as a set of rules for governing behaviors,
 i.e. behaviors that are allowed or those that are prohibited. For
@@ -95,7 +95,7 @@ Kubernetes clusters. Please refer to
 https://aws.github.io/aws-eks-best-practices/security/docs/pods/#pod-security[Pod
 Security] for information about PaC options and the future of PSPs.
 
-==== Use policy-as-code tools in pipelines to detect violations before deployment
+=== Use policy-as-code tools in pipelines to detect violations before deployment
 
 * https://www.openpolicyagent.org/[OPA] is an open source policy engine
 that’s part of the CNCF. It’s used for making policy decisions and can
@@ -127,7 +127,7 @@ https://kyverno.io/policies/[Kyverno website], and for examples using
 the Kyverno CLI to write tests in pipelines, see the
 https://github.com/kyverno/policies[policies repository].
 
-=== Tools and resources
+== Tools and resources
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/10-regulatory-compliance[Amazon
 EKS Security Immersion Workshop - Regulatory Compliance]
