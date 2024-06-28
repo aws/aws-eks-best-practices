@@ -10,7 +10,7 @@
 
 The pod specification includes a variety of different attributes that
 can strengthen or weaken your overall security posture. As a Kubernetes
-practitioner your chief concern should be preventing a process that’s
+practitioner your chief concern should be preventing a process that's
 running in a container from escaping the isolation boundaries of the
 container runtime and gaining access to the underlying host.
 
@@ -27,7 +27,7 @@ assigned to containers. For additional information about each
 capability, see
 http://man7.org/linux/man-pages/man7/capabilities.7.html.
 
-`+CAP_AUDIT_WRITE, CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_MKNOD, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_SYS_CHROOT+`
+`CAP_AUDIT_WRITE, CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_MKNOD, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_SYS_CHROOT`
 
 !!! Info
 
@@ -53,13 +53,13 @@ Read operations:
 * nodes
 * pods
 * secrets, configmaps, persistent volume claims and persistent volumes
-related to pods bound to the kubelet’s node
+related to pods bound to the kubelet's node
 
 Write operations:
 
-* nodes and node status (enable the `+NodeRestriction+` admission plugin
+* nodes and node status (enable the `NodeRestriction` admission plugin
 to limit a kubelet to modify its own node)
-* pods and pod status (enable the `+NodeRestriction+` admission plugin
+* pods and pod status (enable the `NodeRestriction` admission plugin
 to limit a kubelet to modify pods bound to itself)
 * events
 
@@ -191,7 +191,7 @@ capabilities, along with several other restrictions.
 * *Restricted:* Heavily restricted policy, following current Pod
 hardening best practices. This policy inherits from the baseline and
 adds further restrictions such as the inability to run as root or a
-root-group. Restricted policies may impact an application’s ability to
+root-group. Restricted policies may impact an application's ability to
 function. They are primarily targeted at running security critical
 applications.
 
@@ -235,8 +235,8 @@ pod(s) will be prevented from being applied.
 This is a difficult user experience, as there is no immediate indication
 that the successfully applied Deployment object belies failed pod
 creation. The offending podSpecs will not create pods. Inspecting the
-Deployment resource with `+kubectl get deploy <DEPLOYMENT_NAME> -oyaml+`
-will expose the message from the failed pod(s) `+.status.conditions+`
+Deployment resource with `kubectl get deploy <DEPLOYMENT_NAME> -oyaml`
+will expose the message from the failed pod(s) `.status.conditions`
 element, as seen below.
 
 [source,yaml]
@@ -263,7 +263,7 @@ prevent violating pods from being created and started. However, in these
 modes audit annotations on API server audit log events and warnings to
 API server clients, such as _kubectl_, are triggered, respectively, when
 pods, as well as objects that create pods, contain podSpecs with
-violations. A `+kubectl+` _Warning_ message is seen below.
+violations. A `kubectl` _Warning_ message is seen below.
 
 [source,bash]
 ----
@@ -381,7 +381,7 @@ data:
 As seen in the above ConfigMap YAML the cluster-wide default PSS level
 has been set to _restricted_ for all PSA modes, _audit_, _enforce_, and
 _warn_. This affects all namespaces, except those exempted:
-`+namespaces: ["kube-system","policy-test1"]+`. Additionally, in the
+`namespaces: ["kube-system","policy-test1"]`. Additionally, in the
 _ValidatingWebhookConfiguration_ resource, seen below, the
 _pod-security-webhook_ namespace is also exempted from configured PSS.
 
@@ -451,7 +451,7 @@ the Kubernetes API server (solution dependent)
 * Can be used to implement behaviors that are not necessarily security
 related, such as best practices, organizational standards, etc.
 * Can be used in non-Kubernetes use cases (solution dependent)
-* Because of flexibility, the user experience can be tuned to users’
+* Because of flexibility, the user experience can be tuned to users'
 needs
 
 Cons:
@@ -543,11 +543,11 @@ shell access to the running container. You can mitigate this risk a
 variety of ways. First, by removing the shell from the container image.
 Second, adding the USER directive to your Dockerfile or running the
 containers in the pod as a non-root user. The Kubernetes podSpec
-includes a set of fields, under `+spec.securityContext+`, that let you
+includes a set of fields, under `spec.securityContext`, that let you
 specify the user and/or group under which to run your application. These
-fields are `+runAsUser+` and `+runAsGroup+` respectively.
+fields are `runAsUser` and `runAsGroup` respectively.
 
-To enforce the use of the `+spec.securityContext+`, and its associated
+To enforce the use of the `spec.securityContext`, and its associated
 elements, within the Kubernetes podSpec, policy-as-code or Pod Security
 Standards can be added to clusters. These solutions allow you to write
 and/or use policies or profiles that can validate inbound Kubernetes API
@@ -558,7 +558,7 @@ in some cases, generate new requests.
 === Never run Docker in Docker or mount the socket in the container
 
 While this conveniently lets you to build/run images in Docker
-containers, you’re basically relinquishing complete control of the node
+containers, you're basically relinquishing complete control of the node
 to the process running in the container. If you need to build container
 images on Kubernetes use
 https://github.com/GoogleContainerTools/kaniko[Kaniko],
@@ -574,7 +574,7 @@ workloads.
 
 === Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only
 
-`+hostPath+` is a volume that mounts a directory from the host directly
+`hostPath` is a volume that mounts a directory from the host directly
 to the container. Rarely will pods need this type of access, but if they
 do, you need to be aware of the risks. By default pods that run as root
 will have write access to the file system exposed by hostPath. This
@@ -582,7 +582,7 @@ could allow an attacker to modify the kubelet settings, create symbolic
 links to directories or files not directly exposed by the hostPath,
 e.g. /etc/shadow, install ssh keys, read secrets mounted to the host,
 and other malicious things. To mitigate the risks from hostPath,
-configure the `+spec.containers.volumeMounts+` as `+readOnly+`, for
+configure the `spec.containers.volumeMounts` as `readOnly`, for
 example:
 
 [source,yaml]
@@ -594,12 +594,12 @@ volumeMounts:
 ----
 
 You should also use policy-as-code solutions to restrict the directories
-that can be used by `+hostPath+` volumes, or prevent `+hostPath+` usage
+that can be used by `hostPath` volumes, or prevent `hostPath` usage
 altogether. You can use the Pod Security Standards _Baseline_ or
-_Restricted_ policies to prevent the use of `+hostPath+`.
+_Restricted_ policies to prevent the use of `hostPath`.
 
 For further information about the dangers of privileged escalation, read
-Seth Art’s blog
+Seth Art's blog
 https://labs.bishopfox.com/tech-blog/bad-pods-kubernetes-pod-privilege-escalation[Bad
 Pods: Kubernetes Pod Privilege Escalation].
 
@@ -608,36 +608,36 @@ Pods: Kubernetes Pod Privilege Escalation].
 A pod without requests or limits can theoretically consume all of the
 resources available on a host. As additional pods are scheduled onto a
 node, the node may experience CPU or memory pressure which can cause the
-Kubelet to terminate or evict pods from the node. While you can’t
+Kubelet to terminate or evict pods from the node. While you can't
 prevent this from happening all together, setting requests and limits
 will help minimize resource contention and mitigate the risk from poorly
 written applications that consume an excessive amount of resources.
 
-The `+podSpec+` allows you to specify requests and limits for CPU and
+The `podSpec` allows you to specify requests and limits for CPU and
 memory. CPU is considered a compressible resource because it can be
 oversubscribed. Memory is incompressible, i.e. it cannot be shared among
 multiple containers.
 
-When you specify _requests_ for CPU or memory, you’re essentially
+When you specify _requests_ for CPU or memory, you're essentially
 designating the amount of _memory_ that containers are guaranteed to
 get. Kubernetes aggregates the requests of all the containers in a pod
 to determine which node to schedule the pod onto. If a container exceeds
 the requested amount of memory it may be subject to termination if
-there’s memory pressure on the node.
+there's memory pressure on the node.
 
 _Limits_ are the maximum amount of CPU and memory resources that a
 container is allowed to consume and directly corresponds to the
-`+memory.limit_in_bytes+` value of the cgroup created for the container.
+`memory.limit_in_bytes` value of the cgroup created for the container.
 A container that exceeds the memory limit will be OOM killed. If a
 container exceeds its CPU limit, it will be throttled.
 
 !!! Tip
 
-When using container `+resources.limits+` it is strongly recommended
+When using container `resources.limits` it is strongly recommended
 that container resource usage (a.k.a. Resource Footprints) be
 data-driven and accurate, based on load testing. Absent an accurate and
-trusted resource footprint, container `+resources.limits+` can be
-padded. For example, `+resources.limits.memory+` could be padded 20-30%
+trusted resource footprint, container `resources.limits` can be
+padded. For example, `resources.limits.memory` could be padded 20-30%
 higher than observable maximums, to account for potential memory
 resource limit inaccuracies.
 
@@ -656,15 +656,15 @@ same values and not equal to 0, the pod is configured as _guaranteed_
 (highest priority). Guaranteed pods will not be killed unless they
 exceed their configured memory limits. If the limits and requests are
 configured with different values and not equal to 0, or one container
-within the pod sets limits and the others don’t or have limits set for
+within the pod sets limits and the others don't or have limits set for
 different resources, the pods are configured as _burstable_ (medium
 priority). These pods have some resource guarantees, but can be killed
 once they exceed their requested memory.
 
 !!! Attention
 
-Requests don’t affect the `+memory_limit_in_bytes+` value of the
-container’s cgroup; the cgroup limit is set to the amount of memory
+Requests don't affect the `memory_limit_in_bytes` value of the
+container's cgroup; the cgroup limit is set to the amount of memory
 available on the host. Nevertheless, setting the requests value too low
 could cause the pod to be targeted for termination by the kubelet if the
 node undergoes memory pressure.
@@ -678,7 +678,7 @@ node undergoes memory pressure.
 request memory
 
 |Best-Effort |lowest |limit & request Not Set |First to get killed when
-there’s insufficient memory
+there's insufficient memory
 |===
 
 For additional information about resource QoS, please refer to the
@@ -690,7 +690,7 @@ https://kubernetes.io/docs/concepts/policy/resource-quotas/[resource
 quota] on a namespace or by creating a
 https://kubernetes.io/docs/concepts/policy/limit-range/[limit range]. A
 resource quota allows you to specify the total amount of resources,
-e.g. CPU and RAM, allocated to a namespace. When it’s applied to a
+e.g. CPU and RAM, allocated to a namespace. When it's applied to a
 namespace, it forces you to specify requests and limits for all
 containers deployed into that namespace. By contrast, limit ranges give
 you more granular control of the allocation of resources. With limit
@@ -710,8 +710,8 @@ with the SUID or SGID bit. Privileged escalation is basically a way for
 users to execute a file with the permissions of another user or group.
 You can prevent a container from using privileged escalation by
 implementing a policy-as-code mutating policy that sets
-`+allowPrivilegeEscalation+` to `+false+` or by setting
-`+securityContext.allowPrivilegeEscalation+` in the `+podSpec+`.
+`allowPrivilegeEscalation` to `false` or by setting
+`securityContext.allowPrivilegeEscalation` in the `podSpec`.
 Policy-as-code policies can also be used to prevent API server requests
 from succeeding if incorrect settings are detected. Pod Security
 Standards can also be used to prevent pods from using privilege
@@ -754,24 +754,24 @@ automountServiceAccountToken: false
 === Disable service discovery
 
 For pods that do not need to lookup or call in-cluster services, you can
-reduce the amount of information given to a pod. You can set the Pod’s
-DNS policy to not use CoreDNS, and not expose services in the pod’s
+reduce the amount of information given to a pod. You can set the Pod's
+DNS policy to not use CoreDNS, and not expose services in the pod's
 namespace as environment variables. See the
 https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables[Kubernetes
 docs on environment variables] for more information on service links.
-The default value for a pod’s DNS policy is "`ClusterFirst`" which uses
+The default value for a pod's DNS policy is "`ClusterFirst`" which uses
 in-cluster DNS, while the non-default value "`Default`" uses the
-underlying node’s DNS resolution. See the
+underlying node's DNS resolution. See the
 https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy[Kubernetes
 docs on Pod DNS policy] for more information.
 
 !!! Attention
 
-Disabling service links and changing the pod’s DNS policy does not
+Disabling service links and changing the pod's DNS policy does not
 prevent a pod from having network access to the in-cluster DNS service.
 An attacker can still enumerate services in a cluster by reaching the
 in-cluster DNS service. (ex:
-`+dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP+`) To prevent
+`dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent
 in-cluster service discovery, use a
 xref:iam-network-policy[NetworkPolicy] to block pod access
 
@@ -792,7 +792,7 @@ Configuring your images with a read-only root file system prevents an
 attacker from overwriting a binary on the file system that your
 application uses. If your application has to write to the file system,
 consider writing to a temporary directory or attach and mount a volume.
-You can enforce this by setting the pod’s SecurityContext as follows:
+You can enforce this by setting the pod's SecurityContext as follows:
 
 [source,yaml]
 ----
@@ -808,8 +808,8 @@ behavior.
 !!! Info
 
 As per https://kubernetes.io/docs/concepts/windows/intro/[Windows
-containers in Kubernetes] `+securityContext.readOnlyRootFilesystem+`
-cannot be set to `+true+` for a container running on Windows as write
+containers in Kubernetes] `securityContext.readOnlyRootFilesystem`
+cannot be set to `true` for a container running on Windows as write
 access is required for registry and system processes to run inside the
 container.
 
