@@ -141,7 +141,7 @@ practices that align with DevOps processes and agile methodologies.
 https://catalog.workshops.aws/eks-security-immersionday/en-US[Amazon EKS
 Security Immersion Workshop]
 
-include::iam.adoc[leveloffset=+1] STILL ISSUES
+include::iam.adoc[leveloffset=+1]
 //include::pods.adoc[leveloffset=+1] STILL ISSUES
 //include::multitenancy.adoc[leveloffset=+1] ISSUES
 include::detective.adoc[leveloffset=+1]

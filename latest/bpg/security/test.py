@@ -14,7 +14,7 @@ class Section:
     start_line: int
     end_line: int
 
-def run_build(content: str, test_description: str) -> bool:
+def run_build(header: str, content: str, test_description: str) -> bool:
     print(f"\nTesting: {test_description}")
     print("Building... (this may take about 30 seconds)")
     start_time = time.time()
@@ -23,7 +23,7 @@ def run_build(content: str, test_description: str) -> bool:
         shutil.copy2('iam.adoc', 'iam.adoc.backup')
     
     with open('iam.adoc', 'w') as f:
-        f.write(content)
+        f.write(header + content)
     
     try:
         result = subprocess.run(["eda", "build", "brazil-build", "release", "-Dtype=html"], capture_output=True, text=True)
@@ -56,11 +56,11 @@ def parse_sections(content: str) -> List[Section]:
     print(f"Found {len(sections)} sections")
     return sections
 
-def bisect_problematic_sections(sections: List[Section]) -> List[Section]:
+def bisect_problematic_sections(header: str, sections: List[Section]) -> List[Section]:
     print("\nStarting bisection search for problematic sections...")
     all_content = '\n'.join(section.content for section in sections)
     
-    if run_build(all_content, "Full document"):
+    if run_build(header, all_content, "Full document"):
         print("Full document builds successfully. No problematic sections identified.")
         return []
     
@@ -74,10 +74,10 @@ def bisect_problematic_sections(sections: List[Section]) -> List[Section]:
         
         problematic_sections = []
         
-        if not run_build(first_half, f"First half (sections {start+1}-{mid+1})"):
+        if not run_build(header, first_half, f"First half (sections {start+1}-{mid+1})"):
             problematic_sections.extend(bisect_recursive(start, mid))
         
-        if not run_build(second_half, f"Second half (sections {mid+2}-{end+1})"):
+        if not run_build(header, second_half, f"Second half (sections {mid+2}-{end+1})"):
             problematic_sections.extend(bisect_recursive(mid+1, end))
         
         return problematic_sections
@@ -106,16 +106,18 @@ def suggest_fixes(section: Section) -> List[str]:
 def main():
     print("Starting AsciiDoc debugging process...")
     with open('iam.adoc', 'r') as f:
-        content = f.read()
+        lines = f.readlines()
+        header = ''.join(lines[:10])
+        content = ''.join(lines[10:])
     
     sections = parse_sections(content)
-    problematic_sections = bisect_problematic_sections(sections)
+    problematic_sections = bisect_problematic_sections(header, sections)
     
     if problematic_sections:
         print("\nResults:")
         print("The following sections may be causing issues:")
         for section in problematic_sections:
-            print(f"\nSection: {section.title} (lines {section.start_line + 1}-{section.end_line + 1})")
+            print(f"\nSection: {section.title} (lines {section.start_line + 11}-{section.end_line + 11})")
             print("First few lines of the section:")
             print('\n'.join(section.content.split('\n')[:5]))
             print("...")

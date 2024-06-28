@@ -472,7 +472,7 @@ user that creates the cluster, is automatically
 granted `+system:masters+` permissions in the cluster’s RBAC
 configuration. Even being a best practice to remove this permission, as
 described
-xref:iam-cluster-creator[here]
+xref:iam-cluster-creator][here]
 if using the `+CONFIG_MAP+` authentication method, relying on
 `+aws-auth+` ConfigMap, this access cannot be revoked. Therefore it is a
 good idea to create the cluster with an infrastructure automation
@@ -509,7 +509,7 @@ like https://github.com/aquasecurity/kubectl-who-can[kubectl-who-can],
 or https://github.com/FairwindsOps/rbac-lookup[rbac-lookup] to examine
 the roles bound to a particular service account, user, or group. We’ll
 explore this topic further when we get to the section on
-link:detective.md[auditing]. Additional ideas can be found in this
+xref:auditing-and-logging[auditing]. Additional ideas can be found in this
 https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D[article]
 from NCC Group.
 
@@ -740,7 +740,7 @@ validating the token’s signature, IAM exchanges the Kubernetes issued
 token for a temporary AWS role credential.
 
 When using IRSA, it is important to
-xref:iam-reuse-sessions[reuse AWS SDK sessions] to avoid
+xref:iam-reuse-sessions,[reuse AWS SDK sessions] to avoid
 unneeded calls to AWS STS.
 
 Decoding the (JWT) token for IRSA will produce output similar to the
