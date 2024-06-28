@@ -27,6 +27,7 @@ but often include the following items:
 * Nitro Instances
 * ACM Private CA with cert-manager
 
+[[iam-network-policy,iam-network-policy.title]]
 == Network policy
 
 Within a Kubernetes cluster, all Pod to Pod communication is allowed by
@@ -192,8 +193,7 @@ exists before onboarding application pods. This policy denies onboarding
 k8s pods with a label `+k8s-app: sample-app+` if corresponding network
 policy does not exist.
 
-[source,javascript]
-----
+```
 package kubernetes.admission
 import data.kubernetes.networkpolicies
 
@@ -208,7 +208,8 @@ deny[msg] {
 contains_label(arr, val) {
     arr[_] == val
 }
-----
+```
+
 
 === Troubleshooting
 
@@ -666,6 +667,7 @@ do I terminate HTTPS traffic on Amazon EKS workloads with ACM?]
 !!! attention Some Ingresses, like the AWS LB controller, implement the
 SSL/TLS using Annotations instead of as part of the Ingress Spec.
 
+[[iam-cert-manager,iam-cert-manager.title]]
 === ACM Private CA with cert-manager
 
 You can enable TLS and mTLS to secure your EKS application workloads at
@@ -682,6 +684,7 @@ keys encoded in memory (less secure). A centralized CA also gives you
 more control and improved auditability for private certificates both
 inside and outside of a Kubernetes environment.
 
+[[iam-ca-mode,iam-ca-mode.title]]
 ==== Short-Lived CA Mode for Mutual TLS Between Workloads
 
 When using ACM Private CA for mTLS in EKS, it is recommended that you
@@ -775,7 +778,7 @@ control plane (specifically `+istiod+`) from functioning as the root
 Certificate Authority (CA), and configure ACM Private CA as the root CA
 for mTLS between workloads. If you’re going with this approach, consider
 using the _short-lived CA mode_ in ACM Private CA. Refer to the
-link:#short-lived-ca-mode-for-mutual-tls-between-workloads[previous
+xref:iam-ca-mode[previous
 section] and this
 https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode[blog
 post] for more details.
@@ -842,7 +845,7 @@ Certificate Signing Requests with istio-csr]
 
 [arabic]
 . Start by following the same
-link:#acm-private-ca-with-cert-manager[setup instructions in this
+xref:iam-cert-manager[setup instructions in this
 section] to complete the following:
 . Create a Private CA
 . Install cert-manager

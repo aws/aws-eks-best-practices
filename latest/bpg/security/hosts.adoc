@@ -210,6 +210,7 @@ Fargate pods.
 
 == Alternatives
 
+[[iam-se-linux,iam-se-linux.title]]
 === Run SELinux
 
 !!! info Available on Red Hat Enterprise Linux (RHEL), CentOS,

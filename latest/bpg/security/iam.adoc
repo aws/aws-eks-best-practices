@@ -363,6 +363,7 @@ access the Kubernetes API. If you need to grant an IAM user access to an
 EKS cluster, create an entry in the `+aws-auth+` ConfigMap for that user
 that maps to a specific Kubernetes RBAC group.
 
+[[iam-cluster-creator,iam-cluster-creator.title]]
 === Remove the cluster-admin permissions from the cluster creator principal
 
 By default Amazon EKS clusters are created with a permanent
@@ -471,7 +472,7 @@ user that creates the cluster, is automatically
 granted `+system:masters+` permissions in the cluster’s RBAC
 configuration. Even being a best practice to remove this permission, as
 described
-link:#remove-the-cluster-admin-permissions-from-the-cluster-creator-principal[here]
+xref:iam-cluster-creator[here]
 if using the `+CONFIG_MAP+` authentication method, relying on
 `+aws-auth+` ConfigMap, this access cannot be revoked. Therefore it is a
 good idea to create the cluster with an infrastructure automation
@@ -739,7 +740,7 @@ validating the token’s signature, IAM exchanges the Kubernetes issued
 token for a temporary AWS role credential.
 
 When using IRSA, it is important to
-link:#reuse-aws-sdk-sessions-with-irsa[reuse AWS SDK sessions] to avoid
+xref:iam-reuse-sessions[reuse AWS SDK sessions] to avoid
 unneeded calls to AWS STS.
 
 Decoding the (JWT) token for IRSA will produce output similar to the
@@ -1357,6 +1358,7 @@ section in the above editor screen.
 
 Repeat the same steps for system:basic-user ClusterRoleBinding.
 
+[[iam-reuse-sessions,iam-reuse-sessions.title]]
 === Reuse AWS SDK sessions with IRSA
 
 When you use IRSA, applications written using the AWS SDK use the token

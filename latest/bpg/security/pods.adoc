@@ -730,7 +730,7 @@ network access to the Kubernetes API. To prevent a pod from having any
 network access to the Kubernetes API, you will need to modify the
 https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[EKS
 cluster endpoint access] and use a
-link:../network/#network-policy[NetworkPolicy] to block pod access.
+xref:iam-network-policy[NetworkPolicy] to block pod access.
 
 [source,yaml]
 ----
@@ -773,7 +773,7 @@ An attacker can still enumerate services in a cluster by reaching the
 in-cluster DNS service. (ex:
 `+dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP+`) To prevent
 in-cluster service discovery, use a
-link:../network/#network-policy[NetworkPolicy] to block pod access
+xref:iam-network-policy[NetworkPolicy] to block pod access
 
 [source,yaml]
 ----

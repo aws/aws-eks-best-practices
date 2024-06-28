@@ -81,7 +81,7 @@ It’s also possible to create your own profiles for things that require
 additional privileges. This can be very tedious to do manually, but
 there are tools like
 https://github.com/inspektor-gadget/inspektor-gadget[Inspektor Gadget]
-(also recommended in the link:../network/[network security section] for
+(also recommended in the xref:network-security[network security section] for
 generating network policies) and
 https://github.com/inspektor-gadget/inspektor-gadget[Security Profiles
 Operator] that support using tools like eBPF or logs to record baseline
@@ -98,7 +98,7 @@ different APIs and abilities, allowing access control for e.g. specific
 filesystem paths or network ports. Support for these tools depends on
 the Linux distribution, with Debian/Ubuntu supporting AppArmor and
 RHEL/CentOS/Bottlerocket/Amazon Linux 2023 supporting SELinux. Also see
-the link:../hosts/#run-selinux[infrastructure security section] for
+the xref:iam-se-linux[infrastructure security section] for
 further discussion of SELinux.
 
 Both AppArmor and SELinux are integrated with Kubernetes, but as of
@@ -154,7 +154,7 @@ become proficient, consider using a 3rd party commercial solution. A lot
 of them have moved beyond static profiles like Apparmor and seccomp and
 have begun using machine learning to block or alert on suspicious
 activity. A handful of these solutions can be found below in the
-link:#tools-and-resources[tools] section. Additional options can be
+xref:iam-tools[tools] section. Additional options can be
 found on the https://aws.amazon.com/marketplace/features/containers[AWS
 Marketplace for Containers].
 
@@ -196,6 +196,7 @@ including the full collection of
 https://kubernetes.io/docs/concepts/security/pod-security-standards/[Pod
 Security Standards].
 
+[[iam-tools,iam-tools.title]]
 == Tools and Resources
 
 * https://itnext.io/seccomp-in-kubernetes-part-i-7-things-you-should-know-before-you-even-start-97502ad6b6d6[7
