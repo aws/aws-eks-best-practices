@@ -143,7 +143,7 @@ Security Immersion Workshop]
 
 include::iam.adoc[leveloffset=+1]
 include::pods.adoc[leveloffset=+1]
-include::multitenancy.adoc[leveloffset=+1]
+//include::multitenancy.adoc[leveloffset=+1]
 include::detective.adoc[leveloffset=+1]
 include::network.adoc[leveloffset=+1]
 include::data.adoc[leveloffset=+1]
