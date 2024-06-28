@@ -19,10 +19,10 @@ def run_build(header: str, content: str, test_description: str) -> bool:
     print("Building... (this may take about 30 seconds)")
     start_time = time.time()
     
-    if not os.path.exists('iam.adoc.backup'):
-        shutil.copy2('iam.adoc', 'iam.adoc.backup')
+    if not os.path.exists('multitenancy.adoc.backup'):
+        shutil.copy2('multitenancy.adoc', 'multitenancy.adoc.backup')
     
-    with open('iam.adoc', 'w') as f:
+    with open('multitenancy.adoc', 'w') as f:
         f.write(header + content)
     
     try:
@@ -32,7 +32,7 @@ def run_build(header: str, content: str, test_description: str) -> bool:
         print(f"Build {'succeeded' if success else 'failed'} in {end_time - start_time:.2f} seconds")
         return success
     finally:
-        shutil.copy2('iam.adoc.backup', 'iam.adoc')
+        shutil.copy2('multitenancy.adoc.backup', 'multitenancy.adoc')
 
 def parse_sections(content: str) -> List[Section]:
     print("\nParsing AsciiDoc sections...")
@@ -105,7 +105,7 @@ def suggest_fixes(section: Section) -> List[str]:
 
 def main():
     print("Starting AsciiDoc debugging process...")
-    with open('iam.adoc', 'r') as f:
+    with open('multitenancy.adoc', 'r') as f:
         lines = f.readlines()
         header = ''.join(lines[:10])
         content = ''.join(lines[10:])
@@ -131,7 +131,7 @@ def main():
         print("\nNo specific problematic sections identified. The issue may be more complex or involve interactions between multiple sections.")
     
     print("\nDebugging process completed.")
-    print("Note: The original 'iam.adoc' file has been restored.")
+    print("Note: The original 'multitenancy.adoc' file has been restored.")
 
 if __name__ == "__main__":
     main()
