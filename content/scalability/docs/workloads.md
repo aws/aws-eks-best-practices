@@ -98,7 +98,7 @@ Mutating webhooks can modify resources in frequent succession. If you have 5 mut
 
 This defragmentation may cause pauses in etcd which could have other affects on the Kubernetes API and controllers. You should avoid frequent modification of large resources or modifying hundreds of resources in quick succession.
 
-## Compare the workloads across 2 clusters
+## Compare workloads across multiple clusters
 
 If you have two clusters that should have similar performance but do not, try comparing the metrics to identify the reason.
 
