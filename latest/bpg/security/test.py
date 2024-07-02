@@ -3,8 +3,13 @@ import re
 import os
 import time
 import shutil
+import signal
+import sys
 from dataclasses import dataclass
 from typing import List, Tuple
+
+# File to test
+TEST_FILE = 'multiaccount.adoc'
 
 @dataclass
 class Section:
@@ -14,15 +19,37 @@ class Section:
     start_line: int
     end_line: int
 
-def run_build(header: str, content: str, test_description: str) -> bool:
+# Global flag to indicate if the script should exit
+should_exit = False
+
+def signal_handler(sig, frame):
+    global should_exit
+    print("\nInterrupt received. Cleaning up and exiting...")
+    should_exit = True
+
+signal.signal(signal.SIGINT, signal_handler)
+
+def safe_file_operations(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            restore_original_file()
+            sys.exit(1)
+    return wrapper
+
+@safe_file_operations
+def run_build(content: str, test_description: str, header: str) -> bool:
+    if should_exit:
+        restore_original_file()
+        sys.exit(0)
+    
     print(f"\nTesting: {test_description}")
     print("Building... (this may take about 30 seconds)")
     start_time = time.time()
     
-    if not os.path.exists('pods.adoc.backup'):
-        shutil.copy2('pods.adoc', 'pods.adoc.backup')
-    
-    with open('pods.adoc', 'w') as f:
+    with open(TEST_FILE, 'w') as f:
         f.write(header + content)
     
     try:
@@ -31,9 +58,11 @@ def run_build(header: str, content: str, test_description: str) -> bool:
         success = result.returncode == 0
         print(f"Build {'succeeded' if success else 'failed'} in {end_time - start_time:.2f} seconds")
         return success
-    finally:
-        shutil.copy2('pods.adoc.backup', 'pods.adoc')
+    except subprocess.CalledProcessError as e:
+        print(f"Build process error: {e}")
+        return False
 
+@safe_file_operations
 def parse_sections(content: str) -> List[Section]:
     print("\nParsing AsciiDoc sections...")
     lines = content.split('\n')
@@ -56,15 +85,20 @@ def parse_sections(content: str) -> List[Section]:
     print(f"Found {len(sections)} sections")
     return sections
 
-def bisect_problematic_sections(header: str, sections: List[Section]) -> List[Section]:
+@safe_file_operations
+def bisect_problematic_sections(sections: List[Section], header: str) -> List[Section]:
     print("\nStarting bisection search for problematic sections...")
     all_content = '\n'.join(section.content for section in sections)
     
-    if run_build(header, all_content, "Full document"):
+    if run_build(all_content, "Full document", header):
         print("Full document builds successfully. No problematic sections identified.")
         return []
     
     def bisect_recursive(start: int, end: int) -> List[Section]:
+        if should_exit:
+            restore_original_file()
+            sys.exit(0)
+        
         if start == end:
             return [sections[start]]
         
@@ -74,10 +108,10 @@ def bisect_problematic_sections(header: str, sections: List[Section]) -> List[Se
         
         problematic_sections = []
         
-        if not run_build(header, first_half, f"First half (sections {start+1}-{mid+1})"):
+        if not run_build(first_half, f"First half (sections {start+1}-{mid+1})", header):
             problematic_sections.extend(bisect_recursive(start, mid))
         
-        if not run_build(header, second_half, f"Second half (sections {mid+2}-{end+1})"):
+        if not run_build(second_half, f"Second half (sections {mid+2}-{end+1})", header):
             problematic_sections.extend(bisect_recursive(mid+1, end))
         
         return problematic_sections
@@ -103,15 +137,42 @@ def suggest_fixes(section: Section) -> List[str]:
     print(f"Found {len(suggestions)} potential issues")
     return suggestions
 
+def restore_original_file():
+    if os.path.exists(f'{TEST_FILE}.backup'):
+        shutil.copy2(f'{TEST_FILE}.backup', TEST_FILE)
+        print(f"Original '{TEST_FILE}' file has been restored.")
+
+def print_sections_preview(sections: List[Section]):
+    print("\nSections preview:")
+    for i, section in enumerate(sections):
+        first_line = section.content.split('\n')[0].strip()
+        print(f"Section {i+1}: {section.title}")
+        print(f"  First line: {first_line[:60]}{'...' if len(first_line) > 60 else ''}")
+        print(f"  Lines: {section.start_line + 11}-{section.end_line + 11}")
+        print()
+
+@safe_file_operations
 def main():
-    print("Starting AsciiDoc debugging process...")
-    with open('pods.adoc', 'r') as f:
-        lines = f.readlines()
-        header = ''.join(lines[:10])
-        content = ''.join(lines[10:])
+    print(f"Starting AsciiDoc debugging process for file: {TEST_FILE}")
     
-    sections = parse_sections(content)
-    problematic_sections = bisect_problematic_sections(header, sections)
+    # Backup the original file
+    if not os.path.exists(f'{TEST_FILE}.backup'):
+        shutil.copy2(TEST_FILE, f'{TEST_FILE}.backup')
+    
+    with open(TEST_FILE, 'r') as f:
+        content = f.read()
+    
+    # Separate the header (first 10 lines) from the rest of the content
+    lines = content.split('\n')
+    header = '\n'.join(lines[:10]) + '\n'
+    main_content = '\n'.join(lines[10:])
+    
+    sections = parse_sections(main_content)
+    print_sections_preview(sections)
+    
+    input("Press Enter to start the bisection search...")
+    
+    problematic_sections = bisect_problematic_sections(sections, header)
     
     if problematic_sections:
         print("\nResults:")
@@ -130,8 +191,8 @@ def main():
     else:
         print("\nNo specific problematic sections identified. The issue may be more complex or involve interactions between multiple sections.")
     
+    restore_original_file()
     print("\nDebugging process completed.")
-    print("Note: The original 'pods.adoc' file has been restored.")
 
 if __name__ == "__main__":
     main()
