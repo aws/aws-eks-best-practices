@@ -142,15 +142,26 @@ https://catalog.workshops.aws/eks-security-immersionday/en-US[Amazon EKS
 Security Immersion Workshop]
 
 include::iam.adoc[leveloffset=+1]
+
 //include::pods.adoc[leveloffset=+1]
+
 //include::multitenancy.adoc[leveloffset=+1]
+
 include::detective.adoc[leveloffset=+1]
-include::network.adoc[leveloffset=+1]
+
+//include::network.adoc[leveloffset=+1]
+
 include::data.adoc[leveloffset=+1]
-include::runtime.adoc[leveloffset=+1]
+
+//include::runtime.adoc[leveloffset=+1]
+
 //include::hosts.adoc[leveloffset=+1]
+
 include::compliance.adoc[leveloffset=+1]
-include::incidents.adoc[leveloffset=+1]
+
+//include::incidents.adoc[leveloffset=+1]
+
 include::image.adoc[leveloffset=+1]
-include::multiaccount.adoc[leveloffset=+1]
+
+//include::multiaccount.adoc[leveloffset=+1]
 
