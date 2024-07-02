@@ -100,11 +100,9 @@ This defragmentation may cause pauses in etcd which could have other affects on 
 
 ## Compare the workloads across 2 clusters
 
-If you have 2 clusters that you think they should have similar performance, but they don't. You should compare the metrics to
-figure out the difference.
+If you have two clusters that should have similar performance but do not, try comparing the metrics to identify the reason.
 
-A very common question is why the clusters have different latency. It is usually caused by difference in the volume of API requests.
-You can run the following CloudWatch LogInsight query to understand the difference.
+For example, comparing cluster latency is a common issue. This is usually caused by difference in the volume of API requests. You can run the following CloudWatch LogInsight query to understand the difference.
 
 ```
 filter @logStream like "kube-apiserver-audit"
@@ -113,7 +111,7 @@ filter @logStream like "kube-apiserver-audit"
 | limit 1000
 ```
 
-You can add additional filters to narrow it down. e.g. focusing on all list request from foo.
+You can add additional filters to narrow it down. e.g. focusing on all list request from `foo`.
 
 ```
 filter @logStream like "kube-apiserver-audit"
