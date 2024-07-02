@@ -717,20 +717,21 @@ from succeeding if incorrect settings are detected. Pod Security
 Standards can also be used to prevent pods from using privilege
 escalation.
 
+// PROBLEM
 === Disable ServiceAccount token mounts
 
 For pods that do not need to access the Kubernetes API, you can disable
 the automatic mounting of a ServiceAccount token on a pod spec, or for
 all pods that use a particular ServiceAccount.
 
-!!! Attention
+// !!! Attention
 
-Disabling ServiceAccount mounting does not prevent a pod from having
-network access to the Kubernetes API. To prevent a pod from having any
-network access to the Kubernetes API, you will need to modify the
-https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[EKS
-cluster endpoint access] and use a
-xref:iam-network-policy[NetworkPolicy] to block pod access.
+// Disabling ServiceAccount mounting does not prevent a pod from having
+// network access to the Kubernetes API. To prevent a pod from having any
+// network access to the Kubernetes API, you will need to modify the
+// https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[EKS
+// cluster endpoint access] and use a
+// xref:iam-network-policy[NetworkPolicy] to block pod access.
 
 [source,yaml]
 ----
@@ -765,15 +766,15 @@ underlying node's DNS resolution. See the
 https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy[Kubernetes
 docs on Pod DNS policy] for more information.
 
-!!! Attention
+// !!! Attention
 
-Disabling service links and changing the pod's DNS policy does not
-prevent a pod from having network access to the in-cluster DNS service.
-An attacker can still enumerate services in a cluster by reaching the
-in-cluster DNS service. (ex:
-`dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent
-in-cluster service discovery, use a
-xref:iam-network-policy[NetworkPolicy] to block pod access
+// Disabling service links and changing the pod's DNS policy does not
+// prevent a pod from having network access to the in-cluster DNS service.
+// An attacker can still enumerate services in a cluster by reaching the
+// in-cluster DNS service. (ex:
+// `dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent
+// in-cluster service discovery, use a
+// xref:iam-network-policy[NetworkPolicy] to block pod access
 
 [source,yaml]
 ----
