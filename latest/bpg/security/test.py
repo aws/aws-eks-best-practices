@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 # File to test
-TEST_FILE = 'multiaccount.adoc'
+TEST_FILE = 'hosts.adoc'
 
 @dataclass
 class Section:

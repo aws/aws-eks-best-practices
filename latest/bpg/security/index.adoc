@@ -159,7 +159,7 @@ include::hosts.adoc[leveloffset=+1]
 
 include::compliance.adoc[leveloffset=+1]
 
-//include::incidents.adoc[leveloffset=+1]
+include::incidents.adoc[leveloffset=+1]
 
 include::image.adoc[leveloffset=+1]
 

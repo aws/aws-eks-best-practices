@@ -58,34 +58,34 @@ information] is available in this AWS whitepaper.
 You can adopt the following approaches when implementing EKS Multi
 account strategy:
 
-// == Centralized EKS Cluster
+== Centralized EKS Cluster
 
-// In this approach, your EKS Cluster will be deployed in a single AWS
-// account called the `+Cluster Account+`. Using
-// https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html[IAM
-// roles for Service Accounts (IRSA)] or
-// https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html[EKS
-// Pod Identities] to deliver temporary AWS credentials and
-// https://aws.amazon.com/ram/[AWS Resource Access Manager (RAM)] to
-// simplify network access, you can adopt a multi account strategy for your
-// multi tenant EKS cluster. The cluster account will contain the VPC,
-// subnets, EKS cluster, EC2/Fargate compute resources (worker nodes), and
-// any additional networking configurations needed to run your EKS cluster.
+In this approach, your EKS Cluster will be deployed in a single AWS
+account called the `+Cluster Account+`. Using
+https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html[IAM
+roles for Service Accounts (IRSA)] or
+https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html[EKS
+Pod Identities] to deliver temporary AWS credentials and
+https://aws.amazon.com/ram/[AWS Resource Access Manager (RAM)] to
+simplify network access, you can adopt a multi account strategy for your
+multi tenant EKS cluster. The cluster account will contain the VPC,
+subnets, EKS cluster, EC2/Fargate compute resources (worker nodes), and
+any additional networking configurations needed to run your EKS cluster.
 
-// In a multi workload account strategy for multi tenant cluster, AWS
-// accounts typically align with
-// https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/[kubernetes
-// namespaces] as a mechanism for isolating groups of resources.
-// link:/security/docs/multitenancy/[Best practices for tenant isolation]
-// within an EKS cluster should still be followed when implementing a multi
-// account strategy for multi tenant EKS clusters.
+In a multi workload account strategy for multi tenant cluster, AWS
+accounts typically align with
+https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/[kubernetes
+namespaces] as a mechanism for isolating groups of resources.
+link:/security/docs/multitenancy/[Best practices for tenant isolation]
+within an EKS cluster should still be followed when implementing a multi
+account strategy for multi tenant EKS clusters.
 
-// It is possible to have multiple `+Cluster Accounts+` in your AWS
-// organization, and it is a best practice to have multiple
-// `+Cluster Accounts+` that align with your software development lifecycle
-// needs. For workloads operating at a very large scale, you may require
-// multiple `+Cluster Accounts+` to ensure that there are enough kubernetes
-// and AWS service quotas available to all your workloads.
+It is possible to have multiple `+Cluster Accounts+` in your AWS
+organization, and it is a best practice to have multiple
+`+Cluster Accounts+` that align with your software development lifecycle
+needs. For workloads operating at a very large scale, you may require
+multiple `+Cluster Accounts+` to ensure that there are enough kubernetes
+and AWS service quotas available to all your workloads.
 
 [width="100%",cols="^100%",options="header",]
 |===
