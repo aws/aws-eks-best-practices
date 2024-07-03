@@ -34,7 +34,7 @@ kubectl get --raw /metrics
 
 These metrics are represented in a [Prometheus text format](https://github.com/prometheus/docs/blob/master/content/docs/instrumenting/exposition_formats.md).
 
-You can use Prometheus or Amazon Managed Service for Prometheus to collect and store these metrics. In May 2020, CloudWatch added support for monitoring Prometheus metrics in CloudWatch Container Insights. So you can also use Amazon CloudWatch to monitor the EKS control plane. You can use [Tutorial for Adding a New Prometheus Scrape Target: Prometheus KPI Server Metrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-Setup-configure.html#ContainerInsights-Prometheus-Setup-new-exporters) to collect metrics and create CloudWatch dashboard to monitor your cluster’s control plane.
+You can collect and store metrics using Prometheus or Amazon Managed Service for Prometheus. Since May 2020, CloudWatch has supported monitoring Prometheus metrics through CloudWatch Container Insights, allowing you to also use Amazon CloudWatch for monitoring the EKS control plane. Follow the [tutorial for adding a new Prometheus scrape target](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-Setup-configure.html#ContainerInsights-Prometheus-Setup-new-exporters) to collect metrics and create a CloudWatch dashboard for your cluster’s control plane.
 
 You can find Kubernetes API server metrics  [here](https://github.com/kubernetes/apiserver/blob/master/pkg/endpoints/metrics/metrics.go). For example, `apiserver_request_duration_seconds` can indicate how long API requests are taking to run.
 
