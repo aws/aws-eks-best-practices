@@ -17,7 +17,7 @@ The CNI plugin manages [Elastic Network Interfaces (ENI)](https://docs.aws.amazo
 
 ![flow chart illustrating procedure when new ENI delegated prefix is needed](./image.png)
 
-The maximum number of network interfaces, and the maximum number of slots that you can use varies by the type of EC2 Instance. Since each Pod consumes an IP address on a slot, the number of Pods you can run on a particular EC2 Instance depends on how many ENIs can be attached to it and how many slots each ENI supports. We suggest setting the maximum Pods per EKS user guide to avoid exhaustion of the instance’s CPU and memory resources. Pods using `hostNetwork` are excluded from this calculation. You may consider using a script called [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh) to calculate EKS’s recommended maximum Pods for a given instance type.
+The maximum number of network interfaces, and the maximum number of slots that you can use varies by the type of EC2 Instance. Since each Pod consumes an IP address on a slot, the number of Pods you can run on a particular EC2 Instance depends on how many ENIs can be attached to it and how many slots each ENI supports. We suggest setting the maximum Pods per EKS user guide to avoid exhaustion of the instance’s CPU and memory resources. Pods using `hostNetwork` are excluded from this calculation. You may consider using a script called [max-pods-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/al2/runtime/max-pods-calculator.sh) to calculate EKS’s recommended maximum Pods for a given instance type.
 
 ## Overview
 
@@ -62,8 +62,6 @@ As described above in Secondary IP mode, each Pod receives one secondary private
 You can use the following formula to determine maximum number of Pods you can deploy on a node.
 
 `(Number of network interfaces for the instance type × (the number of IP addresses per network interface - 1)) + 2`
-
-The +2 indicates Pods that require host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be operating on each node, and these requirements are factored into the max-pods value. If you want to run additional host networking pods, consider updating the max-pods value.
 
 The +2 indicates Kubernetes Pods that use host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be running on every node and are calculated towards max-pods. Consider updating max-pods if you plan to run more host networking Pods. You can specify `--kubelet-extra-args "—max-pods=110"` as user data in the launch template.
 

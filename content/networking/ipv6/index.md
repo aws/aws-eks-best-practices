@@ -106,6 +106,3 @@ EKS supports IPv6 for Pods running on Fargate. Pods running on Fargate will cons
 
 AWS Network Load Balancer does not support dual-stack UDP protocol address types. If you have strong requirements for low-latency, real-time streaming, online gaming, and IoT, we recommend running IPv4 clusters. To learn more about managing health checks for UDP services, please refer to [“How to route UDP traffic into Kubernetes”](https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/).
 
-### Identify Dependencies on IMDSv2
-
-EKS in IPv6 mode does not support IMDSv2 endpoints (yet). Please open a support ticket if IMDSv2 is a blocker for you to migrate to EKS/IPv6.

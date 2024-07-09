@@ -81,7 +81,8 @@ kubectl apply -f collector-config-amp.yaml
 Once the adot collector is deployed, the metrics will be stored successfully in Amazon Prometheus
 
 ### Configure alert manager in Amazon Managed Service for Prometheus to send notifications
-Let's configure recording rules and alerting rules to check for the metrics discussed so far. 
+
+You can use alert manager in Amazon Managed Service for Prometheus to set up alerting rules for critical alerts then you can send notifications to an Amazon SNS topic. Let's configure recording rules and alerting rules to check for the metrics discussed so far. 
 
 We will use the [ACK Controller for Amazon Managed Service for Prometheus](https://github.com/aws-controllers-k8s/prometheusservice-controller) to provision the alerting and recording rules.
 

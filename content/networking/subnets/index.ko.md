@@ -163,7 +163,7 @@ Amazon EKS는 퍼블릭 전용, 퍼블릭 및 프라이빗, 프라이빗 전용 
 
 Amazon EKS는 사용자 지정 보안 그룹 사용을 지원합니다. 모든 사용자 지정 보안 그룹은 노드와 쿠버네티스 컨트롤 플레인 간의 통신을 허용해야 합니다. 조직 내에서 개방형 통신을 허용하지 않는 경우 [포트 요구 사항](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html)을 확인하고 규칙을 수동으로 구성합니다. 
 
-EKS는 클러스터 생성 중에 제공하는 사용자 지정 보안 그룹을 관리형 인터페이스(X-ENI)에 적용합니다. 하지만 사용자 지정 보안그룹이 노드와 즉시 연결되지는 않습니다. 노드 그룹을 생성할 때는 수동으로 [사용자 지정 보안 그룹을 연결](https://eksctl.io/usage/schema/#nodeGroups-securityGroups)할 것을 권장합니다. 노드 오토스케일링 중 사용자 지정 보안 그룹의 Karpenter 노드 템플릿 검색을 활성화하려면 [SecurityGroupSelector](https://karpenter.sh/docs/concepts/node-templates/#specsecuritygroupselector)를 활성화할 것을 고려합니다.
+EKS는 클러스터 생성 중에 제공하는 사용자 지정 보안 그룹을 관리형 인터페이스(X-ENI)에 적용합니다. 하지만 사용자 지정 보안그룹이 노드와 즉시 연결되지는 않습니다. 노드 그룹을 생성할 때는 수동으로 [사용자 지정 보안 그룹을 연결](https://eksctl.io/usage/schema/#nodeGroups-securityGroups)할 것을 권장합니다. 노드 오토스케일링 중 사용자 지정 보안 그룹의 Karpenter 노드 템플릿 검색을 활성화하려면 [securityGroupSelectorTerms](https://karpenter.sh/docs/concepts/nodeclasses/#specsecuritygroupselectorterms)를 활성화할 것을 고려합니다.
 
 모든 노드 간 통신 트래픽을 허용하는 보안 그룹을 생성하는 것을 강력히 권장합니다. 부트스트랩 프로세스 중에 노드가 클러스터 엔드포인트에 액세스하려면 아웃바운드 인터넷 연결이 필요합니다. 온프레미스 연결 및 컨테이너 레지스트리 액세스와 같은 외부 액세스 요구 사항을 평가하고 규칙을 적절하게 설정합니다. 변경 사항을 프로덕션에 적용하기 전에 개발 환경에서 네트워크 연결을 주의 깊게 확인할 것을 권장합니다.
 

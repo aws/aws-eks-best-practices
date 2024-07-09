@@ -17,7 +17,7 @@ If you're planning to upgrade your Kubernetes version in Amazon EKS, there are a
 * **Review Kubernetes Change Log** — Thoroughly review the [Kubernetes change log](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG) alongside [Amazon EKS Kubernetes versions](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) to understand any possible impact to your cluster, such as breaking changes that may affect your workloads.
 * **Assess Cluster Add-Ons Compatibility** — Amazon EKS doesn't automatically update an add-on when new versions are released or after you update your cluster to a new Kubernetes minor version. Review [Updating an add-on](https://docs.aws.amazon.com/eks/latest/userguide/managing-add-ons.html#updating-an-add-on) to understand the compatibility of any existing cluster add-ons with the cluster version you intend to upgrade to.
 * **Enable Control Plane Logging** — Enable [control plane logging](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html) to capture logs, errors, or issues that can arise during the upgrade process. Consider reviewing these logs for any anomalies. Test cluster upgrades in a non-production environment, or integrate automated tests into your continuous integration workflow to assess version compatibility with your applications, controllers, and custom integrations.
-* **Explore eksctl for Cluster Management** — Consider using [eksctl](https://eksctl.io/) to manage your EKS cluster. It provides you with the ability to [update the control plane, manage add-ons, and handle worker node updates](https://eksctl.io/usage/cluster-upgrade/) out-of-the-box. 
+* **Explore eksctl for Cluster Management** — Consider using [eksctl](https://eksctl.io/) to manage your EKS cluster. It provides you with the ability to [upgrade the control plane, manage add-ons, and handle worker node upgrades](https://eksctl.io/usage/cluster-upgrade/) out-of-the-box. 
 * **Opt for Managed Node Groups or EKS on Fargate** — Streamline and automate worker node upgrades by using [EKS managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) or [EKS on Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html). These options simplify the process and reduce manual intervention.
 * **Utilize kubectl Convert Plugin** — Leverage the [kubectl convert plugin](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin) to facilitate the [conversion of Kubernetes manifest files](https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/) between different API versions. This can help ensure that your configurations remain compatible with the new Kubernetes version.
 
@@ -98,7 +98,7 @@ See the following examples of common add-ons and their relevant upgrade document
 * **Amazon Elastic File System (Amazon EFS) Container Storage Interface (CSI) driver:** For installation and upgrade information, see [Amazon EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html).
 * **Kubernetes Metrics Server:** For more information, see [metrics-server](https://kubernetes-sigs.github.io/metrics-server/) on GitHub.
 * **Kubernetes Cluster Autoscaler****:** To upgrade the version of Kubernetes Cluster Autoscaler, change the version of the image in the deployment. The Cluster Autoscaler is tightly coupled with the Kubernetes scheduler. You will always need to upgrade it when you upgrade the cluster. Review the [GitHub releases](https://github.com/kubernetes/autoscaler/releases) to find the address of the latest release corresponding to your Kubernetes minor version.
-* **Karpenter:** For installation and upgrade information, see the [Karpenter documentation.](https://karpenter.sh/v0.27.3/faq/#which-versions-of-kubernetes-does-karpenter-support)
+* **Karpenter:** For installation and upgrade information, see the [Karpenter documentation.](https://karpenter.sh/docs/upgrading/)
 
 ## Verify basic EKS requirements before upgrading
 
@@ -425,9 +425,9 @@ Managed Node Groups and Karpenter both simplify node upgrades, but they take dif
 
 Managed node groups automate the provisioning and lifecycle management of nodes. This means that you can create, automatically update, or terminate nodes with a single operation.
 
-In the default configuration, Karpenter automatically creates new nodes using the latest compatible EKS Optimized AMI. As EKS releases updated EKS Optimized AMIs or the cluster is upgraded, Karpenter will automatically start using these images. [Karpenter also implements Node Expiry to update nodes.](#enable-node-expiry-for-karpenter-managed-nodes)
-
-[Karpenter can be configured to use custom AMIs.](https://karpenter.sh/docs/concepts/node-templates/) If you use custom AMIs with Karpenter, you are responsible for the version of kubelet. 
+For Karpenter data plane upgrades, refer to below sections:
+* [Use Drift for Karpenter managed nodes](#use-drift-for-karpenter-managed-nodes)
+* [Use ExpireAfter for Karpenter managed nodes](#use-expire-after-for-karpenter-managed-nodes)
 
 ## Confirm version compatibility with existing nodes and the control plane
 
@@ -436,19 +436,20 @@ Before proceeding with a Kubernetes upgrade in Amazon EKS, it's vital to ensure 
 * **Kubernetes v1.28+** — **** Starting from Kubernetes version 1.28 and onwards, there's a more lenient version policy for core components. Specifically, the supported skew between the Kubernetes API server and the kubelet has been extended by one minor version, going from n-2 to n-3. For example, if your EKS control plane version is 1.28, you can safely use kubelet versions as old as 1.25. This version skew is supported across [AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html), [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html), and [self-managed nodes](https://docs.aws.amazon.com/eks/latest/userguide/worker.html). We highly recommend keeping your [Amazon Machine Image (AMI)](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html) versions up-to-date for security reasons. Older kubelet versions might pose security risks due to potential Common Vulnerabilities and Exposures (CVEs), which could outweigh the benefits of using older kubelet versions.
 * **Kubernetes < v1.28** — If you are using a version older than v1.28, the supported skew between the API server and the kubelet is n-2. For example, if your EKS version is 1.27, the oldest kubelet version you can use is 1.25. This version skew is applicable across [AWS Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html), [managed node groups](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html), and [self-managed nodes](https://docs.aws.amazon.com/eks/latest/userguide/worker.html).
 
-## Enable node expiry for Karpenter managed nodes
+## Use Drift for Karpenter managed nodes
 
-One way Karpenter implements node upgrades is using the concept of node expiry. This reduces the planning required for node upgrades. When you set a value for **ttlSecondsUntilExpired **in your provisioner, this activates node expiry. After nodes reach the defined age in seconds, they’re safely drained and deleted. This is true even if they’re in use, allowing you to replace nodes with newly provisioned upgraded instances. When a node is replaced, Karpenter uses the latest EKS-optimized AMIs. For more information, see [Deprovisioning](https://karpenter.sh/docs/concepts/deprovisioning/#methods) on the Karpenter website.
+Karpenter’s [Drift](https://karpenter.sh/docs/concepts/disruption/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Refer to [How to upgrade an EKS Cluster with Karpenter](https://karpenter.sh/docs/faq/#how-do-i-upgrade-an-eks-cluster-with-karpenter) for more details.
 
-Karpenter doesn’t automatically add jitter to this value. To prevent excessive workload disruption, define a [pod disruption budget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/), as shown in Kubernetes documentation.
+This means that if the AMI ID specified in the Karpenter EC2 Nodeclass is updated, Karpenter will detect the drift and start replacing the nodes with the new AMI. 
+To understand how Karpenter manages AMIs and the different options available to Karpenter users to control the AMI upgrade process see the documentation on [how to manage AMIs in Karpenter](https://karpenter.sh/docs/tasks/managing-amis/).
 
-If you configure **ttlSecondsUntilExpired **on a provisioner, this applies to existing nodes associated with the provisioner.
+## Use ExpireAfter for Karpenter managed nodes
 
-## Use Drift feature for Karpenter managed nodes
+Karpenter will mark nodes as expired and disrupt them after they have lived the duration specified in `spec.disruption.expireAfter. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see [Disruption](https://karpenter.sh/docs/concepts/disruption/#methods) on the Karpenter website.
 
-[Karpenter's Drift feature](https://karpenter.sh/docs/concepts/deprovisioning/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Karpenter Drift currently needs to be enabled using a [feature gate](https://karpenter.sh/docs/concepts/settings/#feature-gates). Karpenter's default configuration uses the latest EKS-Optimized AMI for the same major and minor version as the EKS cluster's control plane.
+If you're using automatic AMI upgrades, ExpireAfter can periodically refresh and upgrade your nodes.
 
-After an EKS Cluster upgrade completes, Karpenter's Drift feature will detect that the Karpenter-provisioned nodes are using EKS-Optimized AMIs for the previous cluster version, and automatically cordon, drain, and replace those nodes. To support pods moving to new nodes, follow Kubernetes best practices by setting appropriate pod [resource quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/), and using [pod disruption budgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/) (PDB). Karpenter's deprovisioning will pre-spin up replacement nodes based on the pod resource requests, and will respect the PDBs when deprovisioning nodes.
+If it’s happened that the node is drifted, but hasn’t been cleaned up, node expiration will also replace the instance with the new AMI in EC2NodeClass.
 
 ## Use eksctl to automate upgrades for self-managed node groups
 

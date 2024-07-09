@@ -5,11 +5,13 @@ search:
 
 
 # 인프라(호스트) 보호
+
 컨테이너 이미지를 보호하는 것도 중요하지만 이미지를 실행하는 인프라를 보호하는 것도 마찬가지로 중요합니다. 이 섹션에서는 호스트를 대상으로 직접 시작된 공격으로 인한 위험을 완화하는 다양한 방법을 살펴봅니다. 이 지침은 [런타임 보안](runtime.md) 섹션에 설명된 지침과 함께 사용해야 합니다.
 
 ## 권장 사항
 
 ### 컨테이너 실행에 최적화된 OS 사용
+
 Flatcar Linux, Project Atomic, RancherOS 및 리눅스 컨테이너 실행을 위해 설계된 AWS의 컨테이너 실행 최적화 OS인 [Bottlerocket](https://github.com/bottlerocket-os/bottlerocket/)을 사용해 보세요. 이것은 공격 표면 감소, 부팅 시 검증된 디스크 이미지, SELinux를 사용한 권한 제한 등이 포함하고 있습니다.
 
 또는 쿠버네티스 워커 노드에 [EKS 최적화 AMI][eks-ami]를 사용할 수 있습니다. EKS 최적화 AMI는 정기적으로 릴리스되며 컨테이너식 워크로드를 실행하는 데 필요한 최소한의 OS 패키지 및 바이너리 세트를 포함합니다.
@@ -25,25 +27,28 @@ EKS 최적화 AMI의 경우 [변경 로그][eks-ami-changes] 또는 [릴리스 �
 [eks-ami-changes]: https://github.com/awslabs/amazon-eks-ami/blob/master/CHANGELOG.md
 [eks-ami-releases]: https://github.com/awslabs/amazon-eks-ami/releases
 
-### 인프라를 변경할 수 없는 대상으로 분류하고 워커 노드 교체를 자동화하십시오.
-전체 업그레이드를 수행하는 대신 새 패치 또는 업데이트가 제공되면 워커 노드를 교체합니다. 몇 가지 방법으로 이 문제를 해결할 수 있습니다. 그룹의 모든 노드가 최신 AMI로 교체될 때까지 순차적으로 노드를 차단하고 드레이닝하는 최신 AMI를 사용하여 기존 자동 확장 그룹에 인스턴스를 추가할 수도 있습니다. 또는 모든 노드가 교체될 때까지 이전 노드 그룹에서 노드를 순차적으로 차단하고 제거하면서 새 노드 그룹에 인스턴스를 추가할 수도 있습니다. EKS [관리형 노드 그룹](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html)은 첫 번째 접근 방식을 사용하며 새 AMI를 사용할 수 있게 되면 콘솔에 작업자를 업그레이드하라는 메시지를 표시합니다. 또한 'eksctl'에는 최신 AMI로 노드 그룹을 생성하고 인스턴스가 종료되기 전에 노드 그룹에서 파드를 정상적으로 차단하고 드레이닝하는 메커니즘이 있습니다. 워커 노드를 교체하는 데 다른 방법을 사용하기로 결정한 경우, 새 업데이트/패치가 릴리스되고 컨트롤 플레인이 업그레이드될 때 작업자를 정기적으로 교체해야 할 수 있으므로 프로세스를 자동화하여 사람의 감독을 최소화하는 것이 좋습니다. 
+### 인프라를 변경할 수 없는 대상으로 분류하고 워커 노드 교체를 자동화하십시오
+
+전체 업그레이드를 수행하는 대신 새 패치 또는 업데이트가 제공되면 워커 노드를 교체합니다. 몇 가지 방법으로 이 문제를 해결할 수 있습니다. 그룹의 모든 노드가 최신 AMI로 교체될 때까지 순차적으로 노드를 차단하고 드레이닝하는 최신 AMI를 사용하여 기존 자동 확장 그룹에 인스턴스를 추가할 수도 있습니다. 또는 모든 노드가 교체될 때까지 이전 노드 그룹에서 노드를 순차적으로 차단하고 제거하면서 새 노드 그룹에 인스턴스를 추가할 수도 있습니다. EKS [관리형 노드 그룹](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html)은 첫 번째 접근 방식을 사용하며 새 AMI를 사용할 수 있게 되면 콘솔에 작업자를 업그레이드하라는 메시지를 표시합니다. 또한 'eksctl'에는 최신 AMI로 노드 그룹을 생성하고 인스턴스가 종료되기 전에 노드 그룹에서 파드를 정상적으로 차단하고 드레이닝하는 메커니즘이 있습니다. 워커 노드를 교체하는 데 다른 방법을 사용하기로 결정한 경우, 새 업데이트/패치가 릴리스되고 컨트롤 플레인이 업그레이드될 때 작업자를 정기적으로 교체해야 할 수 있으므로 프로세스를 자동화하여 사람의 감독을 최소화하는 것이 좋습니다.
 
 EKS Fargate를 사용하면 AWS는 업데이트가 제공되는 대로 기본 인프라를 자동으로 업데이트합니다.이 작업을 원활하게 수행할 수 있는 경우가 많지만 업데이트로 인해 파드 일정이 변경되는 경우가 있을 수 있습니다.따라서 애플리케이션을 Fargate 파드로 실행할 때는 여러 복제본으로 배포를 생성하는 것이 좋습니다.
 
-### kube-bench를 주기적으로 실행하여 [쿠버네티스에 대한 CIS 벤치마크](https://www.cisecurity.org/benchmark/kubernetes/) 준수 여부를 확인합니다.
+### kube-bench를 주기적으로 실행하여 [쿠버네티스에 대한 CIS 벤치마크](https://www.cisecurity.org/benchmark/kubernetes/) 준수 여부를 확인합니다
+
 kube-bench는 쿠버네티스의 CIS 벤치마크와 비교하여 클러스터를 평가하는 Aqua의 오픈 소스 프로젝트입니다. 벤치마크는 관리되지 않는 쿠버네티스 클러스터를 보호하는 모범 사례를 설명합니다. CIS 쿠버네티스 벤치마크는 컨트롤 플레인과 데이터 플레인을 포함합니다. Amazon EKS는 완전 관리형 컨트롤 플레인을 제공하므로 CIS 쿠버네티스 벤치마크의 모든 권장 사항이 적용되는 것은 아닙니다. 이 범위에 Amazon EKS 구현 방식이 반영되도록 AWS는 *CIS Amazon EKS 벤치마크*를 만들었습니다. EKS 벤치마크는 CIS 쿠버네티스 벤치마크를 계승하고 EKS 클러스터의 특정 구성 고려 사항과 함께 커뮤니티의 추가 의견을 반영합니다.
 
-EKS 클러스터에 대해 [kube-bench](https://github.com/aquasecurity/kube-bench)를 실행할 때는 아쿠아 시큐리티의 [이 지침](https://github.com/aquasecurity/kube-bench/blob/main/docs/running.md#running-cis-benchmark-in-an-eks-cluster)을 따릅니다. 자세한 내용은 [CIS Amazon EKS 벤치마크 소개](https://aws.amazon.com/blogs/containers/introducing-cis-amazon-eks-benchmark/)를 참조합니다. 
+EKS 클러스터에 대해 [kube-bench](https://github.com/aquasecurity/kube-bench)를 실행할 때는 아쿠아 시큐리티의 [이 지침](https://github.com/aquasecurity/kube-bench/blob/main/docs/running.md#running-cis-benchmark-in-an-eks-cluster)을 따릅니다. 자세한 내용은 [CIS Amazon EKS 벤치마크 소개](https://aws.amazon.com/blogs/containers/introducing-cis-amazon-eks-benchmark/)를 참조합니다.
 
 ### 워커 노드에 대한 액세스 최소화
+
 호스트에 원격으로 접속해야 할 때는 SSH 액세스를 활성화하는 대신 [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html)를 사용합니다. 분실, 복사 또는 공유될 수 있는 SSH 키와 달리 세션 관리자에서는 IAM을 사용하여 EC2 인스턴스에 대한 액세스를 제어할 수 있습니다. 또한 인스턴스에서 실행된 명령에 대한 감사 추적 및 로그를 제공합니다.
 
-2020년 8월 19일부터 관리형 노드 그룹은 사용자 지정 AMI와 EC2 시작 템플릿(Launch Template)을 지원합니다. 이를 통해 SSM 에이전트를 AMI에 내장하거나 워커 노드가 부트스트랩될 때 설치할 수 있습니다. 최적화된 AMI 또는 ASG의 시작 템플릿을 수정하지 않는 경우, 이 [예시](https://github.com/aws-samples/ssm-agent-daemonset-installer)에서처럼 데몬셋을 사용하여 SSM 에이전트를 설치할 수 있습니다. 
+2020년 8월 19일부터 관리형 노드 그룹은 사용자 지정 AMI와 EC2 시작 템플릿(Launch Template)을 지원합니다. 이를 통해 SSM 에이전트를 AMI에 내장하거나 워커 노드가 부트스트랩될 때 설치할 수 있습니다. 최적화된 AMI 또는 ASG의 시작 템플릿을 수정하지 않는 경우, 이 [예시](https://github.com/aws-samples/ssm-agent-daemonset-installer)에서처럼 데몬셋을 사용하여 SSM 에이전트를 설치할 수 있습니다.
 
 #### SSM 기반 SSH 액세스를 위한 최소 IAM 정책
 
 `AmazonSSMManagedInstanceCore` AWS 관리형 정책에는 SSH 액세스를 피하려는 경우 SSM Session Manager 및 SSM RunCommand에 필요하지 않은 여러 권한이 포함되어 있습니다.
-특히 우려되는 것은 `SSM:GetParameter (s) `에 대한 `*` 권한입니다. 이렇게 하면 해당 역할이 파라미터 스토어의 모든 파라미터(AWS 관리형 KMS 키가 구성된 SecureString 포함)에 액세스할 수 있게 됩니다.
+특히 우려되는 것은 `SSM:GetParameter (s)`에 대한 `*` 권한입니다. 이렇게 하면 해당 역할이 파라미터 스토어의 모든 파라미터(AWS 관리형 KMS 키가 구성된 SecureString 포함)에 액세스할 수 있게 됩니다.
 
 다음 IAM 정책에는 SSM Systems Manager를 통해 노드 액세스를 활성화하기 위한 최소 권한 세트가 포함되어 있습니다.
 
@@ -82,18 +87,20 @@ EKS 클러스터에 대해 [kube-bench](https://github.com/aquasecurity/kube-ben
 ```
 
 이 정책을 적용하고 [Session Manager 플러그인](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)을 설치하면 다음을 실행하여 노드에 접속합니다.
+
 ```bash
 aws ssm start-session --target [INSTANCE_ID_OF_EKS_NODE]
-``` 
-
+```
 
 !!! note
     [Session Manager 로깅 활성화](https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging)에 권한을 추가하는 것도 고려해 볼 수 있습니다.
 
 ### 프라이빗 서브넷에 워커 노드 배포
+
 워커 노드를 프라이빗 서브넷에 배치하면 공격이 자주 발생하는 인터넷에 대한 노출을 최소화할 수 있습니다. 2020년 4월 22일부터 관리형 노드 그룹의 노드에 대한 퍼블릭 IP 주소 할당은 해당 노드가 배포되는 서브넷에 의해 제어됩니다. 이전에는 관리형 노드 그룹의 노드에 퍼블릭 IP가 자동으로 할당되었습니다. 워커 노드를 퍼블릭 서브넷에 배포하기로 선택한 경우, 제한적인 AWS 보안 그룹 규칙을 구현하여 노출을 제한합니다.
 
-### Amazon Inspector를 실행하여 호스트의 노출, 취약성 및 모범 사례와의 편차를 평가하십시오.
+### Amazon Inspector를 실행하여 호스트의 노출, 취약성 및 모범 사례와의 편차를 평가하십시오
+
 [Amazon Inspector](https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html)를 사용하여 노드에 대한 의도하지 않은 네트워크 액세스와 기본 Amazon EC2 인스턴스의 취약성을 확인할 수 있습니다.
 
 Amazon Inspector는 Amazon EC2 Systems Manager(SSM) 에이전트가 설치되고 활성화된 경우에만 Amazon EC2 인스턴스에 대한 일반적인 취약성 및 노출 (CVE) 데이터를 제공할 수 있습니다. 이 에이전트는 [EKS 최적화 Amazon Linux AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html)를 비롯한 여러 [Amazon 머신 이미지 (AMI)](https://docs.aws.amazon.com/systems-manager/latest/userguide/ami-preinstalled-agent.html)에 사전 설치되어 있습니다. SSM 에이전트 상태에 관계없이 모든 Amazon EC2 인스턴스는 네트워크 연결 문제 여부를 검사합니다.Amazon EC2용 스캔 구성에 대한 자세한 내용은 [Amazon EC2 인스턴스 스캔](https://docs.aws.amazon.com/inspector/latest/user/enable-disable-scanning-ec2.html)을 참조합니다.
@@ -120,7 +127,7 @@ Docker용 SELinux를 구성하면 Docker는 워크로드에 `container_t` 레이
 |---|:--:|---|
 | `container_connect_any` | `off` | 컨테이너가 호스트의 권한 있는 포트에 액세스할 수 있도록 허용합니다. 호스트의 443 또는 80에 포트를 매핑해야 하는 컨테이너가 있는 경우를 예로 들 수 있습니다. |
 | `container_manage_cgroup` | `off` | 컨테이너가 cgroup 구성을 관리할 수 있도록 허용합니다. 예를 들어 systemd를 실행하는 컨테이너는 이 기능을 활성화해야 합니다. |
-| `container_use_cephfs` | `off` | 컨테이너가 ceph 파일 시스템을 사용할 수 있도록 허용합니다. ||
+| `container_use_cephfs` | `off` | 컨테이너가 ceph 파일 시스템을 사용할 수 있도록 허용합니다. |
 
 기본적으로 컨테이너는 `/usr`에서 읽고 실행할 수 있으며 `/etc`에서 대부분의 콘텐츠를 읽을 수 있습니다. `/var/lib/docker` 및 `/var/lib/containers` 아래의 파일에는 `container_var_lib_t`라는 레이블이 붙어 있습니다. 기본 레이블의 전체 목록을 보려면 [container.fc](https://github.com/containers/container-selinux/blob/master/container.fc) 파일을 참조합니다.
 
@@ -179,15 +186,14 @@ CentOS7 및 RHEL7에 SELinux가 구성된 [Amazon EKS 샘플 AMI](https://github
 !!! caution
   SELinux는 타입이 제한되지 않은 컨테이너를 무시합니다.
 
-#### 추가 리소스
-+ [온프레미스 애플리케이션을 위한 SELinux, 쿠버네티스 RBAC 및 보안 정책](https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/)
-+ [쿠버네티스의 반복적 하드닝]( https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html )
-+ [Audit2Allow](https://linux.die.net/man/1/audit2allow)
-+ [SEAlert](https://linux.die.net/man/8/sealert)
-+ [Udica를 사용하여 컨테이너에 대한 SELinux 정책 생성](https://www.redhat.com/en/blog/generate-selinux-policies-containers-with-udica)은 Linux 기능에 대한 컨테이너 사양 파일을 확인하는 도구를 설명합니다. 포트, 마운트 지점, 컨테이너가 제대로 실행되도록 하는 일련의 SELinux 규칙을 생성합니다.
-+ [AMI Hardening](https://github.com/aws-samples/amazon-eks-custom-amis#hardening)은 다양한 규제 요구 사항을 충족하기 위해 OS를 강화하기 위한 플레이북입니다.
+## 도구 및 리소스
 
-## 도구
-+ [Keiko Upgrade Manager](https://github.com/keikoproj/upgrade-manager)는 워커 노드의 회전을 오케스트레이션하는 Intuit의 오픈 소스 프로젝트입니다.
-+ [Sysdig Secure](https://sysdig.com/products/kubernetes-security/)
-+ [eksctl](https://eksctl.io/)
+- [온프레미스 애플리케이션을 위한 SELinux, 쿠버네티스 RBAC 및 보안 정책](https://platform9.com/blog/selinux-kubernetes-rbac-and-shipping-security-policies-for-on-prem-applications/)
+- [쿠버네티스의 반복적 하드닝](https://jayunit100.blogspot.com/2019/07/iterative-hardening-of-kubernetes-and.html)
+- [Audit2Allow](https://linux.die.net/man/1/audit2allow)
+- [SEAlert](https://linux.die.net/man/8/sealert)
+- [Udica를 사용하여 컨테이너에 대한 SELinux 정책 생성](https://www.redhat.com/en/blog/generate-selinux-policies-containers-with-udica)은 Linux 기능에 대한 컨테이너 사양 파일을 확인하는 도구를 설명합니다. 포트, 마운트 지점, 컨테이너가 제대로 실행되도록 하는 일련의 SELinux 규칙을 생성합니다.
+- [AMI Hardening](https://github.com/aws-samples/amazon-eks-custom-amis#hardening)은 다양한 규제 요구 사항을 충족하기 위해 OS를 강화하기 위한 플레이북입니다.
+- [Keiko Upgrade Manager](https://github.com/keikoproj/upgrade-manager)는 워커 노드의 회전을 오케스트레이션하는 Intuit의 오픈 소스 프로젝트입니다.
+- [Sysdig Secure](https://sysdig.com/products/kubernetes-security/)
+- [eksctl](https://eksctl.io/)

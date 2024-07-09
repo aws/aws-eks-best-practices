@@ -16,7 +16,7 @@ Karpenter is an open source, workload-native node autoscaler created by AWS. It 
 
 Each AWS region has a limited number of available instances per instance type. If you create a cluster that uses only one instance type and scale the number of nodes beyond the capacity of the region you will receive an error that no instances are available. To avoid this issue you should not arbitrarily limit the type of instances that can be use in your cluster.
 
-Karpenter will use a broad set of compatible instance types by default and will pick an instance at provisioning time based on pending workload requirements, availability, and cost. You can broaden the list of instance types used in the `karpenter.k8s.aws/instance-category` key of [the provisioner](https://karpenter.sh/docs/concepts/provisioners/#instance-types).
+Karpenter will use a broad set of compatible instance types by default and will pick an instance at provisioning time based on pending workload requirements, availability, and cost. You can broaden the list of instance types used in the `karpenter.k8s.aws/instance-category` key of [NodePools](https://karpenter.sh/docs/concepts/nodepools/#instance-types).
 
 The Kubernetes Cluster Autoscaler requires node groups to be similarly sized so they can be consistently scaled. You should create multiple groups based on CPU and memory size and scale them independently. Use the [ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector) to identify instances that are similarly sized for your node groups.
 
@@ -107,7 +107,7 @@ Karpenter allows workloads to declare the type of compute resources it needs wit
 
 Keeping worker node components up to date will make sure you have the latest security patches and compatible features with the Kubernetes API. Updating the kubelet is the most important component for Kubernetes functionality, but automating OS, kernel, and locally installed application patches will reduce maintenance as you scale.
 
-It is recommended that you use the latest [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) or [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html) for your node image. Karpenter will automatically use the [latest available AMI](https://karpenter.sh/docs/concepts/provisioners/#instance-types) to provision new nodes in the cluster. Managed node groups will update the AMI during a [node group update](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) but will not update the AMI ID at node provisioning time.
+It is recommended that you use the latest [Amazon EKS optimized Amazon Linux 2](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html) or [Amazon EKS optimized Bottlerocket AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html) for your node image. Karpenter will automatically use the [latest available AMI](https://karpenter.sh/docs/concepts/nodepools/#instance-types) to provision new nodes in the cluster. Managed node groups will update the AMI during a [node group update](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html) but will not update the AMI ID at node provisioning time.
 
 For Managed Node Groups you need to update the Auto Scaling Group (ASG) launch template with new AMI IDs when they are available for patch releases. AMI minor versions (e.g. 1.23.5 to 1.24.3) will be available in the EKS console and API as [upgrades for the node group](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html). Patch release versions (e.g. 1.23.5 to 1.23.6) will not be presented as upgrades for the node groups. If you want to keep your node group up to date with AMI patch releases you need to create new launch template version and let the node group replace instances with the new AMI release.
 
@@ -137,14 +137,15 @@ managedNodeGroups:
       - volumeName: '/dev/sdz'
         volumeSize: 100
     preBootstrapCommands:
-      - "systemctl stop containerd"
-      - "mkfs -t ext4 /dev/nvme1n1"
-      - "rm -rf /var/lib/containerd/*"
-      - "mount /dev/nvme1n1 /var/lib/containerd/"
-      - "systemctl start containerd"
+    - |
+      "systemctl stop containerd"
+      "mkfs -t ext4 /dev/nvme1n1"
+      "rm -rf /var/lib/containerd/*"
+      "mount /dev/nvme1n1 /var/lib/containerd/"
+      "systemctl start containerd"
 ```
 
-If you are using terraform to provision your node groups please see examples in [EKS Blueprints for terraform](https://github.com/aws-ia/terraform-aws-eks-blueprints/blob/main/examples/node-groups/managed-node-groups/main.tf). If you are using Karpenter to provision nodes you can use [`blockDeviceMappings`](https://karpenter.sh/docs/concepts/node-templates/#specblockdevicemappings) with node user-data to add additional volumes.
+If you are using terraform to provision your node groups please see examples in [EKS Blueprints for terraform](https://aws-ia.github.io/terraform-aws-eks-blueprints/patterns/stateful/#eks-managed-nodegroup-w-multiple-volumes). If you are using Karpenter to provision nodes you can use [`blockDeviceMappings`](https://karpenter.sh/docs/concepts/nodeclasses/#specblockdevicemappings) with node user-data to add additional volumes.
 
 To mount an EBS volume directly to your pod you should use the [AWS EBS CSI driver](https://github.com/kubernetes-sigs/aws-ebs-csi-driver) and consume a volume with a storage class.
 
