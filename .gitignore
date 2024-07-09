@@ -1,3 +1,15 @@
+
+
+/.vscode
+*.running.properties.txt
+*\~
+*.mobi
+/build
+*.DS_Store
+*.aws-oxygen
+.attach_pid*
+book.html
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -70,3 +82,4 @@ site/
 .DS_Store
 
 .*.swp
+

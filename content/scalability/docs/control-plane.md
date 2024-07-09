@@ -250,7 +250,7 @@ spec:
 - The matching precedence 8000 is lower than the value of 9000 used by the existing service-accounts FlowSchema so these list event calls will match list-events-default-service-accounts rather than service-accounts.
 - We're using the catch-all PriorityLevelConfiguration to isolate these requests. This bucket only allows 13 inflight requests to be used by these long-running list event calls. Pods will start to receive 429s as soon they try to issue more than 13 of these requests concurrently.
 
-## Retreiving resources in the API server
+## Retrieving resources in the API server
 
 Getting information from the API server is an expected behavior for clusters of any size. As you scale the number of resources in the cluster the frequency of requests and volume of data can quickly become a bottleneck for the control plane and will lead to API latency and slowness. Depending on the severity of the latency it cause unexpected downtime if you are not careful.
 
@@ -286,14 +286,18 @@ Or list all pods that are running with:
 /api/v1/pods?fieldSelector=status.phase=Running&limit=500
 ```
 
-Another option to limit listed objects is to use [`resourceVersions` which you can read about in the Kubernetes documentation](https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions). Without a `resourceVersion` argument you will receive the most recent version available which requires an etcd quorum read which is the most expensive and slowest read for the database. The resourceVersion depends on what resources you are trying to query and can be found in the `metadata.resourseVersion` field.
+Another option to limit watch calls or listed objects is to use [`resourceVersions` which you can read about in the Kubernetes documentation](https://kubernetes.io/docs/reference/using-api/api-concepts/#resource-versions). Without a `resourceVersion` argument you will receive the most recent version available which requires an etcd quorum read which is the most expensive and slowest read for the database. The resourceVersion depends on what resources you are trying to query and can be found in the `metadata.resourseVersion` field. This is also recommended in case of using watch calls and not just list calls
 
 There is a special `resourceVersion=0` available that will return results from the API server cache. This can reduce etcd load but it does not support pagination.
 
 ```
 /api/v1/namespaces/default/pods?resourceVersion=0
 ```
+It's recommended to use watch with a resourceVersion set to be the most recent known value received from its preceding list or watch. This is handled automatically in client-go. But it's suggested to double check it if you are using a k8s client in other languages.
 
+```
+/api/v1/namespaces/default/pods?watch=true&resourceVersion=362812295
+```
 If you call the API without any arguments it will be the most resource intensive for the API server and etcd. This call will get all pods in all namespaces without pagination or limiting the scope and require a quorum read from etcd.
 
 ```

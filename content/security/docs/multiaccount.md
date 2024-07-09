@@ -1,17 +1,17 @@
-# Multi Account Strategy 
+# Multi Account Strategy
 
 AWS recommends using a [multi account strategy](https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/organizing-your-aws-environment.html) and AWS organizations to help isolate and manage your business applications and data. There are [many benefits](https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/benefits-of-using-multiple-aws-accounts.html) to using a multi account strategy:
 
-+ Increased AWS API service quotas. Quotas are applied to AWS accounts, and using multiple accounts for your workloads increases the overall quota available to your workloads.
-+ Simpler Identity and Access Management (IAM) policies. Granting workloads and the operators that support them access to only their own AWS accounts means less time crafting fine-grained IAM policies to achieve the principle of least privilege.
-+ Improved Isolation of AWS resources. By design, all resources provisioned within an account are logically isolated from resources provisioned in other accounts. This isolation boundary provides you with a way to limit the risks of an application-related issue, misconfiguration, or malicious actions. If an issue occurs within one account, impacts to workloads contained in other accounts can be either reduced or eliminated. 
-+ More benefits, as described in the [AWS Multi Account Strategy Whitepaper](https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/benefits-of-using-multiple-aws-accounts.html#group-workloads-based-on-business-purpose-and-ownership)
+- Increased AWS API service quotas. Quotas are applied to AWS accounts, and using multiple accounts for your workloads increases the overall quota available to your workloads.
+- Simpler Identity and Access Management (IAM) policies. Granting workloads and the operators that support them access to only their own AWS accounts means less time crafting fine-grained IAM policies to achieve the principle of least privilege.
+- Improved Isolation of AWS resources. By design, all resources provisioned within an account are logically isolated from resources provisioned in other accounts. This isolation boundary provides you with a way to limit the risks of an application-related issue, misconfiguration, or malicious actions. If an issue occurs within one account, impacts to workloads contained in other accounts can be either reduced or eliminated.
+- More benefits, as described in the [AWS Multi Account Strategy Whitepaper](https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/benefits-of-using-multiple-aws-accounts.html#group-workloads-based-on-business-purpose-and-ownership)
 
 The following sections will explain how to implement a multi account strategy for your EKS workloads using either a centralized, or de-centralized EKS cluster approach.
 
 ## Planning for a Multi Workload Account Strategy for Multi Tenant Clusters
 
-In a multi account AWS strategy, resources that belong to a given workload such as S3 buckets, ElastiCache clusters and DynamoDB Tables are all created in an AWS account that contains all the resources for that workload. These are referred to as a workload account, and the EKS cluster is deployed into an account referred to as the cluster account. Cluster accounts will be explored in the next section. Deploying resources into a dedicated workload account is similar to deploying kubernetes resources into a dedicated namespace. 
+In a multi account AWS strategy, resources that belong to a given workload such as S3 buckets, ElastiCache clusters and DynamoDB Tables are all created in an AWS account that contains all the resources for that workload. These are referred to as a workload account, and the EKS cluster is deployed into an account referred to as the cluster account. Cluster accounts will be explored in the next section. Deploying resources into a dedicated workload account is similar to deploying kubernetes resources into a dedicated namespace.
 
 Workload accounts can then be further broken down by software development lifecycle or other requirements if appropriate. For example a given workload can have a production account, a development account, or accounts for hosting instances of that workload in a specific region. [More information](https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/organizing-workload-oriented-ous.html) is available in this AWS whitepaper.
 
@@ -25,22 +25,21 @@ In a multi workload account strategy for multi tenant cluster, AWS accounts typi
 
 It is possible to have multiple `Cluster Accounts` in your AWS organization, and it is a best practice to have multiple `Cluster Accounts` that align with your software development lifecycle needs. For workloads operating at a very large scale, you may require multiple `Cluster Accounts` to ensure that there are enough kubernetes and AWS service quotas available to all your workloads.
 
-| ![](./images/multi-account-eks.jpg) |
+| ![multi-account-eks](./images/multi-account-eks.jpg) |
 |:--:|
 | In the above diagram, AWS RAM is used to share subnets from a cluster account into a workload account. Then workloads running in EKS pods use IRSA or EKS Pod Identities and role chaining to assume a role in their workload account and access their AWS resources. |
 
- 
 ### Implementing a Multi Workload Account Strategy for Multi Tenant Cluster
 
-#### Sharing Subnets With AWS Resource Access Manager 
+#### Sharing Subnets With AWS Resource Access Manager
 
-[AWS Resource Access Manager](https://aws.amazon.com/ram/) (RAM) allows you to share resources across AWS accounts. 
+[AWS Resource Access Manager](https://aws.amazon.com/ram/) (RAM) allows you to share resources across AWS accounts.
 
 If [RAM is enabled for your AWS Organization](https://docs.aws.amazon.com/ram/latest/userguide/getting-started-sharing.html#getting-started-sharing-orgs), you can share the VPC Subnets from the Cluster account to your workload accounts. This will allow AWS resources owned by your workload accounts, such as [Amazon ElastiCache](https://aws.amazon.com/elasticache/) Clusters or [Amazon Relational Database Service (RDS)](https://aws.amazon.com/rds/) Databases to be deployed into the same VPC as your EKS cluster, and be consumable by the workloads running on your EKS cluster.
 
 To share a resource via RAM, open up RAM in the AWS console of the cluster account and select "Resource Shares" and "Create Resource Share". Name your Resource Share and Select the subnets you want to share. Select Next again and enter the 12 digit account IDs for the workload accounts you wish to share the subnets with, select next again, and click Create resource share to finish. After this step, the workload account can deploy resources into those subnets.
 
-RAM shares can also be created programmatically, or with infrastructure as code. 
+RAM shares can also be created programmatically, or with infrastructure as code.
 
 #### Choosing Between EKS Pod Identities and IRSA
 
@@ -48,16 +47,15 @@ At re:Invent 2023, AWS launched EKS Pod Identities as a simpler way of deliverin
 
 When working with a EKS cluster and multiple AWS accounts, IRSA can directly assume roles in AWS accounts other than the account the EKS cluster is hosted in directly, while EKS Pod identities require you to configure role chaining. Refer [EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/service-accounts.html#service-accounts-iam) for an in-depth comparison.
 
-
 ##### Accessing AWS API Resources with IAM Roles For Service Accounts
- 
-[IAM Roles for Service Accounts (IRSA)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) allows you to deliver temporary AWS credentials to your workloads running on EKS. IRSA can be used to get temporary credentials for IAM roles in the workload accounts from the cluster account. This allows your workloads running on your EKS clusters in the cluster account to consume AWS API resources, such as S3 buckets hosted in the workload account seemlessly, and use IAM authentication for resources like Amazon RDS Databases or Amazon EFS FileSystems. 
+
+[IAM Roles for Service Accounts (IRSA)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) allows you to deliver temporary AWS credentials to your workloads running on EKS. IRSA can be used to get temporary credentials for IAM roles in the workload accounts from the cluster account. This allows your workloads running on your EKS clusters in the cluster account to consume AWS API resources, such as S3 buckets hosted in the workload account seemlessly, and use IAM authentication for resources like Amazon RDS Databases or Amazon EFS FileSystems.
 
 AWS API resources and other Resources that use IAM authentication in a workload account can only be accessed by credentials for IAM roles in that same workload account, except where cross account access is capable and has been explicity enabled.
 
 ###### Enabling IRSA for cross account access
 
-To enable IRSA for workloads in your Cluster Account to access resources in your Workload accounts, you first must create an IAM OIDC identity provider in your workload account. This can be done with the same procedure for setting up IRSA, except the Identity Provider will be created in the workload account: https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
+To enable IRSA for workloads in your Cluster Account to access resources in your Workload accounts, you first must create an IAM OIDC identity provider in your workload account. This can be done with the same procedure for setting up [IRSA](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html), except the Identity Provider will be created in the workload account.
 
 Then when configuring IRSA for your workloads on EKS, you can [follow the same steps as the documentation](https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html), but use the [12 digit account id of the workload account](https://docs.aws.amazon.com/eks/latest/userguide/cross-account-access.html) as mentioned in the section "Example Create an identity provider from another account's cluster".
 
@@ -73,7 +71,7 @@ Unlike IRSA, EKS Pod Identities can only be used to directly grant access to a r
 
 Role chaining can be configured in an applications profile with their aws configuration file using the [Process Credentials Provider](https://docs.aws.amazon.com/sdkref/latest/guide/feature-process-credentials.html) available in various AWS SDKs. `credential_process` can be used as a credential source when configuring a profile, such as:
 
-```
+```bash
 # Content of the AWS Config file
 [profile account_b_role] 
 source_profile = account_a_role 
@@ -81,12 +79,11 @@ role_arn = arn:aws:iam::444455556666:role/account-b-role
 
 [profile account_a_role] 
 credential_process = /eks-credential-processrole.sh
-
 ```
 
 The source of the script called by credential_process:
 
-```
+```bash
 #!/bin/bash
 # Content of the eks-credential-processrole.sh
 # This will retreive the credential from the pod identities agent,
@@ -108,7 +105,7 @@ containers:
       value: account_b_role
 ```
 
-When configuring role trust policies for role chaining with EKS pod identities, you can reference [EKS specific attributes](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html) as session tags and use attribute based access control(ABAC) to limit access to your IAM roles to only specific EKS Pod identity sessions, such as the Kubernetes Service Account a pod belongs to. 
+When configuring role trust policies for role chaining with EKS pod identities, you can reference [EKS specific attributes](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html) as session tags and use attribute based access control(ABAC) to limit access to your IAM roles to only specific EKS Pod identity sessions, such as the Kubernetes Service Account a pod belongs to.
 
 Please note that some of these attributes may not be universally unique, for example two EKS clusters may have identical namespaces, and one cluster may have identically named service accounts across namespaces. So when granting access via EKS Pod Identities and ABAC, it is a best practice to always consider the cluster arn and namespace when granting access to a service account.
 
@@ -142,7 +139,7 @@ To use ABAC to control what service accounts can assume a role into another acco
 
 When using this strategy it is a best practice to ensure that the common IAM role only has `sts:AssumeRole` permissions and no other AWS access.
 
-It is important when using ABAC that you control who has the ability to tag IAM roles and users to only those who have a strict need to do so. Someone with the ability to tag an IAM role or user would be able to set tags on roles/users identical to what would be set by EKS Pod Identities and may be able to escalate their privileges. You can restrict who has the access to set tags the `kubernetes-` and `eks-` tags on IAM role and users using IAM policy, or Service Control Policy (SCP). 
+It is important when using ABAC that you control who has the ability to tag IAM roles and users to only those who have a strict need to do so. Someone with the ability to tag an IAM role or user would be able to set tags on roles/users identical to what would be set by EKS Pod Identities and may be able to escalate their privileges. You can restrict who has the access to set tags the `kubernetes-` and `eks-` tags on IAM role and users using IAM policy, or Service Control Policy (SCP).
 
 ## De-centralized EKS Clusters
 
@@ -152,7 +149,7 @@ In this approach, EKS clusters are deployed to respective workload AWS Accounts 
 |:--:|
 | In the above diagram, Amazon EKS clusters and other AWS resources are deployed to respective workload accounts. Then workloads running in EKS pods use IRSA or EKS Pod Identities to access their AWS resources. |
 
-GitOps is a way of managing application and infrastructure deployment so that the whole system is described declaratively in a Git repository. It’s an operational model that offers you the ability to manage the state of multiple Kubernetes clusters using the best practices of version control, immutable artifacts, and automation. In this multi cluster model, each workload cluster is bootstrapped with multiple Git repos, allowing each team (application, platform, security, etc.,) to deploy their respective changes on the cluster. 
+GitOps is a way of managing application and infrastructure deployment so that the whole system is described declaratively in a Git repository. It’s an operational model that offers you the ability to manage the state of multiple Kubernetes clusters using the best practices of version control, immutable artifacts, and automation. In this multi cluster model, each workload cluster is bootstrapped with multiple Git repos, allowing each team (application, platform, security, etc.,) to deploy their respective changes on the cluster.
 
 You would utilize [IAM roles for Service Accounts (IRSA)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) or [EKS Pod Identities](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) in each account to allow your EKS workloads to get temporary aws credentials to securely access other AWS resources. IAM roles are created in respective workload AWS Accounts and map them to k8s service accounts to provide temporary IAM access. So, no cross-account access is required in this approach. Follow the [IAM roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) documentation on how to setup in each workload for IRSA, and [EKS Pod Identities](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) documentation on how to setup EKS pod identities in each account.
 
@@ -167,7 +164,6 @@ You can also utilize AWS RAM to share the VPC Subnets to workload accounts and l
 ## Centralized vs De-centralized EKS clusters
 
 The decision to run with a Centralized or De-centralized will depend on your requirements. This table demonstrates the key differences with each strategy.
-
 
 |# |Centralized EKS cluster | De-centralized EKS clusters |
 |:--|:--|:--|

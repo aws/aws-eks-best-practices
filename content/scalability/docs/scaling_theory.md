@@ -79,7 +79,7 @@ When fewer errors are occurring, it is easier spot issues in the system. By peri
 
 #### Expanding Our View
 
-In large scale clusters with 1,000’s of nodes we don’t want to look for bottlenecks individually. In PromQL we can find the highest values in a data set using a function called topk; K being a variable we place the number of items we want. Here we use three nodes to get an idea whether all of the the Kubelets in the cluster are saturated. We have been looking at latency up to this point, now let’s see if the Kubelet is discarding events. 
+In large scale clusters with 1,000’s of nodes we don’t want to look for bottlenecks individually. In PromQL we can find the highest values in a data set using a function called topk; K being a variable we place the number of items we want. Here we use three nodes to get an idea whether all of the Kubelets in the cluster are saturated. We have been looking at latency up to this point, now let’s see if the Kubelet is discarding events. 
 
 ```
 topk(3, increase(kubelet_pleg_discard_events{}[$__rate_interval]))
