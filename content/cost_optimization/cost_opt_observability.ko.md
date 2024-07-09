@@ -1,9 +1,9 @@
 ---
-date: 2023-09-29
-authors: 
-  - Rachel Leekin
-  - Nirmal Mehta
+search:
+  exclude: true
 ---
+
+
 # 비용 최적화 - 옵저버빌리티
 
 ## 소개 

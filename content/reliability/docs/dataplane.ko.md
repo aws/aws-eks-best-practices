@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # EKS 데이터 플레인
 
 가용성과 복원력이 뛰어난 애플리케이션을 운영하려면 가용성과 복원력이 뛰어난 데이터 플레인이 필요합니다. 탄력적인 데이터 플레인을 사용하면 쿠버네티스가 애플리케이션을 자동으로 확장하고 복구할 수 있습니다. 복원력이 뛰어난 데이터 플레인은 2개 이상의 워커 노드로 구성되며, 워크로드에 따라 확장 및 축소될 수 있으며 장애 발생 시 자동으로 복구할 수 있습니다.
@@ -72,10 +78,10 @@ spec:
             cpu: 1
 ```
 
-!!! 참고
+!!! note
     `kube-scheduler`는 해당 레이블이 있는 노드를 통한 토폴로지 도메인만 인식합니다. 위의 디플로이먼트를 단일 존에만 노드가 있는 클러스터에 배포하면, `kube-scheduler`가 다른 존을 인식하지 못하므로 모든 파드가 해당 노드에서 스케줄링됩니다. 이 Topology Spread가 스케줄러와 함께 예상대로 작동하려면 모든 존에 노드가 이미 있어야 합니다. 이 문제는 쿠버네티스 1.24에서 `MinDomainsInPodToplogySpread` [기능 게이트](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api)가 추가되면서 해결될 것입니다. 이 기능을 사용하면 스케줄러에 적격 도메인 수를 알리기 위해 `MinDomains` 속성을 지정할 수 있습니다.
 
-!!! 경고
+!!! warning
     `whenUnsatisfiable`를 `Donot Schedule`로 설정하면 Topology Spread Constraints을 충족할 수 없는 경우 파드를 스케줄링할 수 없게 됩니다. Topology Spread Constraints을 위반하는 대신 파드를 실행하지 않는 것이 더 좋은 경우에만 설정해야 합니다.
 
 이전 버전의 쿠버네티스에서는 파드 anti-affinity 규칙을 사용하여 여러 AZ에 걸쳐 파드를 스케줄링할 수 있습니다. 아래 매니페스트는 쿠버네티스 스케줄러에게 별개의 AZ에서 파드를 스케줄링하는 것을 *선호*한다고 알려줍니다. 
@@ -114,7 +120,7 @@ spec:
         image: nginx
 ```
 
-!!! 경고 
+!!! warning 
     파드를 서로 다른 AZ에 스케줄할 필요는 없습니다. 그렇지 않으면 디플로이먼트의 파드 수가 AZ 수를 절대 초과하지 않습니다. 
 
 ### EBS 볼륨을 사용할 때 각 AZ의 용량을 확보하십시오.

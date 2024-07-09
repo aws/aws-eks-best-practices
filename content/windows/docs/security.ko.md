@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 파드 보안 컨텍스트
 
 

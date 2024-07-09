@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 윈도우용 Prefix 모드
 Amazon EKS에서 윈도우 호스트에서 실행되는 각 파드는 기본적으로 [VPC 리소스 컨트롤러](https://github.com/aws/amazon-vpc-resource-controller-k8s)에 의해 보조 IP 주소가 할당됩니다. 이 IP 주소는 호스트의 서브넷에서 할당되어 VPC에서 라우팅이 가능한 주소입니다. Linux에서는 인스턴스에 연결된 각 ENI에 보조 IP 주소 또는 /28 CIDR(Prefix)로 채울 수 있는 여러 슬롯이 있습니다. 하지만 윈도우 호스트는 단일 ENI와 슬롯만 지원합니다. 보조 IP 주소만 사용하면 할당할 수 있는 IP 주소가 많더라도 윈도우 호스트에서 실행할 수 있는 파드 수가 인위적으로 제한될 수 있습니다.
 

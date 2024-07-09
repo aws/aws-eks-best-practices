@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 윈도우 파드와 컨테이너를 위한 gMSA 설정
 
 ## gMSA 계정이란 무엇입니까?

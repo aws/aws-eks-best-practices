@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 파드 보안
 
 파드 사양에는 전반적인 보안 태세를 강화하거나 약화시킬 수 있는 다양한 속성이 포함되어 있습니다. 쿠버네티스 실무자로서 주요 관심사는 컨테이너에서 실행 중인 프로세스가 컨테이너 런타임의 격리 경계를 벗어나 기본 호스트에 대한 액세스 권한을 얻지 못하도록 하는 것입니다.
@@ -483,3 +489,4 @@ securityContext:
 + [정책 기반 대책: 파트 1](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-1/)
 + [정책 기반 대책: 파트 2](https://aws.amazon.com/blogs/containers/policy-based-countermeasures-for-kubernetes-part-2/)
 + [Pod Security Policy Migrator](https://appvia.github.io/psp-migration/) PSP를 OPA/Gatekeeper, KubeWarden 또는 Kyverno 정책으로 변환하는 도구입니다.
++ [NeuVector by SUSE](https://www.suse.com/neuvector/) 오픈 소스 제로 트러스트 컨테이너 보안 플랫폼은 프로세스 및 파일 시스템 정책과 승인 제어 규칙을 제공합니다.

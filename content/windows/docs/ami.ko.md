@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # Amazon EKS 최적화 윈도우 AMI 관리
 윈도우 Amazon EKS 최적화 AMI는 윈도우 서버 2019와 윈도우 서버 2022를 기반으로 구축되었습니다. 아마존 EKS 윈도우 노드의 기본 이미지 역할을 하도록 구성되어 있습니다. 해당 AMI는 Amazon EKS 노드의 기본 이미지로 사용하도록 구성되어 있습니다. 기본적으로 AMI에는 다음 구성 요소가 포함됩니다:
 - [kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/)

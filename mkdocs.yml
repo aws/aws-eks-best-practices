@@ -120,6 +120,7 @@ plugins:
           nav_translations:
             AMI Management: AMI 관리
             Amazon VPC CNI: Amazon VPC CNI
+            Optimizing IP Address Utilization: IP 주소 사용 최적화
             Applications: 애플리케이션
             Cloud Financial Management Framework: 클라우드 재무 관리 프레임워크
             Cluster Autoscaling: 클러스터 오토스케일링
@@ -155,6 +156,8 @@ plugins:
             Network Security: 네트워크 보안
             Networking: 네트워크
             Node efficiency and scaling: 노드 및 워크로드 효율성
+            Kubernetes SLOs: 쿠버네티스 SLO
+            Known limits and service quotas: 알려진 제한 및 서비스 할당량(Quota)
             Observability: 옵저버빌리티
             Pod Security: 파드 보안
             Pod Security for Windows Containers: 윈도우 컨테이너 파드 보안

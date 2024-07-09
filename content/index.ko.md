@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 소개
 EKS 모범 사례 가이드에 오신 것을 환영합니다. 이 프로젝트의 주요 목표는 Amazon EKS의 Day 2 작업에 대한 일련의 모범 사례를 제공하는 것입니다. 우리는 이 지침을 GitHub에 게시하기로 결정하여 신속하게 반복하고, 다양한 문제에 대해 시기 적절하고 효과적인 권장 사항을 제공하고, 더 광범위한 커뮤니티의 제안을 쉽게 통합할 수 있습니다.
 
@@ -26,4 +32,4 @@ AWS는 [EKS 사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguid
 * [Amazon EKS Blueprints Quick Start](https://aws-quickstart.github.io/cdk-eks-blueprints/)
 
 ## 기여
-이 가이드에 기여해 주시기 바랍니다. 효과가 입증된 방법을 구현했다면 이슈나 풀 리퀘스트(PR)를 열어 공유해 주세요.마찬가지로, 이미 게시한 지침에서 오류나 결함을 발견한 경우 PR을 제출하여 수정하시기 바랍니다. PR 제출 지침은 [기여 가이드라인](https://github.com/aws/aws-eks-best-practices/blob/master/CONTRIBUTING.md)에서 확인할 수 있습니다.
+이 가이드에 기여해 주시기 바랍니다. 효과가 입증된 방법을 구현했다면 이슈나 풀 리퀘스트(PR)를 열어 공유해 주세요. 마찬가지로, 이미 게시한 지침에서 오류나 결함을 발견한 경우 PR을 제출하여 수정하시기 바랍니다. PR 제출 지침은 [기여 가이드라인](https://github.com/aws/aws-eks-best-practices/blob/master/CONTRIBUTING.md)에서 확인할 수 있습니다.

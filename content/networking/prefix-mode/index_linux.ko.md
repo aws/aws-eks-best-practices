@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # Linux용 Prefix 모드
 
 Amazon VPC CNI는 [Amazon EC2 네트워크 인터페이스](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html)에 네트워크 Prefix를 할당하여 노드에 사용 가능한 IP 주소 수를 늘리고 노드당 파드 밀도를 높입니다. Amazon VPC CNI 애드온 버전 1.9.0 이상을 구성하여 네트워크 인터페이스에 개별 보조 IP 주소를 할당하는 대신 IPv4 및 IPv6 CIDR을 할당할 수 있습니다. 

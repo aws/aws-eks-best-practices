@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 클러스터 업그레이드 모범 사례
 
 이 안내서는 클러스터 관리자에게 Amazon EKS 업그레이드 전략을 계획하고 실행하는 방법을 보여줍니다. 또한 자체 관리형 노드, 관리형 노드 그룹, Karpenter 노드 및 Fargate 노드를 업그레이드하는 방법도 설명합니다. EKS Anywhere, 자체 관리형 쿠버네티스, AWS Outposts 또는 AWS Local Zone에 대한 지침은 포함되지 않습니다. 

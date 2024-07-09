@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # Karpenter 모범 사례
 
 ## Karpenter
@@ -117,7 +123,7 @@ com.amazonaws.<region>.sts – For IAM roles for service accounts
 com.amazonaws.<region>.ssm - If using Karpenter
 ```
 
-!!! 참고
+!!! note
     Karpenter (컨트롤러 및 웹훅 배포) 컨테이너 이미지는 Amazon ECR 전용 또는 VPC 내부에서 액세스할 수 있는 다른 사설 레지스트리에 있거나 복사되어야 합니다.그 이유는 Karpenter 컨트롤러와 웹훅 파드가 현재 퍼블릭 ECR 이미지를 사용하고 있기 때문입니다. VPC 내에서 또는 VPC와 피어링된 네트워크에서 이런 이미지를 사용할 수 없는 경우, 쿠버네티스가 ECR Public에서 이런 이미지를 가져오려고 할 때 이미지 가져오기 오류가 발생합니다.
 
 자세한 내용은 [이슈 988](https://github.com/aws/karpenter/issues/988) 및 [이슈 1157](https://github.com/aws/karpenter/issues/1157) 을 참조하십시오.
@@ -261,7 +267,7 @@ Karpenter의 계층형 제약 조건 모델을 사용하면 복잡한 프로비�
 
 클러스터를 자동으로 확장하도록 구성할 때는 지출이 임계값을 초과했을 때 경고하는 청구 알람를 생성하고 Karpenter 구성에 리소스 제한을 추가해야 합니다. Karpenter로 리소스 제한을 설정하는 것은 Karpenter 프로비저너가 인스턴스화할 수 있는 컴퓨팅 리소스의 최대량을 나타낸다는 점에서 AWS Autoscaling 그룹의 최대 용량을 설정하는 것과 비슷합니다.
 
-!!! 참고
+!!! note
     전체 클러스터에 대해 글로벌 제한을 설정할 수는 없습니다. 한도는 특정 프로비저너에 적용됩니다.
 
 아래 스니펫은 Karpenter에게 최대 1000개의 CPU 코어와 1000Gi의 메모리만 프로비저닝하도록 지시합니다. Karpenter는 한도에 도달하거나 초과할 때만 용량 추가를 중단합니다. 한도를 초과하면 Karpenter 컨트롤러는 '1001의 메모리 리소스 사용량이 한도 1000을 초과합니다' 또는 이와 비슷한 모양의 메시지를 컨트롤러 로그에 기록합니다. 컨테이너 로그를 CloudWatch 로그로 라우팅하는 경우 [지표 필터](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html)를 생성하여 로그에서 특정 패턴이나 용어를 찾은 다음 [CloudWatch 알람](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html)을 생성하여 구성된 지표 임계값을 위반했을 때 경고를 보낼 수 있습니다.

@@ -1,8 +1,9 @@
 ---
-date: 2023-09-22
-authors: 
-  - Florian Daniel Otel
+search:
+  exclude: true
 ---
+
+
 # 비용 최적화 - 소개
 AWS 클라우드 이코노믹스(Economics)는 고객이 Amazon EKS와 같은 최신 컴퓨팅 기술을 채택하여 효율성을 높이고 비용을 절감할 수 있도록 지원하는 분야입니다. 이 분야에서는 4가지 기반원칙(Pillar)으로 구성된 "클라우드 재무 관리(CFM) 프레임워크"라는 방법론을 따르는 것을 권장합니다. 
 

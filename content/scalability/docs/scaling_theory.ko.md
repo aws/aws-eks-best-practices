@@ -1,8 +1,9 @@
 ---
-date: 2023-09-22
-authors: 
-  - Shane Corbett
+search:
+  exclude: true
 ---
+
+
 # 쿠버네티스 스케일링 이론
 
 ## 노드 vs. 이탈률

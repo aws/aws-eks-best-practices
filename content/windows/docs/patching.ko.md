@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 윈도우 서버 및 컨테이너 패치
 
 윈도우 서버 패치 작업은 윈도우 관리자를 위한 표준 관리 작업입니다. Amazon System Manager - Patch Manager, WSUS, System Center Configuration Manager 등과 같은 다양한 도구를 사용하여 이 작업을 수행할 수 있습니다. 하지만 Amazon EKS 클러스터의 윈도우 노드를 일반 윈도우 서버로 취급해서는 안 됩니다. 이들은 변경할 수 없는 서버로 취급되어야 합니다. 간단히 말해, 기존 노드를 업데이트하지 말고 시작 템플릿에 새로 업데이트된 AMI를 기반으로 새 노드를 시작하기만 하면 됩니다.

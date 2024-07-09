@@ -1,8 +1,9 @@
 ---
-date: 2023-10-31
-authors: 
-  - Chance Lee
+search:
+  exclude: true
 ---
+
+
 # 비용 최적화 - 스토리지
 
 ## 개요
