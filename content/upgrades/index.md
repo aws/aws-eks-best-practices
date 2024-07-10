@@ -37,7 +37,7 @@ Additionally, review the upstream [Kubernetes release information](https://kuber
 
 ## Understand how the shared responsibility model applies to cluster upgrades
 
-You are responsible for initiating upgrade for both cluster control plane as well as the data plane. [Learn how to initiate an upgrade.](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html) When you initiate a cluster upgrade, AWS manages upgrading the cluster control plane. You are responsible for upgrading the data plane, including Fargate pods and [other add-ons.](#upgrade-add-ons-and-components-using-the-kubernetes-api) You must validate and plan upgrades for workloads running on your cluster to ensure their availability and operations are not impacted after cluster upgrade
+You are responsible for initiating upgrade for both cluster control plane as well as the data plane. [Learn how to initiate an upgrade.](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html) When you initiate a cluster upgrade, AWS manages upgrading the cluster control plane. You are responsible for upgrading the data plane, including Fargate pods and [other add-ons.](#upgrade-add-ons-and-components-using-the-kubernetes-api) You must validate and plan upgrades for workloads running on your cluster to ensure their availability and operations are not impacted after cluster upgrade.
 
 ## Upgrade clusters in-place
 
@@ -174,8 +174,8 @@ Amazon EKS automatically installs add-ons such as the Amazon VPC CNI plugin for 
 You can use Amazon EKS Add-ons to update versions with a single command. For Example:
 
 ```
-aws eks update-addon —cluster-name my-cluster —addon-name vpc-cni —addon-version version-number \
---service-account-role-arn arn:aws:iam::111122223333:role/role-name —configuration-values '{}' —resolve-conflicts PRESERVE
+aws eks update-addon --cluster-name my-cluster --addon-name vpc-cni --addon-version version-number \
+--service-account-role-arn arn:aws:iam::111122223333:role/role-name --configuration-values '{}' --resolve-conflicts PRESERVE
 ```
 
 Check if you have any EKS Add-ons with:
@@ -440,12 +440,12 @@ Before proceeding with a Kubernetes upgrade in Amazon EKS, it's vital to ensure 
 
 Karpenter’s [Drift](https://karpenter.sh/docs/concepts/disruption/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Refer to [How to upgrade an EKS Cluster with Karpenter](https://karpenter.sh/docs/faq/#how-do-i-upgrade-an-eks-cluster-with-karpenter) for more details.
 
-This means that if the AMI ID specified in the Karpenter EC2 Nodeclass is updated, Karpenter will detect the drift and start replacing the nodes with the new AMI. 
+This means that if the AMI ID specified in the Karpenter EC2NodeClass is updated, Karpenter will detect the drift and start replacing the nodes with the new AMI. 
 To understand how Karpenter manages AMIs and the different options available to Karpenter users to control the AMI upgrade process see the documentation on [how to manage AMIs in Karpenter](https://karpenter.sh/docs/tasks/managing-amis/).
 
 ## Use ExpireAfter for Karpenter managed nodes
 
-Karpenter will mark nodes as expired and disrupt them after they have lived the duration specified in `spec.disruption.expireAfter. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see [Disruption](https://karpenter.sh/docs/concepts/disruption/#methods) on the Karpenter website.
+Karpenter will mark nodes as expired and disrupt them after they have lived the duration specified in `spec.disruption.expireAfter`. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see [Disruption](https://karpenter.sh/docs/concepts/disruption/#methods) on the Karpenter website.
 
 If you're using automatic AMI upgrades, ExpireAfter can periodically refresh and upgrade your nodes.
 
@@ -484,7 +484,7 @@ Benefits include:
 
 * Possible to change multiple EKS versions at once (e.g. 1.23 to 1.25)
 * Able to switch back to the old cluster
-* Creates a new cluster which may be managed with newer systems (e.g. terraform)
+* Creates a new cluster which may be managed with newer systems (e.g. Terraform)
 * Workloads can be migrated individually
 
 Some downsides include:
