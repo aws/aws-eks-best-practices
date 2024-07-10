@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 인증 및 접근 관리
 
 [AWS IAM(Identity and Access Management)](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html)은 인증 및 권한 부여라는 두 가지 필수 기능을 수행하는 AWS 서비스입니다. 인증에는 자격 증명 확인이 포함되는 반면 권한 부여는 AWS 리소스에서 수행할 수 있는 작업을 관리합니다. AWS 내에서 리소스는 다른 AWS 서비스(예: EC2) 또는 [IAM 사용자](https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html#id_iam-users) 또는 [IAM 역할](https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html#id_iam-roles)과 같은 AWS [보안 주체](https://docs.aws.amazon.com/IAM/latest/UserGuide/intro-structure.html#intro-structure-principal)일 수 있습니다. 리소스가 수행할 수 있는 작업을 관리하는 규칙은 [IAM 정책]( https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html)으로 표현됩니다.

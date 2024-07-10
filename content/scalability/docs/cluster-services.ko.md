@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 클러스터 서비스
 
 클러스터 서비스는 EKS 클러스터 내에서 실행되지만 사용자 워크로드는 아닙니다. 리눅스 서버를 사용하는 경우 워크로드를 지원하기 위해 NTP, syslog 및 컨테이너 런타임과 같은 서비스를 실행해야 하는 경우가 많습니다. 클러스터 서비스도 비슷하며 클러스터를 자동화하고 운영하는 데 도움이 되는 서비스를 지원합니다. 쿠버네티스에서 이들은 일반적으로 kube-system 네임스페이스에서 실행되고 일부는 [데몬셋](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)로 실행됩니다.

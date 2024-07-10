@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # EKS 컨트롤 플레인
 
 Amazon Elastic Kubernetes Service(EKS)는 자체 쿠버네티스 컨트롤 플레인 또는 워커 노드를 설치, 운영 및 유지 관리할 필요 없이 AWS에서 쉽게 쿠버네티스를 실행할 수 있게 해주는 관리형 쿠버네티스 서비스입니다. 업스트림 쿠버네티스를 실행하며 쿠버네티스 규정 준수 인증을 받았습니다. 이러한 규정 준수를 통해 EKS는 EC2 또는 온프레미스에 설치할 수 있는 오픈 소스 커뮤니티 버전과 마찬가지로 쿠버네티스 API를 지원합니다. 업스트림 쿠버네티스에서 실행되는 기존 애플리케이션은 Amazon EKS와 호환됩니다.
@@ -68,7 +74,7 @@ max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024)
 
 ## 클러스터 인증
 
-EKS는 현재 [bearer/서비스 계정 토큰](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#service-account-tokens)과 [웹후크 토큰 인증](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#webhook-token-authentication)을 사용하는 IAM 인증 등 두 가지 유형의 인증을 지원합니다. 사용자가 쿠버네티스 API를 호출하면 웹후크는 요청에 포함된 인증 토큰을 IAM에 전달합니다. base 64로 서명된 URL인 토큰은 AWS 명령줄 인터페이스([AWS CLI](https://aws.amazon.com/cli/))에 의해 생성됩니다.
+EKS는 현재 [bearer/서비스 계정 토큰](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#service-account-tokens)과 [웹훅 토큰 인증](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#webhook-token-authentication)을 사용하는 IAM 인증 등 두 가지 유형의 인증을 지원합니다. 사용자가 쿠버네티스 API를 호출하면 웹훅는 요청에 포함된 인증 토큰을 IAM에 전달합니다. base 64로 서명된 URL인 토큰은 AWS 명령줄 인터페이스([AWS CLI](https://aws.amazon.com/cli/))에 의해 생성됩니다.
 
 EKS 클러스터를 생성하는 IAM 사용자 또는 역할은 자동으로 클러스터에 대한 전체 액세스 권한을 얻습니다. [`aws-auth` configmap](https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html)을 편집하여 EKS 클러스터에 대한 액세스를 관리할 수 있습니다.
 
@@ -150,7 +156,7 @@ users:
 
 ## Admission Webhooks
 
-쿠버네티스에는 [admission webhooks 검증 및 변경](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers)이라는 두 가지 유형의 admission webhooks이 있습니다. 이를 통해 사용자는 쿠버네티스 API를 확장하고 API에서 객체를 승인하기 전에 객체를 검증하거나 변경할 수 있습니다. 이러한 웹후크를 잘못 구성하면 클러스터의 중요한 작업이 차단되어 EKS 컨트롤 플레인이 불안정해질 수 있습니다.
+쿠버네티스에는 [admission webhooks 검증 및 변경](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers)이라는 두 가지 유형의 admission webhooks이 있습니다. 이를 통해 사용자는 쿠버네티스 API를 확장하고 API에서 객체를 승인하기 전에 객체를 검증하거나 변경할 수 있습니다. 이러한 웹훅를 잘못 구성하면 클러스터의 중요한 작업이 차단되어 EKS 컨트롤 플레인이 불안정해질 수 있습니다.
 
 클러스터 크리티컬 작업에 영향을 주지 않으려면 다음과 같은 “catch-all” 웹훅을 설정하지 마십시오.
 
@@ -164,7 +170,7 @@ users:
     scope: "*"
 ```
 
-또는 웹후크에 30초 미만의 제한 시간을 가진 Fail Open 정책이 있는지 확인하여 웹후크를 사용할 수 없는 경우 클러스터의 중요한 워크로드에 영향을 주지 않도록 하십시오.
+또는 웹훅에 30초 미만의 제한 시간을 가진 Fail Open 정책이 있는지 확인하여 웹훅를 사용할 수 없는 경우 클러스터의 중요한 워크로드에 영향을 주지 않도록 하십시오.
 
 ### 안전하지 않은 `sysctls`가 있는 파드를 차단한다.
 

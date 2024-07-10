@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 쿠버네티스 컨트롤 플레인
 
 쿠버네티스 컨트롤 플레인은 쿠버네티스 API Server, 쿠버네티스 Controller Manager, Scheduler 및 쿠버네티스가 작동하는 데 필요한 기타 구성 요소로 구성됩니다. 이러한 구성 요소의 확장성 제한은 클러스터에서 실행 중인 항목에 따라 다르지만 확장에 가장 큰 영향을 미치는 영역에는 쿠버네티스 버전, 사용률 및 개별 노드 확장이 포함됩니다.
@@ -189,7 +195,7 @@ APF가 허용된 최대 내부 요청 수를 초과하는 지정된 PriorityLeve
 
 #### APF 설정을 변경하여 429를 방지
 
-!!! 경고
+!!! warning
      수행 중인 작업을 알고 있는 경우에만 기본 APF 설정을 변경하십시오. APF 설정이 잘못 구성되면 API Server 요청이 중단되고 워크로드가 크게 중단될 수 있습니다.
 
 요청 삭제를 방지하기 위한 또 다른 접근 방식은 EKS 클러스터에 설치된 기본 FlowSchemas 또는 PriorityLevelConfigurations를 변경하는 것입니다. EKS는 지정된 쿠버네티스 마이너 버전에 대한 FlowSchemas 및 PriorityLevelConfigurations의 업스트림 기본 설정을 설치합니다. API는 객체에 대한 다음 주석이 false로 설정되지 않은 한 이러한 객체를 기본값으로 자동으로 다시 조정합니다.

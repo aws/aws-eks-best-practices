@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 네트워크 보안
 
 네트워크 보안에는 여러 측면이 있습니다. 첫 번째는 서비스 간의 네트워크 트래픽 흐름을 제한하는 규칙 적용과 관련됩니다. 두 번째는 전송 중인 트래픽의 암호화와 관련이 있습니다. EKS에서 이런 보안 조치를 구현하는 메커니즘은 다양하지만 종종 다음 항목을 포함합니다.
@@ -174,16 +180,16 @@ EKS는 [AWS VPC 보안 그룹](https://docs.aws.amazon.com/vpc/latest/userguide/
 
 `SecurityGroupPolicy` 객체를 생성하고 `PodSelector` 또는 `ServiceAccountSelector`를 지정하여 어떤 파드를 보안 그룹에 할당할지 제어할 수 있습니다. 셀렉터를 `{}`로 설정하면 `SecurityGroupPolicy`에서 참조하는 보안그룹이 네임스페이스의 모든 파드 또는 네임스페이스의 모든 서비스 어카운트에 할당됩니다. 파드용 보안 그룹을 구현하기 전에 [고려 사항](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations)을 모두 숙지해야 합니다.
 
-!!! 중요
+!!! important
     파드에 보안그룹을 사용하는 경우 클러스터 보안 그룹에 포트 53이 아웃바운드되도록 허용하는 보안그룹을 생성해야 합니다. 마찬가지로, 파드 보안 그룹의 포트 53 인바운드 트래픽을 허용하도록 클러스터 보안 그룹을 업데이트해야 합니다.
 
-!!! 중요
+!!! important
     파드용 보안 그룹을 사용할 때에도 [보안 그룹 제한사항](https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups)이 여전히 적용되므로 신중하게 사용해야 합니다.
 
-!!! 중요
+!!! important
     파드에 구성된 모든 프로브에 대해 클러스터 보안 그룹 (kubelet)의 인바운드 트래픽에 대한 규칙을 **필수** 생성해야 합니다.
 
-!!! 중요
+!!! important
     파드의 보안 그룹은 EC2 인스턴스의 여러 개의 ENI를 할당 하기 위해 [ENI 트렁킹](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html) 기능을 사용합니다. 파드가 보안그룹에 할당되면 VPC 컨트롤러는 노드 그룹의 브랜치 ENI를 파드와 연결합니다. 파드가 예약될 때 노드그룹에서 사용할 수 있는 브랜치 ENI가 충분하지 않은 경우 파드는 보류 상태로 유지됩니다. 인스턴스가 지원할 수 있는 브랜치 ENI의 수는 인스턴스 유형/패밀리에 따라 다릅니다. 자세한 내용은 [AWS 문서](https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types)를 참조하십시오.
 
 파드용 보안 그룹은 정책 데몬의 오버헤드 없이 클러스터 내부 및 외부의 네트워크 트래픽을 제어할 수 있는 AWS 네이티브 방법을 제공하지만 다른 옵션도 사용할 수 있습니다. 예를 들어 Cilium 정책 엔진을 사용하면 네트워크 정책에서 DNS 이름을 참조할 수 있습니다. Calico Enterprise에는 네트워크 정책을 AWS 보안 그룹에 매핑하는 옵션이 포함되어 있습니다. Istio와 같은 서비스 메시를 구현한 경우, 이그레스 게이트웨이를 사용하여 네트워크 송신을 검증된 특정 도메인 또는 IP 주소로 제한할 수 있습니다. 이 옵션에 대한 자세한 내용은 [Istio의 이그레스 트래픽 제어](https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/)에 대한 3부작 시리즈를 참조하십시오.
@@ -260,7 +266,7 @@ EKS는 [AWS VPC 보안 그룹](https://docs.aws.amazon.com/vpc/latest/userguide/
 
 마이그레이션 프로세스를 지원하기 위해 기존 Calico/Cilium 네트워크 정책 CRD를 쿠버네티스 네이티브 네트워크 정책으로 변환하는 [K8s Network Policy Migrator](https://github.com/awslabs/k8s-network-policy-migrator) 도구를 개발했습니다. 변환 후에는 VPC CNI 네트워크 정책 컨트롤러를 실행하는 새 클러스터에서 변환된 네트워크 정책을 직접 테스트할 수 있습니다. 이 도구는 마이그레이션 프로세스를 간소화하고 원활한 전환을 보장하도록 설계되었습니다.
 
-!!! 중요
+!!! important
     마이그레이션 도구는 네이티브 쿠버네티스 네트워크 정책 API와 호환되는 서드파티 정책만 변환합니다. 서드파티 플러그인이 제공하는 고급 네트워크 정책 기능을 사용하는 경우 마이그레이션 도구는 해당 기능을 건너뛰고 보고합니다.
 
 참고로, 마이그레이션 도구는 현재 AWS VPC CNI 네트워크 정책 엔지니어링 팀에서 지원하지 않으며, 고객이 최선의 노력을 기울여 사용할 수 있도록 만들어졌습니다. 마이그레이션 프로세스를 원활하게 진행하려면 이 도구를 활용하는 것이 좋습니다. 도구에서 문제나 버그가 발생하는 경우 [Github 이슈](https://github.com/awslabs/k8s-network-policy-migrator/issues)를 생성해 주시기 바랍니다. 여러분의 피드백은 우리에게 매우 소중하며 서비스를 지속적으로 개선하는 데 도움이 됩니다.
@@ -538,6 +544,7 @@ Istio 인증서 서명 요청 에이전트 ([istio-csr](https://cert-manager.io/
 
 ## 도구 및 리소스
 
+- [Amazon EKS 보안 워크샵 - 네트워크 보안](https://catalog.workshops.aws/eks-security-immersionday/en-US/6-network-security)
 - [cert-manager 및 ACM Private CA 플러그인을 구현하여 EKS에서 TLS를 활성화하는 방법](https://aws.amazon.com/blogs/security/tls-enabled-kubernetes-clusters-with-acm-private-ca-and-amazon-eks-2/).
 - [새로운 AWS Load Balancer Controller 및 ACM Private CA를 사용하여 Amazon EKS에서 엔드-투-엔드 TLS 암호화 설정](https://aws.amazon.com/blogs/containers/setting-up-end-to-end-tls-encryption-on-amazon-eks-with-the-new-aws-load-balancer-controller/).
 - [Private CA 쿠버네티스 cert-manager 플러그인 (Github)](https://github.com/cert-manager/aws-privateca-issuer).
@@ -546,3 +553,4 @@ Istio 인증서 서명 요청 에이전트 ([istio-csr](https://cert-manager.io/
 - [kniff 및 Wireshark를 사용한 쿠버네티스의 서비스 메시 TLS 검증](https://itnext.io/verifying-service-mesh-tls-in-kubernetes-using-ksniff-and-wireshark-2e993b26bf95)
 - [ksniff](https://github.com/eldadru/ksniff)
 - [egress-operator](https://github.com/monzo/egress-operator) 프로토콜 검사 없이 클러스터의 송신 트래픽을 제어하는 오퍼레이터 및 DNS 플러그인
+- [NeuVector by SUSE](https://www.suse.com/neuvector/) 오픈 소스 제로 트러스트 컨테이너 보안 플랫폼은 정책 네트워크 규칙, 데이터 손실 방지 (DLP), 웹 애플리케이션 방화벽 (WAF) 및 네트워크 위협 시그니처를 제공합니다.

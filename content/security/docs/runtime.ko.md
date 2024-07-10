@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 런타임 보안
 
 런타임 보안은 컨테이너가 실행되는 동안 컨테이너를 능동적으로 보호합니다. 컨테이너 내부에서 발생하는 악의적인 활동을 탐지 및 방지하는 것이 관건입니다. 이는 리눅스 기능, 보안 컴퓨팅 (seccomp), AppArmor 또는 SELinux와 같이 쿠버네티스와 통합된 리눅스 커널 또는 커널 익스텐션의 여러 메커니즘을 통해 달성할 수 있습니다. Amazon GuardDuty 및 타사 도구와 같은 옵션도 있습니다. 이러한 도구를 사용하면 Linux 커널 메커니즘을 수동으로 구성하지 않고도 기준을 설정하고 이상 활동을 탐지하는 데 도움을 줄 수 있습니다.
@@ -75,3 +81,4 @@ PSP는 과도한 복잡성을 유발하지 않으면서 보안 태세를 개선�
 + [Stackrox](https://www.stackrox.com/use-cases/threat-detection/)
 + [Sysdig Secure](https://sysdig.com/products/kubernetes-security/)
 + [Prisma](https://docs.paloaltonetworks.com/cn-series)
++ [NeuVector by SUSE](https://www.suse.com/neuvector/) 오픈 소스, 제로 트러스트 컨테이너 보안 플랫폼은 프로세스 프로필 규칙과 파일 액세스 규칙을 제공합니다.
