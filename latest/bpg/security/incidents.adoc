@@ -93,7 +93,7 @@ kubectl get pods -o json --all-namespaces | \
 
 A deny all traffic rule may help stop an attack that is already underway
 by severing all connections to the pod. The following Network Policy
-will apply to a pod with the label `+app=web+`.
+will apply to a pod with the label `app=web`.
 
 [source,yaml]
 ----
@@ -170,17 +170,17 @@ container.
 altered*. You can use capabilities of the container runtime to capture
 information about currently running containers. For example, with
 Docker, you could do the following:
-** `+docker top CONTAINER+` for processes running.
-** `+docker logs CONTAINER+` for daemon level held logs.
-** `+docker inspect CONTAINER+` for various information about the
+** `docker top CONTAINER` for processes running.
+** `docker logs CONTAINER` for daemon level held logs.
+** `docker inspect CONTAINER` for various information about the
 container.
 +
 The same could be achieved with containerd using the
 https://github.com/containerd/nerdctl[nerdctl] CLI, in place of
-`+docker+` (e.g. `+nerdctl inspect+`). Some additional commands are
+`docker` (e.g. `nerdctl inspect`). Some additional commands are
 available depending on the container runtime. For example, Docker has
-`+docker diff+` to see changes to the container filesystem or
-`+docker checkpoint+` to save all container state including volatile
+`docker diff` to see changes to the container filesystem or
+`docker checkpoint` to save all container state including volatile
 memory (RAM). See
 https://kubernetes.io/blog/2022/12/05/forensic-container-checkpointing-alpha/[this
 Kubernetes blog post] for discussion of similar capabilities with

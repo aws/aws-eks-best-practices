@@ -58,8 +58,8 @@ evaluation does not affect the policy result.
 
 !!! attention When you first provision an EKS cluster, VPC CNI Network
 Policy functionality is not enabled by default. Ensure you deployed
-supported VPC CNI Add-on version and set `+ENABLE_NETWORK_POLICY+` flag
-to `+true+` on the vpc-cni add-on to enable this. Refer
+supported VPC CNI Add-on version and set `ENABLE_NETWORK_POLICY` flag
+to `true` on the vpc-cni add-on to enable this. Refer
 https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html[Amazon
 EKS User guide] for detailed instructions.
 
@@ -132,7 +132,7 @@ image::./images/allow-dns-access.jpg[allow-dns-access]
 
 Understand the application requirements and create fine-grained ingress
 and egress rules as needed. Below example shows how to restrict ingress
-traffic on port 80 to `+app-one+` from `+client-one+`. This helps
+traffic on port 80 to `app-one` from `client-one`. This helps
 minimize the attack surface and reduces the risk of unauthorized access.
 
 [source,yaml]
@@ -190,7 +190,7 @@ permissions.
 * *Ensure Network Policies exists using Open Policy Agent (OPA)*
 ** Use OPA Policy like shown below to ensure Network Policy always
 exists before onboarding application pods. This policy denies onboarding
-k8s pods with a label `+k8s-app: sample-app+` if corresponding network
+k8s pods with a label `k8s-app: sample-app` if corresponding network
 policy does not exist.
 
 ```
@@ -234,8 +234,8 @@ Policies.
 
 Amazon VPC CNI also ships an SDK that provides an interface to interact
 with eBPF programs on the node. The SDK is installed when the
-`+aws-node+` is deployed onto the nodes. You can find the SDK binary
-installed under `+/opt/cni/bin+` directory on the node. At launch, the
+`aws-node` is deployed onto the nodes. You can find the SDK binary
+installed under `/opt/cni/bin` directory on the node. At launch, the
 SDK provides support for fundamental functionalities such as inspecting
 eBPF programs and maps.
 
@@ -295,9 +295,9 @@ groups for pods]. With security groups for pods, you can assign an
 to the creation of the pods, the pods will not get scheduled.
 
 You can control which pods are assigned to a security group by creating
-a `+SecurityGroupPolicy+` object and specifying a `+PodSelector+` or a
-`+ServiceAccountSelector+`. Setting the selectors to `+{}+` will assign
-the SGs referenced in the `+SecurityGroupPolicy+` to all pods in a
+a `SecurityGroupPolicy` object and specifying a `PodSelector` or a
+`ServiceAccountSelector`. Setting the selectors to `{}` will assign
+the SGs referenced in the `SecurityGroupPolicy` to all pods in a
 namespace or all Service Accounts in a namespace. Be sure you’ve
 familiarized yourself with all the
 https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations[considerations]
@@ -362,10 +362,10 @@ with other AWS services (RDS database), use SGPs as an efficient
 mechanism to control the traffic from the pods to AWS services.
 * *Isolation of Pod & Node traffic*
 ** If you want to completely separate pod traffic from the rest of the
-node traffic, use SGP in `+POD_SECURITY_GROUP_ENFORCING_MODE=strict+`
+node traffic, use SGP in `POD_SECURITY_GROUP_ENFORCING_MODE=strict`
 mode.
 
-=== Best practices using `+Security groups for pods+` and `+Network Policy+`
+=== Best practices using `Security groups for pods` and `Network Policy`
 
 * *Layered security*
 ** Use a combination of SGP and kubernetes network policy for a layered
@@ -387,7 +387,7 @@ misconfiguration and ease the management overhead
 applications
 
 !!! attention Security Groups for pods provides two enforcing modes:
-`+strict+` and `+standard+`. You must use `+standard+` mode when using
+`strict` and `standard`. You must use `standard` mode when using
 both Network Policy and Security Groups for pods features in an EKS
 cluster.
 
@@ -398,7 +398,7 @@ applications running in EKS.
 
 == Service Mesh Policy Enforcement or Kubernetes network policy
 
-A `+service mesh+` is a dedicated infrastructure layer that you can add
+A `service mesh` is a dedicated infrastructure layer that you can add
 to your applications. It allows you to transparently add capabilities
 like observability, traffic management, and security, without adding
 them to your own code.
@@ -597,14 +597,14 @@ https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction
 Application Load Balancer] (ALB) and
 https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html[Network
 Load Balancer] (NLB) both have support for transport encryption (SSL and
-TLS). The `+alb.ingress.kubernetes.io/certificate-arn+` annotation for
+TLS). The `alb.ingress.kubernetes.io/certificate-arn` annotation for
 the ALB lets you to specify which certificates to add to the ALB. If you
 omit the annotation the controller will attempt to add certificates to
 listeners that require it by matching the available
 https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html[AWS
 Certificate Manager (ACM)] certificates using the host field. Starting
 with EKS v1.15 you can use the
-`+service.beta.kubernetes.io/aws-load-balancer-ssl-cert+` annotation
+`service.beta.kubernetes.io/aws-load-balancer-ssl-cert` annotation
 with the NLB as shown in the example below.
 
 [source,yaml]
@@ -713,7 +713,7 @@ certificates from ACM Private CA.
 Now that you have a Private CA and an EKS cluster with cert-manager and
 the plugin installed, it’s time to set permissions and create the
 issuer. Update IAM permissions of the EKS node role to allow access to
-ACM Private CA. Replace the `+<CA_ARN>+` with the value from your
+ACM Private CA. Replace the `<CA_ARN>` with the value from your
 Private CA:
 
 [source,json]
@@ -741,7 +741,7 @@ Additional Resources section below for complete examples.
 
 Create an Issuer in Amazon EKS by creating a Custom Resource Definition
 file named cluster-issuer.yaml with the following text in it, replacing
-`+<CA_ARN>+` and `+<Region>+` information with your Private CA.
+`<CA_ARN>` and `<Region>` information with your Private CA.
 
 [source,yaml]
 ----
@@ -762,8 +762,8 @@ kubectl apply -f cluster-issuer.yaml
 ----
 
 Your EKS cluster is configured to request certificates from Private CA.
-You can now use cert-manager’s `+Certificate+` resource to issue
-certificates by changing the `+issuerRef+` field’s values to the Private
+You can now use cert-manager’s `Certificate` resource to issue
+certificates by changing the `issuerRef` field’s values to the Private
 CA Issuer you created above. For more details on how to specify and
 request Certificate resources, please check cert-manager’s
 https://cert-manager.io/docs/usage/certificate/[Certificate Resources
@@ -774,7 +774,7 @@ examples here].
 === ACM Private CA with Istio and cert-manager
 
 If you are running Istio in your EKS cluster, you can disable the Istio
-control plane (specifically `+istiod+`) from functioning as the root
+control plane (specifically `istiod`) from functioning as the root
 Certificate Authority (CA), and configure ACM Private CA as the root CA
 for mTLS between workloads. If you’re going with this approach, consider
 using the _short-lived CA mode_ in ACM Private CA. Refer to the
@@ -796,11 +796,11 @@ with its envoy sidecar proxy, it needs an identity assigned from Istio
 in order for it to be deemed as trustworthy and allowed to communicate
 with other services in the mesh.
 
-To get this identity from Istio, the `+istio-agent+` sends a request
+To get this identity from Istio, the `istio-agent` sends a request
 known as a certificate signing request (or CSR) to the Istio control
 plane. This CSR contains the service account token so that the
 workload’s identity can be verified before being processed. This
-verification process is handled by `+istiod+`, which acts as both the
+verification process is handled by `istiod`, which acts as both the
 Registration Authority (or RA) and the CA. The RA serves as a gatekeeper
 that makes sure only verified CSR makes it through to the CA. Once the
 CSR is verified, it will be forwarded to the CA which will then issue a
@@ -851,14 +851,14 @@ section] to complete the following:
 . Install cert-manager
 . Install the issuer plugin
 . Set permissions and create an issuer. The issuer represents the CA and
-is used to sign `+istiod+` and mesh workload certificates. It will
+is used to sign `istiod` and mesh workload certificates. It will
 communicate with ACM Private CA.
-. Create an `+istio-system+` namespace. This is where the
-`+istiod certificate+` and other Istio resources will be deployed.
+. Create an `istio-system` namespace. This is where the
+`istiod certificate` and other Istio resources will be deployed.
 . Install Istio CSR configured with AWS Private CA Issuer Plugin. You
 can preserve the certificate signing requests for workloads to verify
 that they get approved and signed
-(`+preserveCertificateRequests=true+`).
+(`preserveCertificateRequests=true`).
 +
 [source,bash]
 ----
@@ -876,8 +876,8 @@ helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-
 --set "volumes[0].name=root-ca" \
 --set "volumes[0].secret.secretName=istio-root-ca"
 ----
-. Install Istio with custom configurations to replace `+istiod+` with
-`+cert-manager istio-csr+` as the certificate provider for the mesh.
+. Install Istio with custom configurations to replace `istiod` with
+`cert-manager istio-csr` as the certificate provider for the mesh.
 This process can be carried out using the
 https://tetrate.io/blog/what-is-istio-operator/[Istio Operator].
 +

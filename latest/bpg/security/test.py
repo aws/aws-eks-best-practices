@@ -128,7 +128,7 @@ def suggest_fixes(section: Section) -> List[str]:
     if re.search(r'[^=]=+[^=]', section.content):
         suggestions.append("Check for misplaced section headers or formatting issues with '=' characters")
     
-    if re.search(r'[^`]`[^`]+`[^`]', section.content):
+    if re.search(r'[^`]`[^`]`[^`]', section.content):
         suggestions.append("Ensure all inline code blocks use matching backticks")
     
     if re.search(r'\{[^}]+\}', section.content):

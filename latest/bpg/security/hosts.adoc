@@ -62,7 +62,7 @@ the nodes have been replaced. EKS
 https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[managed
 node groups] uses the first approach and will display a message in the
 console to upgrade your workers when a new AMI becomes available.
-`+eksctl+` also has a mechanism for creating node groups with the latest
+`eksctl` also has a mechanism for creating node groups with the latest
 AMI and for gracefully cordoning and draining pods from nodes groups
 before the instances are terminated. If you decide to use a different
 method for replacing your worker nodes, it is strongly recommended that
@@ -115,10 +115,10 @@ example].
 
 ==== Minimal IAM policy for SSM based SSH Access
 
-The `+AmazonSSMManagedInstanceCore+` AWS managed policy contains a
+The `AmazonSSMManagedInstanceCore` AWS managed policy contains a
 number of permissions that are not required for SSM Session Manager /
 SSM RunCommand if you’re just looking to avoid SSH access. Of concern
-specifically is the `+*+` permissions for `+ssm:GetParameter(s)+` which
+specifically is the `*` permissions for `ssm:GetParameter(s)` which
 would allow for the role to access all parameters in Parameter Store
 (including SecureStrings with the AWS managed KMS key configured).
 
@@ -229,12 +229,12 @@ Fargate pods.
 // package. Docker CE requires this package (along with its dependencies)
 // so that the processes and files created by Docker (or other container
 // runtimes) run with limited system access. Containers leverage the
-// `+container_t+` label which is an alias to `+svirt_lxc_net_t+`. These
+// `container_t` label which is an alias to `svirt_lxc_net_t`. These
 // policies effectively prevent containers from accessing certain features
 // of the host.
 
 // When you configure SELinux for Docker, Docker automatically labels
-// workloads `+container_t+` as a type and gives each container a unique
+// workloads `container_t` as a type and gives each container a unique
 // MCS level. This will isolate containers from one another. If you need
 // looser restrictions, you can create your own profile in SElinux which
 // grants a container permissions to specific areas of the file system.
@@ -250,21 +250,21 @@ Fargate pods.
 // [width="100%",cols="30%,^40%,30%",options="header",]
 // |===
 // |Boolean |Default |Description
-// |`+container_connect_any+` |`+off+` |Allow containers to access
+// |`container_connect_any` |`off` |Allow containers to access
 // privileged ports on the host. For example, if you have a container that
 // needs to map ports to 443 or 80 on the host.
 
-// |`+container_manage_cgroup+` |`+off+` |Allow containers to manage cgroup
+// |`container_manage_cgroup` |`off` |Allow containers to manage cgroup
 // configuration. For example, a container running systemd will need this
 // to be enabled.
 
-// |`+container_use_cephfs+` |`+off+` |Allow containers to use a ceph file
+// |`container_use_cephfs` |`off` |Allow containers to use a ceph file
 // system.
 // |===
 
-// By default, containers are allowed to read/execute under `+/usr+` and
-// read most content from `+/etc+`. The files under `+/var/lib/docker+` and
-// `+/var/lib/containers+` have the label `+container_var_lib_t+`. To view
+// By default, containers are allowed to read/execute under `/usr` and
+// read most content from `/etc`. The files under `/var/lib/docker` and
+// `/var/lib/containers` have the label `container_var_lib_t`. To view
 // a full list of default, labels see the
 // https://github.com/containers/container-selinux/blob/master/container.fc[container.fc]
 // file.
@@ -282,12 +282,12 @@ Fargate pods.
 // # cat: /host/etc/passwd: Permission denied
 // ----
 
-// Files labeled with `+container_file_t+` are the only files that are
+// Files labeled with `container_file_t` are the only files that are
 // writable by containers. If you want a volume mount to be writeable, you
-// will needed to specify `+:z+` or `+:Z+` at the end.
+// will needed to specify `:z` or `:Z` at the end.
 
-// * `+:z+` will re-label the files so that the container can read/write
-// * `+:Z+` will re-label the files so that *only* the container can
+// * `:z` will re-label the files so that the container can read/write
+// * `:Z` will re-label the files so that *only* the container can
 // read/write
 
 // [source,bash]
@@ -327,7 +327,7 @@ Fargate pods.
 //     level: s0:c144:c154
 // ----
 
-// In this example `+s0:c144:c154+` corresponds to an MCS label assigned to
+// In this example `s0:c144:c154` corresponds to an MCS label assigned to
 // a file that the container is allowed to access.
 
 // On EKS you could create policies that allow for privileged containers to

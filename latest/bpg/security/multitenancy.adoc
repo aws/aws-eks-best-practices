@@ -55,7 +55,7 @@ cluster.
 
 !!! warning With soft-multi-tenancy, tenants retain the ability to query
 CoreDNS for all services that run within the cluster by default. An
-attacker could exploit this by running dig SRV `+*.*.svc.cluster.local+`
+attacker could exploit this by running dig SRV `*.*.svc.cluster.local`
 from any pod in the cluster. If you need to restrict access to DNS
 records of services that run within your clusters, consider using the
 Firewall or Policy plugins for CoreDNS. For additional information, see
@@ -295,10 +295,10 @@ affinity] is used to target nodes for scheduling, based on node
 https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/[labels].
 With node affinity rules, the pods are attracted to specific nodes that
 match the selector terms. In the below pod specification, the
-`+requiredDuringSchedulingIgnoredDuringExecution+` node affinity is
+`requiredDuringSchedulingIgnoredDuringExecution` node affinity is
 applied to the respective pod. The result is that the pod will target
 nodes that are labeled with the following key/value:
-`+node-restriction.kubernetes.io/tenant: tenants-x+`.
+`node-restriction.kubernetes.io/tenant: tenants-x`.
 
 [source,yaml]
 ----
@@ -321,13 +321,13 @@ not during execution; if the underlying nodes’ labels change, the pods
 will not be evicted due solely to that label change. However, future
 scheduling could be impacted.
 
-!!! Warning The label prefix of `+node-restriction.kubernetes.io/+` has
+!!! Warning The label prefix of `node-restriction.kubernetes.io/` has
 special meaning in Kubernetes.
 https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction[NodeRestriction]
-which is enabled for EKS clusters prevents `+kubelet+` from
+which is enabled for EKS clusters prevents `kubelet` from
 adding/removing/updating labels with this prefix. Attackers aren’t able
-to use the `+kubelet+`’s credentials to update the node object or modify
-the system setup to pass these labels into `+kubelet+` as `+kubelet+`
+to use the `kubelet`’s credentials to update the node object or modify
+the system setup to pass these labels into `kubelet` as `kubelet`
 isn’t allowed to modify these labels. If this prefix is used for all pod
 to node scheduling, it prevents scenarios where an attacker may want to
 attract a different set of workloads to a node by modifying the node
@@ -351,7 +351,7 @@ unauthorized pods, Kubernetes uses node
 https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/[taints].
 Taints are used to place conditions on nodes that prevent pods from
 being scheduled. The below taint uses a key-value pair of
-`+tenant: tenants-x+`.
+`tenant: tenants-x`.
 
 [source,yaml]
 ----
@@ -363,10 +363,10 @@ being scheduled. The below taint uses a key-value pair of
 ...
 ----
 
-Given the above node `+taint+`, only pods that _tolerate_ the taint will
+Given the above node `taint`, only pods that _tolerate_ the taint will
 be allowed to be scheduled on the node. To allow authorized pods to be
 scheduled onto the node, the respective pod specifications must include
-a `+toleration+` to the taint, as seen below.
+a `toleration` to the taint, as seen below.
 
 [source,yaml]
 ----
@@ -379,7 +379,7 @@ a `+toleration+` to the taint, as seen below.
 ...
 ----
 
-Pods with the above `+toleration+` will not be stopped from scheduling
+Pods with the above `toleration` will not be stopped from scheduling
 on the node, at least not because of that specific taint. Taints are
 also used by Kubernetes to temporarily stop pod scheduling during
 certain conditions, like node resource pressure. With node affinity, and
@@ -449,8 +449,8 @@ spec:
 
 The above policy is applied to a Kubernetes API server request, to apply
 a pod to the _tenants-x_ namespace. The policy adds the
-`+requiredDuringSchedulingIgnoredDuringExecution+` node affinity rule,
-so that pods are attracted to nodes with the `+tenant: tenants-x+`
+`requiredDuringSchedulingIgnoredDuringExecution` node affinity rule,
+so that pods are attracted to nodes with the `tenant: tenants-x`
 label.
 
 A second policy, seen below, adds the toleration to the same pod
@@ -484,7 +484,7 @@ spec:
 ----
 
 The above policies are specific to pods; this is due to the paths to the
-mutated elements in the policies’ `+location+` elements. Additional
+mutated elements in the policies’ `location` elements. Additional
 policies could be written to handle resources that create pods, like
 Deployment and Job resources. The listed policies and other examples can
 been seen in the companion
@@ -494,8 +494,8 @@ project] for this guide.
 The result of these two mutations is that pods are attracted to the
 desired node, while at the same time, not repelled by the specific node
 taint. To verify this, we can see the snippets of output from two
-`+kubectl+` calls to get the nodes labeled with `+tenant=tenants-x+`,
-and get the pods in the `+tenants-x+` namespace.
+`kubectl` calls to get the nodes labeled with `tenant=tenants-x`,
+and get the pods in the `tenants-x` namespace.
 
 [source,bash]
 ----
@@ -515,7 +515,7 @@ tenant-test-pod                       1/1     Running   0          13s   10.0.35
 ----
 
 As we can see from the above outputs, all the pods are scheduled on the
-nodes labeled with `+tenant=tenants-x+`. Simply put, the pods will only
+nodes labeled with `tenant=tenants-x`. Simply put, the pods will only
 run on the desired nodes, and the other pods (without the required
 affinity and tolerations) will not. The tenant workloads are effectively
 isolated.

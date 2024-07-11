@@ -261,16 +261,16 @@ all actions against your and only your ECR repositories:
 ----
 
 You can enhance this further by setting a condition that uses the new
-`+PrincipalOrgID+` attribute which will prevent pushing/pulling of
+`PrincipalOrgID` attribute which will prevent pushing/pulling of
 images by an IAM principle that is not part of your AWS Organization.
 See,
 https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-principalorgid[aws:PrincipalOrgID]
 for additional details. We recommended applying the same policy to both
-the `+com.amazonaws.<region>.ecr.dkr+` and the
-`+com.amazonaws.<region>.ecr.api+` endpoints. Since EKS pulls images for
+the `com.amazonaws.<region>.ecr.dkr` and the
+`com.amazonaws.<region>.ecr.api` endpoints. Since EKS pulls images for
 kube-proxy, coredns, and aws-node from ECR, you will need to add the
 account ID of the registry,
-e.g. `+602401143452.dkr.ecr.us-west-2.amazonaws.com/*+` to the list of
+e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of
 resources in the endpoint policy or alter the policy to allow pulls from
 “*” and restrict pushes to your account ID. The table below reveals the
 mapping between the AWS accounts where EKS images are vended from and
@@ -340,15 +340,15 @@ https://vulnerablecontainers.org/[here].
 
 As was mentioned in the pod security section, you should avoid running
 container as root. While you can configure this as part of the podSpec,
-it is a good habit to use the `+USER+` directive to your Dockerfiles.
-The `+USER+` directive sets the UID to use when running `+RUN+`,
-`+ENTRYPOINT+`, or `+CMD+` instruction that appears after the USER
+it is a good habit to use the `USER` directive to your Dockerfiles.
+The `USER` directive sets the UID to use when running `RUN`,
+`ENTRYPOINT`, or `CMD` instruction that appears after the USER
 directive.
 
 === Lint your Dockerfiles
 
 Linting can be used to verify that your Dockerfiles are adhering to a
-set of predefined guidelines, e.g. the inclusion of the `+USER+`
+set of predefined guidelines, e.g. the inclusion of the `USER`
 directive or the requirement that all images be tagged.
 https://github.com/projectatomic/dockerfile_lint[dockerfile_lint] is an
 open source project from RedHat that verifies common best practices and
@@ -363,7 +363,7 @@ aim when building images. The ideal way to do this is by creating
 minimal images that are devoid of binaries that can be used to exploit
 vulnerabilities. Fortunately, Docker has a mechanism to create images
 from
-https://docs.docker.com/develop/develop-images/baseimages/#create-a-simple-parent-image-using-scratch[`+scratch+`].
+https://docs.docker.com/develop/develop-images/baseimages/#create-a-simple-parent-image-using-scratch[`scratch`].
 With languages like Go, you can create a static linked binary and
 reference it in your Dockerfile as in this example:
 
@@ -455,7 +455,7 @@ Examples of admission controller include:
 
 === Update the packages in your container images
 
-You should include RUN `+apt-get update && apt-get upgrade+` in your
+You should include RUN `apt-get update && apt-get upgrade` in your
 Dockerfiles to upgrade the packages in your images. Although upgrading
 requires you to run as root, this occurs during image build phase. The
 application doesn’t need to run as root. You can install the updates and
@@ -464,9 +464,9 @@ image runs as a non-root user, switch to root and back; don’t solely
 rely on the maintainers of the base image to install the latest security
 updates.
 
-Run `+apt-get clean+` to delete the installer files from
-`+/var/cache/apt/archives/+`. You can also run
-`+rm -rf /var/lib/apt/lists/*+` after installing packages. This removes
+Run `apt-get clean` to delete the installer files from
+`/var/cache/apt/archives/`. You can also run
+`rm -rf /var/lib/apt/lists/*` after installing packages. This removes
 the index files or the lists of packages that are available to install.
 Be aware that these commands may be different for each package manager.
 For example:

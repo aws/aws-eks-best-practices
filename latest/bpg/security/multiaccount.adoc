@@ -61,7 +61,7 @@ account strategy:
 // == Centralized EKS Cluster
 
 // In this approach, your EKS Cluster will be deployed in a single AWS
-// account called the `+Cluster Account+`. Using
+// account called the `Cluster Account`. Using
 // https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html[IAM
 // roles for Service Accounts (IRSA)] or
 // https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html[EKS
@@ -80,11 +80,11 @@ account strategy:
 // within an EKS cluster should still be followed when implementing a multi
 // account strategy for multi tenant EKS clusters.
 
-// It is possible to have multiple `+Cluster Accounts+` in your AWS
+// It is possible to have multiple `Cluster Accounts` in your AWS
 // organization, and it is a best practice to have multiple
-// `+Cluster Accounts+` that align with your software development lifecycle
+// `Cluster Accounts` that align with your software development lifecycle
 // needs. For workloads operating at a very large scale, you may require
-// multiple `+Cluster Accounts+` to ensure that there are enough kubernetes
+// multiple `Cluster Accounts` to ensure that there are enough kubernetes
 // and AWS service quotas available to all your workloads.
 
 [width="100%",cols="^100%",options="header",]
@@ -196,7 +196,7 @@ Role chaining can be configured in an applications profile with their
 aws configuration file using the
 https://docs.aws.amazon.com/sdkref/latest/guide/feature-process-credentials.html[Process
 Credentials Provider] available in various AWS SDKs.
-`+credential_process+` can be used as a credential source when
+`credential_process` can be used as a credential source when
 configuring a profile, such as:
 
 [source,bash]
@@ -267,8 +267,8 @@ another account with role chaining, you create a role trust policy
 statement that only allows a role to be assumed by a role session when
 the expected values are present. The following role trust policy will
 only let a role from the EKS cluster account (account ID 111122223333)
-assume a role if the `+kubernetes-service-account+`, `+eks-cluster-arn+`
-and `+kubernetes-namespace+` tags all have the expected value.
+assume a role if the `kubernetes-service-account`, `eks-cluster-arn`
+and `kubernetes-namespace` tags all have the expected value.
 
 [source,json]
 ----
@@ -294,7 +294,7 @@ and `+kubernetes-namespace+` tags all have the expected value.
 ----
 
 When using this strategy it is a best practice to ensure that the common
-IAM role only has `+sts:AssumeRole+` permissions and no other AWS
+IAM role only has `sts:AssumeRole` permissions and no other AWS
 access.
 
 It is important when using ABAC that you control who has the ability to
@@ -302,7 +302,7 @@ tag IAM roles and users to only those who have a strict need to do so.
 Someone with the ability to tag an IAM role or user would be able to set
 tags on roles/users identical to what would be set by EKS Pod Identities
 and may be able to escalate their privileges. You can restrict who has
-the access to set tags the `+kubernetes-+` and `+eks-+` tags on IAM role
+the access to set tags the `kubernetes-` and `eks-` tags on IAM role
 and users using IAM policy, or Service Control Policy (SCP).
 
 == De-centralized EKS Clusters
@@ -397,7 +397,7 @@ the damage is limited to only the workloads that run on that cluster.
 All other workloads are unaffected
 
 |Isolation & Security: |Isolation/Soft Multi-tenancy is achieved using
-k8s native constructs like `+Namespaces+`. Workloads may share the
+k8s native constructs like `Namespaces`. Workloads may share the
 underlying resources like CPU, memory, etc. AWS resources are isolated
 into their own workload accounts which by default are not accessible
 from other AWS accounts. |Stronger isolation on compute resources as the

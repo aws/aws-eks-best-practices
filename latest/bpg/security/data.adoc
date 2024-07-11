@@ -31,7 +31,7 @@ https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html[Encrypting
 Data at Rest]. Besides offering at-rest encryption, EFS and FSx for
 Lustre include an option for encrypting data in transit. FSx for Lustre
 does this by default. For EFS, you can add transport encryption by
-adding the `+tls+` parameter to `+mountOptions+` in your PV as in this
+adding the `tls` parameter to `mountOptions` in your PV as in this
 example:
 
 [source,yaml]
@@ -101,7 +101,7 @@ different mount points, consider using EFS access points. To learn more
 about working with access points, see
 https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today,
 if you want to use an access point (AP) you’ll need to reference the AP
-in the PV’s `+volumeHandle+` parameter.
+in the PV’s `volumeHandle` parameter.
 
 !!! attention As of March 23, 2021 the EFS CSI driver supports dynamic
 provisioning of EFS Access Points. Access points are
@@ -119,7 +119,7 @@ base64 encoded strings. On EKS, the EBS volumes for etcd nodes are
 encrypted with
 https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html[EBS
 encryption]. A pod can retrieve a Kubernetes secrets objects by
-referencing the secret in the `+podSpec+`. These secrets can either be
+referencing the secret in the `podSpec`. These secrets can either be
 mapped to an environment variable or mounted as volume. For additional
 information on creating secrets, see
 https://kubernetes.io/docs/concepts/configuration/secret/.
@@ -146,7 +146,7 @@ EKS encryption provider support for defense in depth]
 On EKS, turn on audit logging and create a CloudWatch metrics filter and
 alarm to alert you when a secret is used (optional). The following is an
 example of a metrics filter for the Kubernetes audit log,
-`+{($.verb="get") && ($.objectRef.resource="secret")}+`. You can also
+`{($.verb="get") && ($.objectRef.resource="secret")}`. You can also
 use the following queries with CloudWatch Log Insights:
 
 [source,bash]

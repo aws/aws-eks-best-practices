@@ -194,15 +194,15 @@ metadata.
 === Utilize audit metadata
 
 Kubernetes audit logs include two annotations that indicate whether or
-not a request was authorized `+authorization.k8s.io/decision+` and the
-reason for the decision `+authorization.k8s.io/reason+`. Use these
+not a request was authorized `authorization.k8s.io/decision` and the
+reason for the decision `authorization.k8s.io/reason`. Use these
 attributes to ascertain why a particular API call was allowed.
 
 === Create alarms for suspicious events
 
 Create an alarm to automatically alert you where there is an increase in
 403 Forbidden and 401 Unauthorized responses, and then use attributes
-like `+host+`, `+sourceIPs+`, and `+k8s_user.username+` to find out
+like `host`, `sourceIPs`, and `k8s_user.username` to find out
 where those requests are coming from.
 
 === Analyze logs with Log Insights
@@ -211,7 +211,7 @@ Use CloudWatch Log Insights to monitor changes to RBAC objects,
 e.g. Roles, RoleBindings, ClusterRoles, and ClusterRoleBindings. A few
 sample queries appear below:
 
-Lists updates to the `+aws-auth+` ConfigMap:
+Lists updates to the `aws-auth` ConfigMap:
 
 [source,bash]
 ----
