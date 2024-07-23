@@ -6,7 +6,7 @@ Collecting and analyzing \[audit\] logs is useful for a variety of different rea
 apiVersion: audit.k8s.io/v1beta1
 kind: Policy
 rules:
-  # Log aws-auth configmap changes
+  # Log full request and response for changes to aws-auth ConfigMap in kube-system namespace
   - level: RequestResponse
     namespaces: ["kube-system"]
     verbs: ["update", "patch", "delete"]
@@ -16,24 +16,28 @@ rules:
         resourceNames: ["aws-auth"]
     omitStages:
       - "RequestReceived"
+  # Do not log watch operations performed by kube-proxy on endpoints and services
   - level: None
     users: ["system:kube-proxy"]
     verbs: ["watch"]
     resources:
       - group: "" # core
         resources: ["endpoints", "services", "services/status"]
+  # Do not log get operations performed by kubelet on nodes and their statuses
   - level: None
     users: ["kubelet"] # legacy kubelet identity
     verbs: ["get"]
     resources:
       - group: "" # core
         resources: ["nodes", "nodes/status"]
+  # Do not log get operations performed by the system:nodes group on nodes and their statuses
   - level: None
     userGroups: ["system:nodes"]
     verbs: ["get"]
     resources:
       - group: "" # core
         resources: ["nodes", "nodes/status"]
+  # Do not log get and update operations performed by controller manager, scheduler, and endpoint-controller on endpoints in kube-system namespace
   - level: None
     users:
       - system:kube-controller-manager
@@ -44,50 +48,56 @@ rules:
     resources:
       - group: "" # core
         resources: ["endpoints"]
+  # Do not log get operations performed by apiserver on namespaces and their statuses/finalizations
   - level: None
     users: ["system:apiserver"]
     verbs: ["get"]
     resources:
       - group: "" # core
         resources: ["namespaces", "namespaces/status", "namespaces/finalize"]
+  # Do not log get and list operations performed by controller manager on metrics.k8s.io resources
   - level: None
     users:
       - system:kube-controller-manager
     verbs: ["get", "list"]
     resources:
       - group: "metrics.k8s.io"
+  # Do not log access to health, version, and swagger non-resource URLs
   - level: None
     nonResourceURLs:
       - /healthz*
       - /version
       - /swagger*
+  # Do not log events resources
   - level: None
     resources:
       - group: "" # core
         resources: ["events"]
+  # Log request for updates/patches to nodes and pods statuses by kubelet and node problem detector
   - level: Request
     users: ["kubelet", "system:node-problem-detector", "system:serviceaccount:kube-system:node-problem-detector"]
-    verbs: ["update","patch"]
+    verbs: ["update", "patch"]
     resources:
       - group: "" # core
         resources: ["nodes/status", "pods/status"]
     omitStages:
       - "RequestReceived"
+  # Log request for updates/patches to nodes and pods statuses by system:nodes group
   - level: Request
     userGroups: ["system:nodes"]
-    verbs: ["update","patch"]
+    verbs: ["update", "patch"]
     resources:
       - group: "" # core
         resources: ["nodes/status", "pods/status"]
     omitStages:
       - "RequestReceived"
+  # Log delete collection requests by namespace-controller in kube-system namespace
   - level: Request
     users: ["system:serviceaccount:kube-system:namespace-controller"]
     verbs: ["deletecollection"]
     omitStages:
       - "RequestReceived"
-  # Secrets, ConfigMaps, and TokenReviews can contain sensitive & binary data,
-  # so only log at the Metadata level.
+  # Log metadata for secrets, configmaps, and tokenreviews to protect sensitive data
   - level: Metadata
     resources:
       - group: "" # core
@@ -96,10 +106,12 @@ rules:
         resources: ["tokenreviews"]
     omitStages:
       - "RequestReceived"
+  # Log requests for serviceaccounts/token resources
   - level: Request
     resources:
-      - group: ""
+      - group: "" # core
         resources: ["serviceaccounts/token"]
+  # Log get, list, and watch requests for various resource groups
   - level: Request
     verbs: ["get", "list", "watch"]
     resources: 
@@ -123,7 +135,7 @@ rules:
       - group: "storage.k8s.io"
     omitStages:
       - "RequestReceived"
-  # Default level for known APIs
+  # Default logging level for known APIs to log request and response
   - level: RequestResponse
     resources: 
       - group: "" # core
@@ -146,7 +158,7 @@ rules:
       - group: "storage.k8s.io"
     omitStages:
       - "RequestReceived"
-  # Default level for all other requests.
+  # Default logging level for all other requests to log metadata only
   - level: Metadata
     omitStages:
       - "RequestReceived"
