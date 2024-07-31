@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 신뢰성을 위한 Amazon EKS 모범 사례 가이드
 
 이 섹션에서는 EKS에서 실행되는 워크로드의 복원력과 가용성을 높이는 방법에 대한 지침을 제공합니다.
@@ -32,7 +38,7 @@ EKS에서 AWS는 쿠버네티스 컨트롤 플레인의 신뢰성을 책임집�
 
 EKS는 업데이트 프로세스를 시작해야 하지만 [노드 업데이트도 관리](https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html)합니다. [관리형 노드 업데이트](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html) 프로세스는 EKS 설명서에 설명되어 있습니다.
 
-자체 관리형 노드를 실행하는 경우 [Amazon EKS에 최적화된 Linux AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html)를 사용하여 작업자 노드를 생성할 수 있습니다. AMI와 노드의 패치 및 업그레이드는 사용자가 담당합니다. `eksctl`, CloudFormation 또는 코드형 인프라 도구를 사용하여 자체 관리형 노드를 프로비저닝하는 것이 가장 좋습니다. 이렇게 하면 [자체 관리형 노드 업그레이드](https://docs.aws.amazon.com/eks/latest/userguide/update-workers.html)를 쉽게 할 수 있기 때문입니다. 마이그레이션 프로세스에서는 이전 노드 그룹을 `NoSchedule`로 **taints**하고 새 스택이 기존 포드 워크로드를 수용할 준비가 되면 노드를 **drains**하기 때문에 작업자 노드를 업데이트할 때 [새 노드로 마이그레이션](https://docs.aws.amazon.com/eks/latest/userguide/migrate-stack.html)하는 것을 고려해 보십시오. 하지만 [자체 관리형 노드의 in-place 업그레이드](https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html)를 수행할 수도 있습니다.
+자체 관리형 노드를 실행하는 경우 [Amazon EKS에 최적화된 Linux AMI](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html)를 사용하여 워커 노드를 생성할 수 있습니다. AMI와 노드의 패치 및 업그레이드는 사용자가 담당합니다. `eksctl`, CloudFormation 또는 코드형 인프라 도구를 사용하여 자체 관리형 노드를 프로비저닝하는 것이 가장 좋습니다. 이렇게 하면 [자체 관리형 노드 업그레이드](https://docs.aws.amazon.com/eks/latest/userguide/update-workers.html)를 쉽게 할 수 있기 때문입니다. 마이그레이션 프로세스에서는 이전 노드 그룹을 `NoSchedule`로 **taints**하고 새 스택이 기존 파드 워크로드를 수용할 준비가 되면 노드를 **drains**하기 때문에 워커 노드를 업데이트할 때 [새 노드로 마이그레이션](https://docs.aws.amazon.com/eks/latest/userguide/migrate-stack.html)하는 것을 고려해 보십시오. 하지만 [자체 관리형 노드의 in-place 업그레이드](https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html)를 수행할 수도 있습니다.
 
 ![공동 책임 모델 - Fargate](./images/SRM-Fargate.jpeg)
 
