@@ -571,7 +571,7 @@ Both EKS Pod Identities and IRSA are preferred ways to deliver temporary AWS cre
 
 At present, the aws-node daemonset is configured to use a role assigned to the EC2 instances to assign IPs to pods.  This role includes several AWS managed policies, e.g. AmazonEKS_CNI_Policy and EC2ContainerRegistryReadOnly that effectively allow **all** pods running on a node to attach/detach ENIs, assign/unassign IP addresses, or pull images from ECR. Since this presents a risk to your cluster, it is recommended that you update the aws-node daemonset to use IRSA. A script for doing this can be found in the [repository](https://github.com/aws/aws-eks-best-practices/tree/master/projects/enable-irsa/src) for this guide.
 
-The aws-node daemonset does not support EKS Pod Identities at this time.
+The aws-node daemonset supports EKS Pod Identities in versions v1.15.5 and later.
 
 ### Restrict access to the instance profile assigned to the worker node
 
