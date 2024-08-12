@@ -4,7 +4,7 @@ EKS in IP Virtual Server (IPVS) mode solves the [network latency issue](https://
 
 ## Overview
 
-IPVS, which has been GA  since [Kubernetes version 1.11](https://kubernetes.io/blog/2018/07/09/ipvs-based-in-cluster-load-balancing-deep-dive/), uses hash tables rather than linear searching to process packets, providing efficiency for clusters with thousands of nodes and services. IPVS was designed for load balancing, making it a suitable solution for Kubernetes networking performance issues.
+IPVS, which has been GA since [Kubernetes version 1.11](https://kubernetes.io/blog/2018/07/09/ipvs-based-in-cluster-load-balancing-deep-dive/), uses hash tables rather than linear searching to process packets, providing efficiency for clusters with thousands of nodes and services. IPVS was designed for load balancing, making it a suitable solution for Kubernetes networking performance issues.
 
 IPVS offers several options for distributing traffic to backend pods. Detailed information for each option can be found in the [official Kubernetes documentation](https://kubernetes.io/docs/reference/networking/virtual-ips/#proxy-mode-ipvs), but a simple list is shown below. Round Robin and Least Connections are among the most popular choices for IPVS load balancing options in Kubernetes.
 ```

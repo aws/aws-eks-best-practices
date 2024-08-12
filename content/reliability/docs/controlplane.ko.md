@@ -208,7 +208,7 @@ EKS는 [쿠버네티스](https://docs.aws.amazon.com/eks/latest/userguide/kubern
 
 EKS는 컨트롤 플레인 인스턴스의 부하를 능동적으로 모니터링하고 자동으로 확장하여 고성능을 보장합니다. 하지만 대규모 클러스터를 실행할 때는 쿠버네티스 및 AWS 서비스의 할당량 내에서 발생할 수 있는 성능 문제와 한계를 고려해야 합니다.
 
-- [ProjectCalico 팀에서 수행한 테스트](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/)에 따르면, 서비스가 1000개 이상인 클러스터에서 `iptables` 모드에서 `kube-proxy`를 사용할 경우 네트워크 지연이 발생할 수 있습니다. 해결 방법은 [`ipvs` 모드에서 `kube-proxy`로 실행](https://medium.com/@jeremy.i.cowan/the-problem-with-kube-proxy-enabling-ipvs-on-eks-169ac22e237e)으로 전환하는 것입니다. 
+- [ProjectCalico 팀에서 수행한 테스트](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/)에 따르면, 서비스가 1000개 이상인 클러스터에서 `iptables` 모드에서 `kube-proxy`를 사용할 경우 네트워크 지연이 발생할 수 있습니다. 해결 방법은 [`ipvs` 모드에서 `kube-proxy`로 실행](../../networking/ipvs/index.ko.md)으로 전환하는 것입니다. 
 - CNI에서 파드의 IP 주소를 요청해야 하거나 새 EC2 인스턴스를 자주 생성해야 하는 경우에도 [EC2 API 요청 제한](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html)이 발생할 수 있습니다. IP 주소를 캐싱하도록 CNI를 구성하면 EC2 API 호출을 줄일 수 있습니다. 더 큰 EC2 인스턴스 유형을 사용하여 EC2 조정 이벤트를 줄일 수 있습니다.
 
 ## 한도 및 서비스 할당량 알아보기

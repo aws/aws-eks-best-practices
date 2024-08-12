@@ -188,7 +188,7 @@ Since April 2021, Kubernetes release cycle has been changed from four releases a
 
 EKS actively monitors the load on control plane instances and automatically scales them to ensure high performance. However, you should account for potential performance issues and limits within Kubernetes and quotas in AWS services when running large clusters.
 
-- Clusters with more than 1000 services may experience network latency with using `kube-proxy` in `iptables` mode according to the [tests performed by the ProjectCalico team](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/). The solution is to switch to [running `kube-proxy` in `ipvs` mode](https://medium.com/@jeremy.i.cowan/the-problem-with-kube-proxy-enabling-ipvs-on-eks-169ac22e237e).
+- Clusters with more than 1000 services may experience network latency with using `kube-proxy` in `iptables` mode according to the [tests performed by the ProjectCalico team](https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/). The solution is to switch to [running `kube-proxy` in `ipvs` mode](../../networking/ipvs/index.md).
 - You may also experience [EC2 API request throttling](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html) if the CNI needs to request IP addresses for Pods or if you need to create new EC2 instances frequently. You can reduce calls EC2 API by configuring the CNI to cache IP addresses. You can use larger EC2 instance types to reduce EC2 scaling events.
 
 
