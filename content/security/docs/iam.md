@@ -264,7 +264,7 @@ When you create an Amazon EKS cluster, the IAM entity user or role, such as a f
 
 ### Regularly audit access to the cluster
 
-Who requires access is likely to change over time. Plan to periodically audit the `aws-auth` ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on [auditing](detective.md).  Additional ideas can be found in this [article](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D) from NCC Group.
+Who requires access is likely to change over time. Plan to periodically audit the `aws-auth` ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on [auditing](detective.md).
 
 ### If relying on `aws-auth` configMap use tools to make changes
 
