@@ -1,4 +1,6 @@
+[."topic"]
 = Kubernetes Scaling Theory
+:info_doctype: section
 :authors: ["Shane Corbett"]
 :date: 2023-09-22
 

@@ -1,5 +1,7 @@
-[#control-plane]
+[."topic"]
+[#scale-control-plane]
 = Kubernetes Control Plane
+:info_doctype: section
 
 The Kubernetes control plane consists of the Kubernetes API Server, Kubernetes Controller Manager, Scheduler and other components that are required for Kubernetes to function. Scalability limits of these components are different depending on what you're running in the cluster, but the areas with the biggest impact to scaling include the Kubernetes version, utilization, and individual Node scaling.
 

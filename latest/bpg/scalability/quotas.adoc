@@ -1,4 +1,6 @@
+[."topic"]
 = Known Limits and Service Quotas
+:info_doctype: section
 
 Amazon EKS can be used for a variety of workloads and can interact with a wide range of AWS services, and we have seen customer workloads encounter a similar range of AWS service quotas and other issues that hamper scalability.
 
