@@ -155,7 +155,7 @@ include::data.adoc[leveloffset=+1]
 
 include::runtime.adoc[leveloffset=+1]
 
-// include::hosts.adoc[leveloffset=+1]
+include::hosts.adoc[leveloffset=+1]
 
 include::compliance.adoc[leveloffset=+1]
 
