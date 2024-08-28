@@ -42,4 +42,7 @@ include::security/index.adoc[leveloffset=+1]
 
 include::cost/cfm_framework.adoc[leveloffset=+1]
 
+include::scalability/index.adoc[leveloffset=+1]
+
+
 

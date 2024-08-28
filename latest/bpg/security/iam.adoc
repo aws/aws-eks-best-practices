@@ -141,11 +141,9 @@ cluster.
 authorization for an Access Entry to perform actions in the Amazon EKS
 cluster.
 
-____
 At launch Amazon EKS supports only predefined and AWS managed policies.
 Access policies are not IAM entities and are defined and managed by
 Amazon EKS.
-____
 
 Cluster Access Manager allows the combination of upstream RBAC with
 Access Policies supporting allow and pass (but not deny) on Kubernetes
@@ -242,11 +240,9 @@ $ aws eks list-access-entries --cluster-name <CLUSTER_NAME>
 }
 ----
 
-____
 No Access Entries are available when the cluster is created without the
 cluster creator admin permission, which is the only entry created by
 default.
-____
 
 === The `aws-auth` ConfigMap _(deprecated)_
 
@@ -302,12 +298,10 @@ group/groups add, using the following format
 * *username:* The username within Kubernetes to map to the AWS IAM role.
 This can be any custom name.
 
-____
 It is also possible to map permissions for AWS IAM Users, defining a new
 configuration block for `mapUsers`, under `data` in the `aws-auth`
 ConfigMap, replacing the *rolearn* parameter for *userarn*, however as a
 *Best Practice* it's always recommended to user `mapRoles` instead.
-____
 
 To manage permissions, you can edit the `aws-auth` ConfigMap adding or
 removing access to your Amazon EKS cluster. Although it's possible to
@@ -406,10 +400,8 @@ $ aws eks delete-access-entry --cluster-name <CLUSTER_NAME> \
   --principal-arn <IAM_PRINCIPAL_ARN>
 ----
 
-____
 This access can be granted again if needed during an incident, emergency
 or break glass scenario where the cluster is otherwise inaccessible.
-____
 
 If the cluster still configured with the `CONFIG_MAP` authentication
 method, all additional users should be granted access to the cluster

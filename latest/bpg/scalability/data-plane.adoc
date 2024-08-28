@@ -1,6 +1,7 @@
+[#data-plane]
 = Kubernetes Data Plane
 
-The Kubernetes Data Plane includes EC2 instances, load balancers, storage, and other APIs used by the Kubernetes Control Plane. For organization purposes we grouped xref:./cluster-services.adoc[cluster services] in a separate page and load balancer scaling can be found in the xref:./workloads.adoc[workloads section]. This section will focus on scaling compute resources.
+// The Kubernetes Data Plane includes EC2 instances, load balancers, storage, and other APIs used by the Kubernetes Control Plane. For organization purposes we grouped xref:cluster-services[cluster services] in a separate page and load balancer scaling can be found in the xref:workloads[workloads section]. This section will focus on scaling compute resources.
 
 Selecting EC2 instance types is possibly one of the hardest decisions customers face because in clusters with multiple workloads. There is no one-size-fits all solution. Here are some tips to help you avoid common pitfalls with scaling compute.
 

@@ -14,10 +14,10 @@ Scalability is different from performance and https://aws.github.io/aws-eks-best
 
 Scaling in Kubernetes is multi-dimensional and there are no specific settings or recommendations that work in every situation. The main areas areas where we can provide guidance for scaling include:
 
-* link:control-plane[Kubernetes Control Plane]
-* link:data-plane[Kubernetes Data Plane]
-* link:cluster-services[Cluster Services]
-* link:workloads[Workloads]
+// * xref:control-plane[Kubernetes Control Plane]
+// * xref:data-plane[Kubernetes Data Plane]
+// * xref:cluster-services[Cluster Services]
+// * xref:workloads[Workloads]
 
 *Kubernetes Control Plane* in an EKS cluster includes all of the services AWS runs and scales for you automatically (e.g. Kubernetes API server). Scaling the Control Plane is AWS's responsibility, but using the Control Plane responsibly is your responsibility.
 

@@ -612,11 +612,9 @@ different nodes and avoid PDB related delays during node upgrades.
 
 === Practice chaos engineering
 
-____
 Chaos Engineering is the discipline of experimenting on a distributed
 system in order to build confidence in the system’s capability to
 withstand turbulent conditions in production.
-____
 
 In his blog, Dominik Tornow explains that
 https://medium.com/@dominik.tornow/the-mechanics-of-kubernetes-ac8112eaa302[Kubernetes

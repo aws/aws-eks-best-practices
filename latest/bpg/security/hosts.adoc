@@ -12,7 +12,7 @@ Inasmuch as it's important to secure your container images, it's equally
 important to safeguard the infrastructure that runs them. This section
 explores different ways to mitigate risks from attacks launched directly
 against the host. These guidelines should be used in conjunction with
-those outlined in the link:runtime.md[Runtime Security] section.
+those outlined in the xref:runtime-security[Runtime Security] section.
 
 == Recommendations
 
@@ -339,7 +339,7 @@ We have implemented
 https://github.com/aws-samples/amazon-eks-custom-amis[sample AMIs for
 Amazon EKS] that have SELinux configured on CentOS 7 and RHEL 7. These
 AMIs were developed to demonstrate sample implementations that meet
-requirements of highly regulated customers, such as STIG, CJIS, and C2S.
+requirements of highly regulated customers.
 
 !!! caution SELinux will ignore containers where the type is unconfined.
 

@@ -16,9 +16,6 @@
 :imagesdir: images/
 
 
-
-:imagesdir: images/
-
 This section provides guidance about making workloads running on EKS
 resilient and highly-available
 
@@ -80,13 +77,11 @@ Availability Zones; you control this through the subnets you provide
 when creating managed nodes. EKS also automatically tags managed nodes
 so they can be used with Cluster Autoscaler.
 
-____
 Amazon EKS follows the shared responsibility model for CVEs and security
 patches on managed node groups. Because managed nodes run the Amazon
 EKS-optimized AMIs, Amazon EKS is responsible for building patched
 versions of these AMIs when bug fixes. However, you are responsible for
 deploying these patched AMI versions to your managed node groups.
-____
 
 EKS also
 https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html[manages

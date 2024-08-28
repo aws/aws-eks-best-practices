@@ -396,11 +396,9 @@ may be consumed by resources in that project. You can limit the total
 sum of storage and/or compute (CPU and memory) resources that can be
 requested in a given namespace.
 
-____
 If resource quota is enabled for a namespace for compute resources like
 CPU and memory, users must specify requests or limits for each container
 in that namespace.
-____
 
 Consider configuring quotas for each namespace. Consider using
 `+LimitRanges+` to automatically apply preconfigured limits to
