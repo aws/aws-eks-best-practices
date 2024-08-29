@@ -13,7 +13,7 @@
 :info_title: Best Practices for Reliability
 :info_abstract: Best Practices for Reliability
 :info_titleabbrev: Reliability
-:imagesdir: images/
+:imagesdir: images/reliability/
 
 
 This section provides guidance about making workloads running on EKS
@@ -94,23 +94,23 @@ If you run self-managed nodes, you can use
 https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[Amazon
 EKS-optimized Linux AMI] to create worker nodes. You are responsible for
 patching and upgrading the AMI and the nodes. It is a best practice to
-use `+eksctl+`, CloudFormation, or infrastructure as code tools to
+use `eksctl`, CloudFormation, or infrastructure as code tools to
 provision self-managed nodes because this will make it easy for you to
 https://docs.aws.amazon.com/eks/latest/userguide/update-workers.html[upgrade
 self-managed nodes]. Consider
 https://docs.aws.amazon.com/eks/latest/userguide/migrate-stack.html[migrating
 to new nodes] when updating worker nodes because the migration process
-*taints* the old node group as `+NoSchedule+` and *drains* the nodes
+*taints* the old node group as `NoSchedule` and *drains* the nodes
 after a new stack is ready to accept the existing pod workload. However,
 you can also perform an
 https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html[in-place
 upgrade of self-managed nodes].
 
 .Shared Responsibility Model - Fargate
-image::reliability_SRM-Fargate.jpeg[Shared Responsibility Model - Fargate]
+image::SRM-Fargate.jpeg[Shared Responsibility Model - Fargate]
 
 .Shared Responsibility Model - MNG
-image::reliability_SRM-MNG.jpeg[Shared Responsibility Model - MNG]
+image::SRM-MNG.jpeg[Shared Responsibility Model - MNG]
 
 This guide includes a set of recommendations that you can use to improve
 the reliability of your EKS data plane, Kubernetes core components, and

@@ -5,7 +5,7 @@
 :info_title: EKS Data Plane
 :info_abstract: EKS Data Plane
 :info_titleabbrev: Data Plane
-:imagesdir: images/
+:imagesdir: images/reliability/
 
 To operate high-available and resilient applications, you need a
 highly-available and resilient data plane. An elastic data plane ensures
@@ -91,7 +91,7 @@ overprovisioner].
 
 === Using Cluster Autoscaler with multiple Auto Scaling Groups
 
-Run the Cluster Autoscaler with the `+--node-group-auto-discovery+` flag
+Run the Cluster Autoscaler with the `--node-group-auto-discovery` flag
 enabled. Doing so will allow the Cluster Autoscaler to find all
 autoscaling groups that include a particular defined tag and prevents
 the need to define and maintain each autoscaling group in the manifest.
@@ -100,7 +100,7 @@ the need to define and maintain each autoscaling group in the manifest.
 
 By default, the Cluster Autoscaler does not scale-down nodes that have
 pods deployed with local storage attached. Set the
-`+--skip-nodes-with-local-storage+` flag to false to allow Cluster
+`--skip-nodes-with-local-storage` flag to false to allow Cluster
 Autoscaler to scale-down these nodes.
 
 === Spread worker nodes and workload across multiple AZs
@@ -150,12 +150,12 @@ spec:
 
 [NOTE]
 ====
-`+kube-scheduler+` is only aware of topology domains via nodes that exist with those labels. If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `+kube-scheduler+` isn’t aware of the other zones. For this topology spread to work as expected with the scheduler, nodes must already exist in all zones. This issue will be resolved in Kubernetes 1.24 with the addition of the `+MinDomainsInPodToplogySpread+` https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api[feature gate] which allows specifying a `+minDomains+` property to inform the scheduler of the number of eligible domains.
+`kube-scheduler` is only aware of topology domains via nodes that exist with those labels. If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `kube-scheduler` isn’t aware of the other zones. For this topology spread to work as expected with the scheduler, nodes must already exist in all zones. This issue will be resolved in Kubernetes 1.24 with the addition of the `MinDomainsInPodToplogySpread` https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api[feature gate] which allows specifying a `minDomains` property to inform the scheduler of the number of eligible domains.
 ====
 
 [WARNING]
 ====
-Setting `+whenUnsatisfiable+` to `+DoNotSchedule+` will cause pods to be unschedulable if the topology spread constraint can’t be fulfilled. It should only be set if its preferable for pods to not run instead of violating the topology spread constraint.
+Setting `whenUnsatisfiable` to `DoNotSchedule` will cause pods to be unschedulable if the topology spread constraint can’t be fulfilled. It should only be set if its preferable for pods to not run instead of violating the topology spread constraint.
 ====
 
 On older versions of Kubernetes, you can use pod anti-affinity rules to
@@ -219,19 +219,19 @@ volume is located, then the Pod cannot be scheduled.
 Create Auto Scaling Group for each AZ with enough capacity to ensure
 that the cluster always has capacity to schedule pods in the same AZ as
 the EBS volumes they need. In addition, you should enable the
-`+--balance-similar-node-groups+` feature in Cluster Autoscaler.
+`--balance-similar-node-groups` feature in Cluster Autoscaler.
 
 If you are running an application that uses EBS volume but has no
 requirements to be highly available, then you can restrict the
 deployment of the application to a single AZ. In EKS, worker nodes are
-automatically added `+failure-domain.beta.kubernetes.io/zone+` label,
+automatically added `failure-domain.beta.kubernetes.io/zone` label,
 which contains the name of the AZ. You can see the labels attached to
-your nodes by running `+kubectl get nodes --show-labels+`. More
+your nodes by running `kubectl get nodes --show-labels`. More
 information about built-in node labels is available
 https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#built-in-node-labels[here].
 You can use node selectors to schedule a pod in a particular AZ.
 
-In the example below, the pod will only be scheduled in `+us-west-2c+`
+In the example below, the pod will only be scheduled in `us-west-2c`
 AZ:
 
 ....
@@ -256,7 +256,7 @@ spec:
 
 Persistent volumes (backed by EBS) are also automatically labeled with
 the name of AZ; you can see which AZ your persistent volume belongs to
-by running `+kubectl get pv -L topology.ebs.csi.aws.com/zone+`. When a
+by running `kubectl get pv -L topology.ebs.csi.aws.com/zone`. When a
 pod is created and claims a volume, Kubernetes will schedule the Pod on
 a node in the same AZ as the volume.
 
@@ -298,12 +298,12 @@ remedy system] to drain and terminate the node automatically.
 You can improve worker nodes’ stability by
 https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/[reserving
 compute capacity for the operating system and Kubernetes daemons]. Pods
-- especially ones without `+limits+` declared - can saturate system
+- especially ones without `limits` declared - can saturate system
 resources putting nodes in a situation where operating system processes
-and Kubernetes daemons (`+kubelet+`, container runtime, etc.) compete
-with pods for system resources. You can use `+kubelet+` flags
-`+--system-reserved+` and `+--kube-reserved+` to reserve resources for
-system process (`+udev+`, `+sshd+`, etc.) and Kubernetes daemons
+and Kubernetes daemons (`kubelet`, container runtime, etc.) compete
+with pods for system resources. You can use `kubelet` flags
+`--system-reserved` and `--kube-reserved` to reserve resources for
+system process (`udev`, `sshd`, etc.) and Kubernetes daemons
 respectively.
 
 If you use the
@@ -311,23 +311,23 @@ https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[EKS-opti
 Linux AMI], the CPU, memory, and storage are reserved for the system and
 Kubernetes daemons by default. When worker nodes based on this AMI
 launch, EC2 user-data is configured to trigger the
-https://github.com/awslabs/amazon-eks-ami/blob/master/files/bootstrap.sh[`+bootstrap.sh+`
+https://github.com/awslabs/amazon-eks-ami/blob/master/files/bootstrap.sh[`bootstrap.sh`
 script]. This script calculates CPU and memory reservations based on the
 number of CPU cores and total memory available on the EC2 instance. The
-calculated values are written to the `+KubeletConfiguration+` file
-located at `+/etc/kubernetes/kubelet/kubelet-config.json+`.
+calculated values are written to the `KubeletConfiguration` file
+located at `/etc/kubernetes/kubelet/kubelet-config.json`.
 
 You may need to increase the system resource reservation if you run
 custom daemons on the node and the amount of CPU and memory reserved by
 default is insufficient.
 
-`+eksctl+` offers the easiest way to customize
+`eksctl` offers the easiest way to customize
 https://eksctl.io/usage/customizing-the-kubelet/[resource reservation
 for system and Kubernetes daemons].
 
 === Implement QoS
 
-For critical applications, consider defining `+requests+`=`+limits+` for
+For critical applications, consider defining `requests`=`limits` for
 the container in the Pod. This will ensure that the container will not
 be killed if another Pod requests resources.
 
@@ -345,8 +345,8 @@ request acts as a weight on
 https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#how-pods-with-resource-limits-are-run[how
 much relative CPU time containers get]. This allows your workloads to
 use the full CPU without an artificial limit or starvation.
-* For non-CPU resources, configuring `+requests+`=`+limits+` provides
-the most predictable behavior. If `+requests+`!=`+limits+`, the
+* For non-CPU resources, configuring `requests`=`limits` provides
+the most predictable behavior. If `requests`!=`limits`, the
 container also has its
 https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#qos-classes[QOS]
 reduced from Guaranteed to Burstable making it more likely to be evicted
@@ -354,8 +354,8 @@ in the event of
 https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/[node
 pressure].
 * For non-CPU resources, do not specify a limit that is much larger than
-the request. The larger `+limits+` are configured relative to
-`+requests+`, the more likely nodes will be overcommitted leading to
+the request. The larger `limits` are configured relative to
+`requests`, the more likely nodes will be overcommitted leading to
 high chances of workload interruption.
 * Correctly sized requests are particularly important when using a node
 auto-scaling solution like
@@ -384,7 +384,7 @@ across multiple teams, or projects. They provide a scope for names and
 are a way to divide cluster resources between multiple teams, projects,
 workloads. You can limit the aggregate resource consumption in a
 namespace. The
-https://kubernetes.io/docs/concepts/policy/resource-quotas/[`+ResourceQuota+`]
+https://kubernetes.io/docs/concepts/policy/resource-quotas/[`ResourceQuota`]
 object can limit the quantity of objects that can be created in a
 namespace by type, as well as the total amount of compute resources that
 may be consumed by resources in that project. You can limit the total
@@ -396,24 +396,24 @@ CPU and memory, users must specify requests or limits for each container
 in that namespace.
 
 Consider configuring quotas for each namespace. Consider using
-`+LimitRanges+` to automatically apply preconfigured limits to
+`LimitRanges` to automatically apply preconfigured limits to
 containers within a namespaces.
 
 === Limit container resource usage within a namespace
 
 Resource Quotas help limit the amount of resources a namespace can use.
 The
-https://kubernetes.io/docs/concepts/policy/limit-range/[`+LimitRange+`
+https://kubernetes.io/docs/concepts/policy/limit-range/[`LimitRange`
 object] can help you implement minimum and maximum resources a container
-can request. Using `+LimitRange+` you can set a default request and
+can request. Using `LimitRange` you can set a default request and
 limits for containers, which is helpful if setting compute resource
 limits is not a standard practice in your organization. As the name
-suggests, `+LimitRange+` can enforce minimum and maximum compute
+suggests, `LimitRange` can enforce minimum and maximum compute
 resources usage per Pod or Container in a namespace. As well as, enforce
 minimum and maximum storage request per PersistentVolumeClaim in a
 namespace.
 
-Consider using `+LimitRange+` in conjunction with `+ResourceQuota+` to
+Consider using `LimitRange` in conjunction with `ResourceQuota` to
 enforce limits at a container as well as namespace level. Setting these
 limits will ensure that a container or a namespace does not impinge on
 resources used by other tenants in the cluster.
@@ -424,10 +424,10 @@ CoreDNS fulfills name resolution and service discovery functions in
 Kubernetes. It is installed by default on EKS clusters. For
 interoperability, the Kubernetes Service for CoreDNS is still named
 https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/[kube-dns].
-CoreDNS Pods run as part of a Deployment in `+kube-system+` namespace,
+CoreDNS Pods run as part of a Deployment in `kube-system` namespace,
 and in EKS, by default, it runs two replicas with declared requests and
-limits. DNS queries are sent to the `+kube-dns+` Service that runs in
-the `+kube-system+` Namespace.
+limits. DNS queries are sent to the `kube-dns` Service that runs in
+the `kube-system` Namespace.
 
 == Recommendations
 
@@ -436,10 +436,10 @@ the `+kube-system+` Namespace.
 CoreDNS has built in support for
 https://github.com/coredns/coredns/tree/master/plugin/metrics[Prometheus].
 You should especially consider monitoring CoreDNS latency
-(`+coredns_dns_request_duration_seconds_sum+`, before
+(`coredns_dns_request_duration_seconds_sum`, before
 https://github.com/coredns/coredns/blob/master/notes/coredns-1.7.0.md[1.7.0]
-version the metric was called `+core_dns_response_rcode_count_total+`),
-errors (`+coredns_dns_responses_total+`, NXDOMAIN, SERVFAIL, FormErr)
+version the metric was called `core_dns_response_rcode_count_total`),
+errors (`coredns_dns_responses_total`, NXDOMAIN, SERVFAIL, FormErr)
 and CoreDNS Pod’s memory consumption.
 
 For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
@@ -455,7 +455,7 @@ You can improve the Cluster DNS performance by running
 https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/[NodeLocal
 DNSCache]. This feature runs a DNS caching agent on cluster nodes as a
 DaemonSet. All the pods use the DNS caching agent running on the node
-for name resolution instead of using `+kube-dns+` Service.
+for name resolution instead of using `kube-dns` Service.
 
 === Configure cluster-proportional-scaler for CoreDNS
 

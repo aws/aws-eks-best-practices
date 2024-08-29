@@ -3,13 +3,13 @@
 = Monitoring
 :info_doctype: section
 :info_titleabbrev: Monitoring Windows Containers
-
+:imagesdir: images/windows/
 
 Prometheus, a https://www.cncf.io/projects/[graduated CNCF project] is by far the most popular monitoring system with native integration into Kubernetes. Prometheus collects metrics around containers, pods, nodes, and clusters. Additionally, Prometheus leverages AlertsManager which lets you program alerts to warn you if something in your cluster is going wrong. Prometheus stores the metric data as a time series data identified by metric name and key/value pairs. Prometheus includes away to query using a language called PromQL, which is short for Prometheus Query Language.
 
 The high level architecture of Prometheus metrics collection is shown below:
 
-image::./images/prom.png[Prometheus Metrics collection]
+image::prom.png[Prometheus Metrics collection]
 
 Prometheus uses a pull mechanism and scrapes metrics from targets using exporters and from the Kubernetes API using the https://github.com/kubernetes/kube-state-metrics[kube state metrics]. This means applications and services must expose a HTTP(S) endpoint containing Prometheus formatted metrics. Prometheus will then, as per its configuration, periodically pull metrics from these HTTP(S) endpoints.
 

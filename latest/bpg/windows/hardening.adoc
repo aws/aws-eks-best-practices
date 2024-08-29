@@ -3,6 +3,7 @@
 = Windows worker nodes hardening
 :info_doctype: section
 :info_titleabbrev: Windows Server Hardening
+:imagesdir: images/windows/
 
 OS Hardening is a combination of OS configuration, patching, and removing unnecessary software packages, which aim to lock down a system and reduce the attack surface. It is a best practice to prepare your own EKS Optimized Windows AMI with the hardening configurations required by your company.
 
@@ -74,7 +75,7 @@ https://inspector-agent.amazonaws.com/windows/installer/latest/AWSAgentInstall.e
 
 Below is the ouput after the first run. As you can see, it generated findings based on the https://cve.mitre.org/[CVE] database. You can use this to harden your Worker nodes or create an AMI based on the hardened configurations.
 
-image::./images/inspector-agent.png[]
+image::inspector-agent.png[]
 
 For more information on Amazon Inspector, including how to install Amazon Inspector agents, set up the CIS Benchmark assessment, and generate reports, watch the https://www.youtube.com/watch?v=nIcwiJ85EKU[Improving the security and compliance of Windows Workloads with Amazon Inspector] video.
 

@@ -5,8 +5,7 @@
 :info_title: Running highly-available applications
 :info_abstract: Running highly-available applications
 :info_titleabbrev: Applications
-:imagesdir: images/
-
+:imagesdir: images/reliability/
 
 
 Your customers expect your application to be always available, including
@@ -66,8 +65,8 @@ on separate nodes and AZs. It doesn’t require distinct nodes or AZ
 because if it did, then Kubernetes will not be able to schedule any pods
 once there is a pod running in each AZ. If your application requires
 just three replicas, you can use
-`+requiredDuringSchedulingIgnoredDuringExecution+` for
-`+topologyKey: topology.kubernetes.io/zone+`, and Kubernetes scheduler
+`requiredDuringSchedulingIgnoredDuringExecution` for
+`topologyKey: topology.kubernetes.io/zone`, and Kubernetes scheduler
 will not schedule two pods in the same AZ.
 
 ....
@@ -127,16 +126,16 @@ cases, a single replica on a dedicated node isn’t ideal for fault
 tolerance nor is it a good use of resources. With topology spread
 constraints, you have more control over the spread or distribution that
 the scheduler should try to apply across the topology domains. Here are
-some important properties to use in this approach: 1. The `+maxSkew+` is
+some important properties to use in this approach: 1. The `maxSkew` is
 used to control or determine the maximum point to which things can be
 uneven across the topology domains. For example, if an application has
 10 replicas and is deployed across 3 AZs, you can’t get an even spread,
 but you can influence how uneven the distribution will be. In this case,
-the `+maxSkew+` can be anything between 1 and 10. A value of 1 means you
-can potentially end up with a spread like `+4,3,3+`, `+3,4,3+` or
-`+3,3,4+` across the 3 AZs. In contrast, a value of 10 means you can
-potentially end up with a spread like `+10,0,0+`, `+0,10,0+` or
-`+0,0,10+` across 3 AZs. 2. The `+topologyKey+` is a key for one of the
+the `maxSkew` can be anything between 1 and 10. A value of 1 means you
+can potentially end up with a spread like `4,3,3`, `3,4,3` or
+`3,3,4` across the 3 AZs. In contrast, a value of 10 means you can
+potentially end up with a spread like `10,0,0`, `0,10,0` or
+`0,0,10` across 3 AZs. 2. The `topologyKey` is a key for one of the
 node labels and defines the type of topology domain that should be used
 for the pod distribution. For example, a zonal spread would have the
 following key-value pair:
@@ -146,9 +145,9 @@ topologyKey: "topology.kubernetes.io/zone"
 ....
 
 [arabic, start=3]
-. The `+whenUnsatisfiable+` property is used to determine how you want
+. The `whenUnsatisfiable` property is used to determine how you want
 the scheduler to respond if the desired constraints can’t be satisfied.
-. The `+labelSelector+` is used to find matching pods so that the
+. The `labelSelector` is used to find matching pods so that the
 scheduler can be aware of them when deciding where to place pods in
 accordance with the constraints that you specify.
 
@@ -158,7 +157,7 @@ https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constrai
 documentation].
 
 .Pod topology spread constraints across 3 AZs
-image::./images/pod-topology-spread-constraints.jpg[Pod topology spread
+image::pod-topology-spread-constraints.jpg[Pod topology spread
 constraints across 3 AZs]
 
 ....
@@ -219,11 +218,11 @@ help you avoid impacting your customers during peak traffic. It is
 implemented as a control loop in Kubernetes that periodically queries
 metrics from APIs that provide resource metrics.
 
-HPA can retrieve metrics from the following APIs: 1. `+metrics.k8s.io+`
+HPA can retrieve metrics from the following APIs: 1. `metrics.k8s.io`
 also known as Resource Metrics API — Provides CPU and memory usage for
-pods 2. `+custom.metrics.k8s.io+` — Provides metrics from other metric
+pods 2. `custom.metrics.k8s.io` — Provides metrics from other metric
 collectors like Prometheus; these metrics are *internal* to your
-Kubernetes cluster. 3. `+external.metrics.k8s.io+` — Provides metrics
+Kubernetes cluster. 3. `external.metrics.k8s.io` — Provides metrics
 that are *external* to your Kubernetes cluster (E.g., SQS Queue Depth,
 ELB latency).
 
@@ -235,7 +234,7 @@ application.
 You can use custom or external metrics to scale your application on
 metrics other than CPU or memory utilization.
 https://github.com/kubernetes-sigs/custom-metrics-apiserver[Custom
-Metrics] API servers provide the `+custom-metrics.k8s.io+` API that HPA
+Metrics] API servers provide the `custom-metrics.k8s.io` API that HPA
 can use to autoscale applications.
 
 You can use the
@@ -247,7 +246,7 @@ https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/types.go[Metr
 API format].
 
 Once you deploy the Prometheus Adapter, you can query custom metrics
-using kubectl. `+kubectl get —raw /apis/custom.metrics.k8s.io/v1beta1/+`
+using kubectl. `kubectl get —raw /apis/custom.metrics.k8s.io/v1beta1/`
 
 External metrics, as the name suggests, provide the Horizontal Pod
 Autoscaler the ability to scale deployments using metrics that are
@@ -258,8 +257,8 @@ number of jobs in flight in an SQS queue.
 To autoscale a Deployment using a CloudWatch metric, for example,
 https://github.com/awslabs/k8s-cloudwatch-adapter/blob/master/samples/sqs/README.md[scaling
 a batch-processor application based on SQS queue depth], you can use
-https://github.com/awslabs/k8s-cloudwatch-adapter[`+k8s-cloudwatch-adapter+`].
-`+k8s-cloudwatch-adapter+` is a community project and not maintained by
+https://github.com/awslabs/k8s-cloudwatch-adapter[`k8s-cloudwatch-adapter`].
+`k8s-cloudwatch-adapter` is a community project and not maintained by
 AWS.
 
 == Vertical Pod Autoscaler (VPA)
@@ -303,7 +302,7 @@ deployment pipeline, you can quickly revert to the older version if the
 upgrade happens to be defective.
 
 You can use Deployments to update a running application. This is
-typically done by updating the container image. You can use `+kubectl+`
+typically done by updating the container image. You can use `kubectl`
 to update a Deployment like this:
 
 [source,bash]
@@ -311,11 +310,11 @@ to update a Deployment like this:
 kubectl --record deployment.apps/nginx-deployment set image nginx-deployment nginx=nginx:1.16.1
 ----
 
-The `+--record+` argument record the changes to the Deployment and helps
+The `--record` argument record the changes to the Deployment and helps
 you if you need to perform a rollback.
-`+kubectl rollout history deployment+` shows you the recorded changes to
+`kubectl rollout history deployment` shows you the recorded changes to
 Deployments in your cluster. You can rollback a change using
-`+kubectl rollout undo deployment <DEPLOYMENT_NAME>+`.
+`kubectl rollout undo deployment <DEPLOYMENT_NAME>`.
 
 By default, when you update a Deployment that requires a recreation of
 pods, Deployment will perform a
@@ -323,21 +322,21 @@ https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/[roll
 update]. In other words, Kubernetes will only update a portion of the
 running pods in a Deployment and not all the Pods at once. You can
 control how Kubernetes performs rolling updates through
-`+RollingUpdateStrategy+` property.
+`RollingUpdateStrategy` property.
 
 When performing a _rolling update_ of a Deployment, you can use the
-https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#max-unavailable[`+Max Unavailable+`]
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#max-unavailable[`Max Unavailable`]
 property to specify the maximum number of Pods that can be unavailable
-during the update. The `+Max Surge+` property of Deployment allows you
+during the update. The `Max Surge` property of Deployment allows you
 to set the maximum number of Pods that can be created over the desired
 number of Pods.
 
-Consider adjusting `+max unavailable+` to ensure that a rollout doesn’t
+Consider adjusting `max unavailable` to ensure that a rollout doesn’t
 disrupt your customers. For example, Kubernetes sets 25%
-`+max unavailable+` by default, which means if you have 100 Pods, you
+`max unavailable` by default, which means if you have 100 Pods, you
 may have only 75 Pods actively working during a rollout. If your
 application needs a minimum of 80 Pods, this rollout can be disruptive.
-Instead, you can set `+max unavailable+` to 20% to ensure that there are
+Instead, you can set `max unavailable` to 20% to ensure that there are
 at least 80 functional Pods throughout the rollout.
 
 === Use blue/green deployments
@@ -358,7 +357,7 @@ You can perform blue/green deployments in Kubernetes by creating a new
 Deployment that is identical to the existing version’s Deployment. Once
 you verify that the Pods in the new Deployment are running without
 errors, you can start sending traffic to the new Deployment by changing
-the `+selector+` spec in the Service that routes traffic to your
+the `selector` spec in the Service that routes traffic to your
 application’s Pods.
 
 Many continuous integration tools such as https://fluxcd.io[Flux],
@@ -412,10 +411,10 @@ checks. Kubelet can check a Pods’ health in three ways: kubelet can
 either run a shell command inside a Pod’s container, send an HTTP GET
 request to its container, or open a TCP socket on a specified port.
 
-If you choose an `+exec+`-based probe, which runs a shell script inside
+If you choose an `exec`-based probe, which runs a shell script inside
 a container, ensure that the shell command exits _before_ the
-`+timeoutSeconds+` value expires. Otherwise, your node will have
-`+<defunct>+` processes, leading to node failure.
+`timeoutSeconds` value expires. Otherwise, your node will have
+`<defunct>` processes, leading to node failure.
 
 == Recommendations
 
@@ -430,7 +429,7 @@ response; if the Pod responds between 200-399 then the kubelet considers
 that Pod is healthy; otherwise, the Pod will be marked as unhealthy. If
 a Pod fails health-checks continuously, the kubelet will terminate it.
 
-You can use `+initialDelaySeconds+` to delay the first probe.
+You can use `initialDelaySeconds` to delay the first probe.
 
 When using the Liveness Probe, ensure that your application doesn’t run
 into a situation in which all Pods simultaneously fail the Liveness
@@ -469,7 +468,7 @@ https://medium.com/swlh/fantastic-probes-and-how-to-configure-them-fef7e030bd2f[
 Probes And How To Configure Them], Startup Probes should be used when
 the startup time of an application is unpredictable. If you know your
 application needs ten seconds to start, you should use
-Liveness/Readiness Probe with `+initialDelaySeconds+` instead.
+Liveness/Readiness Probe with `initialDelaySeconds` instead.
 
 === Use Readiness Probe to detect partial unavailability
 
@@ -521,17 +520,17 @@ older nodes and recreated on newer nodes.
 
 The preferred way to upgrade worker nodes is by creating new worker
 nodes and terminating old ones. Before terminating worker nodes, you
-should `+drain+` it. When a worker node is drained, all its pods are
+should `drain` it. When a worker node is drained, all its pods are
 _safely_ evicted. Safely is a key word here; when pods on a worker are
-evicted, they are not simply sent a `+SIGKILL+` signal. Instead, a
-`+SIGTERM+` signal is sent to the main process (PID 1) of each container
-in the Pods being evicted. After the `+SIGTERM+` signal is sent,
+evicted, they are not simply sent a `SIGKILL` signal. Instead, a
+`SIGTERM` signal is sent to the main process (PID 1) of each container
+in the Pods being evicted. After the `SIGTERM` signal is sent,
 Kubernetes will give the process some time (grace period) before a
-`+SIGKILL+` signal is sent. This grace period is 30 seconds by default;
-you can override the default by using `+grace-period+` flag in kubectl
-or declare `+terminationGracePeriodSeconds+` in your Podspec.
+`SIGKILL` signal is sent. This grace period is 30 seconds by default;
+you can override the default by using `grace-period` flag in kubectl
+or declare `terminationGracePeriodSeconds` in your Podspec.
 
-`+kubectl delete pod <pod name> —grace-period=<seconds>+`
+`kubectl delete pod <pod name> —grace-period=<seconds>`
 
 It is common to have containers in which the main process doesn’t have
 PID 1. Consider this Python-based sample container:
@@ -543,12 +542,12 @@ $ kubectl exec python-app -it ps
  5   root 0:00 python app.py
 ....
 
-In this example, the shell script receives `+SIGTERM+`, the main
+In this example, the shell script receives `SIGTERM`, the main
 process, which happens to be a Python application in this example,
-doesn’t get a `+SIGTERM+` signal. When the Pod is terminated, the Python
+doesn’t get a `SIGTERM` signal. When the Pod is terminated, the Python
 application will be killed abruptly. This can be remediated by changing
 the
-https://docs.docker.com/engine/reference/builder/#entrypoint[`+ENTRYPOINT+`]
+https://docs.docker.com/engine/reference/builder/#entrypoint[`ENTRYPOINT`]
 of the container to launch the Python application. Alternatively, you
 can use a tool like https://github.com/Yelp/dumb-init[dumb-init] to
 ensure that your application can handle signals.
@@ -556,10 +555,10 @@ ensure that your application can handle signals.
 You can also use
 https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks[Container
 hooks] to execute a script or an HTTP request at container start or
-stop. The `+PreStop+` hook action runs before the container receives a
-`+SIGTERM+` signal and must complete before this signal is sent. The
-`+terminationGracePeriodSeconds+` value applies from when the
-`+PreStop+` hook action begins executing, not when the `+SIGTERM+`
+stop. The `PreStop` hook action runs before the container receives a
+`SIGTERM` signal and must complete before this signal is sent. The
+`terminationGracePeriodSeconds` value applies from when the
+`PreStop` hook action begins executing, not when the `SIGTERM`
 signal is sent.
 
 == Recommendations
@@ -570,7 +569,7 @@ Pod Disruption Budget or PDB can temporarily halt the eviction process
 if the number of replicas of an application falls below the declared
 threshold. The eviction process will continue once the number of
 available replicas is over the threshold. You can use PDB to declare the
-`+minAvailable+` and `+maxUnavailable+` number of replicas. For example,
+`minAvailable` and `maxUnavailable` number of replicas. For example,
 if you want at least three copies of your app to be available, you can
 create a PDB.
 
@@ -588,7 +587,7 @@ spec:
 
 The above PDB policy tells Kubernetes to halt the eviction process until
 three or more replicas are available. Node draining respects
-`+PodDisruptionBudgets+`. During an EKS managed node group upgrade,
+`PodDisruptionBudgets`. During an EKS managed node group upgrade,
 https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html[nodes
 are drained with a fifteen-minute timeout]. After fifteen minutes, if
 the update is not forced (the option is called Rolling update in the EKS
@@ -626,9 +625,9 @@ This means Kubernetes always stores the _desired state_ and if the
 system deviates, Kubernetes will take action to restore the state. For
 example, if a worker node becomes unavailable, Kubernetes will
 reschedule the Pods onto another worker node. Similarly, if a
-`+replica+` crashes, the
+`replica` crashes, the
 https://kubernetes.io/docs/concepts/architecture/controller/#design[Deployment
-Contoller] will create a new `+replica+`. In this way, Kubernetes
+Contoller] will create a new `replica`. In this way, Kubernetes
 controllers automatically fix failures.
 
 Chaos engineering tools like https://www.gremlin.com[Gremlin] help you

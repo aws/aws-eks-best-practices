@@ -163,7 +163,7 @@ Deploy an nginx pod and schedule it to be run in the time zone - Mon-Fri 09:00-1
 The default grace period of 15 minutes applies to the new nginx deployment, i.e. if the current time is not within Mon-Fri 9-17 (Asia/Kolkata timezone), it will downscale not immediately, but after 15 minutes.
 ====
 
-image::../images/kube-down-scaler.png[Kube-down-scaler for nginx]
+image::kube-down-scaler.png[Kube-down-scaler for nginx]
 
 More advanced downscaling deployment scenarios are available at the https://github.com/hjacobs/kube-downscaler[kube-down-scaler github project].
 

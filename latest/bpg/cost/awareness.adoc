@@ -12,11 +12,11 @@ https://aws.amazon.com/aws-cost-management/aws-cost-explorer/[AWS Cost Explorer]
 
 Using the filters, we can query the costs incurred for the EKS costs at the Control Plane and Fargate Pod as shown in the diagram below:
 
-image::../images/eks-controlplane-costexplorer.png[Cost Explorer - EKS Control Plane]
+image::eks-controlplane-costexplorer.png[Cost Explorer - EKS Control Plane]
 
 Using the filters, we can query the aggregate costs incurred for the Fargate Pods across regions in EKS - which includes both vCPU-Hours per CPU and GB Hrs as shown in the diagram below:
 
-image::../images/eks-fargate-costexplorer.png[Cost Explorer - EKS Fargate]
+image::eks-fargate-costexplorer.png[Cost Explorer - EKS Fargate]
 
 ==== Tagging of Resources
 
@@ -62,7 +62,7 @@ Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters,
 
 Dashboard provides resource usage breakdowns for each node and pod, as well as detailed metadata about pods, services, Deployments, and other Kubernetes objects. This consolidated information provides visibility into your Kubernetes environment.
 
-image::../images/kubernetes-dashboard.png[Kubernetes Dashboard]
+image::kubernetes-dashboard.png[Kubernetes Dashboard]
 
 *_kubectl top and describe commands_*
 
@@ -159,7 +159,7 @@ image:../images/kube-cost.png[Kubernetes Cluster Auto Scaler logs]
 
 https://github.com/rchakode/kube-opex-analytics[Kubernetes Opex Analytics] is a tool to help organizations track the resources being consumed by their Kubernetes clusters to prevent overpaying. To do so it generates, short- (7 days), mid- (14 days) and long-term (12 months) usage reports showing relevant insights on what amount of resources each project is spending over time.
 
-image::../images/kube-opex-analytics.png[Kubernetes Opex Analytics]
+image::kube-opex-analytics.png[Kubernetes Opex Analytics]
 
 === Magalix Kubeadvisor
 
@@ -205,7 +205,7 @@ cd kube-ops-view
 kubectl apply -k deploy/
 ----
 
-image::../images/kube-ops-report.png[Home Page]
+image::kube-ops-report.png[Home Page]
 
 === Popeye - A Kubernetes Cluster Sanitizer
 

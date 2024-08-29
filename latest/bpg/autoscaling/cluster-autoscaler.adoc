@@ -18,7 +18,7 @@ enough nodes to schedule your pods without wasting resources. It watches
 for pods that fail to schedule and for nodes that are underutilized. It
 then simulates the addition or removal of nodes before applying the
 change to your cluster. The AWS Cloud Provider implementation within
-Cluster Autoscaler controls the `+.DesiredReplicas+` field of your EC2
+Cluster Autoscaler controls the `.DesiredReplicas` field of your EC2
 Auto Scaling Groups.
 
 image:cas_architecture.png[architecture]
@@ -105,15 +105,15 @@ prevent use of this mode.
 When the
 https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md#Auto-discovery-setup[Auto
 Discovery] is used, we strongly recommend that you employ least
-privilege access by limiting Actions `+autoscaling:SetDesiredCapacity+`
-and `+autoscaling:TerminateInstanceInAutoScalingGroup+` to the Auto
+privilege access by limiting Actions `autoscaling:SetDesiredCapacity`
+and `autoscaling:TerminateInstanceInAutoScalingGroup` to the Auto
 Scaling groups that are scoped to the current cluster.
 
 This will prevents a Cluster Autoscaler running in one cluster from
 modifying nodegroups in a different cluster even if the
-`+--node-group-auto-discovery+` argument wasn’t scoped down to the
+`--node-group-auto-discovery` argument wasn’t scoped down to the
 nodegroups of the cluster using tags (for example
-`+k8s.io/cluster-autoscaler/<cluster-name>+`).
+`k8s.io/cluster-autoscaler/<cluster-name>`).
 
 [source,json]
 ----
@@ -280,7 +280,7 @@ configuration, so there are some side effects. Since the shards do not
 communicate, it’s possible for multiple autoscalers to attempt to
 schedule an unschedulable pod. This can result in unnecessary scale out
 of multiple Node Groups. These extra nodes will scale back in after the
-`+scale-down-delay+`.
+`scale-down-delay`.
 
 ....
 metadata:
@@ -354,7 +354,7 @@ they should be separated into multiple EC2 Auto Scaling Groups.
 The Cluster Autoscaler has a concept of
 https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-expanders[Expanders],
 which provide different strategies for selecting which Node Group to
-scale. The strategy `+--expander=least-waste+` is a good general purpose
+scale. The strategy `--expander=least-waste` is a good general purpose
 default, and if you’re going to use multiple node groups for Spot
 Instance diversification (as described in the image above), it could
 help further cost-optimize the node groups by scaling the group which
@@ -363,7 +363,7 @@ would be best utilized after the scaling activity.
 === Prioritizing a node group / ASG
 
 You may also configure priority based autoscaling by using the Priority
-expander. `+--expander=priority+` enables your cluster to prioritize a
+expander. `--expander=priority` enables your cluster to prioritize a
 node group / ASG, and if it is unable to scale for any reason, it will
 choose the next node group in the prioritized list. This is useful in
 situations where, for example, you want to use P3 instance types because
@@ -386,7 +386,7 @@ data:
 
 Cluster Autoscaler will try to scale up the EC2 Auto Scaling group
 matching the name _p3-node-group_. If this operation does not succeed
-within `+--max-node-provision-time+`, it will attempt to scale an EC2
+within `--max-node-provision-time`, it will attempt to scale an EC2
 Auto Scaling group matching the name _p2-node-group_. This value
 defaults to 15 minutes and can be reduced for more responsive node group
 selection, though if the value is too low, it can cause unnecessary
@@ -413,7 +413,7 @@ Autoscaler to scale out new overprovisioned nodes.
 There are other less obvious benefits to overprovisioning. Without
 overprovisioning, one of the side effects of a highly utilized cluster
 is that pods will make less optimal scheduling decisions using the
-`+preferredDuringSchedulingIgnoredDuringExecution+` rule of Pod or Node
+`preferredDuringSchedulingIgnoredDuringExecution` rule of Pod or Node
 Affinity. A common use case for this is to separate pods for a highly
 available application across availability zones using AntiAffinity.
 Overprovisioning can significantly increase the chance that a node of
@@ -445,7 +445,7 @@ recognized by the Cluster Autoscaler.
 Ensure that:
 
 * Expensive to evict pods have the annotation
-`+cluster-autoscaler.kubernetes.io/safe-to-evict=false+`
+`cluster-autoscaler.kubernetes.io/safe-to-evict=false`
 
 == Advanced Use Cases
 
@@ -462,7 +462,7 @@ Autoscaler can then balance the scaling of the EC2 Autoscaling Groups.
 Ensure that:
 
 * Node group balancing is enabled by setting
-`+balance-similar-node-groups=true+`.
+`balance-similar-node-groups=true`.
 * Node Groups are configured with identical settings except for
 different availability zones and EBS Volumes.
 
@@ -472,7 +472,7 @@ Machine learning distributed training jobs benefit significantly from
 the minimized latency of same-zone node configurations. These workloads
 deploy multiple pods to a specific zone. This can be achieved by setting
 Pod Affinity for all co-scheduled pods or Node Affinity using
-`+topologyKey: failure-domain.beta.kubernetes.io/zone+`. The Cluster
+`topologyKey: failure-domain.beta.kubernetes.io/zone`. The Cluster
 Autoscaler will then scale out a specific zone to match demands. You may
 wish to allocate multiple EC2 Auto Scaling Groups, one per availability
 zone to enable failover for the entire co-scheduled workload.
@@ -480,7 +480,7 @@ zone to enable failover for the entire co-scheduled workload.
 Ensure that:
 
 * Node group balancing is enabled by setting
-`+balance-similar-node-groups=false+`
+`balance-similar-node-groups=false`
 * https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity[Node
 Affinity] and/or
 https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/[Pod
@@ -523,7 +523,7 @@ the accelerator optimized behavior.
 Ensure that:
 
 * The Kubelet for GPU nodes is configured with
-`+--node-labels k8s.amazonaws.com/accelerator=$ACCELERATOR_TYPE+`
+`--node-labels k8s.amazonaws.com/accelerator=$ACCELERATOR_TYPE`
 * Nodes with Accelerators adhere to the identical scheduling properties
 rule noted above.
 
@@ -533,8 +533,8 @@ Cluster Autoscaler is capable of scaling Node Groups to and from zero,
 which can yield significant cost savings. It detects the CPU, memory,
 and GPU resources of an Auto Scaling Group by inspecting the
 InstanceType specified in its LaunchConfiguration or LaunchTemplate.
-Some pods require additional resources like `+WindowsENI+` or
-`+PrivateIPv4Address+` or specific NodeSelectors or Taints which cannot
+Some pods require additional resources like `WindowsENI` or
+`PrivateIPv4Address` or specific NodeSelectors or Taints which cannot
 be discovered from the LaunchConfiguration. The Cluster Autoscaler can
 account for these factors by discovering them from tags on the EC2 Auto
 Scaling Group. For example:
@@ -606,7 +606,7 @@ candidates. |0.1
 considered as additional non empty candidates for scale down when some
 candidates from previous iteration are no longer valid. When calculating
 the pool size for additional candidates we take
-`+max(#nodes * scale-down-candidates-pool-ratio, scale-down-candidates-pool-min-count)+`
+`max(#nodes * scale-down-candidates-pool-ratio, scale-down-candidates-pool-min-count)`
 |50
 |===
 

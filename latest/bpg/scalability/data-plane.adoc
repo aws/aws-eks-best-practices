@@ -3,6 +3,7 @@
 = Kubernetes Data Plane
 :info_doctype: section
 :info_titleabbrev: Data Plane
+:imagesdir: images/scalability/
 
 // The Kubernetes Data Plane includes EC2 instances, load balancers, storage, and other APIs used by the Kubernetes Control Plane. For organization purposes we grouped xref:cluster-services[cluster services] in a separate page and load balancer scaling can be found in the xref:workloads[workloads section]. This section will focus on scaling compute resources.
 

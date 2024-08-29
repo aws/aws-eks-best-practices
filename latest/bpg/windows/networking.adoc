@@ -2,12 +2,13 @@
 [#windows-networking]
 = Windows Networking
 :info_doctype: section
+:imagesdir: images/windows/
 
 == Windows Container Networking Overview
 
 Windows containers are fundamentally different than Linux containers. Linux containers use Linux constructs like namespaces, the union file system, and cgroups. On Windows, those constructs are abstracted from containerd by the https://github.com/microsoft/hcsshim[Host Compute Service (HCS)]. HCS acts as an API layer that sits above the container implementation on Windows. Windows containers also leverage the Host Network Service (HNS) that defines the network topology on a node.
 
-image::./images/windows-networking.png[]
+image::windows-networking.png[]
 
 From a networking perspective, HCS and HNS make Windows containers function like virtual machines. For example, each container has a virtual network adapter (vNIC) that is connected to a Hyper-V virtual switch (vSwitch) as shown in the diagram above.
 
@@ -86,7 +87,7 @@ In order to utilize DSR in Windows Server 2019 and above, you will need to speci
 
 DSR enablement can be verified following the instructions in the https://techcommunity.microsoft.com/t5/networking-blog/direct-server-return-dsr-in-a-nutshell/ba-p/693710[Microsoft Networking blog] and the https://catalog.us-east-1.prod.workshops.aws/workshops/1de8014a-d598-4cb5-a119-801576492564/en-US/module1-eks/lab3-handling-mixed-clusters[Windows Containers on AWS Lab].
 
-image::./images/dsr.png[]
+image::dsr.png[]
 
 == Container Network Interface (CNI) options
 

@@ -101,7 +101,7 @@ installs the Karpenter controller and a webhook pod as a Deployment that
 needs to run before the controller can be used for scaling your cluster.
 We recommend a minimum of one small node group with at least one worker
 node. As an alternative, you can run these pods on EKS Fargate by
-creating a Fargate profile for the `+karpenter+` namespace. Doing so
+creating a Fargate profile for the `karpenter` namespace. Doing so
 will cause all pods deployed into this namespace to run on EKS Fargate.
 Do not run Karpenter on a node that is managed by Karpenter.
 
@@ -145,7 +145,7 @@ and terminates the affected nodes ahead of time to start graceful
 cleanup of workloads before disruption. For Spot interruptions with 2
 minute notice, Karpenter quickly starts a new node so pods can be moved
 before the instance is reclaimed. To enable interruption handling, you
-configure the `+--interruption-queue+` CLI argument with the name of the
+configure the `--interruption-queue` CLI argument with the name of the
 SQS queue provisioned for this purpose. It is not advised to use
 Karpenter interruption handling alongside Node Termination Handler as
 explained https://karpenter.sh/docs/faq/#interruption-handling[here].
@@ -290,7 +290,7 @@ spec:
 
 For a general deployment for another team, the NodePool spec could
 include nodeAffinify. A Deployment could then use nodeSelectorTerms to
-match `+billing-team+`.
+match `billing-team`.
 
 [source,yaml]
 ----
@@ -366,7 +366,7 @@ expiry can be used as a means of upgrading, so that nodes are retired
 and replaced with updated versions. See
 https://karpenter.sh/docs/concepts/disruption/[Expiration] in the
 Karpenter documentation for information on using
-`+spec.disruption.expireAfter+` to configure node expiry.
+`spec.disruption.expireAfter` to configure node expiry.
 
 === Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
@@ -474,7 +474,7 @@ The snippet below tells Karpenter to only provision a maximum of 1000
 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only
 when the limit is met or exceeded. When a limit is exceeded the
 Karpenter controller will write
-`+memory resource usage of 1001 exceeds limit of 1000+` or a similar
+`memory resource usage of 1001 exceeds limit of 1000` or a similar
 looking message to the controller’s logs. If you are routing your
 container logs to CloudWatch logs, you can create a
 https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html[metrics
@@ -526,9 +526,9 @@ If you are running a critical application on a Karpenter-provisioned
 node, such as a _long running_ batch job or stateful application, _and_
 the node’s TTL has expired, the application will be interrupted when the
 instance is terminated. By adding a
-`+karpenter.sh/karpenter.sh/do-not-disrupt+` annotation to the pod, you
+`karpenter.sh/karpenter.sh/do-not-disrupt` annotation to the pod, you
 are instructing Karpenter to preserve the node until the Pod is
-terminated or the `+karpenter.sh/do-not-disrupt+` annotation is removed.
+terminated or the `karpenter.sh/do-not-disrupt` annotation is removed.
 See
 https://karpenter.sh/docs/concepts/disruption/#node-level-controls[Distruption]
 documentation for further information.

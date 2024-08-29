@@ -3,7 +3,7 @@
 = Configure gMSA for Windows Pods and containers
 :info_doctype: section
 :info_titleabbrev: gMSA for Windows Containers
-
+:imagesdir: images/windows/
 
 == What is a gMSA account
 
@@ -33,7 +33,7 @@ https://aws.amazon.com/blogs/containers/windows-authentication-on-amazon-eks-win
 
 In this setup, the Windows worker node isn't joined in the Active Directory domain, and a "portable" identity (user/password) is used to authenticate against Active Directory and retrieve the gMSA identity to be used with the pod.
 
-image::./images/domainless_gmsa.png[]
+image::domainless_gmsa.png[]
 
 The portable identity is an Active Directory user; the identity (user/password) is stored on AWS Secrets Manager or AWS System Manager Parameter Store, and an AWS-developed plugin called ccg_plugin will be used to retrieve this identity from AWS Secrets Manager or AWS System Manager Parameter Store and pass it to containerd to retrieve the gMSA identity and made it available for the pod.
 

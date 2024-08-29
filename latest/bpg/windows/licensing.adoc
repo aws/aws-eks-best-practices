@@ -3,7 +3,7 @@
 = Windows Server version and License
 :info_doctype: section
 :info_titleabbrev: Windows Versions and Licensing
-
+:imagesdir: images/windows/
 
 == Windows Server version
 

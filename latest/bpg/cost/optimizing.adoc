@@ -28,11 +28,11 @@ Deployment steps for kube resource report:
 
 Screenshots from a sample reports from this tool:
 
-image::../images/kube-resource-report1.png[Home Page]
+image::kube-resource-report1.png[Home Page]
 
-image::../images/kube-resource-report2.png[Cluster level data]
+image::kube-resource-report2.png[Cluster level data]
 
-image::../images/kube-resource-report3.png[Pod level data]
+image::kube-resource-report3.png[Pod level data]
 
 *FairwindsOps Goldilocks*: The https://github.com/FairwindsOps/goldilocks[FairwindsOps Goldilocks] is a tool that creates a Vertical Pod Autoscaler (VPA) for each deployment in a namespace and then queries them for information. Once the VPAs are in place, we see recommendations appear in the Goldilocks dashboard.
 
@@ -48,7 +48,7 @@ Viewing the Dashboard - The default installation creates a ClusterIP service for
 
 Then open your browser to http://localhost:8080
 
-image::../images/Goldilocks.png[Goldilocks recommendation Page]
+image::Goldilocks.png[Goldilocks recommendation Page]
 
 === Use Application Profiling tools like CloudWatch Container Insights and Prometheus Metrics in Amazon CloudWatch
 

@@ -3,6 +3,7 @@
 = Amazon EKS optimized Windows AMI management
 :info_doctype: section
 :info_titleabbrev: AMI Management
+:imagesdir: images/windows/
 
 
 Windows Amazon EKS optimized AMIs are built on top of Windows Server 2019 and Windows Server 2022. They are configured to serve as the base image for Amazon EKS nodes. By default, the AMIs include the following components:
@@ -36,7 +37,7 @@ Using the same version across the Amazon EKS cluster reduces the time during tro
 
 Use Amazon EC2 Image Builder to select between Windows Server versions, AWS Windows Server AMI release dates, and/or OS build version. The build components step, allows you to select between existing EKS Optimized Windows Artifacts as well as the kubelet versions. For more information: https://docs.aws.amazon.com/eks/latest/userguide/eks-custom-ami-windows.html
 
-image::./images/build-components.png[]
+image::build-components.png[]
 
 *NOTE:* Prior to selecting a base image, consult the xref:windows-licensing[Windows Server Version and License] section for important details pertaining to release channel updates.
 
@@ -78,7 +79,7 @@ phases:
 
 To make sure the following component works as expected, check if the IAM role used by EC2 Image builder (EC2InstanceProfileForImageBuilder) has the attached policies:
 
-image::./images/permissions-policies.png[]
+image::permissions-policies.png[]
 
 == Blog post
 

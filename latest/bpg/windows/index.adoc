@@ -13,7 +13,7 @@
 :info_title: Best Practices for Windows
 :info_abstract: Best Practices for Windows
 :info_titleabbrev: Windows
-:imagesdir: images/
+:imagesdir: images/windows/
 
 This guide provides advice about running windows containers and nodes. 
 

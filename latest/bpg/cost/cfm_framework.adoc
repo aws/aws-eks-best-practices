@@ -17,7 +17,7 @@
 
 AWS Cloud Economics is a discipline that helps customers increase efficiency and reduce their costs through the adoption of modern compute technologies like Amazon EKS. The discipline recommends following a methodology called the "`Cloud Financial Management (CFM) framework`" which consists of 4 pillars:
 
-//image::../images/cfm_framework.png[CFM Framework]
+image::cfm_framework.png[CFM Framework]
 
 == The See pillar: Measurement and accountability
 
@@ -63,7 +63,7 @@ Once the recommendations in the See pillar are implemented, clusters are optimiz
 
 Cost optimization is a continuous process and involves a flywheel of incremental improvements:
 
-//image::../images/flywheel.png[Cost optimization flywheel]
+image::flywheel.png[Cost optimization flywheel]
 
 Securing executive sponsorship for these types of activities is crucial for integrating EKS cluster optimization into the organization's "`FinOps`" efforts. It allows stakeholder alignment through a shared understanding of EKS cluster costs, implementation of EKS cluster cost guardrails, and ensuring that the tooling, automation, and activities evolve with the organization's needs.
 

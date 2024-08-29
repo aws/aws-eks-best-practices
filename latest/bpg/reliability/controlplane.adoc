@@ -5,7 +5,7 @@
 :info_title: EKS Control Plane
 :info_abstract: EKS Control Plane
 :info_titleabbrev: Control Plane
-:imagesdir: images/
+:imagesdir: images/reliability/
 :idprefix: reliability-cp
 
 
@@ -49,7 +49,7 @@ in different AZs to facilitate communication to your worker nodes.
 
 EKS Data plane network connectivity
 
-image::reliability_eks-data-plane-connectivity.jpeg
+image::eks-data-plane-connectivity.jpeg[Connectivity]
 
 You can
 https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[configure
@@ -74,9 +74,9 @@ compromise the availability of the workloads running inside the cluster.
 For example, poorly written controllers can overload the API servers,
 affecting your application’s availability.
 
-Kubernetes exposes control plane metrics at the `+/metrics+` endpoint.
+Kubernetes exposes control plane metrics at the `/metrics` endpoint.
 
-You can view the metrics exposed using `+kubectl+`:
+You can view the metrics exposed using `kubectl`:
 
 [source,shell]
 ----
@@ -98,7 +98,7 @@ your cluster’s control plane.
 
 You can find Kubernetes API server metrics
 https://github.com/kubernetes/apiserver/blob/master/pkg/endpoints/metrics/metrics.go[here].
-For example, `+apiserver_request_duration_seconds+` can indicate how
+For example, `apiserver_request_duration_seconds` can indicate how
 long API requests are taking to run.
 
 Consider monitoring these control plane metrics:
@@ -108,28 +108,28 @@ Consider monitoring these control plane metrics:
 [width="100%",cols="<50%,<50%",options="header",]
 |===
 |Metric |Description
-|`+apiserver_request_total+` |Counter of apiserver requests broken out
+|`apiserver_request_total` |Counter of apiserver requests broken out
 for each verb, dry run value, group, version, resource, scope,
 component, and HTTP response code.
 
-|`+apiserver_request_duration_seconds*+` |Response latency distribution
+|`apiserver_request_duration_seconds*` |Response latency distribution
 in seconds for each verb, dry run value, group, version, resource,
 subresource, scope, and component.
 
-|`+apiserver_admission_controller_admission_duration_seconds+`
+|`apiserver_admission_controller_admission_duration_seconds`
 |Admission controller latency histogram in seconds, identified by name
 and broken out for each operation and API resource and type (validate or
 admit).
 
-|`+apiserver_admission_webhook_rejection_count+` |Count of admission
+|`apiserver_admission_webhook_rejection_count` |Count of admission
 webhook rejections. Identified by name, operation, rejection_code, type
 (validating or admit), error_type (calling_webhook_error,
 apiserver_internal_error, no_error)
 
-|`+rest_client_request_duration_seconds+` |Request latency in seconds.
+|`rest_client_request_duration_seconds` |Request latency in seconds.
 Broken down by verb and URL.
 
-|`+rest_client_requests_total+` |Number of HTTP requests, partitioned by
+|`rest_client_requests_total` |Number of HTTP requests, partitioned by
 status code, method, and host.
 |===
 
@@ -138,12 +138,12 @@ status code, method, and host.
 [width="100%",cols="<99%,<1%",options="header",]
 |===
 |Metric |Description
-|`+etcd_request_duration_seconds+` |Etcd request latency in seconds for
+|`etcd_request_duration_seconds` |Etcd request latency in seconds for
 each operation and object type.
 
-|`+etcd_db_total_size_in_bytes+` or
-`+apiserver_storage_db_total_size_in_bytes+` (starting with EKS v1.26)
-or `+apiserver_storage_size_bytes+` (starting with EKS v1.28) |Etcd
+|`etcd_db_total_size_in_bytes` or
+`apiserver_storage_db_total_size_in_bytes` (starting with EKS v1.26)
+or `apiserver_storage_size_bytes` (starting with EKS v1.28) |Etcd
 database size.
 |===
 
@@ -153,7 +153,7 @@ Overview Dashboard] to visualize and monitor Kubernetes API server
 requests and latency and etcd latency metrics.
 
 The following Prometheus query can be used to monitor the current size
-of etcd. The query assumes there is job called `+kube-apiserver+` for
+of etcd. The query assumes there is job called `kube-apiserver` for
 scraping metrics from API metrics endpoint and the EKS version is below
 v1.26.
 
@@ -184,7 +184,7 @@ editing the
 https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html[aws-auth
 configmap].
 
-If you misconfigure the `+aws-auth+` configmap and lose access to the
+If you misconfigure the `aws-auth` configmap and lose access to the
 cluster, you can still use the cluster creator’s user or role to access
 your EKS cluster.
 
@@ -217,19 +217,19 @@ Get token associated with the secret:
 TOKEN=`kubectl -n kube-system get secret $SECRET_NAME -o jsonpath='{.data.token}'| base64 --decode`
 ....
 
-Add service account and token to `+kubeconfig+`:
+Add service account and token to `kubeconfig`:
 
 ....
 kubectl config set-credentials super-admin --token=$TOKEN
 ....
 
-Set the current-context in `+kubeconfig+` to use super-admin account:
+Set the current-context in `kubeconfig` to use super-admin account:
 
 ....
 kubectl config set-context --current --user=super-admin
 ....
 
-Final `+kubeconfig+` should look like this:
+Final `kubeconfig` should look like this:
 
 ....
 apiVersion: v1
@@ -292,22 +292,22 @@ Or make sure the webhook has a fail open policy with a timeout shorter
 than 30 seconds to ensure that if your webhook is unavailable it will
 not impair cluster critical workloads.
 
-=== Block Pods with unsafe `+sysctls+`
+=== Block Pods with unsafe `sysctls`
 
-`+Sysctl+` is a Linux utility that allows users to modify kernel
+`Sysctl` is a Linux utility that allows users to modify kernel
 parameters during runtime. These kernel parameters control various
 aspects of the operating system’s behavior, such as network, file
 system, virtual memory, and process management.
 
-Kubernetes allows assigning `+sysctl+` profiles for Pods. Kubernetes
-categorizes `+systcls+` as safe and unsafe. Safe `+sysctls+` are
+Kubernetes allows assigning `sysctl` profiles for Pods. Kubernetes
+categorizes `systcls` as safe and unsafe. Safe `sysctls` are
 namespaced in the container or Pod, and setting them doesn’t impact
 other Pods on the node or the node itself. In contrast, unsafe sysctls
 are disabled by default since they can potentially disrupt other Pods or
 make the node unstable.
 
-As unsafe `+sysctls+` are disabled by default, the kubelet will not
-create a Pod with unsafe `+sysctl+` profile. If you create such a Pod,
+As unsafe `sysctls` are disabled by default, the kubelet will not
+create a Pod with unsafe `sysctl` profile. If you create such a Pod,
 the scheduler will repeatedly assign such Pods to nodes, while the node
 fails to launch it. This infinite loop ultimately strains the cluster
 control plane, making the cluster unstable.
@@ -316,7 +316,7 @@ Consider using
 https://github.com/open-policy-agent/gatekeeper-library/blob/377cb915dba2db10702c25ef1ee374b4aa8d347a/src/pod-security-policy/forbidden-sysctls/constraint.tmpl[OPA
 Gatekeeper] or
 https://kyverno.io/policies/pod-security/baseline/restrict-sysctls/restrict-sysctls/[Kyverno]
-to reject Pods with unsafe `+sysctls+`.
+to reject Pods with unsafe `sysctls`.
 
 == Handling Cluster Upgrades
 
@@ -339,11 +339,11 @@ should account for potential performance issues and limits within
 Kubernetes and quotas in AWS services when running large clusters.
 
 * Clusters with more than 1000 services may experience network latency
-with using `+kube-proxy+` in `+iptables+` mode according to the
+with using `kube-proxy` in `iptables` mode according to the
 https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/[tests
 performed by the ProjectCalico team]. The solution is to switch to
 https://medium.com/@jeremy.i.cowan/the-problem-with-kube-proxy-enabling-ipvs-on-eks-169ac22e237e[running
-`+kube-proxy+` in `+ipvs+` mode].
+`kube-proxy` in `ipvs` mode].
 * You may also experience
 https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html[EC2
 API request throttling] if the CNI needs to request IP addresses for
