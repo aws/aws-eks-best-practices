@@ -997,7 +997,7 @@ for doing this can be found in the
 https://github.com/aws/aws-eks-best-practices/tree/master/projects/enable-irsa/src[repository]
 for this guide.
 
-The aws-node daemonset does not support EKS Pod Identities at this time.
+The aws-node daemonset supports EKS Pod Identities in versions v1.15.5 and later.
 
 === Restrict access to the instance profile assigned to the worker node
 
