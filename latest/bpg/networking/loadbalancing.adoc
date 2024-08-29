@@ -4,7 +4,7 @@
 = Load Balancing
 :info_titleabbrev: Load Balancing
 :info_doctype: section
-:imagesdir: images/
+:imagesdir: images/networking/
 
 
 

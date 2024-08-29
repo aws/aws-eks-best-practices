@@ -6,7 +6,7 @@
 :info_title: Prefix Mode for Linux
 :info_abstract: Prefix Mode for Linux
 :info_titleabbrev: Prefix Mode for Linux
-:imagesdir: images/
+:imagesdir: images/networking/
 
 [abstract]
 --

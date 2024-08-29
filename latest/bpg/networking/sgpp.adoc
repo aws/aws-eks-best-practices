@@ -6,7 +6,7 @@
 :info_title: Security Groups Per Pod
 :info_abstract: Security Groups Per Pod
 :info_titleabbrev: Security Groups Per Pod
-:imagesdir: images/
+:imagesdir: images/networking/
 
 [abstract]
 --

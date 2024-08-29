@@ -6,7 +6,7 @@
 :info_title: Amazon VPC CNI
 :info_abstract: Amazon VPC CNI
 :info_titleabbrev: Amazon VPC CNI
-:imagesdir: images/
+:imagesdir: images/networking/
 
 [abstract]
 --

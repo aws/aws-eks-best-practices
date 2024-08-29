@@ -2,7 +2,7 @@
 [."topic"]
 [[ip-opt,ip-opt.title]]
 = Optimizing IP Address Utilization
-:imagesdir: images/
+:imagesdir: images/networking/
 :info_doctype: section
 
 Containerized environments are growing in scale at a rapid pace, thanks to application modernization. This means that more and more worker nodes and pods are being deployed.

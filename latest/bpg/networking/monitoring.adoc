@@ -2,7 +2,7 @@
 [."topic"]
 = Monitoring EKS workloads for Network performance issues
 :info_doctype: section
-:imagesdir: images/
+:imagesdir: images/networking/
 :info_titleabbrev: Monitoring for Network performance issues
 
 == Monitoring CoreDNS traffic for DNS throttling issues

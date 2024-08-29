@@ -5,7 +5,7 @@
 :info_title: Cluster Autoscaler
 :info_abstract: Cluster Autoscaler
 :info_titleabbrev: Cluster Autoscaler 
-:imagesdir: images/
+:imagesdir: images/autoscaling/
 
 == Overview
 
@@ -339,7 +339,7 @@ candidates for a MixedInstancePolicy. The
 https://github.com/aws/amazon-ec2-instance-selector[EC2 Instance
 Selector] tool can help you identify similar instance types.
 
-image:spot_mix_instance_policy.jpg[./spot_mix_instance_policy]
+image:cas_spot_mix_instance_policy.jpg[spot_mix_instance_policy]
 
 It’s recommended to isolate On-Demand and Spot capacity into separate
 EC2 Auto Scaling groups. This is preferred over using a
