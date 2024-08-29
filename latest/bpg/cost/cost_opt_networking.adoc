@@ -62,8 +62,10 @@ The screenshot below shows the result of the EndpointSlice controller having suc
 
 image::../images/slice_shell.png[Slice shell]
 
-!!! note
-    It's important to note that topology aware routing is still in *beta*. Also, this feature is more predictable when workloads are widely and evenly distributed across the cluster topology. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/[pod topology spread constraints].
+[NOTE]
+====
+It's important to note that topology aware routing is still in *beta*. Also, this feature is more predictable when workloads are widely and evenly distributed across the cluster topology. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/[pod topology spread constraints].
+====
 
 *Using Autoscalers: Provision Nodes to a Specific AZ*
 
@@ -141,8 +143,10 @@ There are cases where restricting traffic at a zonal level isn't sufficient. Apa
 
 In order to restrict Pod network traffic to a node, you can make use of the _https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/[Service internal traffic policy]_. By default, traffic sent to a workload's Service will be randomly distributed across the different generated endpoints. So in a HA architecture, that means traffic from Microservice A could go to any replica of Microservice B on any given node across the different AZs. However, with the Service's internal traffic policy set to `Local`, traffic will be restricted to endpoints on the node that the traffic originated from. This policy dictates the exclusive use of node-local endpoints. By implication, your network traffic-related costs for that workload will be lower than if the distribution was cluster wide. Also, the latency will be lower, making your application more performant.
 
-!!! note
-    It's important to note that this feature cannot be combined with topology aware routing in Kubernetes.
+[NOTE]
+====
+It's important to note that this feature cannot be combined with topology aware routing in Kubernetes.
+====
 
 image::../images/local_traffic.png[Local internal traffic]
 
@@ -181,8 +185,10 @@ If Microservice B does have 2 of its 3 replicas on Nodes 1 and 2, then there wil
 
 image::../images/no_node_local_2.png[node-local_with_peer]
 
-!!! note
-    In some scenarios, an isolated replica like the one depicted in the above diagram may not be a cause for concern if it still serves a purpose (such as serving requests from external incoming traffic).
+[NOTE]
+====
+In some scenarios, an isolated replica like the one depicted in the above diagram may not be a cause for concern if it still serves a purpose (such as serving requests from external incoming traffic).
+====
 
 *Using the Service Internal Traffic Policy with Topology Spread Constraints*
 
@@ -257,8 +263,10 @@ image::../images/lb_2_pod.png[LB to Pod]
 
 When using _ip mode_, network traffic is proxied from the load balancer directly to the destination Pod. As a result, there are _no data transfer charges_ involved in this approach.
 
-!!! tip
-    It is recommended that you set your load balancer to _ip traffic mode_ to reduce data transfer charges. For this setup, it's also important to make sure that your load balancer is deployed across all the subnets in your VPC.
+[NOTE]
+====
+It is recommended that you set your load balancer to _ip traffic mode_ to reduce data transfer charges. For this setup, it's also important to make sure that your load balancer is deployed across all the subnets in your VPC.
+====
 
 The diagram below depicts network paths for traffic flowing from the load balancer to Pods in the network _ip mode_.
 
@@ -340,8 +348,10 @@ Service meshes offer powerful networking capabilities that can be used to reduce
 
 Istio enables you to apply network policies to traffic _after_ routing occurs. This is done using https://istio.io/latest/docs/reference/config/networking/destination-rule/[Destination Rules] such as https://istio.io/latest/docs/tasks/traffic-management/locality-load-balancing/distribute/[locality weighted distribution]. Using this feature, you can control the weight (expressed as a percentage) of traffic that can go to a certain destination based on its origin. The source of this traffic can either be from an external (or public facing) load balancer or a Pod within the cluster itself. When all the Pod endpoints are available, the locality will be selected based on a weighted round-robin load balancing algorithm. In the case that certain endpoints are unhealthy or unavailable, https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/locality_weight.html[the locality weight will be automatically adjusted] to reflect this change in the available endpoints.
 
-!!! note
-    Before implementing locality weighted distribution, you should start by understanding your network traffic patterns and the implications that the Destination Rule policy may have on your application's behaviour. As such, it's important to have distributed tracing mechanisms in place with tools such as https://aws.amazon.com/xray/[AWS X-Ray] or https://www.jaegertracing.io/[Jaeger].
+[NOTE]
+====
+Before implementing locality weighted distribution, you should start by understanding your network traffic patterns and the implications that the Destination Rule policy may have on your application's behaviour. As such, it's important to have distributed tracing mechanisms in place with tools such as https://aws.amazon.com/xray/[AWS X-Ray] or https://www.jaegertracing.io/[Jaeger].
+====
 
 The Istio Destination Rules detailed above can also be applied to manage traffic from a load balancer to Pods in your EKS cluster. Locality weighted distribution rules can be applied to a Service that receives traffic from a highly available load balancer (specifically the Ingress Gateway). These rules allow you to control how much traffic goes where based on its zonal origin - the load balancer in this case. If configured correctly, less egress cross-zone traffic will be incurred compared to a load balancer that distributes traffic evenly or randomly to Pod replicas in different AZs.
 
@@ -385,8 +395,10 @@ spec:
 
 ----
 
-!!! note
-    The minimum weight that can be distributed destination is 1%. The reason for this is to maintain failover regions and zones in the case that the endpoints in the main destination become unhealthy or unavailable.
+[NOTE]
+====
+The minimum weight that can be distributed destination is 1%. The reason for this is to maintain failover regions and zones in the case that the endpoints in the main destination become unhealthy or unavailable.
+====
 
 The diagram below depicts a scenario in which there is a highly available load balancer in the _eu-west-1_ region and locality weighted distribution is applied. The Destination Rule policy for this diagram is configured to send 60% of traffic coming from _eu-west-1a_ to Pods in the same AZ, whereas 40% of the traffic from _eu-west-1a_ should go to Pods in eu-west-1b.
 

@@ -18,13 +18,10 @@ GuardDuty and third party tools that can assist with establishing
 baselines and detecting anomalous activity with less manual
 configuration of Linux kernel mechanisms.
 
-!!! attention Kubernetes does not currently provide any native
-mechanisms for loading seccomp, AppArmor, or SELinux profiles onto
-Nodes. They either have to be loaded manually or installed onto Nodes
-when they are bootstrapped. This has to be done prior to referencing
-them in your Pods because the scheduler is unaware of which nodes have
-profiles. See below how tools like Security Profiles Operator can help
-automate provisioning of profiles onto nodes.
+[IMPORTANT]
+====
+Kubernetes does not currently provide any native mechanisms for loading seccomp, AppArmor, or SELinux profiles onto Nodes. They either have to be loaded manually or installed onto Nodes when they are bootstrapped. This has to be done prior to referencing them in your Pods because the scheduler is unaware of which nodes have profiles. See below how tools like Security Profiles Operator can help automate provisioning of profiles onto nodes.
+====
 
 == Security contexts and built-in Kubernetes controls
 
@@ -182,19 +179,10 @@ security posture without introducing undue complexity. Explore the
 options available in PSPs before venturing into building seccomp and
 Apparmor profiles.
 
-!!! warning As of Kubernetes 1.25, PSPs have been removed and replaced
-with the
-https://kubernetes.io/docs/concepts/security/pod-security-admission/[Pod
-Security Admission] controller. Third-party alternatives which exist
-include OPA/Gatekeeper and Kyverno. A collection of Gatekeeper
-constraints and constraint templates for implementing policies commonly
-found in PSPs can be pulled from the
-https://github.com/open-policy-agent/gatekeeper-library/tree/master/library/pod-security-policy[Gatekeeper
-library] repository on GitHub. And many replacements for PSPs can be
-found in the https://main.kyverno.io/policies/[Kyverno policy library]
-including the full collection of
-https://kubernetes.io/docs/concepts/security/pod-security-standards/[Pod
-Security Standards].
+[WARNING]
+====
+As of Kubernetes 1.25, PSPs have been removed and replaced with the https://kubernetes.io/docs/concepts/security/pod-security-admission/[Pod Security Admission] controller. Third-party alternatives which exist include OPA/Gatekeeper and Kyverno. A collection of Gatekeeper constraints and constraint templates for implementing policies commonly found in PSPs can be pulled from the https://github.com/open-policy-agent/gatekeeper-library/tree/master/library/pod-security-policy[Gatekeeper library] repository on GitHub. And many replacements for PSPs can be found in the https://main.kyverno.io/policies/[Kyverno policy library] including the full collection of https://kubernetes.io/docs/concepts/security/pod-security-standards/[Pod Security Standards].
+====
 
 [[iam-tools,iam-tools.title]]
 == Tools and Resources

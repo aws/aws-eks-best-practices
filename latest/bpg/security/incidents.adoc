@@ -110,13 +110,10 @@ spec:
   - Egress
 ----
 
-!!! attention A Network Policy may prove ineffective if an attacker has
-gained access to underlying host. If you suspect that has happened, you
-can use
-https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS
-Security Groups] to isolate a compromised host from other hosts. When
-changing a host’s security group, be aware that it will impact all
-containers running on that host.
+[IMPORTANT]
+====
+A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS Security Groups] to isolate a compromised host from other hosts. When changing a host’s security group, be aware that it will impact all containers running on that host.
+====
 
 === Revoke temporary security credentials assigned to the pod or worker node if necessary
 
@@ -132,10 +129,10 @@ By cordoning the impacted worker node, you’re informing the scheduler to
 avoid scheduling pods onto the affected node. This will allow you to
 remove the node for forensic study without disrupting other workloads.
 
-!!! info This guidance is not applicable to Fargate where each Fargate
-pod run in its own sandboxed environment. Instead of cordoning,
-sequester the affected Fargate pods by applying a network policy that
-denies all ingress and egress traffic.
+[NOTE]
+====
+This guidance is not applicable to Fargate where each Fargate pod run in its own sandboxed environment. Instead of cordoning, sequester the affected Fargate pods by applying a network policy that denies all ingress and egress traffic.
+====
 
 === Enable termination protection on impacted worker node
 
@@ -146,7 +143,10 @@ protection] can prevent this from happening.
 https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html#instance-protection[Instance
 scale-in protection] will protect the node from a scale-in event.
 
-!!! warning You cannot enable termination protection on a Spot instance.
+[WARNING]
+====
+You cannot enable termination protection on a Spot instance.
+====
 
 === Label the offending Pod/Node with a label indicating that it is part of an active investigation
 

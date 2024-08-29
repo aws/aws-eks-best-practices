@@ -49,8 +49,10 @@ For Cost Optimization, Trusted Advisor helps eliminate unused and idle resources
 
 The Trusted Advisor also provides Savings Plans and Reserved Instances recommendations for EC2 instances and Fargate which allows you to commit to a consistent usage amount in exchange for discounted rates.
 
-!!! Note
-    that the recommendations from Trusted Advisor are generic recommendations and not specific to EKS.
+[NOTE]
+====
+that the recommendations from Trusted Advisor are generic recommendations and not specific to EKS.
+====
 
 === Use the Kubernetes dashboard
 

@@ -148,21 +148,15 @@ spec:
             cpu: 1
 ....
 
-!!! note `+kube-scheduler+` is only aware of topology domains via nodes
-that exist with those labels. If the above deployment is deployed to a
-cluster with nodes only in a single zone, all of the pods will schedule
-on those nodes as `+kube-scheduler+` isn’t aware of the other zones. For
-this topology spread to work as expected with the scheduler, nodes must
-already exist in all zones. This issue will be resolved in Kubernetes
-1.24 with the addition of the `+MinDomainsInPodToplogySpread+`
-https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api[feature
-gate] which allows specifying a `+minDomains+` property to inform the
-scheduler of the number of eligible domains.
+[NOTE]
+====
+`+kube-scheduler+` is only aware of topology domains via nodes that exist with those labels. If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `+kube-scheduler+` isn’t aware of the other zones. For this topology spread to work as expected with the scheduler, nodes must already exist in all zones. This issue will be resolved in Kubernetes 1.24 with the addition of the `+MinDomainsInPodToplogySpread+` https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api[feature gate] which allows specifying a `+minDomains+` property to inform the scheduler of the number of eligible domains.
+====
 
-!!! warning Setting `+whenUnsatisfiable+` to `+DoNotSchedule+` will
-cause pods to be unschedulable if the topology spread constraint can’t
-be fulfilled. It should only be set if its preferable for pods to not
-run instead of violating the topology spread constraint.
+[WARNING]
+====
+Setting `+whenUnsatisfiable+` to `+DoNotSchedule+` will cause pods to be unschedulable if the topology spread constraint can’t be fulfilled. It should only be set if its preferable for pods to not run instead of violating the topology spread constraint.
+====
 
 On older versions of Kubernetes, you can use pod anti-affinity rules to
 schedule pods across multiple AZs. The manifest below informs Kubernetes
@@ -202,9 +196,10 @@ spec:
         image: nginx
 ....
 
-!!! warning Do not require that pods be scheduled across distinct AZs
-otherwise, the number of pods in a deployment will never exceed the
-number of AZs.
+[WARNING]
+====
+Do not require that pods be scheduled across distinct AZs otherwise, the number of pods in a deployment will never exceed the number of AZs.
+====
 
 === Ensure capacity in each AZ when using EBS volumes
 

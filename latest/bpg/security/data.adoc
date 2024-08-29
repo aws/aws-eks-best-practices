@@ -74,11 +74,10 @@ parameters:
   kmsKeyId: <kms_arn>
 ----
 
-!!! attention As of May 28, 2020 all data written to the ephemeral
-volume in EKS Fargate pods is encrypted by default using an
-industry-standard AES-256 cryptographic algorithm. No modifications to
-your application are necessary as encryption and decryption are handled
-seamlessly by the service.
+[IMPORTANT]
+====
+As of May 28, 2020 all data written to the ephemeral volume in EKS Fargate pods is encrypted by default using an industry-standard AES-256 cryptographic algorithm. No modifications to your application are necessary as encryption and decryption are handled seamlessly by the service.
+====
 
 === Encrypt data at rest
 
@@ -127,11 +126,15 @@ mapped to an environment variable or mounted as volume. For additional
 information on creating secrets, see
 https://kubernetes.io/docs/concepts/configuration/secret/.
 
-!!! caution Secrets in a particular namespace can be referenced by all
-pods in the secret’s namespace.
+[WARNING]
+====
+Secrets in a particular namespace can be referenced by all pods in the secret’s namespace.
+====
 
-!!! caution The node authorizer allows the Kubelet to read all of the
-secrets mounted to the node.
+[WARNING]
+====
+The node authorizer allows the Kubelet to read all of the secrets mounted to the node.
+====
 
 === Use AWS KMS for envelope encryption of Kubernetes secrets
 
@@ -227,10 +230,10 @@ secrets to Kubernetes Secrets. Synchronization of secrets can be useful
 when you need to reference a secret as an environment variable instead
 of reading them from a volume.
 
-!!! note When the the secret store CSI driver has to fetch a secret, it
-assumes the IRSA role assigned to the pod that references a secret. The
-code for this operation can be found
-https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go[here].
+[NOTE]
+====
+When the the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that references a secret. The code for this operation can be found https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go[here].
+====
 
 For additional information about the AWS Secrets & Configuration
 Provider (ASCP) refer to the following resources:

@@ -17,11 +17,15 @@ Kubernetes has a number of protection mechanisms for each component - the Kubele
 
 Great care must be taken when changing these QPS settings. Removing one bottleneck, such as the queries per second on a Kubelet will have an impact on other down stream components. This can and will overwhelm the system above a certain rate, so understanding and monitoring each part of the service chain is key to successfully scaling workloads on Kubernetes.
 
-!!! note
-    The API server has a more complex system with introduction of API Priority and Fairness which we will discuss separately.
+[NOTE]
+====
+The API server has a more complex system with introduction of API Priority and Fairness which we will discuss separately.
+====
 
-!!! note
-    Caution, some metrics seem like the right fit but are in fact measuring something else. As an example, `kubelet_http_inflight_requests` relates to just the metrics server in Kubelet, not the number of requests from Kubelet to apiserver requests. This could cause us to misconfigure the QPS flag on the Kubelet. A query on audit logs for a particular Kubelet would be a more reliable way to check metrics.
+[NOTE]
+====
+Caution, some metrics seem like the right fit but are in fact measuring something else. As an example, `kubelet_http_inflight_requests` relates to just the metrics server in Kubelet, not the number of requests from Kubelet to apiserver requests. This could cause us to misconfigure the QPS flag on the Kubelet. A query on audit logs for a particular Kubelet would be a more reliable way to check metrics.
+====
 
 == Scaling Distributed Components
 
@@ -37,8 +41,10 @@ As we monitor each service, it's important to look at metrics in both directions
 
 When we look at scaling numbers, such as how many pods can run on a node, we could take the 110 pods per node that upstream supports at face value.
 
-!!! note
-    https://kubernetes.io/docs/setup/best-practices/cluster-large/
+[NOTE]
+====
+https://kubernetes.io/docs/setup/best-practices/cluster-large/
+====
 
 However, your workload is likely more complex than what was tested in a scalability test in Upstream. To ensure we can service the number of pods we want to run in production, let's make sure that the Kubelet is "`keeping up`" with the Containerd runtime.
 
@@ -46,8 +52,10 @@ image::../images/keeping-up.png[Keeping up]
 
 To oversimplify, the Kubelet is getting the status of the pods from the container runtime (in our case Containerd). What if we had too many pods changing status too quickly? If the rate of change is too high, requests [to the container runtime] can timeout.
 
-!!! note
-    Kubernetes is constantly evolving, this subsystem is currently undergoing changes. https://github.com/kubernetes/enhancements/issues/3386
+[NOTE]
+====
+Kubernetes is constantly evolving, this subsystem is currently undergoing changes. https://github.com/kubernetes/enhancements/issues/3386
+====
 
 image:../images/flow.png[Flow]
 image:../images/PLEG-duration.png[PLEG duration]

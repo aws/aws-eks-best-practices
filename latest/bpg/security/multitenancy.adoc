@@ -47,19 +47,15 @@ force pods from different tenants to be scheduled onto separate nodes;
 often referred to as _sole tenant nodes_. This could get rather
 complicated, and cost prohibitive, in an environment with many tenants.
 
-!!! attention Soft multi-tenancy implemented with Namespaces does not
-allow you to provide tenants with a filtered list of Namespaces because
-Namespaces are a globally scoped Type. If a tenant has the ability to
-view a particular Namespace, it can view all Namespaces within the
-cluster.
+[IMPORTANT]
+====
+Soft multi-tenancy implemented with Namespaces does not allow you to provide tenants with a filtered list of Namespaces because Namespaces are a globally scoped Type. If a tenant has the ability to view a particular Namespace, it can view all Namespaces within the cluster.
+====
 
-!!! warning With soft-multi-tenancy, tenants retain the ability to query
-CoreDNS for all services that run within the cluster by default. An
-attacker could exploit this by running dig SRV `*.*.svc.cluster.local`
-from any pod in the cluster. If you need to restrict access to DNS
-records of services that run within your clusters, consider using the
-Firewall or Policy plugins for CoreDNS. For additional information, see
-https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy.
+[WARNING]
+====
+With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. An attacker could exploit this by running dig SRV `*.*.svc.cluster.local` from any pod in the cluster. If you need to restrict access to DNS records of services that run within your clusters, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy.
+====
 
 https://github.com/kiosk-sh/kiosk[Kiosk] is an open source project that
 can aid in the implementation of soft multi-tenancy. It is implemented
@@ -163,19 +159,15 @@ that in place, you can begin adding more permissive rules that allow for
 communication within a namespace. This can be further refined as
 required.
 
-!!! note Amazon
-https://aws.amazon.com/blogs/containers/amazon-vpc-cni-now-supports-kubernetes-network-policies/[VPC
-CNI now supports Kubernetes Network Policies] to create policies that
-can isolate sensitive workloads and protect them from unauthorized
-access when running Kubernetes on AWS. This means that you can use all
-the capabilities of the Network Policy API within your Amazon EKS
-cluster. This level of granular control enables you to implement the
-principle of least privilege, which ensures that only authorized pods
-are allowed to communicate with each other.
+[NOTE]
+====
+Amazon https://aws.amazon.com/blogs/containers/amazon-vpc-cni-now-supports-kubernetes-network-policies/[VPC CNI now supports Kubernetes Network Policies] to create policies that can isolate sensitive workloads and protect them from unauthorized access when running Kubernetes on AWS. This means that you can use all the capabilities of the Network Policy API within your Amazon EKS cluster. This level of granular control enables you to implement the principle of least privilege, which ensures that only authorized pods are allowed to communicate with each other.
+====
 
-!!! attention Network policies are necessary but not sufficient. The
-enforcement of network policies requires a policy engine such as Calico
-or Cilium.
+[IMPORTANT]
+====
+Network policies are necessary but not sufficient. The enforcement of network policies requires a policy engine such as Calico or Cilium.
+====
 
 === Role-based access control (RBAC)
 
@@ -222,13 +214,10 @@ accommodate the higher-priority pods from customer A. This can be
 especially handy in a SaaS environment where customers willing to pay a
 premium receive a higher priority.
 
-!!! attention Pods priority can have an undesired effect on other Pods
-with lower priority. For example, although the victim pods are
-terminated gracefully but the PodDisruptionBudget is not guaranteed,
-which could break a application with lower priority that relies on a
-quorum of Pods, see
-https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#limitations-of-preemption[Limitations
-of preemption].
+[IMPORTANT]
+====
+Pods priority can have an undesired effect on other Pods with lower priority. For example, although the victim pods are terminated gracefully but the PodDisruptionBudget is not guaranteed, which could break a application with lower priority that relies on a quorum of Pods, see https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#limitations-of-preemption[Limitations of preemption].
+====
 
 == Mitigating controls
 
@@ -321,318 +310,599 @@ not during execution; if the underlying nodes’ labels change, the pods
 will not be evicted due solely to that label change. However, future
 scheduling could be impacted.
 
-!!! Warning The label prefix of `node-restriction.kubernetes.io/` has
-special meaning in Kubernetes.
-https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction[NodeRestriction]
-which is enabled for EKS clusters prevents `kubelet` from
-adding/removing/updating labels with this prefix. Attackers aren’t able
-to use the `kubelet`’s credentials to update the node object or modify
-the system setup to pass these labels into `kubelet` as `kubelet`
-isn’t allowed to modify these labels. If this prefix is used for all pod
-to node scheduling, it prevents scenarios where an attacker may want to
-attract a different set of workloads to a node by modifying the node
-labels.
+[WARNING]
+====
+The label prefix of `node-restriction.kubernetes.io/` has
 
-!!! Info Instead of node affinity, we could have used the
+special meaning in Kubernetes.
+
+https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction[NodeRestriction]
+
+which is enabled for EKS clusters prevents `kubelet` from
+
+adding/removing/updating labels with this prefix. Attackers aren’t able
+
+to use the `kubelet`’s credentials to update the node object or modify
+
+the system setup to pass these labels into `kubelet` as `kubelet`
+
+isn’t allowed to modify these labels. If this prefix is used for all pod
+
+to node scheduling, it prevents scenarios where an attacker may want to
+
+attract a different set of workloads to a node by modifying the node
+
+labels.
+====
+[NOTE]
+====
+Instead of node affinity, we could have used the
+
 https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector[node
+
 selector]. However, node affinity is more expressive and allows for more
+
 conditions to be considered during pod scheduling. For additional
+
 information about the differences and more advanced scheduling choices,
+
 please see this CNCF blog post on
+
 https://www.cncf.io/blog/2021/07/27/advanced-kubernetes-pod-to-node-scheduling/[Advanced
+
 Kubernetes pod to node scheduling].
+
+
 
 ==== Part 2 - Taints and tolerations
 
+
+
 Attracting pods to nodes is just the first part of this three-part
+
 approach. For this approach to work, we must repel pods from scheduling
+
 onto nodes for which the pods are not authorized. To repel unwanted or
+
 unauthorized pods, Kubernetes uses node
+
 https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/[taints].
+
 Taints are used to place conditions on nodes that prevent pods from
+
 being scheduled. The below taint uses a key-value pair of
+
 `tenant: tenants-x`.
 
+
+
 [source,yaml]
+
 ----
+
 ...
+
     taints:
+
       - key: tenant
+
         value: tenants-x
+
         effect: NoSchedule
+
 ...
+
 ----
+
+
 
 Given the above node `taint`, only pods that _tolerate_ the taint will
+
 be allowed to be scheduled on the node. To allow authorized pods to be
+
 scheduled onto the node, the respective pod specifications must include
+
 a `toleration` to the taint, as seen below.
 
+
+
 [source,yaml]
+
 ----
+
 ...
+
   tolerations:
+
   - effect: NoSchedule
+
     key: tenant
+
     operator: Equal
+
     value: tenants-x
+
 ...
+
 ----
+
+
 
 Pods with the above `toleration` will not be stopped from scheduling
+
 on the node, at least not because of that specific taint. Taints are
+
 also used by Kubernetes to temporarily stop pod scheduling during
+
 certain conditions, like node resource pressure. With node affinity, and
+
 taints and tolerations, we can effectively attract the desired pods to
+
 specific nodes and repel unwanted pods.
 
-!!! attention Certain Kubernetes pods are required to run on all nodes.
-Examples of these pods are those started by the
-https://github.com/containernetworking/cni[Container Network Interface
-(CNI)] and
-https://kubernetes.io/docs/reference/command-line-tools-reference/kube-proxy/[kube-proxy]
-https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/[daemonsets].
-To that end, the specifications for these pods contain very permissive
-tolerations, to tolerate different taints. Care should be taken to not
-change these tolerations. Changing these tolerations could result in
-incorrect cluster operation. Additionally, policy-management tools, such
-as https://github.com/open-policy-agent/gatekeeper[OPA/Gatekeeper] and
-https://kyverno.io/[Kyverno] can be used to write validating policies
-that prevent unauthorized pods from using these permissive tolerations.
+
+
+[IMPORTANT]
+
+====
+
+Certain Kubernetes pods are required to run on all nodes. Examples of these pods are those started by the https://github.com/containernetworking/cni[Container Network Interface (CNI)] and https://kubernetes.io/docs/reference/command-line-tools-reference/kube-proxy/[kube-proxy] https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/[daemonsets]. To that end, the specifications for these pods contain very permissive tolerations, to tolerate different taints. Care should be taken to not change these tolerations. Changing these tolerations could result in incorrect cluster operation. Additionally, policy-management tools, such as https://github.com/open-policy-agent/gatekeeper[OPA/Gatekeeper] and https://kyverno.io/[Kyverno] can be used to write validating policies that prevent unauthorized pods from using these permissive tolerations.
+
+====
+
+
 
 ==== Part 3 - Policy-based management for node selection
 
+
+
 There are several tools that can be used to help manage the node
+
 affinity and tolerations of pod specifications, including enforcement of
+
 rules in CICD pipelines. However, enforcement of isolation should also
+
 be done at the Kubernetes cluster level. For this purpose,
+
 policy-management tools can be used to _mutate_ inbound Kubernetes API
+
 server requests, based on request payloads, to apply the respective node
+
 affinity rules and tolerations mentioned above.
 
+
+
 For example, pods destined for the _tenants-x_ namespace can be
+
 _stamped_ with the correct node affinity and toleration to permit
+
 scheduling on the _tenants-x_ nodes. Utilizing policy-management tools
+
 configured using the Kubernetes
+
 https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#mutatingadmissionwebhook[Mutating
+
 Admission Webhook], policies can be used to mutate the inbound pod
+
 specifications. The mutations add the needed elements to allow desired
+
 scheduling. An example OPA/Gatekeeper policy that adds a node affinity
+
 is seen below.
 
+
+
 [source,yaml]
+
 ----
+
 apiVersion: mutations.gatekeeper.sh/v1alpha1
+
 kind: Assign
+
 metadata:
+
   name: mutator-add-nodeaffinity-pod
+
   annotations:
+
     aws-eks-best-practices/description: >-
+
       Adds Node affinity - https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+
 spec:
+
   applyTo:
+
   - groups: [""]
+
     kinds: ["Pod"]
+
     versions: ["v1"]
+
   match:
+
     namespaces: ["tenants-x"]
+
   location: "spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms"
+
   parameters:
+
     assign:
+
       value: 
+
         - matchExpressions:
+
           - key: "tenant"
+
             operator: In
+
             values:
+
             - "tenants-x"
+
 ----
+
+
 
 The above policy is applied to a Kubernetes API server request, to apply
+
 a pod to the _tenants-x_ namespace. The policy adds the
+
 `requiredDuringSchedulingIgnoredDuringExecution` node affinity rule,
+
 so that pods are attracted to nodes with the `tenant: tenants-x`
+
 label.
 
+
+
 A second policy, seen below, adds the toleration to the same pod
+
 specification, using the same matching criteria of target namespace and
+
 groups, kinds, and versions.
 
+
+
 [source,yaml]
+
 ----
+
 apiVersion: mutations.gatekeeper.sh/v1alpha1
+
 kind: Assign
+
 metadata:
+
   name: mutator-add-toleration-pod
+
   annotations:
+
     aws-eks-best-practices/description: >-
+
       Adds toleration - https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+
 spec:
+
   applyTo:
+
   - groups: [""]
+
     kinds: ["Pod"]
+
     versions: ["v1"]
+
   match:
+
     namespaces: ["tenants-x"]
+
   location: "spec.tolerations"
+
   parameters:
+
     assign:
+
       value: 
+
       - key: "tenant"
+
         operator: "Equal"
+
         value: "tenants-x"
+
         effect: "NoSchedule"
+
 ----
+
+
 
 The above policies are specific to pods; this is due to the paths to the
+
 mutated elements in the policies’ `location` elements. Additional
+
 policies could be written to handle resources that create pods, like
+
 Deployment and Job resources. The listed policies and other examples can
+
 been seen in the companion
+
 https://github.com/aws/aws-eks-best-practices/tree/master/policies/opa/gatekeeper/node-selector[GitHub
+
 project] for this guide.
 
+
+
 The result of these two mutations is that pods are attracted to the
+
 desired node, while at the same time, not repelled by the specific node
+
 taint. To verify this, we can see the snippets of output from two
+
 `kubectl` calls to get the nodes labeled with `tenant=tenants-x`,
+
 and get the pods in the `tenants-x` namespace.
 
+
+
 [source,bash]
+
 ----
+
 kubectl get nodes -l tenant=tenants-x
+
 NAME                                        
+
 ip-10-0-11-255...
+
 ip-10-0-28-81...
+
 ip-10-0-43-107...
 
+
+
 kubectl -n tenants-x get pods -owide
+
 NAME                                  READY   STATUS    RESTARTS   AGE   IP            NODE
+
 tenant-test-deploy-58b895ff87-2q7xw   1/1     Running   0          13s   10.0.42.143   ip-10-0-43-107...
+
 tenant-test-deploy-58b895ff87-9b6hg   1/1     Running   0          13s   10.0.18.145   ip-10-0-28-81...
+
 tenant-test-deploy-58b895ff87-nxvw5   1/1     Running   0          13s   10.0.30.117   ip-10-0-28-81...
+
 tenant-test-deploy-58b895ff87-vw796   1/1     Running   0          13s   10.0.3.113    ip-10-0-11-255...
+
 tenant-test-pod                       1/1     Running   0          13s   10.0.35.83    ip-10-0-43-107...
+
 ----
 
+
+
 As we can see from the above outputs, all the pods are scheduled on the
+
 nodes labeled with `tenant=tenants-x`. Simply put, the pods will only
+
 run on the desired nodes, and the other pods (without the required
+
 affinity and tolerations) will not. The tenant workloads are effectively
+
 isolated.
+
+
 
 An example mutated pod specification is seen below.
 
+
+
 [source,yaml]
-----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: tenant-test-pod
-  namespace: tenants-x
-spec:
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: tenant
-            operator: In
-            values:
-            - tenants-x
-...
-  tolerations:
-  - effect: NoSchedule
-    key: tenant
-    operator: Equal
-    value: tenants-x
-...
+
 ----
 
-!!! attention Policy-management tools that are integrated to the
-Kubernetes API server request flow, using mutating and validating
-admission webhooks, are designed to respond to the API server’s request
-within a specified timeframe. This is usually 3 seconds or less. If the
-webhook call fails to return a response within the configured time, the
-mutation and/or validation of the inbound API sever request may or may
-not occur. This behavior is based on whether the admission webhook
-configurations are set to
-https://open-policy-agent.github.io/gatekeeper/website/docs/#admission-webhook-fail-open-by-default[Fail
-Open or Fail Close].
+apiVersion: v1
+
+kind: Pod
+
+metadata:
+
+  name: tenant-test-pod
+
+  namespace: tenants-x
+
+spec:
+
+  affinity:
+
+    nodeAffinity:
+
+      requiredDuringSchedulingIgnoredDuringExecution:
+
+        nodeSelectorTerms:
+
+        - matchExpressions:
+
+          - key: tenant
+
+            operator: In
+
+            values:
+
+            - tenants-x
+
+...
+
+  tolerations:
+
+  - effect: NoSchedule
+
+    key: tenant
+
+    operator: Equal
+
+    value: tenants-x
+
+...
+
+----
+
+
+
+[IMPORTANT]
+
+====
+
+Policy-management tools that are integrated to the Kubernetes API server request flow, using mutating and validating admission webhooks, are designed to respond to the API server’s request within a specified timeframe. This is usually 3 seconds or less. If the webhook call fails to return a response within the configured time, the mutation and/or validation of the inbound API sever request may or may not occur. This behavior is based on whether the admission webhook configurations are set to https://open-policy-agent.github.io/gatekeeper/website/docs/#admission-webhook-fail-open-by-default[Fail Open or Fail Close].
+
+====
+
+
 
 In the above examples, we used policies written for OPA/Gatekeeper.
+
 However, there are other policy management tools that handle our
+
 node-selection use case as well. For example, this
+
 https://kyverno.io/policies/other/add_node_affinity/add_node_affinity/[Kyverno
+
 policy] could be used to handle the node affinity mutation.
 
-!!! tip If operating correctly, mutating policies will effect the
-desired changes to inbound API server request payloads. However,
-validating policies should also be included to verify that the desired
-changes occur, before changes are allowed to persist. This is especially
-important when using these policies for tenant-to-node isolation. It is
-also a good idea to include _Audit_ policies to routinely check your
-cluster for unwanted configurations.
+
+
+[NOTE]
+
+====
+
+If operating correctly, mutating policies will effect the desired changes to inbound API server request payloads. However, validating policies should also be included to verify that the desired changes occur, before changes are allowed to persist. This is especially important when using these policies for tenant-to-node isolation. It is also a good idea to include _Audit_ policies to routinely check your cluster for unwanted configurations.
+
+====
+
+
 
 === References
 
+
+
 * https://github.com/cruise-automation/k-rail[k-rail] Designed to help
+
 you secure a multi-tenant environment through the enforcement of certain
+
 policies.
+
 * https://d1.awsstatic.com/whitepapers/security-practices-for-multi-tenant-saas-apps-using-eks.pdf[Security
+
 Practices for MultiTenant SaaS Applications using Amazon EKS]
+
+
 
 == Hard multi-tenancy
 
+
+
 Hard multi-tenancy can be implemented by provisioning separate clusters
+
 for each tenant. While this provides very strong isolation between
+
 tenants, it has several drawbacks.
 
+
+
 First, when you have many tenants, this approach can quickly become
+
 expensive. Not only will you have to pay for the control plane costs for
+
 each cluster, you will not be able to share compute resources between
+
 clusters. This will eventually cause fragmentation where a subset of
+
 your clusters are underutilized while others are overutilized.
 
+
+
 Second, you will likely need to buy or build special tooling to manage
+
 all of these clusters. In time, managing hundreds or thousands of
+
 clusters may simply become too unwieldy.
 
+
+
 Finally, creating a cluster per tenant will be slow relative to a
+
 creating a namespace. Nevertheless, a hard-tenancy approach may be
+
 necessary in highly-regulated industries or in SaaS environments where
+
 strong isolation is required.
+
+
 
 == Future directions
 
+
+
 The Kubernetes community has recognized the current shortcomings of soft
+
 multi-tenancy and the challenges with hard multi-tenancy. The
+
 https://github.com/kubernetes-sigs/multi-tenancy[Multi-Tenancy Special
+
 Interest Group (SIG)] is attempting to address these shortcomings
+
 through several incubation projects, including Hierarchical Namespace
+
 Controller (HNC) and Virtual Cluster.
 
+
+
 The HNC proposal (KEP) describes a way to create parent-child
+
 relationships between namespaces with [policy] object inheritance along
+
 with an ability for tenant administrators to create sub-namespaces.
 
+
+
 The Virtual Cluster proposal describes a mechanism for creating separate
+
 instances of the control plane services, including the API server, the
+
 controller manager, and scheduler, for each tenant within the cluster
+
 (also known as "`Kubernetes on Kubernetes`").
 
+
+
 The
+
 https://github.com/kubernetes-sigs/multi-tenancy/blob/master/benchmarks/README.md[Multi-Tenancy
+
 Benchmarks] proposal provides guidelines for sharing clusters using
+
 namespaces for isolation and segmentation, and a command line tool
+
 https://github.com/kubernetes-sigs/multi-tenancy/blob/master/benchmarks/kubectl-mtb/README.md[kubectl-mtb]
+
 to validate conformance to the guidelines.
+
+
 
 == Multi-cluster management tools and resources
 
+
+
 * https://banzaicloud.com/[Banzai Cloud]
+
 * https://d2iq.com/solutions/ksphere/kommander[Kommander]
+
 * https://github.com/lensapp/lens[Lens]
+
 * https://nirmata.com[Nirmata]
+
 * https://rafay.co/[Rafay]
+
 * https://rancher.com/products/rancher/[Rancher]
+
 * https://www.weave.works/oss/flux/[Weave Flux]
+====

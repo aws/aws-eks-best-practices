@@ -68,8 +68,10 @@ You can back up the data on your Amazon EBS volumes by taking point-in-time snap
 
 Subsequent snapshots are incremental backups, meaning that only the blocks on the device that have changed after your most recent snapshot are saved. This minimizes the time required to create the snapshot and saves on storage costs by not duplicating data. However, growing the number of old EBS snapshots without a proper retention policy can cause unexpected costs when operating at scale. If you're directly backing up Amazon EBS volumes through AWS API, you can leverage https://aws.amazon.com/ebs/data-lifecycle-manager/[Amazon Data Lifecycle Manager] (DLM) that provides an automated, policy-based lifecycle management solution for Amazon Elastic Block Store (EBS) Snapshots and EBS-backed Amazon Machine Images (AMIs). The console makes it easier to automate the creation, retention, and deletion of EBS Snapshots and AMIs.
 
-!!! note
-    There is currently no way to make use of Amazon DLM via the Amazon EBS CSI driver.
+[NOTE]
+====
+There is currently no way to make use of Amazon DLM via the Amazon EBS CSI driver.
+====
 
 In a Kubernetes environment, you can leverage an open-source tool called https://velero.io/[Velero] to backup your EBS Persistent Volumes. You can set a TTL flag when scheduling the job to expire backups. Here is a https://velero.io/docs/v1.12/how-velero-works/#set-a-backup-to-expire[guide] from Velero as an example.
 
@@ -99,14 +101,20 @@ The Infrequent Access (IA) storage classes are cost-optimized for files that are
 
 With EFS Intelligent-Tiering, lifecycle management monitors the access patterns of your file system and automatically move files to the most optimal storage class.
 
-!!! note
-    aws-efs-csi-driver currently doesn't have a control on changing storage classes, lifecycle management or Intelligent-Tiering. Those should be setup manually in the AWS console or through the EFS APIs.
+[NOTE]
+====
+aws-efs-csi-driver currently doesn't have a control on changing storage classes, lifecycle management or Intelligent-Tiering. Those should be setup manually in the AWS console or through the EFS APIs.
+====
 
-!!! note
-    aws-efs-csi-driver isn't compatible with Window-based container images.
+[NOTE]
+====
+aws-efs-csi-driver isn't compatible with Window-based container images.
+====
 
-!!! note
-    There is a known memory issue when _vol-metrics-opt-in_ (to emit volume metrics) is enabled due to the https://github.com/kubernetes/kubernetes/blob/ee265c92fec40cd69d1de010b477717e4c142492/pkg/volume/util/fs/fs.go#L66[DiskUsage] function that consumes an amount of memory that is proportional to the size of your filesystem. _Currently, we recommend to disable the_ _`--vol-metrics-opt-in` option on large filesystems to avoid consuming too much memory. Here is a github issue https://github.com/kubernetes-sigs/aws-efs-csi-driver/issues/1104[link] for more details._
+[NOTE]
+====
+There is a known memory issue when _vol-metrics-opt-in_ (to emit volume metrics) is enabled due to the https://github.com/kubernetes/kubernetes/blob/ee265c92fec40cd69d1de010b477717e4c142492/pkg/volume/util/fs/fs.go#L66[DiskUsage] function that consumes an amount of memory that is proportional to the size of your filesystem. _Currently, we recommend to disable the_ _`--vol-metrics-opt-in` option on large filesystems to avoid consuming too much memory. Here is a github issue https://github.com/kubernetes-sigs/aws-efs-csi-driver/issues/1104[link] for more details._
+====
 
 === Amazon FSx for Lustre
 
@@ -126,8 +134,10 @@ The first option (_scratch_) can be used _to reduce the cost of temporary shorte
 
 You can configure the desired deployment type under parameters in the FSx for lustre filesystem's Kubernetes StorageClass. Here is an https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes/dynamic_provisioning#edit-storageclass[link] that provides sample templates.
 
-!!! note
-    For latency-sensitive workloads or workloads requiring the highest levels of IOPS/throughput, you should choose SSD storage. For throughput-focused workloads that aren't latency-sensitive, you should choose HDD storage.
+[NOTE]
+====
+For latency-sensitive workloads or workloads requiring the highest levels of IOPS/throughput, you should choose SSD storage. For throughput-focused workloads that aren't latency-sensitive, you should choose HDD storage.
+====
 
 ==== Enable data compression
 
@@ -135,8 +145,10 @@ You can also enable data compression on your file system by specifying "`LZ4`" a
 
 You can configure the data compression type as LZ4 under parameters in the FSx for lustre filesystem's Kubernetes StorageClass. Compression is disabled when the value is set to NONE, which is default. This https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes/dynamic_provisioning#edit-storageclass[link] provides sample templates.
 
-!!! note
-    Amazon FSx for Lustre isn't compatible with Window-based container images.
+[NOTE]
+====
+Amazon FSx for Lustre isn't compatible with Window-based container images.
+====
 
 === Amazon FSx for NetApp ONTAP
 

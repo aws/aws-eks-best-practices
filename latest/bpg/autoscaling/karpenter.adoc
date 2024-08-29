@@ -465,8 +465,10 @@ autoscaling group’s maximum capacity in that it represents the maximum
 amount of compute resources that can be instantiated by a Karpenter
 NodePool.
 
-!!! note It is not possible to set a global limit for the whole cluster.
-Limits apply to specific NodePools.
+[NOTE]
+====
+It is not possible to set a global limit for the whole cluster. Limits apply to specific NodePools.
+====
 
 The snippet below tells Karpenter to only provision a maximum of 1000
 CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only

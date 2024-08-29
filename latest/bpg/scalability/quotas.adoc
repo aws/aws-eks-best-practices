@@ -8,8 +8,10 @@ Your AWS account has default quotas (an upper limit on the number of each AWS re
 
 You can review the usage in your account and open a quota increase request at the https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html#request-increase[AWS Service Quotas console], or using https://repost.aws/knowledge-center/request-service-quota-increase-cli[the AWS CLI]. Refer to the AWS documentation from the respective AWS Service for more details on the Service Quotas and any further restrictions or notices on their increase.
 
-!!! note
-    https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html[Amazon EKS Service Quotas] lists the service quotas and has links to request increases where available.
+[NOTE]
+====
+https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html[Amazon EKS Service Quotas] lists the service quotas and has links to request increases where available.
+====
 
 == Other AWS Service Quotas
 

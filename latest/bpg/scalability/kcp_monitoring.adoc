@@ -21,8 +21,10 @@ To start, we can use the metric for API latency to give us insight into how long
 max(increase(apiserver_request_duration_seconds_bucket{subresource!="status",subresource!="token",subresource!="scale",subresource!="/healthz",subresource!="binding",subresource!="proxy",verb!="WATCH"}[$__rate_interval])) by (le)
 ----
 
-!!! tip
-    For an in depth write up on how to monitor the API server with the API dashboard used in this article, please see the following https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/[blog]
+[NOTE]
+====
+For an in depth write up on how to monitor the API server with the API dashboard used in this article, please see the following https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/[blog]
+====
 
 image::../images/api-request-duration.png[API request duration heatmap]
 
@@ -30,8 +32,10 @@ These requests are all under the one second mark, which is a good indication tha
 
 The format we are using in the above API Request Duration is a heatmap. What's nice about the heatmap format, is that it tells us the timeout value for the API by default (60 sec). However, what we really need to know is at what threshold should this value be of concern before we reach the timeout threshold. For a rough guideline of what acceptable thresholds are we can use the upstream Kubernetes SLO, which can be found https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md#steady-state-slisslos[here]
 
-!!! tip
-    Notice the max function on this statement? When using metrics that are aggregating multiple servers (by default two API servers on EKS) it's important not to average those servers together.
+[NOTE]
+====
+Notice the max function on this statement? When using metrics that are aggregating multiple servers (by default two API servers on EKS) it's important not to average those servers together.
+====
 
 === Asymmetrical traffic patterns
 
@@ -47,8 +51,10 @@ Let's look at these queues with the following query:
 max without(instance)(apiserver_flowcontrol_request_concurrency_limit{})
 ----
 
-!!! note
-    For more information on how API A&F works please see the following https://aws.github.io/aws-eks-best-practices/scalability/docs/control-plane/#api-priority-and-fairness[best practices guide]
+[NOTE]
+====
+For more information on how API A&F works please see the following https://aws.github.io/aws-eks-best-practices/scalability/docs/control-plane/#api-priority-and-fairness[best practices guide]
+====
 
 Here we see the seven different priority groups that come by default on the cluster
 
@@ -74,8 +80,10 @@ In the below chart we see API server latency, but we also see much of this laten
 
 By looking at the whole flow, we see that it's wise to not focus solely on the API Server, but also look for signals that indicate that etcd is under duress (i.e. slow apply counters increasing). Being able to quickly move to the right problem area with just a glance is what makes a dashboard powerful.
 
-!!! tip
-    The dashboard in section can be found at https://github.com/RiskyAdventure/Troubleshooting-Dashboards/blob/main/api-troubleshooter.json
+[NOTE]
+====
+The dashboard in section can be found at https://github.com/RiskyAdventure/Troubleshooting-Dashboards/blob/main/api-troubleshooter.json
+====
 
 image::../images/etcd-duress.png[ETCD duress]
 
@@ -93,8 +101,10 @@ Metrics are best used to find the problem area we want to look at and narrow bot
 
 For example, to investigate the issue above, we will use the following CloudWatch Logs Insights query to pull the userAgent and requestURI so that we can pin down which application is causing this latency.
 
-!!! tip
-    An appropriate Count needs to be used as to not pull normal List/Resync behavior on a Watch.
+[NOTE]
+====
+An appropriate Count needs to be used as to not pull normal List/Resync behavior on a Watch.
+====
 
 ----
 fields *@timestamp*, *@message*
@@ -113,8 +123,10 @@ Using this query we found two different agents running a large number of high la
 
 image::../images/query-results.png[Query results]
 
-!!! tip
-    For more details on this subject please see the following https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/[blog]
+[NOTE]
+====
+For more details on this subject please see the following https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/[blog]
+====
 
 == Scheduler
 
@@ -143,8 +155,10 @@ Here we see the errors from the scheduler saying the pod did not deploy because 
 
 image::../images/cwl-query.png[CloudWatch Logs query]
 
-!!! note
-    Audit logging must be turned on the control plane to enable this function. It is also a best practice to limit the log retention as to not drive up cost over time unnecessarily. An example for turning on all logging functions using the EKSCTL tool below.
+[NOTE]
+====
+Audit logging must be turned on the control plane to enable this function. It is also a best practice to limit the log retention as to not drive up cost over time unnecessarily. An example for turning on all logging functions using the EKSCTL tool below.
+====
 
 [,yaml]
 ----

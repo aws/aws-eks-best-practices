@@ -171,9 +171,10 @@ aws ssm start-session --target [INSTANCE_ID_OF_EKS_NODE]
 
 to access the node.
 
-!!! note You may also want to consider adding permissions to
-https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging[enable
-Session Manager logging].
+[NOTE]
+====
+You may also want to consider adding permissions to https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging[enable Session Manager logging].
+====
 
 === Deploy workers onto private subnets
 
@@ -205,16 +206,20 @@ For more information about configuring scans for Amazon EC2, see
 https://docs.aws.amazon.com/inspector/latest/user/enable-disable-scanning-ec2.html[Scanning
 Amazon EC2 instances].
 
-!!! attention Inspector cannot be run on the infrastructure used to run
-Fargate pods.
+[IMPORTANT]
+====
+Inspector cannot be run on the infrastructure used to run Fargate pods.
+====
 
 == Alternatives
 
 [[iam-se-linux,iam-se-linux.title]]
 === Run SELinux
 
-!!! info Available on Red Hat Enterprise Linux (RHEL), CentOS,
-Bottlerocket, and Amazon Linux 2023
+[NOTE]
+====
+Available on Red Hat Enterprise Linux (RHEL), CentOS, Bottlerocket, and Amazon Linux 2023
+====
 
 SELinux provides an additional layer of security to keep containers
 isolated from each other and from the host. SELinux allows
@@ -341,7 +346,10 @@ Amazon EKS] that have SELinux configured on CentOS 7 and RHEL 7. These
 AMIs were developed to demonstrate sample implementations that meet
 requirements of highly regulated customers.
 
-!!! caution SELinux will ignore containers where the type is unconfined.
+[WARNING]
+====
+SELinux will ignore containers where the type is unconfined.
+====
 
 == Tools and resources
 

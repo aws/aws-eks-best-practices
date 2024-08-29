@@ -79,13 +79,17 @@ sudo modprobe ip_vs_nq
 sudo modprobe nf_conntrack
 ----
 
-!!! note
-    It is highly recommended to execute these worker node steps as part of you worker node's bootstrapping process via https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html[user data script] or in any build scripts executed to build a custom worker node AMI.
+[NOTE]
+====
+It is highly recommended to execute these worker node steps as part of you worker node's bootstrapping process via https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html[user data script] or in any build scripts executed to build a custom worker node AMI.
+====
 
 Next, you will be setting the kube-proxy `mode` to `ipvs` and the `ipvs scheduler` to one of the load balancing options listed above, for example: `rr` for Round Robin.
 
-!!! Warning
-    This is a disruptive change and should be performed in off-hours. We recommend making these changes during initial EKS cluster creation to minimize impacts.
+[WARNING]
+====
+This is a disruptive change and should be performed in off-hours. We recommend making these changes during initial EKS cluster creation to minimize impacts.
+====
 
 You can issue an AWS CLI command to enable IPVS by updating the kube-proxy EKS Add-on.
 

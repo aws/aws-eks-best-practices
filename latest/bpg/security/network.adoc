@@ -56,12 +56,10 @@ for egress rules. If multiple rules are defined, then union of all rules
 are taken into account when making the decision. Thus, order of
 evaluation does not affect the policy result.
 
-!!! attention When you first provision an EKS cluster, VPC CNI Network
-Policy functionality is not enabled by default. Ensure you deployed
-supported VPC CNI Add-on version and set `ENABLE_NETWORK_POLICY` flag
-to `true` on the vpc-cni add-on to enable this. Refer
-https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html[Amazon
-EKS User guide] for detailed instructions.
+[IMPORTANT]
+====
+When you first provision an EKS cluster, VPC CNI Network Policy functionality is not enabled by default. Ensure you deployed supported VPC CNI Add-on version and set `ENABLE_NETWORK_POLICY` flag to `true` on the vpc-cni add-on to enable this. Refer https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html[Amazon EKS User guide] for detailed instructions.
+====
 
 == Recommendations
 
@@ -91,8 +89,10 @@ spec:
 .default-deny
 image::default-deny.jpg[default-deny]
 
-!!! tip The image above was created by the network policy viewer from
-https://orca.tufin.io/netpol/[Tufin].
+[NOTE]
+====
+The image above was created by the network policy viewer from https://orca.tufin.io/netpol/[Tufin].
+====
 
 ==== Create a rule to allow DNS queries
 
@@ -291,8 +291,10 @@ https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html[s
 groups for pods]. With security groups for pods, you can assign an
 *existing* security group to a collection of pods.
 
-!!! warning If you reference a security group that does not exist prior
-to the creation of the pods, the pods will not get scheduled.
+[WARNING]
+====
+If you reference a security group that does not exist prior to the creation of the pods, the pods will not get scheduled.
+====
 
 You can control which pods are assigned to a security group by creating
 a `SecurityGroupPolicy` object and specifying a `PodSelector` or a
@@ -303,30 +305,25 @@ familiarized yourself with all the
 https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations[considerations]
 before implementing security groups for pods.
 
-!!! important If you use SGs for pods you *must* create SGs that allow
-port 53 outbound to the cluster security group. Similarly, you *must*
-update the cluster security group to accept port 53 inbound traffic from
-the pod security group.
+[IMPORTANT]
+====
+If you use SGs for pods you *must* create SGs that allow port 53 outbound to the cluster security group. Similarly, you *must* update the cluster security group to accept port 53 inbound traffic from the pod security group.
+====
 
-!!! important The
-https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups[limits
-for security groups] still apply when using security groups for pods so
-use them judiciously.
+[IMPORTANT]
+====
+The https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups[limits for security groups] still apply when using security groups for pods so use them judiciously.
+====
 
-!!! important You *must* create rules for inbound traffic from the
-cluster security group (kubelet) for all of the probes configured for
-pod.
+[IMPORTANT]
+====
+You *must* create rules for inbound traffic from the cluster security group (kubelet) for all of the probes configured for pod.
+====
 
-!!! important Security groups for pods relies on a feature known as
-https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html[ENI
-trunking] which was created to increase the ENI density of an EC2
-instance. When a pod is assigned to an SG, a VPC controller associates a
-branch ENI from the node group with the pod. If there aren’t enough
-branch ENIs available in a node group at the time the pod is scheduled,
-the pod will stay in pending state. The number of branch ENIs an
-instance can support varies by instance type/family. See
-https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types
-for further details.
+[IMPORTANT]
+====
+Security groups for pods relies on a feature known as https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html[ENI trunking] which was created to increase the ENI density of an EC2 instance. When a pod is assigned to an SG, a VPC controller associates a branch ENI from the node group with the pod. If there aren’t enough branch ENIs available in a node group at the time the pod is scheduled, the pod will stay in pending state. The number of branch ENIs an instance can support varies by instance type/family. See https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types for further details.
+====
 
 While security groups for pods offers an AWS-native way to control
 network traffic within and outside of your cluster without the overhead
@@ -386,10 +383,10 @@ misconfiguration and ease the management overhead
 ** Minimize the attack surface by limiting the exposure of your
 applications
 
-!!! attention Security Groups for pods provides two enforcing modes:
-`strict` and `standard`. You must use `standard` mode when using
-both Network Policy and Security Groups for pods features in an EKS
-cluster.
+[IMPORTANT]
+====
+Security Groups for pods provides two enforcing modes: `strict` and `standard`. You must use `standard` mode when using both Network Policy and Security Groups for pods features in an EKS cluster.
+====
 
 When it comes to network security, a layered approach is often the most
 effective solution. Using kubernetes network policy and SGP in
@@ -427,10 +424,10 @@ like mTLS
 them a good fit for simpler use cases or for smaller clusters where the
 overhead of running and managing a service mesh might not be justified
 
-!!! tip Network policies and Service mesh can also be used together. Use
-network policies to provide a baseline level of security and isolation
-between your pods and then use a service mesh to add additional
-capabilities like traffic management, observability and security.
+[NOTE]
+====
+Network policies and Service mesh can also be used together. Use network policies to provide a baseline level of security and isolation between your pods and then use a service mesh to add additional capabilities like traffic management, observability and security.
+====
 
 == ThirdParty Network Policy Engines
 
@@ -484,10 +481,10 @@ can directly test the converted network policies on your new clusters
 running VPC CNI network policy controller. The tool is designed to help
 you streamline the migration process and ensure a smooth transition.
 
-!!! Important Migration tool will only convert 3P policies that are
-compatible with native kubernetes network policy api. If you are using
-advanced network policy features offered by 3P plugins, Migration tool
-will skip and report them.
+[IMPORTANT]
+====
+Migration tool will only convert 3P policies that are compatible with native kubernetes network policy api. If you are using advanced network policy features offered by 3P plugins, Migration tool will skip and report them.
+====
 
 Please note that migration tool is currently not supported by AWS VPC
 CNI Network policy engineering team, it is made available to customers
@@ -664,8 +661,10 @@ EKS Ingress With Contour And Let’s Encrypt The GitOps Way]
 * https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/[How
 do I terminate HTTPS traffic on Amazon EKS workloads with ACM?]
 
-!!! attention Some Ingresses, like the AWS LB controller, implement the
-SSL/TLS using Annotations instead of as part of the Ingress Spec.
+[IMPORTANT]
+====
+Some Ingresses, like the AWS LB controller, implement the SSL/TLS using Annotations instead of as part of the Ingress Spec.
+====
 
 [[iam-cert-manager,iam-cert-manager.title]]
 === ACM Private CA with cert-manager

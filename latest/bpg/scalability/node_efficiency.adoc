@@ -11,8 +11,10 @@ Being efficient with our workloads and nodes reduces complexity/cost while incre
 
 Using node sizes that are slightly larger (4-12xlarge) increases the available space that we have for running pods due to the fact it reduces the percentage of the node used for "`overhead`" such as https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/[DaemonSets] and https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/[Reserves] for system components. In the diagram below we see the difference between the usable space on a 2xlarge vs. a 8xlarge system with just a moderate number of DaemonSets.
 
-!!! note
-    Since k8s scales horizontally as a general rule, for most applications it does not make sense to take the performance impact of NUMA sizes nodes, thus the recommendation of a range below that node size.
+[NOTE]
+====
+Since k8s scales horizontally as a general rule, for most applications it does not make sense to take the performance impact of NUMA sizes nodes, thus the recommendation of a range below that node size.
+====
 
 image::../images/node-size.png[Node size]
 
@@ -22,8 +24,10 @@ Node selection is rarely a one-size-fits-all proposition. Often it is best to sp
 
 image::../images/churn-rate.png[Churn rate]
 
-!!! tip
-    Another factor to consider with very large node sizes is since CGROUPS do not hide the total number of vCPU from the containerized application. Dynamic runtimes can often spawn an unintentional number of OS threads, creating latency that is difficult to troubleshoot. For these application https://kubernetes.io/docs/tasks/administer-cluster/cpu-management-policies/#static-policy[CPU pinning] is recommend. For a deeper exploration of topic please see the following video https://www.youtube.com/watch?v=NqtfDy_KAqg
+[NOTE]
+====
+Another factor to consider with very large node sizes is since CGROUPS do not hide the total number of vCPU from the containerized application. Dynamic runtimes can often spawn an unintentional number of OS threads, creating latency that is difficult to troubleshoot. For these application https://kubernetes.io/docs/tasks/administer-cluster/cpu-management-policies/#static-policy[CPU pinning] is recommend. For a deeper exploration of topic please see the following video https://www.youtube.com/watch?v=NqtfDy_KAqg
+====
 
 == Node Bin-packing
 
@@ -87,8 +91,10 @@ image::../images/requests-2.png[]
 
 The important concept to take away from all this is that using Kubernetes scheduler concept of cores to understand Linux container performance can lead to poor decision making as they are not related.
 
-!!! tip
-    Linux CFS has its strong points. This is especially true for I/O based workloads. However, if your application uses full cores without sidecars, and has no I/O requirements, CPU pinning can remove a great deal of complexity from this process and is encouraged with those caveats.
+[NOTE]
+====
+Linux CFS has its strong points. This is especially true for I/O based workloads. However, if your application uses full cores without sidecars, and has no I/O requirements, CPU pinning can remove a great deal of complexity from this process and is encouraged with those caveats.
+====
 
 == Utilization vs. Saturation
 
@@ -133,8 +139,10 @@ topk(3, ((irate(node_pressure_io_stalled_seconds_total[1m])) * 100))
 
 image::../images/stalled-io.png[]
 
-!!! note
-    For more on Pressure stall metrics, see https://facebookmicrosites.github.io/psi/docs/overview*
+[NOTE]
+====
+For more on Pressure stall metrics, see https://facebookmicrosites.github.io/psi/docs/overview*
+====
 
 With these metrics we can tell if threads are waiting on CPU, or even if every thread on the box is stalled waiting on resource like memory or I/O. For example, we could see what percentage every thread on the instance was stalled waiting on I/O over the period of 1 min.
 
@@ -152,8 +160,10 @@ Autoscaling/v2 allows us more flexibility to include multiple criteria to scale 
 
 As an example, we can scaling on the highest of three values (see below). We scale if the average utilization of all the pods are over 50%, if custom metrics the packets per second of the ingress exceed an average of 1,000, or ingress object exceeds 10K request per second.
 
-!!! note
-    This is just to show the flexibility of the auto-scaling API, we recommend against overly complex rules that can be difficult to troubleshoot in production.
+[NOTE]
+====
+This is just to show the flexibility of the auto-scaling API, we recommend against overly complex rules that can be difficult to troubleshoot in production.
+====
 
 [,yaml]
 ----

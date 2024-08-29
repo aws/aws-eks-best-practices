@@ -30,8 +30,10 @@ For example, in non-production clusters, selectively enable specific log types, 
 
 Another cost optimization best practice is streaming control plane logs to S3 via CloudWatch Logs subscriptions. Leveraging CloudWatch Logs https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Subscriptions.html[subscriptions] allows you to selectively forward logs to S3 which provides more cost efficient long term storage compared to retaining logs indefinitely in CloudWatch. For example, for production clusters, you can create a critical log group and leverage subscriptions to stream these logs to S3 after 15 days. This will ensure you have have quick access to the logs for analysis but also save on cost by moving logs to a more cost efficient storage.
 
-!!! attention
-    As of 9/5/2023 EKS logs are classified as Vended Logs in Amazon CloudWatch Logs. Vended Logs are specific AWS service logs natively published by AWS services on behalf of the customer and available at volume discount pricing. Please visit the https://aws.amazon.com/cloudwatch/pricing/[Amazon CloudWatch pricing page] to learn more about Vended Logs pricing.
+[IMPORTANT]
+====
+As of 9/5/2023 EKS logs are classified as Vended Logs in Amazon CloudWatch Logs. Vended Logs are specific AWS service logs natively published by AWS services on behalf of the customer and available at volume discount pricing. Please visit the https://aws.amazon.com/cloudwatch/pricing/[Amazon CloudWatch pricing page] to learn more about Vended Logs pricing.
+====
 
 == EKS Data Plane
 
@@ -244,8 +246,10 @@ Collecting metrics at a higher granularity like every second vs every minute can
 
 Below is a snippet from the default AWS Distro for Opentelemetry (ADOT) EKS Addon Collector https://docs.aws.amazon.com/eks/latest/userguide/deploy-deployment.html[configuration].
 
-!!! attention
-    the global prometheus scrape interval is set to 15s. This scrape interval can be increased resulting in a decrease in the amount of metric data collected in prometheus.
+[IMPORTANT]
+====
+the global prometheus scrape interval is set to 15s. This scrape interval can be increased resulting in a decrease in the amount of metric data collected in prometheus.
+====
 
 ----
 apiVersion: opentelemetry.io/v1alpha1

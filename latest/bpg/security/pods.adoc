@@ -29,11 +29,10 @@ http://man7.org/linux/man-pages/man7/capabilities.7.html.
 
 `CAP_AUDIT_WRITE, CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FOWNER, CAP_FSETID, CAP_KILL, CAP_MKNOD, CAP_NET_BIND_SERVICE, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_SYS_CHROOT`
 
-!!! Info
-
-EC2 and Fargate pods are assigned the aforementioned capabilities by
-default. Additionally, Linux capabilities can only be dropped from
-Fargate pods.
+[INFO]
+====
+EC2 and Fargate pods are assigned the aforementioned capabilities by default. Additionally, Linux capabilities can only be dropped from Fargate pods.
+====
 
 Pods that are run as privileged, inherit _all_ of the Linux capabilities
 associated with root on the host. This should be avoided if possible.
@@ -90,13 +89,10 @@ requirements that pods had to meet before they could be created. As of
 Kubernetes version 1.21, PSP have been deprecated. They are scheduled
 for removal in Kubernetes version 1.25.
 
-!!! Attention
-
-https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/[PSPs
-are deprecated] in Kubernetes version 1.21. You will have until version
-1.25 or roughly 2 years to transition to an alternative. This
-https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation[document]
-explains the motivation for this deprecation.
+[IMPORTANT]
+====
+https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/[PSPs are deprecated] in Kubernetes version 1.21. You will have until version 1.25 or roughly 2 years to transition to an alternative. This https://github.com/kubernetes/enhancements/blob/master/keps/sig-auth/2579-psp-replacement/README.md#motivation[document] explains the motivation for this deprecation.
+====
 
 === Migrating to a new pod security solution
 
@@ -404,14 +400,10 @@ webhooks:
 ...
 ----
 
-!!! Attention
-
-Pod Security Admissions graduated to stable in Kubernetes v1.25. If you
-wanted to use the Pod Security Admission feature prior to it being
-enabled by default, you needed to install the dynamic admission
-controller (mutating webhook). The instructions for installing and
-configuring the webhook can be found
-https://github.com/kubernetes/pod-security-admission/tree/master/webhook[here].
+[IMPORTANT]
+====
+Pod Security Admissions graduated to stable in Kubernetes v1.25. If you wanted to use the Pod Security Admission feature prior to it being enabled by default, you needed to install the dynamic admission controller (mutating webhook). The instructions for installing and configuring the webhook can be found https://github.com/kubernetes/pod-security-admission/tree/master/webhook[here].
+====
 
 === Choosing between policy-as-code and Pod Security Standards
 
@@ -528,12 +520,10 @@ these types of privileges to function properly. There are multiple
 methods that can be used to restrict the permissions and capabilities of
 containers.
 
-!!! Attention
-
-Fargate is a launch type that enables you to run "`serverless`"
-container(s) where the containers of a pod are run on infrastructure
-that AWS manages. With Fargate, you cannot run a privileged container or
-configure your pod to use hostNetwork or hostPort.
+[IMPORTANT]
+====
+Fargate is a launch type that enables you to run "`serverless`" container(s) where the containers of a pod are run on infrastructure that AWS manages. With Fargate, you cannot run a privileged container or configure your pod to use hostNetwork or hostPort.
+====
 
 === Do not run processes in containers as root
 
@@ -566,11 +556,10 @@ https://github.com/containers/buildah[buildah], or a build service like
 https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html[CodeBuild]
 instead.
 
-!!! Tip
-
-Kubernetes clusters used for CICD processing, such as building container
-images, should be isolated from clusters running more generalized
-workloads.
+[NOTE]
+====
+Kubernetes clusters used for CICD processing, such as building container images, should be isolated from clusters running more generalized workloads.
+====
 
 === Restrict the use of hostPath or if hostPath is necessary restrict which prefixes can be used and configure the volume as read-only
 
@@ -631,15 +620,10 @@ container is allowed to consume and directly corresponds to the
 A container that exceeds the memory limit will be OOM killed. If a
 container exceeds its CPU limit, it will be throttled.
 
-!!! Tip
-
-When using container `resources.limits` it is strongly recommended
-that container resource usage (a.k.a. Resource Footprints) be
-data-driven and accurate, based on load testing. Absent an accurate and
-trusted resource footprint, container `resources.limits` can be
-padded. For example, `resources.limits.memory` could be padded 20-30%
-higher than observable maximums, to account for potential memory
-resource limit inaccuracies.
+[NOTE]
+====
+When using container `resources.limits` it is strongly recommended that container resource usage (a.k.a. Resource Footprints) be data-driven and accurate, based on load testing. Absent an accurate and trusted resource footprint, container `resources.limits` can be padded. For example, `resources.limits.memory` could be padded 20-30% higher than observable maximums, to account for potential memory resource limit inaccuracies.
+====
 
 Kubernetes uses three Quality of Service (QoS) classes to prioritize the
 workloads running on a node. These include:
@@ -661,13 +645,10 @@ different resources, the pods are configured as _burstable_ (medium
 priority). These pods have some resource guarantees, but can be killed
 once they exceed their requested memory.
 
-!!! Attention
-
-Requests don't affect the `memory_limit_in_bytes` value of the
-container's cgroup; the cgroup limit is set to the amount of memory
-available on the host. Nevertheless, setting the requests value too low
-could cause the pod to be targeted for termination by the kubelet if the
-node undergoes memory pressure.
+[IMPORTANT]
+====
+Requests don't affect the `memory_limit_in_bytes` value of the container's cgroup; the cgroup limit is set to the amount of memory available on the host. Nevertheless, setting the requests value too low could cause the pod to be targeted for termination by the kubelet if the node undergoes memory pressure.
+====
 
 [width="100%",cols="<25%,<25%,<25%,<25%",options="header",]
 |===
@@ -724,14 +705,10 @@ For pods that do not need to access the Kubernetes API, you can disable
 the automatic mounting of a ServiceAccount token on a pod spec, or for
 all pods that use a particular ServiceAccount.
 
-// !!! Attention
-
-// Disabling ServiceAccount mounting does not prevent a pod from having
-// network access to the Kubernetes API. To prevent a pod from having any
-// network access to the Kubernetes API, you will need to modify the
-// https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[EKS
-// cluster endpoint access] and use a
-// xref:iam-network-policy[NetworkPolicy] to block pod access.
+// [IMPORTANT]
+====
+// Disabling ServiceAccount mounting does not prevent a pod from having // network access to the Kubernetes API. To prevent a pod from having any // network access to the Kubernetes API, you will need to modify the // https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[EKS // cluster endpoint access] and use a // xref:iam-network-policy[NetworkPolicy] to block pod access.
+====
 
 [source,yaml]
 ----
@@ -766,15 +743,10 @@ underlying node's DNS resolution. See the
 https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy[Kubernetes
 docs on Pod DNS policy] for more information.
 
-// !!! Attention
-
-// Disabling service links and changing the pod's DNS policy does not
-// prevent a pod from having network access to the in-cluster DNS service.
-// An attacker can still enumerate services in a cluster by reaching the
-// in-cluster DNS service. (ex:
-// `dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent
-// in-cluster service discovery, use a
-// xref:iam-network-policy[NetworkPolicy] to block pod access
+// [IMPORTANT]
+====
+// Disabling service links and changing the pod's DNS policy does not // prevent a pod from having network access to the in-cluster DNS service. // An attacker can still enumerate services in a cluster by reaching the // in-cluster DNS service. (ex: // `dig SRV *.*.svc.cluster.local @$CLUSTER_DNS_IP`) To prevent // in-cluster service discovery, use a // xref:iam-network-policy[NetworkPolicy] to block pod access
+====
 
 [source,yaml]
 ----
@@ -806,13 +778,10 @@ securityContext:
 Policy-as-code and Pod Security Standards can be used to enforce this
 behavior.
 
-!!! Info
-
-As per https://kubernetes.io/docs/concepts/windows/intro/[Windows
-containers in Kubernetes] `securityContext.readOnlyRootFilesystem`
-cannot be set to `true` for a container running on Windows as write
-access is required for registry and system processes to run inside the
-container.
+[INFO]
+====
+As per https://kubernetes.io/docs/concepts/windows/intro/[Windows containers in Kubernetes] `securityContext.readOnlyRootFilesystem` cannot be set to `true` for a container running on Windows as write access is required for registry and system processes to run inside the container.
+====
 
 == Tools and resources
 

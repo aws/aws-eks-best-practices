@@ -162,11 +162,10 @@ v1.26.
 max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
 ----
 
-!!! attention When the database size limit is exceeded, etcd emits a no
-space alarm and stops taking further write requests. In other words, the
-cluster becomes read-only, and all requests to mutate objects such as
-creating new pods, scaling deployments, etc., will be rejected by the
-cluster’s API server.
+[IMPORTANT]
+====
+When the database size limit is exceeded, etcd emits a no space alarm and stops taking further write requests. In other words, the cluster becomes read-only, and all requests to mutate objects such as creating new pods, scaling deployments, etc., will be rejected by the cluster’s API server.
+====
 
 == Cluster Authentication
 

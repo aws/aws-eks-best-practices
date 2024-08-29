@@ -419,10 +419,10 @@ users to assume an IAM Role and map that role to a Kubernetes RBAC
 group. This will be easier to maintain, especially as the number of
 users that require access grows.
 
-!!! attention When accessing the EKS cluster with the IAM entity mapped
-by `aws-auth` ConfigMap, the username described is recorded in the
-user field of the Kubernetes audit log. If you're using an IAM role, the
-actual users who assume that role aren't recorded and can't be audited.
+[IMPORTANT]
+====
+When accessing the EKS cluster with the IAM entity mapped by `aws-auth` ConfigMap, the username described is recorded in the user field of the Kubernetes audit log. If you're using an IAM role, the actual users who assume that role aren't recorded and can't be audited.
+====
 
 If still using the `aws-auth` configMap as the authentication method,
 when assigning K8s RBAC permissions to an IAM role, you should include
@@ -599,17 +599,10 @@ to EKS Using GitHub Credentials with Teleport]
 * https://aws.amazon.com/blogs/opensource/consistent-oidc-authentication-across-multiple-eks-clusters-using-kube-oidc-proxy/[Consistent
 OIDC authentication across multiple EKS clusters using kube-oidc-proxy]
 
-!!! attention EKS natively supports OIDC authentication without using a
-proxy. For further information, please read the launch blog,
-https://aws.amazon.com/blogs/containers/introducing-oidc-identity-provider-authentication-amazon-eks/[Introducing
-OIDC identity provider authentication for Amazon EKS]. For an example
-showing how to configure EKS with Dex, a popular open source OIDC
-provider with connectors for a variety of different authention methods,
-see
-https://aws.amazon.com/blogs/containers/using-dex-dex-k8s-authenticator-to-authenticate-to-amazon-eks/[Using
-Dex & dex-k8s-authenticator to authenticate to Amazon EKS]. As described
-in the blogs, the username/group of users authenticated by an OIDC
-provider will appear in the Kubernetes audit log.
+[IMPORTANT]
+====
+EKS natively supports OIDC authentication without using a proxy. For further information, please read the launch blog, https://aws.amazon.com/blogs/containers/introducing-oidc-identity-provider-authentication-amazon-eks/[Introducing OIDC identity provider authentication for Amazon EKS]. For an example showing how to configure EKS with Dex, a popular open source OIDC provider with connectors for a variety of different authention methods, see https://aws.amazon.com/blogs/containers/using-dex-dex-k8s-authenticator-to-authenticate-to-amazon-eks/[Using Dex & dex-k8s-authenticator to authenticate to Amazon EKS]. As described in the blogs, the username/group of users authenticated by an OIDC provider will appear in the Kubernetes audit log.
+====
 
 You can also use
 https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html[AWS
@@ -700,19 +693,10 @@ account you wish to use. For additional information about creating
 service accounts, see
 https://kubernetes.io/docs/reference/access-authn-authz/rbac/#service-account-permissions.
 
-!!! note Prior to Kubernetes 1.24, Kubernetes would automatically create
-a secret for each a service account. This secret was mounted to the pod
-at /var/run/secrets/kubernetes.io/serviceaccount and would be used by
-the pod to authenticate to the Kubernetes API server. In Kubernetes
-1.24, a service account token is dynamically generated when the pod runs
-and is only valid for an hour by default. A secret for the service
-account will not be created. If you have an application that runs
-outside the cluster that needs to authenticate to the Kubernetes API,
-e.g. Jenkins, you will need to create a secret of type
-`kubernetes.io/service-account-token` along with an annotation that
-references the service account such as
-`metadata.annotations.kubernetes.io/service-account.name: <SERVICE_ACCOUNT_NAME>`.
-Secrets created in this way do not expire.
+[NOTE]
+====
+Prior to Kubernetes 1.24, Kubernetes would automatically create a secret for each a service account. This secret was mounted to the pod at /var/run/secrets/kubernetes.io/serviceaccount and would be used by the pod to authenticate to the Kubernetes API server. In Kubernetes 1.24, a service account token is dynamically generated when the pod runs and is only valid for an hour by default. A secret for the service account will not be created. If you have an application that runs outside the cluster that needs to authenticate to the Kubernetes API, e.g. Jenkins, you will need to create a secret of type `kubernetes.io/service-account-token` along with an annotation that references the service account such as `metadata.annotations.kubernetes.io/service-account.name: <SERVICE_ACCOUNT_NAME>`. Secrets created in this way do not expire.
+====
 
 === IAM Roles for Service Accounts (IRSA)
 
@@ -1026,9 +1010,10 @@ https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadat
 metadata] to help ensure that your applications only have the
 permissions they require, and not their nodes.
 
-!!! caution Blocking access to instance metadata will prevent pods that
-do not use IRSA or EKS Pod Identities from inheriting the role assigned
-to the worker node.
+[WARNING]
+====
+Blocking access to instance metadata will prevent pods that do not use IRSA or EKS Pod Identities from inheriting the role assigned to the worker node.
+====
 
 You can block access to instance metadata by requiring the instance to
 use IMDSv2 only and updating the hop count to 1 as in the example below.
@@ -1133,17 +1118,10 @@ Each application should have its own dedicated service account. This
 applies to service accounts for the Kubernetes API as well as IRSA and
 EKS Pod Identity.
 
-!!! attention If you employ a blue/green approach to cluster upgrades
-instead of performing an in-place cluster upgrade when using IRSA, you
-will need to update the trust policy of each of the IRSA IAM roles with
-the OIDC endpoint of the new cluster. A blue/green cluster upgrade is
-where you create a cluster running a newer version of Kubernetes
-alongside the old cluster and use a load balancer or a service mesh to
-seamlessly shift traffic from services running on the old cluster to the
-new cluster. When using blue/green cluster upgrades with EKS Pod
-Identity, you would create pod identity associations between the IAM
-roles and service accounts in the new cluster. And update the IAM role
-trust policy if you have a `sourceArn` condition.
+[IMPORTANT]
+====
+If you employ a blue/green approach to cluster upgrades instead of performing an in-place cluster upgrade when using IRSA, you will need to update the trust policy of each of the IRSA IAM roles with the OIDC endpoint of the new cluster. A blue/green cluster upgrade is where you create a cluster running a newer version of Kubernetes alongside the old cluster and use a load balancer or a service mesh to seamlessly shift traffic from services running on the old cluster to the new cluster. When using blue/green cluster upgrades with EKS Pod Identity, you would create pod identity associations between the IAM roles and service accounts in the new cluster. And update the IAM role trust policy if you have a `sourceArn` condition.
+====
 
 === Run the application as a non-root user
 
