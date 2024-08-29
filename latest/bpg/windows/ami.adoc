@@ -2,6 +2,8 @@
 [#windows-ami]
 = Amazon EKS optimized Windows AMI management
 :info_doctype: section
+:info_titleabbrev: AMI Management
+
 
 Windows Amazon EKS optimized AMIs are built on top of Windows Server 2019 and Windows Server 2022. They are configured to serve as the base image for Amazon EKS nodes. By default, the AMIs include the following components:
 

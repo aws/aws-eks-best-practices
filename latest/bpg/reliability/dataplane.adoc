@@ -4,7 +4,7 @@
 :info_doctype: section
 :info_title: EKS Data Plane
 :info_abstract: EKS Data Plane
-:info_titleabbrev: EKS Data Plane
+:info_titleabbrev: Data Plane
 :imagesdir: images/
 
 To operate high-available and resilient applications, you need a

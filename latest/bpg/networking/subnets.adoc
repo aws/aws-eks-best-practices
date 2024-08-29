@@ -5,7 +5,7 @@
 :info_doctype: section
 :info_title: VPC and Subnet Considerations
 :info_abstract: VPC and Subnet Considerations
-:info_titleabbrev: VPC and Subnets
+:info_titleabbrev: VPC and Subnets Considerations
 :imagesdir: images/
 
 [abstract]

@@ -5,7 +5,7 @@
 :info_doctype: section
 :info_title: Auditing and logging
 :info_abstract: Auditing and logging
-:info_titleabbrev: Auditing and logging
+:info_titleabbrev: Detective Controls
 :imagesdir: images/
 
 Collecting and analyzing [audit] logs is useful for a variety of

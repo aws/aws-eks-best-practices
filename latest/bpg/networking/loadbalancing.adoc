@@ -2,7 +2,7 @@
 [."topic"]
 [[load-balancing,load-balancing.title]]
 = Load Balancing
-:info_titleabbrev: Load Balancers
+:info_titleabbrev: Load Balancing
 :info_doctype: section
 :imagesdir: images/
 

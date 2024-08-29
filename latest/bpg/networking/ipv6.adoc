@@ -5,7 +5,7 @@
 :info_doctype: section
 :info_title: Running IPv6 EKS Clusters
 :info_abstract: Running IPv6 EKS Clusters
-:info_titleabbrev: IPv6 
+:info_titleabbrev: Running IPv6 Clusters 
 :imagesdir: images/
 
 [abstract]

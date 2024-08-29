@@ -15,9 +15,11 @@
 :info_titleabbrev: Cluster Autoscaling
 :imagesdir: images/
 
+include::karpenter.adoc[leveloffset=+1]
+
 include::cluster-autoscaler.adoc[leveloffset=+1]
 
-include::karpenter.adoc[leveloffset=+1]
+
 
 
 

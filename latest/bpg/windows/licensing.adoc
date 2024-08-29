@@ -2,6 +2,8 @@
 [#windows-licensing]
 = Windows Server version and License
 :info_doctype: section
+:info_titleabbrev: Windows Versions and Licensing
+
 
 == Windows Server version
 

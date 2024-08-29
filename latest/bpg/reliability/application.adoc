@@ -4,7 +4,7 @@
 :info_doctype: section
 :info_title: Running highly-available applications
 :info_abstract: Running highly-available applications
-:info_titleabbrev: Running highly-available applications
+:info_titleabbrev: Applications
 :imagesdir: images/
 
 

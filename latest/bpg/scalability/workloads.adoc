@@ -1,5 +1,5 @@
 [."topic"]
-[scale-workloads]
+[#scale-workloads]
 = Workloads
 :info_doctype: section
 

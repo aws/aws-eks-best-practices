@@ -5,7 +5,7 @@
 :info_doctype: section
 :info_title: Compliance
 :info_abstract: Compliance
-:info_titleabbrev: Compliance
+:info_titleabbrev: Regulatory Compliance
 :imagesdir: images/
 
 Compliance is a shared responsibility between AWS and the consumers of

@@ -2,6 +2,8 @@
 [#windows-gmsa]
 = Configure gMSA for Windows Pods and containers
 :info_doctype: section
+:info_titleabbrev: gMSA for Windows Containers
+
 
 == What is a gMSA account
 

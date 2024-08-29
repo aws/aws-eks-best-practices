@@ -72,6 +72,9 @@ Securing executive sponsorship for these types of activities is crucial for inte
 * https://aws.amazon.com/aws-cost-management/[AWS Cloud Economics, Cloud Financial Management]
 
 include::cost_opt_compute.adoc[leveloffset=+1]
+
 include::cost_opt_networking.adoc[leveloffset=+1]
+
 include::cost_opt_storage.adoc[leveloffset=+1]
+
 include::cost_opt_observability.adoc[leveloffset=+1]

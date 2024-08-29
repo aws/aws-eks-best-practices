@@ -5,7 +5,7 @@
 :info_doctype: section
 :info_title: Protecting the infrastructure (hosts)
 :info_abstract: Protecting the infrastructure (hosts)
-:info_titleabbrev: Protecting the infrastructure (hosts)
+:info_titleabbrev: Infrastructure Security
 :imagesdir: images/
 
 Inasmuch as it's important to secure your container images, it's equally

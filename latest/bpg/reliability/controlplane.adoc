@@ -4,7 +4,7 @@
 :info_doctype: section
 :info_title: EKS Control Plane
 :info_abstract: EKS Control Plane
-:info_titleabbrev: EKS Control Plane
+:info_titleabbrev: Control Plane
 :imagesdir: images/
 :idprefix: reliability-cp
 

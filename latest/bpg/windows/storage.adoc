@@ -2,6 +2,7 @@
 [#windows-storage]
 = Persistent storage options
 :info_doctype: section
+:info_titleabbrev: Storage Options
 
 == What is an in-tree vs. out-of-tree volume plugin?
 
