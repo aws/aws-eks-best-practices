@@ -1,4 +1,7 @@
+[."topic"]
+[#windows-networking]
 = Windows Networking
+:info_doctype: section
 
 == Windows Container Networking Overview
 
@@ -22,7 +25,7 @@ Total IPv4 addresses available for Pods = Number of supported IPv4 addresses in 
 +
 We subtract one from the total count since one IPv4 addresses will be used as the primary address of the ENI and hence cannot be allocated to the Pods.
 
-* If the cluster has been configured for high pod density by enabling xref:../../networking/prefix-mode/index_windows.adoc[prefix delegation feature] then-
+* If the cluster has been configured for high pod density by enabling xref:prefix-mode-win[prefix delegation feature] then-
 +
 ----
 Total IPv4 addresses available for Pods = (Number of supported IPv4 addresses in the primary interface - 1) * 16

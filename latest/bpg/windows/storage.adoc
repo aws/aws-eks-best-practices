@@ -1,4 +1,7 @@
+[."topic"]
+[#windows-storage]
 = Persistent storage options
+:info_doctype: section
 
 == What is an in-tree vs. out-of-tree volume plugin?
 

@@ -1,4 +1,7 @@
+[."topic"]
+[#windows-ami]
 = Amazon EKS optimized Windows AMI management
+:info_doctype: section
 
 Windows Amazon EKS optimized AMIs are built on top of Windows Server 2019 and Windows Server 2022. They are configured to serve as the base image for Amazon EKS nodes. By default, the AMIs include the following components:
 
@@ -33,7 +36,7 @@ Use Amazon EC2 Image Builder to select between Windows Server versions, AWS Wind
 
 image::./images/build-components.png[]
 
-*NOTE:* Prior to selecting a base image, consult the xref:licensing.adoc[Windows Server Version and License] section for important details pertaining to release channel updates.
+*NOTE:* Prior to selecting a base image, consult the xref:windows-licensing[Windows Server Version and License] section for important details pertaining to release channel updates.
 
 == Configuring faster launching for custom EKS optimized AMIs
 

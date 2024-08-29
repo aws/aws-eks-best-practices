@@ -1,4 +1,7 @@
+[."topic"]
+[#windows-licensing]
 = Windows Server version and License
+:info_doctype: section
 
 == Windows Server version
 
