@@ -103,13 +103,16 @@ https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today,
 if you want to use an access point (AP) you’ll need to reference the AP
 in the PV’s `volumeHandle` parameter.
 
-!!! attention As of March 23, 2021 the EFS CSI driver supports dynamic
+[IMPORTANT]
+====
+As of March 23, 2021 the EFS CSI driver supports dynamic
 provisioning of EFS Access Points. Access points are
 application-specific entry points into an EFS file system that make it
 easier to share a file system between multiple pods. Each EFS file
 system can have up to 120 PVs. See
 https://aws.amazon.com/blogs/containers/introducing-efs-csi-dynamic-provisioning/[Introducing
 Amazon EFS CSI dynamic provisioning] for additional information.
+====
 
 == Secrets management
 

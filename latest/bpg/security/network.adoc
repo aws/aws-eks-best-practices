@@ -6,7 +6,7 @@
 :info_title: Network security
 :info_abstract: Network security
 :info_titleabbrev: Network security
-:imagesdir: images/
+:imagesdir: images/security/
 
 Network security has several facets. The first involves the application
 of rules which restrict the flow of network traffic between services.
@@ -89,7 +89,7 @@ spec:
 ----
 
 .default-deny
-image::./images/default-deny.jpg[default-deny]
+image::default-deny.jpg[default-deny]
 
 !!! tip The image above was created by the network policy viewer from
 https://orca.tufin.io/netpol/[Tufin].
@@ -126,7 +126,7 @@ spec:
 ----
 
 .allow-dns-access
-image::./images/allow-dns-access.jpg[allow-dns-access]
+image::allow-dns-access.jpg[allow-dns-access]
 
 ==== Incrementally add rules to selectively allow the flow of traffic between namespaces/pods
 
@@ -159,7 +159,7 @@ spec:
 ----
 
 .allow-ingress-app-one
-image::./images/allow-ingress-app-one.png[allow-ingress-app-one]
+image::allow-ingress-app-one.png[allow-ingress-app-one]
 
 === Monitoring network policy enforcement
 
@@ -811,7 +811,7 @@ identification purposes and to encrypt the traffic in transit between
 the communicating services.
 
 .Default flow for Istio Certificate Signing Requests
-image::./images/default-istio-csr-flow.png[Default flow for Istio
+image::default-istio-csr-flow.png[Default flow for Istio
 Certificate Signing Requests]
 
 ==== How Certificate Signing Works in Istio with ACM Private CA
@@ -838,7 +838,7 @@ _istio-csr_, which will read the signed request, and return it to the
 workload that initiated the CSR.
 
 .Flow for Istio Certificate Signing Requests with istio-csr
-image::./images/istio-csr-with-acm-private-ca.png[Flow for Istio
+image::istio-csr-with-acm-private-ca.png[Flow for Istio
 Certificate Signing Requests with istio-csr]
 
 ==== Istio with Private CA Setup Instructions
@@ -951,7 +951,7 @@ https://istio.io/latest/docs/reference/config/security/peer_authentication/[enfo
 mTLS].
 
 .Istio certificate signing requests
-image::./images/istio-csr-requests.png[Istio certificate signing
+image::istio-csr-requests.png[Istio certificate signing
 requests]
 
 == Tools and resources

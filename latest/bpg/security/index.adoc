@@ -13,7 +13,7 @@
 :info_title: Best Practices for Security
 :info_abstract: Best Practices for Security
 :info_titleabbrev: Security
-:imagesdir: images/
+:imagesdir: images/security/
 
 This guide provides advice about protecting information, systems, and
 assets that are reliant on EKS while delivering business value through
@@ -52,7 +52,7 @@ groups, to Fargate. For example, with Fargate, AWS becomes responsible
 for securing the underlying instance/runtime used to run your Pods.
 
 .Shared Responsibility Model - Fargate
-image::images/SRM-EKS.jpg[Shared Responsibility Model - Fargate]
+image::SRM-EKS.jpg[Shared Responsibility Model - Fargate]
 
 AWS will also assume responsibility of keeping the EKS optimized AMI up
 to date with Kubernetes patch versions and security patches. Customers
@@ -67,7 +67,7 @@ https://spot.io/solutions/kubernetes-2/[Ocean], or Atlassian’s
 https://github.com/atlassian/escalator[Escalator].
 
 .Shared Responsibility Model - MNG
-image::./images/SRM-MNG.jpg[Shared Responsibility Model - MNG]
+image::SRM-MNG.jpg[Shared Responsibility Model - MNG]
 
 Before designing your system, it is important to know where the line of
 demarcation is between your responsibilities and the provider of the

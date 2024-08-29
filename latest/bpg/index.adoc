@@ -28,10 +28,15 @@ community.
 
 We currently have published guides for the following topics:
 
-* xref:networking[Networking]
-* xref:cluster-upgrades[Cluster Upgrades]
-* xref:cluster-autoscaling[Cluster Autoscaling]
-* xref:reliability[Reliability]
+* xref:security[Best Practices for Security]
+* xref:reliability[Best Practices for Reliability]
+* xref:karpenter[Best Practices for Cluster Autoscaling: Karpenter]
+* xref:cas[Best Practices for Cluster Autoscaling: cluster-autoscaler]
+* xref:windows[Best Practices for Running Windows Containers]
+* xref:networking[Best Practices for Networking]
+* xref:scalability[Best Practices for Scalability]
+* xref:cluster-upgrades[Best Practices for Cluster Upgrades]
+* xref:cost-opt[Best Practices for Cost Optimization]
 
 We also open sourced a Python based CLI (Command Line Interface) called
 https://github.com/aws-samples/hardeneks[hardeneks] to check some of the
