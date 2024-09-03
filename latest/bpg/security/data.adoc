@@ -232,7 +232,7 @@ of reading them from a volume.
 
 [NOTE]
 ====
-When the the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that references a secret. The code for this operation can be found https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go[here].
+When the secret store CSI driver has to fetch a secret, it assumes the IRSA role assigned to the pod that references a secret. The code for this operation can be found https://github.com/aws/secrets-store-csi-driver-provider-aws/blob/main/auth/auth.go[here].
 ====
 
 For additional information about the AWS Secrets & Configuration

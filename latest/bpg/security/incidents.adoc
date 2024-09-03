@@ -28,7 +28,7 @@ from the rest of the infrastructure.
 === Identify the offending Pods and worker nodes using workload name
 
 If you know the name and namespace of the offending pod, you can
-identify the the worker node running the pod as follows:
+identify the worker node running the pod as follows:
 
 [source,bash]
 ----

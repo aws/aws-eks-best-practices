@@ -289,7 +289,7 @@ spec:
 ----
 
 For a general deployment for another team, the NodePool spec could
-include nodeAffinify. A Deployment could then use nodeSelectorTerms to
+include nodeAffinity. A Deployment could then use nodeSelectorTerms to
 match `billing-team`.
 
 [source,yaml]
@@ -526,7 +526,7 @@ If you are running a critical application on a Karpenter-provisioned
 node, such as a _long running_ batch job or stateful application, _and_
 the node’s TTL has expired, the application will be interrupted when the
 instance is terminated. By adding a
-`karpenter.sh/karpenter.sh/do-not-disrupt` annotation to the pod, you
+`karpenter.sh/do-not-disrupt` annotation to the pod, you
 are instructing Karpenter to preserve the node until the Pod is
 terminated or the `karpenter.sh/do-not-disrupt` annotation is removed.
 See

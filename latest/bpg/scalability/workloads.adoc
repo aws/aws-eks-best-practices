@@ -101,3 +101,28 @@ request:
 Mutating webhooks can modify resources in frequent succession. If you have 5 mutating webhooks and deploy 50 resources etcd will store all versions of each resource until compaction runs--every 5 minutes--to remove old versions of modified resources. In this scenario when etcd removes superseded resources there will be 200 resource version removed from etcd and depending on the size of the resources may use considerable space on the etcd host until defragmentation runs every 15 minutes.
 
 This defragmentation may cause pauses in etcd which could have other affects on the Kubernetes API and controllers. You should avoid frequent modification of large resources or modifying hundreds of resources in quick succession.
+
+== Compare workloads across multiple clusters
+
+If you have two clusters that should have similar performance but do not, try comparing the metrics to identify the reason.
+
+For example, comparing cluster latency is a common issue. This is usually caused by difference in the volume of API requests. You can run the following CloudWatch LogInsight query to understand the difference.
+
+----
+filter @logStream like "kube-apiserver-audit"
+| stats count(*) as cnt by objectRef.apiGroup, objectRef.apiVersion, objectRef.resource, userAgent, verb, responseStatus.code
+| sort cnt desc
+| limit 1000
+----
+
+You can add additional filters to narrow it down. e.g. focusing on all list request from `foo`.
+
+----
+filter @logStream like "kube-apiserver-audit"
+| filter verb = "list"
+| filter user.username like "foo"
+| stats count(*) as cnt by objectRef.apiGroup, objectRef.apiVersion, objectRef.resource, responseStatus.code
+| sort cnt desc
+| limit 1000
+----
+

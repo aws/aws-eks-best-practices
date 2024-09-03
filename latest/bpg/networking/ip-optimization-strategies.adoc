@@ -86,14 +86,14 @@ WARNING: Improving your VPC design is the recommended response to IP address exh
 
 ==== Monitor IP Address Inventory
 
-In addition to the solutions described above, it is also important to have visibility over IP utilization. You can monitor the IP addresses inventory of subnets using https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html[CNI Metrics Helper]. Some of the metrics available are:
+In addition to the solutions described above, it is also important to have visibility over IP utilization. You can monitor the IP addresses inventory of subnets using https://github.com/aws/amazon-vpc-cni-k8s/blob/master/cmd/cni-metrics-helper/README.md[CNI Metrics Helper]. Some of the metrics available are:
 
 * maximum number of ENIs the cluster can support
 * number of ENIs already allocated
 * number of IP addresses currently assigned to Pods
 * total and maximum number of IP address available
 
-You can also set https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch alarms] to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html[CNI metrics helper]
+You can also set https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch alarms] to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of https://github.com/aws/amazon-vpc-cni-k8s/blob/master/cmd/cni-metrics-helper/README.md[CNI metrics helper]
 
 WARNING: Make sure `DISABLE_METRICS` variable for VPC CNI is set to false.
 

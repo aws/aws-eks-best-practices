@@ -107,21 +107,9 @@ workflow, you’re positioning yourself to maintain up-to-date, secure
 clusters that take full advantage of the latest features and
 improvements. Tactics:
 
-* *Supported Version Policy* — Aligned with the Kubernetes community,
-Amazon EKS typically provides three active Kubernetes versions while
-deprecating a fourth version each year. Deprecation notices are issued
-at least 60 days before a version reaches its end-of-support date. For
-more details, refer to the
-https://aws.amazon.com/eks/eks-version-faq/[EKS Version FAQ].
-* *Auto-Upgrade Policy* — We strongly recommend staying in sync with
-Kubernetes updates in your EKS cluster. Kubernetes community support,
-including bug fixes and security patches, typically ceases for versions
-older than one year. Deprecated versions may also lack vulnerability
-reporting, posing a potential risk. Failure to proactively upgrade
-before a version’s end-of-life triggers an automatic upgrade, which
-could disrupt your workloads and systems. For additional information,
-consult the https://aws.amazon.com/eks/eks-version-support-policy/[EKS
-Version Support Policy].
+* *Supported Version Policy* -- Aligned with the Kubernetes community, Amazon EKS typically provides three active Kubernetes versions. A Kubernetes minor version is under standard support in Amazon EKS for the first 14 months after it's released. Once a version is past the end of standard support date, it enters extended support for the next 12 months. Deprecation notices are issued at least 60 days before a version reaches its end of standard support date. For more details, refer to the https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html[EKS Version Lifecycle docs].
+* *Auto-Upgrade Policy* -- We strongly recommend staying in sync with Kubernetes updates in your EKS cluster. Clusters running on a Kubernetes version that has completed its 26-month lifecycle (14 months of standard support plus 12 months of extended support) will be auto-upgraded to the next version. Note that you can https://docs.aws.amazon.com/eks/latest/userguide/disable-extended-support.html[disable extended support]. Failure to proactively upgrade before a version's end-of-life triggers an automatic upgrade, which could disrupt your workloads and systems. For additional information, consult the https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#version-faqs[EKS Version FAQs].
+
 * *Create Upgrade Runbooks* — Establish a well-documented process for
 managing upgrades. As part of your proactive approach, develop runbooks
 and specialized tools tailored to your upgrade process. This not only
@@ -182,10 +170,8 @@ cluster. (optional)]
 . xref:identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane[Identify
 and remediate deprecated and removed API usage in your workloads.]
 . xref:node-compatibility[Ensure
-Managed Node Groups&#44; if used&#44; are on the same Kubernetes version
-as the control plane.] EKS managed node groups and nodes created by EKS
-Fargate Profiles only support 1 minor version skew between the control
-plane and data plane.
+Managed Node Groups, if used, are on the same Kubernetes version
+as the control plane.] EKS managed node groups and nodes created by EKS Fargate Profiles support 2 minor version skew between the control plane and data plane for Kubernetes version 1.27 and below. Starting 1.28 and above, EKS managed node groups and nodes created by EKS Fargate Profiles support 3 minor version skew betweeen control plane and data plane. For example, if your EKS control plane version is 1.28, you can safely use kubelet versions as old as 1.25. If your EKS version is 1.27, the oldest kubelet version you can use is 1.25.
 . https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html[Upgrade
 the cluster control plane using the AWS console or cli.]
 . xref:upgrade-addons[Review
