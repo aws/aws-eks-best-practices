@@ -3,6 +3,7 @@
 ## Karpenter
 
 [Karpenter](https://karpenter.sh/) is an open-source project that provides node lifecycle management for Kubernetes clusters. It automates provisioning and deprovisioning of nodes based on the scheduling needs of pods, allowing efficient scaling and cost optimization. Its main functions are:
+
 * Monitor pods that the Kubernetes scheduler cannot schedule due to resource constraints.
 * Evaluate the scheduling requirements (resource requests, node selectors, affinities, tolerations, etc.) of the unschedulable pods.
 * Provision new nodes that meet the requirements of those pods.
@@ -174,7 +175,7 @@ spec:
         effect: "NoSchedule"
 ```
 
-For a general deployment for another team, the NodePool spec could include nodeAffinify. A Deployment could then use nodeSelectorTerms to match `billing-team`.
+For a general deployment for another team, the NodePool spec could include nodeAffinity. A Deployment could then use nodeSelectorTerms to match `billing-team`.
 
 ```yaml
 # NodePool for regular EC2 instances
@@ -301,7 +302,7 @@ You may also want to enable Cost Anomaly Detection which is an AWS Cost Manageme
 
 ### Use the karpenter.sh/do-not-disrupt annotation to prevent Karpenter from deprovisioning a node
 
-If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/karpenter.sh/do-not-disrupt` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `karpenter.sh/do-not-disrupt` annotation is removed. See [Distruption](https://karpenter.sh/docs/concepts/disruption/#node-level-controls) documentation for further information.
+If you are running a critical application on a Karpenter-provisioned node, such as a *long running* batch job or stateful application, *and* the node’s TTL has expired, the application will be interrupted when the instance is terminated. By adding a `karpenter.sh/do-not-disrupt` annotation to the pod, you are instructing Karpenter to preserve the node until the Pod is terminated or the `karpenter.sh/do-not-disrupt` annotation is removed. See [Distruption](https://karpenter.sh/docs/concepts/disruption/#node-level-controls) documentation for further information.
 
 If the only non-daemonset pods left on a node are those associated with jobs, Karpenter is able to target and terminate those nodes so long as the job status is succeed or failed.
 

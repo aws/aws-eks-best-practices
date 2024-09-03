@@ -3,7 +3,7 @@ name: New best practice
 about: Suggest an best practice for this project
 title: ''
 labels: idea
-assignees: jicowan
+assignees: svennam
 
 ---
 

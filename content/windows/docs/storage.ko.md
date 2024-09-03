@@ -1,3 +1,9 @@
+---
+search:
+  exclude: true
+---
+
+
 # 영구 스토리지 옵션
 
 ## In-tree와 Out-of-tree 볼륨 플러그인

@@ -19,6 +19,7 @@ The working groups are led by chairs (semi-permanent) and maintainers (6 month t
 | Windows Containers    |                                                          | |
 | Networking            | [Tim Dormer](https://github.com/Tim-AWS)                 | [Ikenna Izugbokwe](https://github.com/izugbokwe) |
 | Cost Optimization     |                                                          | |
+| Storage (upcoming)    | [Eric Heinrichs](https://github.com/heinrichse)          | |
 
 ## Contact
 

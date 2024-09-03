@@ -264,7 +264,7 @@ When you create an Amazon EKS cluster, the IAM entity user or role, such as a f
 
 ### Regularly audit access to the cluster
 
-Who requires access is likely to change over time. Plan to periodically audit the `aws-auth` ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on [auditing](detective.md).  Additional ideas can be found in this [article](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2019/august/tools-and-methods-for-auditing-kubernetes-rbac-policies/?mkt_tok=eyJpIjoiWWpGa056SXlNV1E0WWpRNSIsInQiOiJBT1hyUTRHYkg1TGxBV0hTZnRibDAyRUZ0VzBxbndnRzNGbTAxZzI0WmFHckJJbWlKdE5WWDdUQlBrYVZpMnNuTFJ1R3hacVYrRCsxYWQ2RTRcL2pMN1BtRVA1ZFZcL0NtaEtIUDdZV3pENzNLcE1zWGVwUndEXC9Pb2tmSERcL1pUaGUifQ%3D%3D) from NCC Group.
+Who requires access is likely to change over time. Plan to periodically audit the `aws-auth` ConfigMap to see who has been granted access and the rights they've been assigned. You can also use open source tooling like [kubectl-who-can](https://github.com/aquasecurity/kubectl-who-can), or [rbac-lookup](https://github.com/FairwindsOps/rbac-lookup) to examine the roles bound to a particular service account, user, or group. We'll explore this topic further when we get to the section on [auditing](detective.md).
 
 ### If relying on `aws-auth` configMap use tools to make changes
 
@@ -571,7 +571,7 @@ Both EKS Pod Identities and IRSA are preferred ways to deliver temporary AWS cre
 
 At present, the aws-node daemonset is configured to use a role assigned to the EC2 instances to assign IPs to pods.  This role includes several AWS managed policies, e.g. AmazonEKS_CNI_Policy and EC2ContainerRegistryReadOnly that effectively allow **all** pods running on a node to attach/detach ENIs, assign/unassign IP addresses, or pull images from ECR. Since this presents a risk to your cluster, it is recommended that you update the aws-node daemonset to use IRSA. A script for doing this can be found in the [repository](https://github.com/aws/aws-eks-best-practices/tree/master/projects/enable-irsa/src) for this guide.
 
-The aws-node daemonset does not support EKS Pod Identities at this time.
+The aws-node daemonset supports EKS Pod Identities in versions v1.15.5 and later.
 
 ### Restrict access to the instance profile assigned to the worker node
 
