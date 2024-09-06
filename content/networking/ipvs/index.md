@@ -115,7 +115,7 @@ You can validate that your cluster and worker nodes are running in IPVS mode by 
 sudo ipvsadm -L
 ```
 
-At a minimum, you should see a result similar to the one below, showing entries for the Kubernetes Cluster IP service at `10.100.0.1` and the codedns service at `10.100.0.10`.
+At a minimum, you should see a result similar to the one below, showing entries for the Kubernetes API Server service at `10.100.0.1` and the CoreDNS service at `10.100.0.10`.
 ```hl_lines="4 7 10"
 IP Virtual Server version 1.2.1 (size=4096)
 Prot LocalAddress:Port Scheduler Flags
@@ -130,3 +130,5 @@ UDP  ip-10-100-0-10.us-east-1 rr
   -> ip-192-168-104-215.us-ea Masq        1      0          0
   -> ip-192-168-123-227.us-ea Masq        1      0          0
 ```
+!!! note
+    This example output comes from an EKS cluster with a service IP address range of `10.100.0.0/16`.
