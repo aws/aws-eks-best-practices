@@ -165,7 +165,7 @@ plugins:
             Regulatory Compliance: 컴플라이언스
             Reliability: 신뢰성
             Running IPv6 Clusters: IPv6 클러스터 운영
-            Running kube-proxy in IPVS Mode: IPVS 모드에서 kube-proxy시 실행
+            Running kube-proxy in IPVS Mode: IPVS 모드에서 kube-proxy 실행
             Running Mixed Workloads: 혼합 워크로드 실행
             Runtime Security: 런타임 보안
             Scalability: 확장성

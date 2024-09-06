@@ -1,6 +1,6 @@
 # IPVS 모드에서 kube-proxy 실행
 
-IPVS (IP 가상 서버) 모드의 EKS는 레거시 iptables 모드에서 실행되는 `kube-proxy`와 함께 1,000개 이상의 서비스가 포함된 대규모 클러스터를 실행할 때 흔히 발생하는 [네트워크 지연 문제] (https://aws.github.io/aws-eks-best-practices/reliability/docs/controlplane/#running-large-clusters) 를 해결합니다.이러한 성능 문제는 각 패킷에 대한 iptables 패킷 필터링 규칙을 순차적으로 처리한 결과입니다.이 지연 문제는 iptables의 후속 버전인 nftables에서 해결되었습니다.하지만 이 글을 쓰는 시점 현재, nftable을 활용하기 위한 [kube-proxy는 아직 개발 중] (https://kubernetes.io/docs/reference/networking/virtual-ips/#proxy-mode-nftables) 이다.이 문제를 해결하려면 IPVS 모드에서 `kube-proxy`가 실행되도록 클러스터를 구성할 수 있다.
+IPVS (IP 가상 서버) 모드의 EKS는 레거시 iptables 모드에서 실행되는 `kube-proxy`와 함께 1,000개 이상의 서비스가 포함된 대규모 클러스터를 실행할 때 흔히 발생하는 [네트워크 지연 문제](https://aws.github.io/aws-eks-best-practices/reliability/docs/controlplane/#running-large-clusters)를 해결합니다.이러한 성능 문제는 각 패킷에 대한 iptables 패킷 필터링 규칙을 순차적으로 처리한 결과입니다.이 지연 문제는 iptables의 후속 버전인 nftables에서 해결되었습니다.하지만 이 글을 쓰는 시점 현재, nftable을 활용하기 위한 [kube-proxy는 아직 개발 중] (https://kubernetes.io/docs/reference/networking/virtual-ips/#proxy-mode-nftables) 이다.이 문제를 해결하려면 IPVS 모드에서 `kube-proxy`가 실행되도록 클러스터를 구성할 수 있다.
 
 ## 개요
 
