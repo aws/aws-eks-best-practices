@@ -115,7 +115,7 @@ kubectl -n kube-system rollout restart ds kube-proxy
 sudo ipvsadm -L
 ```
 
-최소한 쿠버네티스 클러스터 IP 서비스의 항목이 `10.100.0.1`이고 codedns 서비스에 대한 항목이 `10.100.0.10`인 아래와 비슷한 결과를 볼 수 있을 것이다.
+최소한 쿠버네티스 API 서버 서비스에 대한 항목이 `10.100.0.1`이고 CoreDNS 서비스에 대한 항목이 `10.100.0.10`인 아래와 비슷한 결과를 볼 수 있을 것이다.
 ```hl_lines="4 7 10"
 IP Virtual Server version 1.2.1 (size=4096)
 Prot LocalAddress:Port Scheduler Flags
@@ -130,3 +130,5 @@ UDP  ip-10-100-0-10.us-east-1 rr
   -> ip-192-168-104-215.us-ea Masq        1      0          0
   -> ip-192-168-123-227.us-ea Masq        1      0          0
 ```
+!!! note
+    이 예제 출력은 서비스 IP 주소 범위가 `10.100.0.0/16`인 EKS 클러스터에서 가져온 것입니다.
