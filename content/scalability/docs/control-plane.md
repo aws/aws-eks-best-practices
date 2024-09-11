@@ -31,7 +31,7 @@ You can remove nodes when they have no running workloads using the scale down th
 
 ### Use pod disruption budgets and safe node shutdown
 
-Removing pods and nodes from a Kubernetes cluster requires controllers to make updates to multiple resources (e.g. EndpointSlices). Doing this frequently or too quickly can cause API server throttling and application outages as changes propogate to controllers. [Pod Disruption Budgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/) are a best practice to slow down churn to protect workload availability as nodes are removed or rescheduled in a cluster.
+Removing pods and nodes from a Kubernetes cluster requires controllers to make updates to multiple resources (e.g. EndpointSlices). Doing this frequently or too quickly can cause API server throttling and application outages as changes propagate to controllers. [Pod Disruption Budgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/) are a best practice to slow down churn to protect workload availability as nodes are removed or rescheduled in a cluster.
 
 ## Use Client-Side Cache when running Kubectl
 
