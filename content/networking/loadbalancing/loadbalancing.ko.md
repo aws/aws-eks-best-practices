@@ -15,7 +15,6 @@ search:
 ## 파드 Readiness
 
 [2019 Kubecon talk](https://www.youtube.com/watch?v=Vw9GmSeomFg)에서 발췌한 이 다이어그램은 파드가 레디 상태가 되고 '로드밸런서' 서비스에 대한 트래픽을 수신하기 위해 거쳐진 단계를 보여준다.
-![readiness.png](readiness.png)
 *[Ready? A Deep Dive into Pod Readiness Gates for Service Health... - Minhan Xia & Ping Zou](https://www.youtube.com/watch?v=Vw9GmSeomFg)*  
 NodePort 서비스의 멤버인 파드가 생성되면 쿠버네티스는 다음 단계를 거칩니다.
 
@@ -35,7 +34,6 @@ NodePort 서비스의 멤버인 파드가 생성되면 쿠버네티스는 다음
 ### 배포에 미치는 영향
 
 다음은 애플리케이션 배포로 인해 파드 교체가 트리거될 때 취해진 단계를 보여주는 다이어그램입니다:
-![deployments.png](deployments.png)
 *[Ready? A Deep Dive into Pod Readiness Gates for Service Health... - Minhan Xia & Ping Zou](https://www.youtube.com/watch?v=Vw9GmSeomFg)*  
 이 다이어그램에서 주목할 점은 첫 번째 파드가 "Ready" 상태에 도달할 때까지 두 번째 파드가 배포되지 않는다는 것입니다. 이전 섹션의 4단계와 5단계도 위의 배포 작업과 병행하여 수행됩니다.
 
@@ -56,14 +54,12 @@ NodePort 서비스의 멤버인 파드가 생성되면 쿠버네티스는 다음
 !!! note
     배열에는 "Ready" 파드만 있어야 한다는 점을 기억하세요.
 
-![nodeport.png](nodeport.png)
-
 이렇게 하면 요청에 홉이 추가되고 로드밸런서 구성이 복잡해집니다.예를 들어 위의 로드밸런서가 세션 어피니티로 구성된 경우 어피니티는 어피니티 구성에 따라 로드밸런서와 백엔드 노드 사이에만 유지될 수 있습니다.
 
 로드밸런서가 백엔드 파드와 직접 통신하지 않기 때문에 쿠버네티스 시스템으로 트래픽 흐름과 타이밍을 제어하기가 더 어려워집니다.
 
 [AWS 로드밸런서 컨트롤러](https://github.com/kubernetes-sigs/aws-load-balancer-controller)를 사용하는 경우, **IP 대상 유형**을 사용하여 파드 IP/포트 튜플을 로드밸런서에 직접 등록할 수 있습니다.
-![ip.png](ip.png)  
+
 이는 로드밸런서에서 대상 파드로의 트래픽 경로를 단순화 합니다. 즉 새 대상이 등록되면 대상이 "Ready" 파드 IP 및 포트인지 확인할 수 있고, 로드밸런서의 상태 확인이 파드에 직접 전달되며, VPC 흐름 로그를 검토하거나 유틸리티를 모니터링할 때 로드밸런서와 파드 간의 트래픽을 쉽게 추적할 수 있습니다.
 
 또한 IP 등록을 사용하면 `NodePort` 규칙을 통해 연결을 관리하는 대신 백엔드 파드에 대한 트래픽의 타이밍과 구성을 직접 제어할 수 있습니다.

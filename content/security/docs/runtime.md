@@ -31,7 +31,7 @@ It's also possible to create your own profiles for things that require additiona
 
 ### AppArmor and SELinux
 
-AppArmor and SELinux are known as [mandatory access control or MAC systems](https://en.wikipedia.org/wiki/Mandatory_access_control). They are similar in concept to seccomp but with different APIs and abilities, allowing access control for e.g. specific filesystem paths or network ports. Support for these tools depends on the Linux distribution, with Debian/Ubuntu supporting AppArmor and RHEL/CentOS/Bottlerocket/Amazon Linux 2023 supporting SELinux. Also see the [infrastructure security section](../hosts/#run-selinux) for further discussion of SELinux.
+AppArmor and SELinux are known as [mandatory access control or MAC systems](https://en.wikipedia.org/wiki/Mandatory_access_control). They are similar in concept to seccomp but with different APIs and abilities, allowing access control for e.g. specific filesystem paths or network ports. Support for these tools depends on the Linux distribution, with Debian/Ubuntu supporting AppArmor and RHEL/CentOS/Bottlerocket/Amazon Linux 2023 supporting SELinux. Also see the [infrastructure security section](./hosts.md#run-selinux) for further discussion of SELinux.
 
 Both AppArmor and SELinux are integrated with Kubernetes, but as of Kubernetes 1.28 AppArmor profiles must be specified via [annotations](https://kubernetes.io/docs/tutorials/security/apparmor/#securing-a-pod) while SELinux labels can be set through the [SELinuxOptions](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#selinuxoptions-v1-core) field on the security context directly.
 

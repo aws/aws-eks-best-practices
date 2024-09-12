@@ -12,26 +12,6 @@ In Kubernetes, this means setting the right compute resources ([CPU and memory a
 **Amazon EKS on EC2**: When you create a Pod, you can specify how much of each resource like CPU and Memory, a Container needs. It is important we do not over-provision (which will lead to wastage) or under-provision (will lead to throttling) the resources allocated to the containers. 
 
 ## Recommendations
-### Use tools to help you allocate resources based on observed data
-There are tools like [kube resource report](https://github.com/hjacobs/kube-resource-report) which can help with right sizing of pods deployed on Amazon EKS with EC2 nodes.
-
-Deployment steps for kube resource report:
-```
-$ git clone https://github.com/hjacobs/kube-resource-report
-$ cd kube-resource-report
-$ helm install kube-resource-report ./unsupported/chart/kube-resource-report
-$ helm status kube-resource-report
-$ export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=kube-resource-report,app.kubernetes.io/instance=kube-resource-report" -o jsonpath="{.items[0].metadata.name}")
-$ echo "Visit http://127.0.0.1:8080 to use your application"
-$ kubectl port-forward $POD_NAME 8080:8080
-```
-Screenshots from a sample reports from this tool:
-
-![Home Page](../images/kube-resource-report1.png)
-
-![Cluster level data](../images/kube-resource-report2.png)
-
-![Pod level data](../images/kube-resource-report3.png)
 
 **FairwindsOps Goldilocks**: The [FairwindsOps Goldilocks](https://github.com/FairwindsOps/goldilocks) is a tool that creates a Vertical Pod Autoscaler (VPA) for each deployment in a namespace and then queries them for information. Once the VPAs are in place, we see recommendations appear in the Goldilocks dashboard.
 
@@ -79,8 +59,7 @@ Refer to the following resources to learn more about best practices for cost opt
 
 
 ### Tools
-+  [Kube resource report](https://github.com/hjacobs/kube-resource-report)
-+  [Right size guide](https://github.com/mhausenblas/right-size-guide)
++  [Right size guide](https://mhausenblas.info/right-size-guide/)
 + [Fargate count](https://github.com/mreferre/fargatecount)
 + [FairwindsOps Goldilocks](https://github.com/FairwindsOps/goldilocks)
 + [Choose Right Node Size](https://learnk8s.io/research#choosing-node-size)

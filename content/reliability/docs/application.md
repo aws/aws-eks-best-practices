@@ -141,7 +141,7 @@ Once you deploy the Prometheus Adapter, you can query custom metrics using kubec
 
 External metrics, as the name suggests, provide the Horizontal Pod Autoscaler the ability to scale deployments using metrics that are external to the Kubernetes cluster. For example, in batch processing workloads, it is common to scale the number of replicas based on the number of jobs in flight in an SQS queue.
 
-To autoscale a Deployment using a CloudWatch metric, for example, [scaling a batch-processor application based on SQS queue depth](https://github.com/awslabs/k8s-cloudwatch-adapter/blob/master/samples/sqs/README.md), you can use [`k8s-cloudwatch-adapter`](https://github.com/awslabs/k8s-cloudwatch-adapter). `k8s-cloudwatch-adapter` is a community project and not maintained by AWS. 
+To autoscale Kubernetes workloads you can use KEDA (Kubernetes Event-driven Autoscaling), an open-source project that can drive container scaling based on a number of custom events. This [AWS blog](https://aws.amazon.com/blogs/mt/autoscaling-kubernetes-workloads-with-keda-using-amazon-managed-service-for-prometheus-metrics/) outlines how to use Amazon Managed Service for Prometheus for Kubernetes workload auto-scaling.
 
 ## Vertical Pod Autoscaler (VPA)
 
