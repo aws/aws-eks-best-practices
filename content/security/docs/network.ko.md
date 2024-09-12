@@ -550,7 +550,5 @@ Istio 인증서 서명 요청 에이전트 ([istio-csr](https://cert-manager.io/
 - [Private CA 쿠버네티스 cert-manager 플러그인 (Github)](https://github.com/cert-manager/aws-privateca-issuer).
 - [Private CA 쿠버네티스 cert-manager 플러그인 사용자 가이드](https://docs.aws.amazon.com/acm-pca/latest/userguide/PcaKubernetes.html).
 - [AWS Private Certificate Authority 단기 인증서 모드 사용 방법](https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode)
-- [kniff 및 Wireshark를 사용한 쿠버네티스의 서비스 메시 TLS 검증](https://itnext.io/verifying-service-mesh-tls-in-kubernetes-using-ksniff-and-wireshark-2e993b26bf95)
-- [ksniff](https://github.com/eldadru/ksniff)
 - [egress-operator](https://github.com/monzo/egress-operator) 프로토콜 검사 없이 클러스터의 송신 트래픽을 제어하는 오퍼레이터 및 DNS 플러그인
 - [NeuVector by SUSE](https://www.suse.com/neuvector/) 오픈 소스 제로 트러스트 컨테이너 보안 플랫폼은 정책 네트워크 규칙, 데이터 손실 방지 (DLP), 웹 애플리케이션 방화벽 (WAF) 및 네트워크 위협 시그니처를 제공합니다.

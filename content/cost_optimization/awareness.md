@@ -50,7 +50,7 @@ For Cost Optimization, Trusted Advisor helps eliminate unused and idle resources
 The Trusted Advisor also provides Savings Plans and Reserved Instances recommendations for EC2 instances and Fargate which allows you to commit to a consistent usage amount in exchange for discounted rates. 
 
 !!! Note
-    that the recommendations from Trusted Advisor are generic recommendations and not specific to EKS. 
+    The recommendations from Trusted Advisor are generic recommendations and not specific to EKS. 
 
 ### Use the Kubernetes dashboard 
 
@@ -116,7 +116,7 @@ This awareness will help in understanding resource usage and help in controlling
 
 
 
-### Using KubeCost for expenditure awareness and guidance
+### Using Kubecost for expenditure awareness and guidance
 
 Third party tools like [kubecost](https://kubecost.com/) can also be deployed on Amazon EKS to get visibility into cost of running your Kubernetes cluster. Please refer to this [AWS blog](https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/) for tracking costs using Kubecost
 
@@ -151,7 +151,7 @@ Note: If you are using Cloud 9 or have a need to forward it to a different port 
 $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 8080:9090
 
 ```
-Kube Cost Dashboard -
+Kubecost Dashboard -
 ![Kubernetes Cluster Auto Scaler logs](../images/kube-cost.png)
 
 ### Use Kubernetes Cost Allocation and Capacity Planning Analytics Tool
@@ -198,19 +198,6 @@ The role of the [Kubernetes garbage collector](https://kubernetes.io/docs/concep
 
 [Fargatecount](https://github.com/mreferre/fargatecount) is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of EKS pods that have been deployed on Fargate in a specific region of a specific account. This helps in keeping track of all the Fargate pods running across an EKS cluster.
 
-### Kubernetes Ops View
-
-[Kube Ops View](https://github.com/hjacobs/kube-ops-view) is an useful tool, which provides a common operational picture visually for multiple Kubernetes clusters.
-
-```
-git clone https://github.com/hjacobs/kube-ops-view
-cd kube-ops-view
-kubectl apply -k deploy/
-```
-
-![Home Page](../images/kube-ops-report.png)
-
-
 ### Popeye - A Kubernetes Cluster Sanitizer
 
 [Popeye - A Kubernetes Cluster Sanitizer](https://github.com/derailed/popeye) is a utility that scans live Kubernetes cluster and reports potential issues with deployed resources and configurations. It sanitizes your cluster based on what's deployed and not what's sitting on disk. By scanning your cluster, it detects misconfigurations and helps you to ensure that best practices are in place
@@ -218,15 +205,15 @@ kubectl apply -k deploy/
 ### Resources
 Refer to the following resources to learn more about best practices for cost optimization.
 
-Documentation and Blogs
-+	[Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
+### Documentation and Blogs
+* [Amazon EKS supports tagging](https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html)
 
-Tools
-+	[What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
-+	[Amazon CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html)
-+   [How to track costs in multi-tenant Amazon EKS clusters using Kubecost](https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/) 
-+   [Kube Cost](https://kubecost.com/)
-+   [Kube Opsview](https://github.com/hjacobs/kube-ops-view)
-+  [Kube Janitor](https://github.com/hjacobs/kube-janitor)
-+  [Kubernetes Opex Analytics](https://github.com/rchakode/kube-opex-analytics)
+### Tools
+
+* [What is AWS Billing and Cost Management?](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
+* [Amazon CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html)
+* [How to track costs in multi-tenant Amazon EKS clusters using Kubecost](https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/) 
+* [Kubecost](https://kubecost.com/)
+* [Kube Opsview](https://github.com/hjacobs/kube-ops-view)
+* [Kubernetes Opex Analytics](https://github.com/rchakode/kube-opex-analytics)
 

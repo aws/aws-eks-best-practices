@@ -174,7 +174,7 @@ Karpenter 프로비저너는 클러스터에서 [일부 사용 가능한 리소�
 
 ### 오토스케일링 스케줄링
 
-주말 또는 휴일에는 클러스터를 축소해야 할 수도 있습니다. 이는 사용하지 않을 때 0으로 축소하려는 테스트 및 비프로덕션 클러스터에 특히 적합합니다. [cluster-turndown](https://github.com/kubecost/cluster-turndown) 및 [kube-downscaler](https://codeberg.org/hjacobs/kube-downscaler)와 같은 솔루션은 크론 스케줄에 따라 복제본을 0으로 축소할 수 있습니다.    
+주말 또는 휴일에는 클러스터를 축소해야 할 수도 있습니다. 이는 사용하지 않을 때 0으로 축소하려는 테스트 및 비프로덕션 클러스터에 특히 적합합니다. [cluster-turndown](https://github.com/kubecost/cluster-turndown) 와 같은 솔루션은 크론 스케줄에 따라 복제본을 0으로 축소할 수 있습니다. 다음 [AWS 블로그](https://aws.amazon.com/blogs/containers/manage-scale-to-zero-scenarios-with-karpenter-and-serverless/)에 설명된 대로 Karpenter를 사용하여 동일한 작업을 수행할 수도 있습니다.
 
 ## 컴퓨팅 용량 유형 최적화
 

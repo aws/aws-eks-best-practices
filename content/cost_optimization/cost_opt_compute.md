@@ -177,7 +177,7 @@ Karpenter provisioners can [set limits on some of the consumable resources](http
 
 ### Scheduled Autoscaling
 
-You may have the need to scale down your clusters on weekends and off hours. This is particularly relevant for test and non-production clusters where you want to scale down to zero when they are not in use. Solutions like [cluster-turndown](https://github.com/kubecost/cluster-turndown) and [kube-downscaler](https://codeberg.org/hjacobs/kube-downscaler) can scale down the replicas to zero based on a cron schedule.    
+You may have the need to scale down your clusters on weekends and off hours. This is particularly relevant for test and non-production clusters where you want to scale down to zero when they are not in use. Solutions like [cluster-turndown](https://github.com/kubecost/cluster-turndown) can scale down the replicas to zero based on a cron schedule. You can also acheive this with Karpenter, outlined in the following [AWS blog](https://aws.amazon.com/blogs/containers/manage-scale-to-zero-scenarios-with-karpenter-and-serverless/).
 
 ## Optimize compute capacity types
 

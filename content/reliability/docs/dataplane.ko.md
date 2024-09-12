@@ -30,8 +30,6 @@ Cluster Autoscaler는 클러스터의 파드가 이미 *pending* 상태일 때 �
 
 Cluster Autoscaler에서 권장하는 또 다른 패턴은 [*pause* 파드와 우선순위 선점 기능](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler)입니다. *pause 파드*는 [pause 컨테이너](https://github.com/kubernetes/kubernetes/tree/master/build/pause)를 실행하는데, 이름에서 알 수 있듯이 클러스터의 다른 파드에서 사용할 수 있는 컴퓨팅 용량의 placeholder 역할을 하는 것 외에는 아무것도 하지 않습니다. *매우 낮은 할당 우선 순위*로 실행되기 때문에, 다른 파드를 생성해야 하고 클러스터에 가용 용량이 없을 때 일시 중지 파드가 노드에서 제거됩니다. 쿠버네티스 스케줄러는 pause 파드의 축출을 감지하고 스케줄을 다시 잡으려고 합니다. 하지만 클러스터가 최대 용량으로 실행되고 있기 때문에 일시 중지 파드는 *pending* 상태로 유지되며, Cluster Autoscaler는 이에 대응하여 노드를 추가합니다. 
 
-Helm 차트를 통해 [클러스터 오버프로비저너](https://github.com/helm/charts/tree/master/stable/cluster-overprovisioner)를 설치할 수 있다.
-
 ### 여러 오토 스케일링 그룹과 함께 Cluster Autoscaler 사용
 
 `--node-group-auto-discovery` 플래그를 활성화한 상태로 Cluster Autoscaler를 실행합니다.이렇게 하면 Cluster Autoscaler가 정의된 특정 태그가 포함된 모든 오토스케일링 그룹을 찾을 수 있으므로 매니페스트에서 각 오토스케일링 그룹을 정의하고 유지할 필요가 없습니다.
