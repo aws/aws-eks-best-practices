@@ -17,10 +17,10 @@ Following the [Amazon EKS Self-managed Windows nodes](https://docs.aws.amazon.co
 
 If eksctl is the deployment tool, check the following documentation to customize the kubelet configuration https://eksctl.io/usage/customizing-the-kubelet/
 
-## Windows container memory requirements
+## Windows containers memory requirements
 As per [Microsoft documentation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/system-requirements), a Windows Server base image for NANO requires at least 30MB, whereas Server Core requires 45MB. These numbers grow as you add Windows components such as the .NET Framework, Web Services as IIS and applications.
 
-It is essential for you to know the minimum amount of memory required by your Windows container image, i.e. the base image plus its application layers, and set it as the container's resources/requests in the pod specification. You should also set a limit to avoid pods to consume all the available node memory in case of an application issue.
+It is essential for you to know the minimum amount of memory required by your Windows container image, i.e. the base image plus its application layers, and set it as the container's resources/requests in the pod specification. 
 
 In the example below, when the Kubernetes scheduler tries to place a pod on a node, the pod's requests are used to determine which node has sufficient resources available for scheduling.
 
@@ -34,8 +34,12 @@ In the example below, when the Kubernetes scheduler tries to place a pod on a no
         memory: 800Mi
       requests:
         cpu: .1
-        memory: 128Mi
+        memory:
 ```
+**Note:**
+*When you set memory resource limits for Windows containers, you should either set a limit and leave the memory request unspecified, or set the request equal to the limit.*
+
+
 ## Conclusion
 
 Using this approach minimizes the risks of memory exhaustion but does not prevent it happen. Using Amazon CloudWatch Metrics, you can set up alerts and remediations in case of memory exhaustion occurs.
