@@ -7,10 +7,6 @@ When deployed in an EKS Cluster the [AWS Load Balancer controller](https://docs.
 create and manage AWS Elastic Load Balancers for that cluster. 
 When a Kubernetes Service of type LoadBalancer is created, the AWS Load Balancer controller creates a [Network Load Balancer (NLB)](https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html) which load balances received traffic at Layer 4 of the OSI model. While when a Kubernetes Ingress object is created, the AWS Load Balancer Controller creates an [Application Load Balancer (ALB)](https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html) which load balances traffic at Layer 7 of the OSI model.
 
-   
-# Recommendations
-
-
 ## Choosing Load Balancer Type 
 
 The AWS Elastic Load Balancing portfolio supports the following load balancers: Application Load Balancers (ALB), Network Load Balancers (NLB), Gateway Load Balancers (GWLB), and Classic Load Balancers (CLB). This best practices section will focus on the ALB and NLB which are the two which are most relevant for EKS Clusters. 
