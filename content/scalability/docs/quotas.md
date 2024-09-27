@@ -51,7 +51,7 @@ We have seen EKS customers impacted by the quotas listed below for other AWS ser
 
 ## AWS Request Throttling
 
-AWS services also implement request throttling to ensure that they remain performant and available for all customers. Simliar to Service Quotas, each AWS service maintains their own request throttling thresholds. Consider reviewing the respective AWS Service documentation if your workloads will need to quickly issue a large number of API calls or if you notice request throttling errors in your application. 
+AWS services also implement request throttling to ensure that they remain performant and available for all customers. Similar to Service Quotas, each AWS service maintains their own request throttling thresholds. Consider reviewing the respective AWS Service documentation if your workloads will need to quickly issue a large number of API calls or if you notice request throttling errors in your application. 
 
 EC2 API requests around provisioning EC2 network interfaces or IP addresses can encounter request throttling in large clusters or when clusters scale drastically. The table below shows some of the API actions that we have seen customers encounter request throttling from.
 You can review the EC2 rate limit defaults and the steps to request a rate limit increase in the [EC2 documentation on Rate Throttling](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html).

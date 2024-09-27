@@ -120,7 +120,7 @@ The controller is configured to manage AWS resources in region: "us-east-1"
 The ACK controller has been successfully installed and ACK can now be used to provision an Amazon Managed Service for Prometheus workspace.
 ----
 
-Let's now create a yaml file for provisioning the alert manager defnition and rule groups.
+Let's now create a yaml file for provisioning the alert manager definition and rule groups.
 Save the below file as `rulegroup.yaml`
 
 ----
