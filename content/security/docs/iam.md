@@ -602,7 +602,7 @@ resource "aws_launch_template" "foo" {
   ...
 ```
 
-You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [Limiting access to the instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access).
+You can also block a pod's access to EC2 metadata by manipulating iptables on the node. For further information about this method, see [Limiting access to the instance metadata service](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access). Another way to block access is by using [Kubernetes network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) to prevent pods from reaching the EC2 metadata, configuring the network policy to block egress traffic to 169.254.0.0/16.
 
 If you have an application that is using an older version of the AWS SDK that doesn't support IRSA or EKS Pod Identities, you should update the SDK version.
 
