@@ -55,7 +55,7 @@ The Kubernetes Cluster Autoscaler works by scaling groups of nodes — called a 
 
 You can have multiple node groups and the Cluster Autoscaler can be configured to set priority scaling levels and each node group can contain different sized nodes. Node groups can have different capacity types and the priority expander can be used to scale less expensive groups first.
 
-Below is an example of a snippet of cluster configuration that uses a `ConfigMap`` to prioritize reserved capacity before using on-demand instances.  You can use the same technique to prioritize Graviton or Spot Instances over other types.  
+Below is an example of a snippet of cluster configuration that uses a `ConfigMap` to prioritize reserved capacity before using on-demand instances.  You can use the same technique to prioritize Graviton or Spot Instances over other types.  
 
 ```yaml
 apiVersion: eksctl.io/v1alpha5
