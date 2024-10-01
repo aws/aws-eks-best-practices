@@ -1,6 +1,6 @@
 # Kubernetes Upstream SLOs
 
-Amazon EKS runs the same code as the upstream Kubernetes releases and ensures that EKS clusters operate within the SLOs defined by the Kubernetes community. The Kubernetes[Scalability Special Interest Group (SIG)](https://github.com/kubernetes/community/tree/master/sig-scalability) defines the scalability goals and investigates bottlenecks in performance through SLIs and SLOs. 
+Amazon EKS runs the same code as the upstream Kubernetes releases and ensures that EKS clusters operate within the SLOs defined by the Kubernetes community. The Kubernetes [Scalability Special Interest Group (SIG)](https://github.com/kubernetes/community/tree/master/sig-scalability) defines the scalability goals and investigates bottlenecks in performance through SLIs and SLOs.
 
 SLIs are how we measure a system like metrics or measures that can be used to determine how “well” the system is running, e.g. request latency or count. SLOs define the values that are expected for when the system is running “well”, e.g. request latency remains less than 3 seconds. The Kubernetes SLOs and SLIs focus on the performance of the Kubernetes components and are completely independent from the Amazon EKS Service SLAs which focus on availability of the EKS cluster endpoint.
 
@@ -18,8 +18,8 @@ Kubernetes has a number of features that allow users to extend the system with c
 ## Kubernetes SLOs
 The Kubernetes SLOs don’t account for all of the plugins and external limitations that could impact a cluster, such as worker node scaling or admission webhooks. These SLOs focus on [Kubernetes components](https://kubernetes.io/docs/concepts/overview/components/) and ensure that Kubernetes actions and resources are operating within expectations. The SLOs help Kubernetes developers ensure that changes to Kubernetes code do not degrade performance for the entire system.
 
-The [Kuberntes Scalability SIG defines the following official SLO/SLIs](https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md). The Amazon EKS team regularly runs scalability tests on EKS clusters for these SLOs/SLIs to monitor for performance degradation as changes are made and new versions are released.
-
+The [Kubernetes Scalability SIG defines the following official SLO/SLIs](https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md). The Amazon EKS team regularly runs scalability tests on EKS clusters for these SLOs/SLIs to monitor for performance degradation as changes are made and new versions are released.
+Kubernetes
 
 |Objective	|Definition	|SLO	|
 |---	|---	|---	|
