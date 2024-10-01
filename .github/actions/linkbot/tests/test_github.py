@@ -23,9 +23,7 @@ def test_get_repo_stats():
 
 
 @pytest.mark.network
-def test_get_open_issue_messages():
+def test_get_all_issue_messages():
     gh = Client(os.environ.get('LINKBOT_GH_TOKEN'))
-    expected = 'java.lang.IllegalArgumentException'
-    messages = gh.get_open_issue_messages('https://github.com/bellkev/dacom', 'r00k')
-    assert len(messages) == 1
-    assert expected in messages[0]
+    messages = gh.get_all_issue_messages('https://github.com/bellkev/dacom', 'r00k')
+    assert len(messages) == 2
