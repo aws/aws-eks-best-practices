@@ -13,7 +13,7 @@ conf = LinkBotConfig()
 gh = github.Client(conf.gh_token)
 repo_root = pathlib.Path(conf.repo_root)
 all_links = github_links_in_files(repo_root, conf.glob)
-bot_messages = gh.get_open_issue_messages(conf.repo_url, conf.gh_user)
+bot_messages = gh.get_all_issue_messages(conf.repo_url, conf.gh_user)
 existing_links = github_links_in_strs(bot_messages)
 for link in all_links:
     try:
