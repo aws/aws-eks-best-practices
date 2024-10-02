@@ -221,7 +221,7 @@ CSI]), ingress controllers, and any other workloads or add-ons that rely
 on the Kubernetes API directly.
 
 TIP: Critical cluster components are often installed in a
-`+*-system+` namespace
+`*-system` namespace
 
 
 ....
@@ -382,7 +382,7 @@ aws iam get-role --role-name ${ROLE_ARN##*/} \
 == Migrate to EKS Add-ons
 
 Amazon EKS automatically installs add-ons such as the Amazon VPC CNI
-plugin for Kubernetes, `+kube-proxy+`, and CoreDNS for every cluster.
+plugin for Kubernetes, `kube-proxy`, and CoreDNS for every cluster.
 Add-ons may be self-managed, or installed as Amazon EKS Add-ons. Amazon
 EKS Add-ons is an alternate way to manage add-ons using the EKS API.
 
@@ -473,11 +473,11 @@ aws eks describe-insight --region <region-code> --id <insight-id> --cluster-name
 You also have the option to view insights in the
 https://console.aws.amazon.com/eks/home#/clusters[Amazon EKS Console].
 After selecting your cluster from the cluster list, insight findings are
-located under the `+Upgrade Insights+` tab.
+located under the `Upgrade Insights` tab.
 
-If you find a cluster insight with `+"status": ERROR+`, you must address
+If you find a cluster insight with `"status": ERROR`, you must address
 the issue prior to performing the cluster upgrade. Run the
-`+aws eks describe-insight+` command which will share the following
+`aws eks describe-insight` command which will share the following
 remediation advice:
 
 Resources affected:
@@ -524,8 +524,8 @@ Insights launch blog].
 === Kube-no-trouble
 
 https://github.com/doitintl/kube-no-trouble[Kube-no-trouble] is an open
-source command line utility with the command `+kubent+`. When you run
-`+kubent+` without any arguments it will use your current KubeConfig
+source command line utility with the command `kubent`. When you run
+`kubent` without any arguments it will use your current KubeConfig
 context and scan the cluster and print a report with what APIs will be
 deprecated and removed.
 
@@ -552,7 +552,7 @@ PodSecurityPolicy   <undefined>   eks.privileged   policy/v1beta1   <removed> (1
 ....
 
 It can also be used to scan static manifest files and helm packages. It
-is recommended to run `+kubent+` as part of a continuous integration
+is recommended to run `kubent` as part of a continuous integration
 (CI) process to identify issues before manifests are deployed. Scanning
 manifests is also more accurate than scanning live clusters.
 
@@ -564,7 +564,7 @@ cluster.
 === Pluto
 
 Another option is https://pluto.docs.fairwinds.com/[pluto] which is
-similar to `+kubent+` because it supports scanning a live cluster,
+similar to `kubent` because it supports scanning a live cluster,
 manifest files, helm charts and has a GitHub Action you can include in
 your CI process.
 
@@ -580,7 +580,7 @@ eks.privileged   PodSecurityPolicy   policy/v1beta1                 false     tr
 To verify that your cluster don’t use deprecated APIs before the
 upgrade, you should monitor:
 
-* metric `+apiserver_requested_deprecated_apis+` since Kubernetes v1.19:
+* metric `apiserver_requested_deprecated_apis` since Kubernetes v1.19:
 
 ....
 kubectl get --raw /metrics | grep apiserver_requested_deprecated_apis
@@ -590,7 +590,7 @@ apiserver_requested_deprecated_apis{group="policy",removed_release="1.25",resour
 
 * events in the
 https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html[audit
-logs] with `+k8s.io/deprecated+` set to `+true+`:
+logs] with `k8s.io/deprecated` set to `true`:
 
 ....
 CLUSTER="<cluster_name>"
@@ -628,13 +628,13 @@ updating the resource specification and additional research depending on
 what resource is being replaced.
 
 If the resource type is staying the same but API version needs to be
-updated you can use the `+kubectl-convert+` command to automatically
+updated you can use the `kubectl-convert` command to automatically
 convert your manifest files. For example, to convert an older Deployment
-to `+apps/v1+`. For more information, see
+to `apps/v1`. For more information, see
 https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin[Install
 kubectl convert plugin]on the Kubernetes website.
 
-`+kubectl-convert -f <file> --output-version <group>/<version>+`
+`kubectl-convert -f <file> --output-version <group>/<version>`
 
 == Configure PodDisruptionBudgets and topologySpreadConstraints to ensure availability of your workloads while the data plane is upgraded
 
@@ -848,8 +848,8 @@ These resources would need to be recreated.
 
 To upgrade Fargate data plane nodes you need to redeploy the workloads.
 You can identify which workloads are running on fargate nodes by listing
-all pods with the `+-o wide+` option. Any node name that begins with
-`+fargate-+` will need to be redeployed in the cluster.
+all pods with the `-o wide` option. Any node name that begins with
+`fargate-` will need to be redeployed in the cluster.
 
 [[bluegreen, bluegreen.title]]
 == Evaluate Blue/Green Clusters as an alternative to in-place cluster upgrades
@@ -898,7 +898,7 @@ Don’t look only at the next version. Review new versions of Kubernetes
 as they are released, and identify major changes. For example, some
 applications directly used the docker API, and support for Container
 Runtime Interface (CRI) for Docker (also known as Dockershim) was
-removed in Kubernetes `+1.24+`. This kind of change requires more time
+removed in Kubernetes `1.24`. This kind of change requires more time
 to prepare for.
 
 Review all documented changes for the version that you’re upgrading to,
@@ -924,7 +924,7 @@ for Docker Socket (DDS)&#44; a kubectl plugin.].
 
 === Removal of PodSecurityPolicy in 1.25 - Migrate to Pod Security Standards or a policy-as-code solution
 
-`+PodSecurityPolicy+` was
+`PodSecurityPolicy` was
 https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/[deprecated
 in Kubernetes 1.21], and has been removed in Kubernetes 1.25. If you are
 using PodSecurityPolicy in your cluster, then you must migrate to the
@@ -950,10 +950,10 @@ Deprecation blog post] on the Kubernetes website.
 The Container Storage Interface (CSI) was designed to help Kubernetes
 replace its existing, in-tree storage driver mechanisms. The Amazon EBS
 container storage interface (CSI) migration feature is enabled by
-default in Amazon EKS `+1.23+` and later clusters. If you have pods
-running on a version `+1.22+` or earlier cluster, then you must install
+default in Amazon EKS `1.23` and later clusters. If you have pods
+running on a version `1.22` or earlier cluster, then you must install
 the https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html[Amazon
-EBS CSI driver] before updating your cluster to version `+1.23+` to
+EBS CSI driver] before updating your cluster to version `1.23` to
 avoid service interruption.
 
 Review the
