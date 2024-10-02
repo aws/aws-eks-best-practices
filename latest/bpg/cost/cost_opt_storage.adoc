@@ -124,7 +124,7 @@ You can use Kubernetes persistent storage volumes backed by FSx for Lustre using
 
 ==== Link to Amazon S3
 
-It's recommended to link a highly durable long-term data repository residing on Amazon S3 with your FSx for Lustre file system. Once linked, large datasets are lazy-loaded as needed from Amazon S3 to FSx for Lustre file systems. You can also run your analyses and your results back to S3, and then delete your [Lustre] file system.
+It's recommended to link a highly durable long-term data repository residing on Amazon S3 with your FSx for Lustre file system. Once linked, large datasets are lazy-loaded as needed from Amazon S3 to FSx for Lustre file systems. You can also run your analyses and your results back to S3, and then delete your Lustre file system.
 
 ==== Choosing the right deployment and storage options
 
@@ -166,7 +166,7 @@ NetApp's Astra Trident provides dynamic storage orchestration using a CSI driver
 
 Once containers are deployed, container images are cached on the host as multiple layers. By reducing the size of images, the amount of storage required on the host can be reduced.
 
-By using slimmed-down base images such as https://hub.docker.com/_/scratch[scratch] images or https://github.com/GoogleContainerTools/distroless[distroless] container images (that contain only your application and its runtime dependencies) from the beginning, _you can reduce storage cost in addition to other ancillary benefits such as a reducing the attack surface area and shorter image pull times._
+By using slimmed-down base images such as scratch images or https://github.com/GoogleContainerTools/distroless[distroless] container images (that contain only your application and its runtime dependencies) from the beginning, _you can reduce storage cost in addition to other ancillary benefits such as a reducing the attack surface area and shorter image pull times._
 
 You should also consider using open source tools, such as https://www.slim.ai/docs/quickstart[Slim.ai] that provides an easy, secure way to create minimal images.
 

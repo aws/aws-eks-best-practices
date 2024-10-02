@@ -72,7 +72,7 @@ It's important to note that topology aware routing is still in *beta*. Also, thi
 
 _We strongly recommend_ running your workloads in highly available environments across multiple AZs. This improves the reliability of your applications, especially when there is an incident of an issue with an AZ. In the case you're willing to sacrifice reliability for the sake of reducing their network-related costs, you can restrict your nodes to a single AZ.
 
-To run all your Pods in the same AZ, either provision the worker nodes in the same AZ or schedule the Pods on the worker nodes running on the same AZ. To provision nodes within a single AZ, define a node group with subnets belonging to the same AZ with https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler[Cluster Autoscaler (CA)]. For https://karpenter.sh/[Karpenter,] use "`http://topology.kubernetes.io/zone%E2%80%9D[_topology.kubernetes.io/zone`"_] and specify the AZ where you'd like to create the worker nodes. For example, the below Karpenter provisioner snippet provisions the nodes in the us-west-2a AZ.
+To run all your Pods in the same AZ, either provision the worker nodes in the same AZ or schedule the Pods on the worker nodes running on the same AZ. To provision nodes within a single AZ, define a node group with subnets belonging to the same AZ with https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler[Cluster Autoscaler (CA)]. For https://karpenter.sh/[Karpenter,] use `topology.kubernetes.io/zone` and specify the AZ where you'd like to create the worker nodes. For example, the below Karpenter provisioner snippet provisions the nodes in the us-west-2a AZ.
 
 *Karpenter*
 
@@ -403,7 +403,7 @@ The minimum weight that can be distributed destination is 1%. The reason for thi
 
 The diagram below depicts a scenario in which there is a highly available load balancer in the _eu-west-1_ region and locality weighted distribution is applied. The Destination Rule policy for this diagram is configured to send 60% of traffic coming from _eu-west-1a_ to Pods in the same AZ, whereas 40% of the traffic from _eu-west-1a_ should go to Pods in eu-west-1b.
 
-![Istio Traffic Control](../images/istio-traffic-control.png)
+image:istio-traffic-control.png[Istop Traffic Control]
 
 ### Restricting Traffic to Availability Zones and Nodes
 
@@ -417,7 +417,7 @@ To mitigate network costs associated with _external_ incoming traffic and _inter
 
 The diagram below shows what the network flow would look like in the case of a nested request and how the aforementioned policies would control the traffic.
 
-![External and Internal traffic policy](../images/external-and-internal-traffic-policy.png)
+image:external-and-internal-traffic-policy.png[External and Internal traffic policy]
 
 1. The end user makes a request to **APP A,** which in turn makes a nested request to **APP C**. This request is first sent to a highly available load balancer, which has instances in AZ 1 and AZ 2 as the above diagram shows.
 2. The external incoming request is then routed to the correct destination by the Istio Virtual Service.
@@ -429,8 +429,9 @@ The diagram below shows what the network flow would look like in the case of a n
 
 The screenshots below are captured from a live example of this approach. The first set of screenshots demonstrate a successful external request to a `graphql` and a successful nested request from the `graphql` to a co-located `orders` replica on the node `ip-10-0-0-151.af-south-1.compute.internal`.
 
-![Before](../images/before.png)
-![Before results](../images/before-results.png)
+image:before.png[Before]
+
+image:before-results.png[Before results]
 
 With Istio, you can verify and export the statistics of any [upstream clusters](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/intro/terminology) and endpoints that your proxies are aware of. This can help provide a picture of the network flow as well as the share of distribution among the services of a workload. Continuing with the same example, the `orders` endpoints that the `graphql` proxy is aware of can be obtained using the following command:
 

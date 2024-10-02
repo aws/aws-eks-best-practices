@@ -58,8 +58,9 @@ To oversimplify, the Kubelet is getting the status of the pods from the containe
 Kubernetes is constantly evolving, this subsystem is currently undergoing changes. https://github.com/kubernetes/enhancements/issues/3386
 ====
 
-image:../images/flow.png[Flow]
-image:../images/PLEG-duration.png[PLEG duration]
+image:flow.png[Flow]
+
+image:PLEG-duration.png[PLEG duration]
 
 In the graph above, we see a flat line indicating we have just hit the timeout value for the pod lifecycle event generation duration metric. If you would like to see this in your own cluster you could use the following PromQL syntax.
 

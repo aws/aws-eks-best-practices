@@ -63,7 +63,8 @@ connection.
 
 [[cp-recs,cp-recs.title]]
 == Recommendations
-Learn more.
+
+Review the following recommendations. 
 
 
 == Monitor Control Plane Metrics

@@ -9,7 +9,7 @@ OS Hardening is a combination of OS configuration, patching, and removing unnece
 
 AWS provides a new EKS Optimized Windows AMI every month containing the latest Windows Server Security Patches. However, it is still the user's responsibility to harden their AMI by applying the necessary OS configurations regardless of whether they use self-managed or managed node groups.
 
-Microsoft offers a range of tools like https://www.microsoft.com/en-us/download/details.aspx?id=55319[Microsoft Security Compliance Toolkit] and https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-security-baselines[Security Baselines] that helps you to achieve hardening based on your security policies needs. https://learn.cisecurity.org/benchmarks?_gl=1*eoog69*_ga*MTgzOTM2NDE0My4xNzA0NDgwNTcy*_ga_3FW1B1JC98*MTcwNDQ4MDU3MS4xLjAuMTcwNDQ4MDU3MS4wLjAuMA..*_ga_N70Z2MKMD7*MTcwNDQ4MDU3MS4xLjAuMTcwNDQ4MDU3MS42MC4wLjA.[CIS Benchmarks] are also available and should be implemented on top of an Amazon EKS Optimized Windows AMI for production environments.
+Microsoft offers a range of tools like https://www.microsoft.com/en-us/download/details.aspx?id=55319[Microsoft Security Compliance Toolkit] and https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-security-baselines[Security Baselines] that helps you to achieve hardening based on your security policies needs. https://learn.cisecurity.org/benchmarks[CIS Benchmarks] are also available and should be implemented on top of an Amazon EKS Optimized Windows AMI for production environments.
 
 == Reducing attack surface with Windows Server Core
 
