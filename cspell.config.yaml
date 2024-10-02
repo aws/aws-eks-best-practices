@@ -1,0 +1,24 @@
+patterns:
+  - name: markdown_code_block
+    pattern: "/^```[\\s\\S]*?^\\s*```/gm"
+  - name: markdown_code_snippet
+    pattern: "/`(.*)`/g"
+  - name: code_block
+    pattern: "/^:::code[\\s\\S]*?^\\s*:::/gm"
+  - name: mardown_comment
+    pattern: "/<!--.*/g"
+languageSettings:
+  - languageId: markdown
+    ignoreRegExpList:
+      - markdown_code_block
+      - markdown_code_snippet
+      - code_block
+      - mardown_comment
+dictionaries:
+  - custom-words
+dictionaryDefinitions:
+  - name: custom-words
+    path: "./.spelling"
+    addWords: true
+ignorePaths:
+  - content/**/*.ko.md

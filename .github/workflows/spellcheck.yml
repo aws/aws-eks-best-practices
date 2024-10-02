@@ -1,0 +1,18 @@
+name: Spell Check
+
+on: [pull_request]
+
+jobs:
+
+  spell-check:
+  name: "Spell checker"
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - run: |
+        npm install --save-dev cspell@latest
+        npx cspell lint "content/**/*.md"

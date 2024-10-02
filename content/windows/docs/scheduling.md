@@ -19,7 +19,7 @@ In Enterprise environments, it's not uncommon to have a large number of pre-exis
 
 For example: `--register-with-taints='os=windows:NoSchedule'`
 
-If you are using EKS, eksctl offers ways to apply taints through clusterConfig:
+If you are using EKS, `eksctl` offers ways to apply taints through clusterConfig:
 
 ```yaml
 NodeGroups:

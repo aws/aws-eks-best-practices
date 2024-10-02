@@ -8,7 +8,7 @@ The Log collection mechanism retrieves STDOUT/STDERR logs from Kubernetes pods. 
 
 More detailed information about log streaming from Windows workloads to CloudWatch is explained [here](https://aws.amazon.com/blogs/containers/streaming-logs-from-amazon-eks-windows-pods-to-amazon-cloudwatch-logs-using-fluentd/) 
 
-## Logging Recomendations
+## Logging Recommendations
 
 The general logging best practices are no different when operating Windows workloads in Kubernetes. 
 
