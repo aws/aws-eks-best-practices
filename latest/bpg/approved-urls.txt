@@ -1,7 +1,0 @@
-:url_github_aws-samples: https://github.com/aws-samples/
-:url_github_aws: https://github.com/aws/
-:url_aws_github_io: https://aws.github.io/
-:url_awslabs_github_io: https://awslabs.github.io/
-:url_aws-observability_github_io: https://aws-observability.github.io/
-:url_aws-ia_github_io: https://aws-ia.github.io/
-:url_aws-quickstart_github_io: https://aws-quickstart.github.io/

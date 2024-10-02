@@ -14,8 +14,6 @@
 :info_title: Introduction
 :info_abstract: Learn best practices for operating EKS clusters.
 
-include::approved-urls.txt[]
-
 [abstract]
 --
 Learn best practices for operating EKS clusters.
@@ -41,7 +39,7 @@ We currently have published guides for the following topics:
 * xref:cost-opt[Best Practices for Cost Optimization]
 
 We also open sourced a Python based CLI (Command Line Interface) called
-{url_github_aws-samples}hardeneks[hardeneks] to check some of the
+https://github.com/aws-samples/hardeneks[hardeneks] to check some of the
 recommendations from this guide.
 
 In the future we will be publishing best practices guidance for
@@ -50,18 +48,18 @@ performance, cost optimization, and operational excellence.
 == Related guides
 
 In addition to the
-link:eks/latest/userguide/what-is-eks.html["EKS
-User Guide",type="documentation"], AWS has published several other guides that may help you
+https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html[EKS
+User Guide], AWS has published several other guides that may help you
 with your implementation of EKS.
 
-* {url_aws_github_io}aws-emr-containers-best-practices/[EMR
+* https://aws.github.io/aws-emr-containers-best-practices/[EMR
 Containers Best Practices Guides]
-* {url_awslabs_github_io}data-on-eks/[Data on EKS]
-* {url_aws-observability_github_io}observability-best-practices/[AWS
+* https://awslabs.github.io/data-on-eks/[Data on EKS]
+* https://aws-observability.github.io/observability-best-practices/[AWS
 Observability Best Practices]
-* {url_aws-ia_github_io}terraform-aws-eks-blueprints/[Amazon EKS
+* https://aws-ia.github.io/terraform-aws-eks-blueprints/[Amazon EKS
 Blueprints for Terraform]
-* {url_aws-quickstart_github_io}cdk-eks-blueprints/[Amazon EKS
+* https://aws-quickstart.github.io/cdk-eks-blueprints/[Amazon EKS
 Blueprints Quick Start]
 
 == Contributing
@@ -71,5 +69,5 @@ a practice that has proven to be effective, please share it with us by
 opening an issue or a pull request. Similarly, if you discover an error
 or flaw in the guidance we've already published, please submit a PR to
 correct it. The guidelines for submitting PRs can be found in our
-{url_github_aws}aws-eks-best-practices/blob/master/CONTRIBUTING.md[Contributing
+https://github.com/aws/aws-eks-best-practices/blob/master/CONTRIBUTING.md[Contributing
 Guidelines].
