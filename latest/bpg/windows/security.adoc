@@ -22,7 +22,7 @@ Windows pods in Kubernetes have some limitations and differentiators from standa
 
 Windows uses a Job object per container with a system namespace filter to contain all processes in a container and provide logical isolation from the host. There is no way to run a Windows container without the namespace filtering in place. This means that system privileges cannot be asserted in the context of the host, and thus privileged containers are not available on Windows.
 
-The following `windowsOptions` are the only documented https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#windowssecuritycontextoptions-v1-core[Windows Security Context options] while the rest are general https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core (https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core)[Security Context options]
+The following `windowsOptions` are the only documented https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#windowssecuritycontextoptions-v1-core[Windows Security Context options] while the rest are general https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core[Security Context options]
 
 For a list of security context attributes that are supported in Windows vs linux, please refer to the official documentation https://kubernetes.io/docs/setup/production-environment/windows/_print/#v1-container[here].
 
@@ -30,7 +30,7 @@ The Pod specific settings are applied to all containers. If unspecified, the opt
 
 For example, runAsUserName setting for Pods and containers which is a Windows option is a rough equivalent of the Linux-specific runAsUser setting and in the following manifest, the pod specific security context is applied to all containers
 
-[,yaml]
+[source,yaml]
 ----
 apiVersion: v1
 kind: Pod
@@ -42,14 +42,14 @@ spec:
       runAsUserName: "ContainerUser"
   containers:
   - name: run-as-username-demo
-    ...
+
   nodeSelector:
     kubernetes.io/os: windows
 ----
 
 Whereas in the following, the container level security context overrides the pod level security context.
 
-[,yaml]
+[source,yaml]
 ----
 apiVersion: v1
 kind: Pod
@@ -75,7 +75,7 @@ It is generally a good idea to run your containers with ContainerUser for Window
 
 A good example of when to use ContainerAdministrator is to set PATH. You can use the USER directive to do that, like so:
 
-[,bash]
+[source,bash]
 ----
 USER ContainerAdministrator
 RUN setx /M PATH "%PATH%;C:/your/path"

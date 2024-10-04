@@ -362,7 +362,7 @@ mechanism to control the traffic from the pods to AWS services.
 node traffic, use SGP in `POD_SECURITY_GROUP_ENFORCING_MODE=strict`
 mode.
 
-=== Best practices using `Security groups for pods` and `Network Policy`
+=== Best practices using Security groups for pods and Network Policy
 
 * *Layered security*
 ** Use a combination of SGP and kubernetes network policy for a layered
@@ -626,7 +626,7 @@ spec:
     protocol: TCP
   selector:
     app: demo-app
----
+//---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -652,6 +652,7 @@ spec:
               protocol: TCP
             - containerPort: 80
               protocol: TCP
+
 ----
 
 Following are additional examples for SSL/TLS termination.
@@ -809,8 +810,9 @@ document (or SVID). The SVID is assigned to the requesting service for
 identification purposes and to encrypt the traffic in transit between
 the communicating services.
 
-.Default flow for Istio Certificate Signing Requests
-image::default-istio-csr-flow.png[Default flow for Istio
+Default flow for Istio Certificate Signing Requests:
+
+image:default-istio-csr-flow.png[Default flow for Istio
 Certificate Signing Requests]
 
 ==== How Certificate Signing Works in Istio with ACM Private CA

@@ -272,7 +272,7 @@ kube-proxy, coredns, and aws-node from ECR, you will need to add the
 account ID of the registry,
 e.g. `602401143452.dkr.ecr.us-west-2.amazonaws.com/*` to the list of
 resources in the endpoint policy or alter the policy to allow pulls from
-“*” and restrict pushes to your account ID. The table below reveals the
+`*` and restrict pushes to your account ID. The table below reveals the
 mapping between the AWS accounts where EKS images are vended from and
 cluster region.
 
