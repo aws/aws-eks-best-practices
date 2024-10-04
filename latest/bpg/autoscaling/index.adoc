@@ -15,6 +15,11 @@
 :info_titleabbrev: Cluster Autoscaling
 :imagesdir: images/
 
+This guide provides advice about Cluster Autoscaling, including guidance for Kubernetes Cluster Autoscaler and Karpenter. 
+
+[.topiclist]
+[[Topic List]]
+
 include::karpenter.adoc[leveloffset=+1]
 
 include::cluster-autoscaler.adoc[leveloffset=+1]

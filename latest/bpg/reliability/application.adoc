@@ -126,7 +126,9 @@ cases, a single replica on a dedicated node isn’t ideal for fault
 tolerance nor is it a good use of resources. With topology spread
 constraints, you have more control over the spread or distribution that
 the scheduler should try to apply across the topology domains. Here are
-some important properties to use in this approach: 1. The `maxSkew` is
+some important properties to use in this approach: 
+
+. The `maxSkew` is
 used to control or determine the maximum point to which things can be
 uneven across the topology domains. For example, if an application has
 10 replicas and is deployed across 3 AZs, you can’t get an even spread,
@@ -135,16 +137,16 @@ the `maxSkew` can be anything between 1 and 10. A value of 1 means you
 can potentially end up with a spread like `4,3,3`, `3,4,3` or
 `3,3,4` across the 3 AZs. In contrast, a value of 10 means you can
 potentially end up with a spread like `10,0,0`, `0,10,0` or
-`0,0,10` across 3 AZs. 2. The `topologyKey` is a key for one of the
+`0,0,10` across 3 AZs. 
+. The `topologyKey` is a key for one of the
 node labels and defines the type of topology domain that should be used
 for the pod distribution. For example, a zonal spread would have the
 following key-value pair:
-
++
 ....
 topologyKey: "topology.kubernetes.io/zone"
 ....
-
-[arabic, start=3]
++
 . The `whenUnsatisfiable` property is used to determine how you want
 the scheduler to respond if the desired constraints can’t be satisfied.
 . The `labelSelector` is used to find matching pods so that the
@@ -157,7 +159,8 @@ https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constrai
 documentation].
 
 .Pod topology spread constraints across 3 AZs
-image::pod-topology-spread-constraints.jpg[Pod topology spread
+
+image:pod-topology-spread-constraints.jpg[Pod topology spread
 constraints across 3 AZs]
 
 ....

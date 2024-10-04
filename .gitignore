@@ -76,6 +76,8 @@ target/
 # virtualenv
 venv/
 ENV/
+vale/styles/AsciiDoc/
+vale/styles/RedHat/
 
 # MkDocs documentation
 site/

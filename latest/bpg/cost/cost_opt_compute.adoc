@@ -223,13 +223,13 @@ spec:
 
 === Savings Plans, Reserved Instances, and AWS EDP
 
-You can reduce your compute spend by using a [compute savings plan](https://aws.amazon.com/savingsplans/compute-pricing/). Savings plans offer reduced prices for a 1 or 3 year commitment of compute usage. The usage can apply to EC2 instances in an EKS cluster but also applies to any compute usage such as Lambda and Fargate. With savings plans you can reduce costs and still pick any EC2 instance type during your commitment period.
+You can reduce your compute spend by using a https://aws.amazon.com/savingsplans/compute-pricing/[compute savings plan]. Savings plans offer reduced prices for a 1 or 3 year commitment of compute usage. The usage can apply to EC2 instances in an EKS cluster but also applies to any compute usage such as Lambda and Fargate. With savings plans you can reduce costs and still pick any EC2 instance type during your commitment period.
 
 Compute savings plan can reduce your EC2 cost by up to 66% without requiring commitments on what instance types, families, or regions you want to use. Savings are automatically applied to instances as you use them.
 
 EC2 Instance Savings Plans provides up to 72% savings on compute with a commitment of usage in a specific region and EC2 family, e.g. instances from the C family. You can shift usage to any AZ within the region, use any generation of the instance family, e.g. c5 or c6, and use any size of instance within the family. The discount will automatically be applied for any instance in your account that matches the savings plan criteria.
 
-[Reserved Instances](https://aws.amazon.com/ec2/pricing/reserved-instances/) are similar to EC2 Instance Savings Plan but they also guarantee capacity in an Availability Zone or Region and reduce cost—up to 72% — over on-demand instances. Once you calculate how much reserved capacity you will need you can select how long you would like to reserve them for (1 year or 3 years). The discounts will automatically be applied as you run those EC2 instances in your account.
+https://aws.amazon.com/ec2/pricing/reserved-instances/[Reserved Instances] are similar to EC2 Instance Savings Plan but they also guarantee capacity in an Availability Zone or Region and reduce cost—up to 72% — over on-demand instances. Once you calculate how much reserved capacity you will need you can select how long you would like to reserve them for (1 year or 3 years). The discounts will automatically be applied as you run those EC2 instances in your account.
 
 Customers also have the option to enroll in an Enterprise Agreement with AWS. Enterprise Agreements give customers the option to tailor agreements that best suit their needs. Customers can enjoy discounts on the pricing based on AWS EDP (Enterprise Discount Program). For additional information on Enterprise Agreements please contact your AWS sales representative.
 
@@ -241,7 +241,7 @@ After optimizing your workload requirements you should be able to calculate a mi
 
 As mentioned in this section, the best way to reduce your usage is to consume fewer resources and utilize the resources you provision to the fullest extent possible. With the Cluster Autoscaler you can remove underutilized nodes with the `scale-down-utilization-threshold` setting. With Karpenter it is recommended to enable consolidation.
 
-To manually identify EC2 instance types that can be used with your workloads you should use [ec2-instance-selector](https://github.com/aws/amazon-ec2-instance-selector) which can show instances that are available in each region as well as instances compatible with EKS. Example usage for instances with x86 process architecture, 4 Gb of memory, 2 vCPUs and available in the us-east-1 region.
+To manually identify EC2 instance types that can be used with your workloads you should use https://github.com/aws/amazon-ec2-instance-selector[ec2-instance-selector] which can show instances that are available in each region as well as instances compatible with EKS. Example usage for instances with x86 process architecture, 4 Gb of memory, 2 vCPUs and available in the us-east-1 region.
 
 ----
 ec2-instance-selector --memory 4 --vcpus 2 --cpu-architecture x86_64 \

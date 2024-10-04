@@ -1,0 +1,31 @@
+extends: existence
+message: "External domain detected: '%s -- Review non-aws domains carefully"
+level: error
+scope: raw
+ignorecase: true
+tokens:
+  - '(?:^|\s)(https://[^\s]+)(?:$|\s)'
+exceptions:
+  - https://aws.github.io/
+  - https://kubernetes-sigs.github.io/
+  - https://aws-observability.github.io/
+  - https://github.com/aws/
+  - https://docs.aws.amazon.com/
+  - https://github.com/aws-samples/
+  - https://github.com/kubernetes/
+  - https://aws.amazon.com/
+  - https://repost.aws/
+  - https://github.com/bottlerocket-os/
+  - https://kubernetes.io/
+  - https://karpenter.sh/
+  - https://karpenter.sh
+  - https://anywhere.eks.amazonaws.com/
+  - https://aws-ia.github.io
+  - https://eksctl.io/
+  - https://catalog.workshops.aws/
+  - https://github.com/awslabs/
+  - https://console.aws.amazon.com/
+  - https://github.com/aws-controllers-k8s/
+  - https://raw.githubusercontent.com/aws-observability/
+  - https://github.com/kubernetes-sigs/
+  - https://d1.awsstatic.com/

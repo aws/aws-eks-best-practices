@@ -17,6 +17,9 @@
 
 This guide provides advice about running windows containers and nodes. 
 
+[.topiclist]
+[[Topic List]]
+
 include::ami.adoc[leveloffset=+1]
 
 include::gmsa.adoc[leveloffset=+1]
