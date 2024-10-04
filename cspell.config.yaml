@@ -21,4 +21,4 @@ dictionaryDefinitions:
     path: "./.spelling"
     addWords: true
 ignorePaths:
-  - content/**/*.ko.md
+  - content/**/*_WIP.md

@@ -26,7 +26,7 @@ Amazon은 2개의 캐시된 윈도우 컨테이너 이미지를 포함하는 EKS
 
 캐시된 이미지는 main OS 업데이트에 따라 업데이트 됩니다. Microsoft가 윈도우 컨테이너 베이스 이미지에 직접적인 영향을 미치는 새로운 윈도우 업데이트를 출시하면 해당 업데이트는 main OS에서 일반적인 윈도우 업데이트(ordinary Windows Update)로 시작 됩니다. 환경을 최신 상태로 유지하면 노드 및 컨테이너 수준에서 보다 안전한 환경이 제공됩니다.
 
-윈도우 컨테이너 이미지의 크기는 푸시/풀 수행에 영향을 미치므로 컨테이너 시작 시간(conatiner startup time)이 느려질 수 있습니다. [윈도우 컨테이너 이미지 캐싱](https://aws.amazon.com/blogs/containers/speeding-up-windows-container-launch-times-with-ec2-image-builder-and-image-cache-strategy/)에 방식으로 컨테이너 이미지를 캐싱하면 컨테이너 시작 대신 AMI 빌드 생성시 비용이 많이 드는 I/O 작업(파일 추출)이 발생할 수 있습니다. 따라서 필요한 모든 이미지 레이어가 AMI에서 추출되어 바로 사용할 수 있게 되므로 윈도우 컨테이너가 시작되고 트래픽 수신을 시작할 수 있는 시간이 단축됩니다. 푸시 작업 중에는 이미지를 구성하는 레이어만 저장소에 업로드됩니다.
+윈도우 컨테이너 이미지의 크기는 푸시/풀 수행에 영향을 미치므로 컨테이너 시작 시간(container startup time)이 느려질 수 있습니다. [윈도우 컨테이너 이미지 캐싱](https://aws.amazon.com/blogs/containers/speeding-up-windows-container-launch-times-with-ec2-image-builder-and-image-cache-strategy/)에 방식으로 컨테이너 이미지를 캐싱하면 컨테이너 시작 대신 AMI 빌드 생성시 비용이 많이 드는 I/O 작업(파일 추출)이 발생할 수 있습니다. 따라서 필요한 모든 이미지 레이어가 AMI에서 추출되어 바로 사용할 수 있게 되므로 윈도우 컨테이너가 시작되고 트래픽 수신을 시작할 수 있는 시간이 단축됩니다. 푸시 작업 중에는 이미지를 구성하는 레이어만 저장소에 업로드됩니다.
 
 다음 예제에서는 Amazon ECR에서 **fluentd-windows-sac2004** 이미지의 크기가 **390.18MB**에 불과하다는 것을 보여줍니다. 푸시 작업 중에 발생한 업로드 양입니다.
 

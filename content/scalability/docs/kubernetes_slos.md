@@ -61,8 +61,8 @@ Kubernetes is also improving the Observability around the SLIs by adding [Promet
 
 |Metric	|Definition	|
 |---	|---	|
-|apiserver_request_sli_duration_seconds	| Response latency distribution (not counting webhook duration and priority & fairness queue wait times) in seconds for each verb, group, version, resource, subresource, scope and component.	|
-|apiserver_request_duration_seconds	| Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component.	|  
+|`apiserver_request_sli_duration_seconds`	| Response latency distribution (not counting webhook duration and priority & fairness queue wait times) in seconds for each verb, group, version, resource, subresource, scope and component.	|
+|`apiserver_request_duration_seconds`	| Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component.	|
 
 *Note: The `apiserver_request_sli_duration_seconds` metric is available starting in Kubernetes 1.27.*
 
@@ -111,10 +111,10 @@ The SLI metrics provide insight into how Kubernetes components are performing by
 
 Similar to the queries above you can use these metrics to gain insight into how long node scaling, image pulls and init containers are delaying the pod launch compared to Kubelet actions. 
 
-**Pod startup latency SLI -** this is the time from the pod being created to when the application containers reported as running. This includes the time it takes for the worker node capacity to be available and the pod to be scheduled, but this does not include the time it takes to pull images or for the init containers to run.  
+**Pod startup latency SLI -** this is the time from the pod being created to when the application containers reported as running. This includes the time it takes for the worker node capacity to be available and the pod to be scheduled, but this does not include the time it takes to pull images or for the init containers to run.
 `histogram_quantile(0.99, sum(rate(kubelet_pod_start_sli_duration_seconds_bucket[5m])) by (le))`
 
-**Pod startup latency Total -** this is the time it takes the kubelet to start the pod for the first time. This is measured from when the kubelet recieves the pod via WATCH, which does not include the time for worker node scaling or scheduling. This includes the time to pull images and init containers to run.  
+**Pod startup latency Total -** this is the time it takes the kubelet to start the pod for the first time. This is measured from when the kubelet receives the pod via WATCH, which does not include the time for worker node scaling or scheduling. This includes the time to pull images and init containers to run.
 `histogram_quantile(0.99, sum(rate(kubelet_pod_start_duration_seconds_bucket[5m])) by (le))`
 
 

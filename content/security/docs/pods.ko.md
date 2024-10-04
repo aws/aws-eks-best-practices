@@ -97,7 +97,7 @@ PSP 지원 중단 및 즉시 사용 가능한 파드 보안을 제어해야 하�
 
 - **Restricted:** 현재 파드 강화 모범 사례에 따라 엄격하게 제한된 정책입니다. 이 정책은 기준선에서 상속되며 루트 또는 루트 그룹으로 실행할 수 없는 것과 같은 추가 제한 사항을 추가합니다. 제한된 정책은 애플리케이션의 기능에 영향을 미칠 수 있습니다. 이들은 주로 보안에 중요한 응용 프로그램을 실행하는 것을 목표로 합니다.
 
-이런 정책은 [파드 실행을 위한 프로파일](https://kubernetes.io/docs/concepts/security/pod-security-standards/#profile-details)을 정의하며, 세 가지 수준의 특권(Priviledged) 액세스에서부터 제한된(Restricted) 액세스로 정렬됩니다.
+이런 정책은 [파드 실행을 위한 프로파일](https://kubernetes.io/docs/concepts/security/pod-security-standards/#profile-details)을 정의하며, 세 가지 수준의 특권(Privileged) 액세스에서부터 제한된(Restricted) 액세스로 정렬됩니다.
 
 PSS에서 정의한 컨트롤을 구현하기 위해 PSA는 세 가지 모드로 작동합니다.
 

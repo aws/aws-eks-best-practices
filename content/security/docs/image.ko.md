@@ -12,7 +12,7 @@ search:
 
 ### 최소 이미지 생성
 
-먼저 컨테이너 이미지에서 필요없는 바이너리를 모두 제거합니다. Dockerhub로부터 검증되지 않은 이미지를 사용하는 경우 각 컨테이너 레이어의 내용을 볼 수 있는 [Dive](https://github.com/wagoodman/dive)와 같은 애플리케이션을 사용하여 이미지를 검사합니다. 권한을 상승할 수 있는 SETUID 및 SETGID 비트가 있는 모든 바이너리를 제거하고 nc나 curl과 같이 악의적인 용도로 사용될 수 있는 셸과 유틸리티를 모두 제거하는 것을 고려합니다. 다음 명령을 사용하여 SETUID 및 SETGID 비트가 있는 파일을 찾을 수 있습니다.
+먼저 컨테이너 이미지에서 필요없는 바이너리를 모두 제거합니다. Docker hub로부터 검증되지 않은 이미지를 사용하는 경우 각 컨테이너 레이어의 내용을 볼 수 있는 [Dive](https://github.com/wagoodman/dive)와 같은 애플리케이션을 사용하여 이미지를 검사합니다. 권한을 상승할 수 있는 SETUID 및 SETGID 비트가 있는 모든 바이너리를 제거하고 nc나 curl과 같이 악의적인 용도로 사용될 수 있는 셸과 유틸리티를 모두 제거하는 것을 고려합니다. 다음 명령을 사용하여 SETUID 및 SETGID 비트가 있는 파일을 찾을 수 있습니다.
 
 ```bash
 find / -perm /6000 -type f -exec ls -ld {} \;
@@ -149,7 +149,7 @@ EKS는 ECR에서 kube-proxy, coredns 및 aws-node용 이미지를 가져오므�
 
 ### 선별된 이미지 세트 만들기
 
-개발자가 직접 이미지를 만들도록 허용하는 대신 조직의 다양한 애플리케이션 스택에 대해 검증된 이미지 세트를 만드는 것을 고려해 보세요. 이렇게 하면 개발자는 Dockerfile 작성 방법을 배우지 않고 코드 작성에 집중할 수 있습니다. 변경 사항이 Master에 병합되면 CI/CD 파이프라인은 자동으로 에셋을 컴파일하고, 아티팩트 리포지토리에 저장하고, 아티팩트를 적절한 이미지에 복사한 다음 ECR과 같은 Docker 레지스트리로 푸시할 수 있습니다. 최소한 개발자가 자체 Dockerfile을 만들 수 있는 기본 이미지 세트를 만들어야 합니다. 이상적으로는 Dockerhub에서 이미지를 가져오지 않는 것이 좋습니다. a) 이미지에 무엇이 들어 있는지 항상 알 수는 없고 b) 상위 1000개 이미지 중 약 [1/5](https://www.kennasecurity.com/blog/one-fifth-of-the-most-used-docker-containers-have-at-least-one-critical-vulnerability/)에는 취약점이 있기 때문입니다. 이런 이미지 및 취약성 목록은 [이 사이트](https://vulnerablecontainers.org/)에서 확인할 수 있습니다.
+개발자가 직접 이미지를 만들도록 허용하는 대신 조직의 다양한 애플리케이션 스택에 대해 검증된 이미지 세트를 만드는 것을 고려해 보세요. 이렇게 하면 개발자는 Dockerfile 작성 방법을 배우지 않고 코드 작성에 집중할 수 있습니다. 변경 사항이 Master에 병합되면 CI/CD 파이프라인은 자동으로 에셋을 컴파일하고, 아티팩트 리포지토리에 저장하고, 아티팩트를 적절한 이미지에 복사한 다음 ECR과 같은 Docker 레지스트리로 푸시할 수 있습니다. 최소한 개발자가 자체 Dockerfile을 만들 수 있는 기본 이미지 세트를 만들어야 합니다. 이상적으로는 Docker hub에서 이미지를 가져오지 않는 것이 좋습니다. a) 이미지에 무엇이 들어 있는지 항상 알 수는 없고 b) 상위 1000개 이미지 중 약 [1/5](https://www.kennasecurity.com/blog/one-fifth-of-the-most-used-docker-containers-have-at-least-one-critical-vulnerability/)에는 취약점이 있기 때문입니다. 이런 이미지 및 취약성 목록은 [이 사이트](https://vulnerablecontainers.org/)에서 확인할 수 있습니다.
 
 ### 루트가 아닌 사용자로 실행하려면 Dockerfile에 USER 지시문을 추가
 
