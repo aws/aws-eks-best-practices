@@ -147,7 +147,7 @@ HPA는 다음 API에서 메트릭을 검색할 수 있습니다.
 
 [외부 메트릭](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md)은 이름에서 알 수 있듯이 Horizontal Pod Autoscaler에 쿠버네티스 클러스터 외부의 메트릭을 사용하여 배포를 확장할 수 있는 기능을 제공합니다. 예를 들어 배치 처리 워크로드에서는 SQS 대기열에서 진행 중인 작업 수에 따라 복제본 수를 조정하는 것이 일반적입니다.
 
-예를 들어 [SQS 대기열 깊이에 따라 배치-프로세서 애플리케이션 크기 조정](https://github.com/awslabs/k8s-cloudwatch-adapter/blob/master/samples/sqs/README.md)과 같이 CloudWatch 지표를 사용하여 디플로이먼트를 자동 확장하려면 [`k8s-cloudwatch-adapter`](https://github.com/awslabs/k8s-cloudwatch-adapter)를 사용할 수 있습니다. `k8s-클라우드워치 어댑터`는 커뮤니티 프로젝트이며 AWS에서 유지 관리하지 않습니다. 
+Kubernetes 워크로드를 자동 확장하려면 여러 사용자 정의 이벤트를 기반으로 컨테이너 확장을 구동할 수 있는 오픈 소스 프로젝트인 KEDA(Kubernetes Event-driven Autoscaling)를 사용할 수 있습니다. 이 [AWS 블로그](https://aws.amazon.com/blogs/mt/autoscaling-kubernetes-workloads-with-keda-using-amazon-managed-service-for-prometheus-metrics/)에서는 Kubernetes 워크로드 자동 확장을 위해 Amazon Managed Service for Prometheus를 사용하는 방법을 설명합니다.
 
 ## Vertical Pod Autoscaler (VPA)
 

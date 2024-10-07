@@ -46,20 +46,6 @@ nav:
       - Applications: "reliability/docs/application.md"
       - Control Plane: "reliability/docs/controlplane.md"
       - Data Plane: "reliability/docs/dataplane.md"
-  - Windows Containers:
-      - AMI Management: "windows/docs/ami.md"
-      - gMSA for Windows Containers: "windows/docs/gmsa.md"
-      - Windows Server Hardening: "windows/docs/hardening.md"
-      - Scanning Windows Images: "windows/docs/images.md"
-      - Windows Versions and Licensing: "windows/docs/licensing.md"
-      - Logging: "windows/docs/logging.md"
-      - Monitoring Windows Containers: "windows/docs/monitoring.md"
-      - Windows Networking: "windows/docs/networking.md"
-      - Memory and Systems Management: "windows/docs/oom.md"
-      - Infrastructure Management: "windows/docs/patching.md"
-      - Scheduling: "windows/docs/scheduling.md"
-      - Pod Security for Windows Containers: "windows/docs/security.md"
-      - Storage Options: "windows/docs/storage.md"
   - Networking:
       - Home: "networking/index/index.md"
       - VPC and Subnet Considerations: "networking/subnets/index.md"
@@ -86,11 +72,27 @@ nav:
       - Known limits and service quotas: "scalability/docs/quotas.md"
   - Cluster Upgrades: "upgrades/index.md"
   - Cost Optimization:
+      - Home: "cost_optimization/cost_optimization_index.md"
       - Cloud Financial Management Framework: "cost_optimization/cfm_framework.md"
+      - Awareness: "cost_optimization/awareness.md"
       - Compute: "cost_optimization/cost_opt_compute.md"
       - Network: "cost_optimization/cost_opt_networking.md"
       - Storage: "cost_optimization/cost_opt_storage.md"
       - Observability: "cost_optimization/cost_opt_observability.md"
+  - Windows Containers:
+      - AMI Management: "windows/docs/ami.md"
+      - gMSA for Windows Containers: "windows/docs/gmsa.md"
+      - Windows Server Hardening: "windows/docs/hardening.md"
+      - Scanning Windows Images: "windows/docs/images.md"
+      - Windows Versions and Licensing: "windows/docs/licensing.md"
+      - Logging: "windows/docs/logging.md"
+      - Monitoring Windows Containers: "windows/docs/monitoring.md"
+      - Windows Networking: "windows/docs/networking.md"
+      - Memory and Systems Management: "windows/docs/oom.md"
+      - Infrastructure Management: "windows/docs/patching.md"
+      - Scheduling: "windows/docs/scheduling.md"
+      - Pod Security for Windows Containers: "windows/docs/security.md"
+      - Storage Options: "windows/docs/storage.md"
 markdown_extensions:
   - toc:
       permalink: true
@@ -165,6 +167,7 @@ plugins:
             Regulatory Compliance: 컴플라이언스
             Reliability: 신뢰성
             Running IPv6 Clusters: IPv6 클러스터 운영
+            Running kube-proxy in IPVS Mode: IPVS 모드에서 kube-proxy 실행
             Running Mixed Workloads: 혼합 워크로드 실행
             Runtime Security: 런타임 보안
             Scalability: 확장성

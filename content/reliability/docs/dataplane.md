@@ -24,8 +24,6 @@ Cluster Autoscaler triggers a scale-up of the data-plane when Pods in the cluste
 
 Another pattern that Cluster Autoscaler recommends uses [*pause* Pods and the Priority Preemption feature](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler). The *pause Pod* runs a [pause container](https://github.com/kubernetes/kubernetes/tree/master/build/pause), which as the name suggests, does nothing but acts as a placeholder for compute capacity that can be used by other Pods in your cluster. Because it runs with a *very low assigned priority*, the pause Pod gets evicted from the node when another Pod needs to be created, and the cluster doesn’t have available capacity. The Kubernetes Scheduler notices the eviction of the pause Pod and tries to reschedule it. But since the cluster is running at capacity, the pause Pod remains *Pending*, to which the Cluster Autoscaler reacts by adding nodes. 
 
-A Helm chart is available to install [cluster overprovisioner](https://github.com/helm/charts/tree/master/stable/cluster-overprovisioner).
-
 ### Using Cluster Autoscaler with multiple Auto Scaling Groups
 
 Run the Cluster Autoscaler with the `--node-group-auto-discovery` flag enabled. Doing so will allow the Cluster Autoscaler to find all autoscaling groups that include a particular defined tag and prevents the need to define and maintain each autoscaling group in the manifest.

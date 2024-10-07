@@ -38,7 +38,7 @@ securityContext:
 
 ### AppArmor와 SELinux
 
-AppMor와 SELinux는 [필수 액세스 제어(MAC 시스템)](https://en.wikipedia.org/wiki/Mandatory_access_control)로 알려져 있습니다. 이들은 seccomp와 개념적으로는 비슷하지만 API와 기능이 다르기 때문에 특정 파일 시스템 경로 또는 네트워크 포트 등에 대한 액세스 제어가 가능합니다. 이러한 도구에 대한 지원은 리눅스 배포판에 따라 달라지는데, 데비안/우분투는 AppArmor를 지원하고 RHEL/Centos/BottleRocket/Amazon Linux 2023은 SELinux를 지원합니다. SELinux에 대한 자세한 내용은 [인프라 보안 섹션](../hosts/#run-selinux)를 참조하십시오.
+AppMor와 SELinux는 [필수 액세스 제어(MAC 시스템)](https://en.wikipedia.org/wiki/Mandatory_access_control)로 알려져 있습니다. 이들은 seccomp와 개념적으로는 비슷하지만 API와 기능이 다르기 때문에 특정 파일 시스템 경로 또는 네트워크 포트 등에 대한 액세스 제어가 가능합니다. 이러한 도구에 대한 지원은 리눅스 배포판에 따라 달라지는데, 데비안/우분투는 AppArmor를 지원하고 RHEL/Centos/BottleRocket/Amazon Linux 2023은 SELinux를 지원합니다. SELinux에 대한 자세한 내용은 [인프라 보안 섹션](./hosts.ko.md#selinux)를 참조하십시오.
 
 AppArmor와 SELinux는 모두 쿠버네티스와 통합되어 있지만, 쿠버네티스 1.28부터 AppArmor 프로파일은 [어노테이션](https://kubernetes.io/docs/tutorials/security/apparmor/#securing-a-pod) 을 통해 지정해야 하며, SELinux 레이블은 보안 컨텍스트의 [SELinuxOptions](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#selinuxoptions-v1-core) 필드를 통해 직접 설정할 수 있습니다.
 

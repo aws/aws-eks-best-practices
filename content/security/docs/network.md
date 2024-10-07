@@ -545,7 +545,5 @@ Whenever there's a CSR from a workload, it will be forwarded to _istio-csr_, whi
 - [Private CA Kubernetes cert-manager plugin on GitHub](https://github.com/cert-manager/aws-privateca-issuer).
 - [Private CA Kubernetes cert-manager plugin user guide](https://docs.aws.amazon.com/acm-pca/latest/userguide/PcaKubernetes.html).
 - [How to use AWS Private Certificate Authority short-lived certificate mode](https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode)
-- [Verifying Service Mesh TLS in Kubernetes, Using ksniff and Wireshark](https://itnext.io/verifying-service-mesh-tls-in-kubernetes-using-ksniff-and-wireshark-2e993b26bf95)
-- [ksniff](https://github.com/eldadru/ksniff)
 - [egress-operator](https://github.com/monzo/egress-operator) An operator and DNS plugin to control egress traffic from your cluster without protocol inspection
 - [NeuVector by SUSE](https://www.suse.com/neuvector/) open source, zero-trust container security platform, provides policy network rules, data loss prevention (DLP), web application firewall (WAF) and network threat signatures.
