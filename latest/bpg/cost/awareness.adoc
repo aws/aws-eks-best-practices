@@ -1,4 +1,12 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[cost-opt-awareness,cost-opt-awareness.title]]
 = Expenditure awareness
+:info_doctype: section
+:imagesdir: images/
+:info_title: Expenditure awareness
+:info_abstract: Expenditure awareness
+:info_titleabbrev: Awareness
 
 Expenditure awareness is understanding who, where and what is causing expenditures in your EKS cluster. Getting an accurate picture of this data will help raise awareness of your spend and highlight areas to remediate.
 
@@ -51,7 +59,7 @@ The Trusted Advisor also provides Savings Plans and Reserved Instances recommend
 
 [NOTE]
 ====
-that the recommendations from Trusted Advisor are generic recommendations and not specific to EKS.
+The recommendations from Trusted Advisor are generic recommendations and not specific to EKS.
 ====
 
 === Use the Kubernetes dashboard
@@ -115,7 +123,7 @@ More sample queries are given in the https://docs.aws.amazon.com/AmazonCloudWatc
 
 This awareness will help in understanding resource usage and help in controlling costs.
 
-=== Using KubeCost for expenditure awareness and guidance
+=== Using Kubecost for expenditure awareness and guidance
 
 Third party tools like https://kubecost.com/[kubecost] can also be deployed on Amazon EKS to get visibility into cost of running your Kubernetes cluster. Please refer to this https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/[AWS blog] for tracking costs using Kubecost
 
@@ -152,7 +160,7 @@ Note: If you are using Cloud 9 or have a need to forward it to a different port 
 $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 8080:9090
 ----
 
-Kube Cost Dashboard -
+Kubecost Dashboard -
 image:../images/kube-cost.png[Kubernetes Cluster Auto Scaler logs]
 
 === Use Kubernetes Cost Allocation and Capacity Planning Analytics Tool
@@ -195,18 +203,6 @@ The role of the https://kubernetes.io/docs/concepts/workloads/controllers/garbag
 
 https://github.com/mreferre/fargatecount[Fargatecount] is an useful tool, which allows AWS customers to track, with a custom CloudWatch metric, the total number of EKS pods that have been deployed on Fargate in a specific region of a specific account. This helps in keeping track of all the Fargate pods running across an EKS cluster.
 
-=== Kubernetes Ops View
-
-https://github.com/hjacobs/kube-ops-view[Kube Ops View] is an useful tool, which provides a common operational picture visually for multiple Kubernetes clusters.
-
-----
-git clone https://github.com/hjacobs/kube-ops-view
-cd kube-ops-view
-kubectl apply -k deploy/
-----
-
-image::kube-ops-report.png[Home Page]
-
 === Popeye - A Kubernetes Cluster Sanitizer
 
 https://github.com/derailed/popeye[Popeye - A Kubernetes Cluster Sanitizer] is a utility that scans live Kubernetes cluster and reports potential issues with deployed resources and configurations. It sanitizes your cluster based on what's deployed and not what's sitting on disk. By scanning your cluster, it detects misconfigurations and helps you to ensure that best practices are in place
@@ -215,16 +211,15 @@ https://github.com/derailed/popeye[Popeye - A Kubernetes Cluster Sanitizer] is a
 
 Refer to the following resources to learn more about best practices for cost optimization.
 
-Documentation and Blogs
+==== Documentation and Blogs
 
 * https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html[Amazon EKS supports tagging]
 
-Tools
+==== Tools
 
 * https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html[What is AWS Billing and Cost Management?]
 * https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[Amazon CloudWatch Container Insights]
 * https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/[How to track costs in multi-tenant Amazon EKS clusters using Kubecost]
-* https://kubecost.com/[Kube Cost]
+* https://kubecost.com/[Kubecost]
 * https://github.com/hjacobs/kube-ops-view[Kube Opsview]
-* https://github.com/hjacobs/kube-janitor[Kube Janitor]
 * https://github.com/rchakode/kube-opex-analytics[Kubernetes Opex Analytics]

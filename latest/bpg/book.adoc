@@ -36,14 +36,14 @@ include::autoscaling/index.adoc[leveloffset=+1]
 
 include::reliability/index.adoc[leveloffset=+1]
 
-include::windows/index.adoc[leveloffset=+1]
-
 include::networking/index.adoc[leveloffset=+1]
 
 include::scalability/index.adoc[leveloffset=+1]
 
 include::upgrades/index.adoc[leveloffset=+1]
 
-include::cost/cfm_framework.adoc[leveloffset=+1]
+include::cost/cost_optimization_index.adoc[leveloffset=+1]
+
+include::windows/index.adoc[leveloffset=+1]
 
 

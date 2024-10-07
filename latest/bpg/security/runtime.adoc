@@ -88,15 +88,15 @@ for use by Pods and containers.
 
 === AppArmor and SELinux
 
-// AppArmor and SELinux are known as
-// https://en.wikipedia.org/wiki/Mandatory_access_control[mandatory access
-// control or MAC systems]. They are similar in concept to seccomp but with
-// different APIs and abilities, allowing access control for e.g. specific
-// filesystem paths or network ports. Support for these tools depends on
-// the Linux distribution, with Debian/Ubuntu supporting AppArmor and
-// RHEL/CentOS/Bottlerocket/Amazon Linux 2023 supporting SELinux. Also see
-// the xref:iam-se-linux[infrastructure security section] for
-// further discussion of SELinux.
+AppArmor and SELinux are known as
+https://en.wikipedia.org/wiki/Mandatory_access_control[mandatory access
+control or MAC systems]. They are similar in concept to seccomp but with
+different APIs and abilities, allowing access control for e.g. specific
+filesystem paths or network ports. Support for these tools depends on
+the Linux distribution, with Debian/Ubuntu supporting AppArmor and
+RHEL/CentOS/Bottlerocket/Amazon Linux 2023 supporting SELinux. Also see
+the xref:iam-se-linux[infrastructure security section] for
+further discussion of SELinux.
 
 Both AppArmor and SELinux are integrated with Kubernetes, but as of
 Kubernetes 1.28 AppArmor profiles must be specified via

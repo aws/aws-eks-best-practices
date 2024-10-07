@@ -1,9 +1,23 @@
-= Amazon EKS Best Practices Guide for Cost Optimization
+//!!NODE_ROOT <chapter>
+[[cost-opt,cost-opt.title]]
+= Cost Optimization - Introduction
 :doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Best Practices for Cost Optimization
+:info_abstract: Best Practices for Cost Optimization
+:info_titleabbrev: Cost Optimization
+:imagesdir: images/
 
 Cost Optimization is achieving your business outcomes at the lowest price point. By following the documentation in this guide you will optimize your Amazon EKS workloads.
 
-= General Guidelines
+== General Guidelines
 
 In the cloud, there are a number of general guidelines that can help you achieve cost optimization of your microservices:
 
@@ -11,7 +25,7 @@ In the cloud, there are a number of general guidelines that can help you achieve
 * Select optimally profiled container instances -- profile your production or pre-production environments and monitor critical metrics like CPU and memory, using services like https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[Amazon CloudWatch Container Insights for Amazon EKS] or third party tools that are available in the Kubernetes ecosystem. This will ensure that we can allocate the right amount of resources and avoid  wastage of resources.
 * Take advantage of the different purchasing options that are available in AWS for running EKS with EC2, e.g. On-Demand, Spot and Savings Plan.
 
-= EKS Cost Optimization Best Practices
+== EKS Cost Optimization Best Practices
 
 There are three general best practice areas for cost optimization in the cloud:
 
@@ -21,7 +35,7 @@ There are three general best practice areas for cost optimization in the cloud:
 
 As with any guidance there are trade-offs. Ensure you work with your organization to understand the priorities for this workload and which best practices are most important.
 
-== How to use this guide
+=== How to use this guide
 
 This guide is meant for devops teams who are responsible for implementing and managing the EKS clusters and the workloads they support. The guide is organized into different best practice areas for easier consumption. Each topic has a list of recommendations, tools to use and best practices for cost optimization of your EKS clusters. The topics do not need to read in a particular order.
 
@@ -39,3 +53,16 @@ This guide includes a set of recommendations that you can use to improve the cos
 == Feedback
 
 This guide is being released on GitHub so as to collect direct feedback and suggestions from the broader EKS/Kubernetes community. If you have a best practice that you feel we ought to include in the guide, please file an issue or submit a PR in the GitHub repository. Our intention is to update the guide periodically as new features are added to the service or when a new best practice evolves.
+
+include::cfm_framework.adoc[leveloffset=+1]
+
+include::awareness.adoc[leveloffset=+1]
+
+include::cost_opt_compute.adoc[leveloffset=+1]
+
+include::cost_opt_networking.adoc[leveloffset=+1]
+
+include::cost_opt_storage.adoc[leveloffset=+1]
+
+include::cost_opt_observability.adoc[leveloffset=+1]
+

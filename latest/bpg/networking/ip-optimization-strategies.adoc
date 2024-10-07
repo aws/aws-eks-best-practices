@@ -93,7 +93,7 @@ In addition to the solutions described above, it is also important to have visib
 * number of IP addresses currently assigned to Pods
 * total and maximum number of IP address available
 
-You can also set https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch alarms] to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of https://github.com/aws/amazon-vpc-cni-k8s/blob/master/cmd/cni-metrics-helper/README.md[CNI metrics helper]
+You can also set https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch alarms] to get notified if a subnet is running out of IP addresses.
 
 WARNING: Make sure `DISABLE_METRICS` variable for VPC CNI is set to false.
 

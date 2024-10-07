@@ -1,18 +1,8 @@
-//!!NODE_ROOT <chapter>
-[[cost-opt,cost-opt.title]]
-= Cost Optimization - Introduction
-:doctype: book
-:sectnums:
-:toc: left
-:icons: font
-:experimental:
-:idprefix:
-:idseparator: -
-:sourcedir: .
-:info_doctype: chapter
-:info_title: Best Practices for Cost Optimization
-:info_abstract: Best Practices for Cost Optimization
-:info_titleabbrev: Cost Optimization
+[."topic"]
+[#cost-opt-framework]
+= Cost Optimization Framework
+:info_doctype: section
+:info_titleabbrev: Framework
 :imagesdir: images/
 
 AWS Cloud Economics is a discipline that helps customers increase efficiency and reduce their costs through the adoption of modern compute technologies like Amazon EKS. The discipline recommends following a methodology called the "`Cloud Financial Management (CFM) framework`" which consists of 4 pillars:
@@ -32,7 +22,7 @@ Here is a brief overview of our best practices for the See pillar:
 * Allocate cloud costs to applications, Lines of Business (LoBs), and revenue streams.
 * Define, measure, and circulate efficiency/value KPIs with business stakeholders. For example, create a "`unit metric`" KPI that measures the cost per transaction, e.g. a ride sharing services might have a KPI for "`cost per ride`".
 
-// For more details on the recommended technologies and activities associated with this pillar, please see the xref:cost-opt-observability[Cost Optimization - Observability] section of this guide.
+For more details on the recommended technologies and activities associated with this pillar, please see the xref:cost-opt-observability[Cost Optimization - Observability] section of this guide.
 
 == The Save pillar: Cost optimization
 
@@ -47,9 +37,9 @@ Since these activities are operational, they are highly dependent on your enviro
 
 Below is a prioritized list of the most common cost drivers for EKS clusters:
 
-// . *Compute costs:* Combining multiple types of instance families, purchasing options, and balancing scalability with availability require careful consideration. For further information, see the recommendations in the xref:cost-opt-compute[Cost Optimization - Compute] section of this guide.
-// . *Networking costs:* using 3 AZs for EKS clusters can potentially increase inter-AZ traffic costs. For our recommendations on how to balance HA requirements with keeping network traffic costs down, please consult the xref:cost-opt-networking[Cost Optimization - Networking] section of this guide.
-// . *Storage costs:* Depending on the stateful/stateless nature of the workloads in the EKS clusters, and how the different storage types are used, storage can be considered as part of the workload. For considerations relating to EKS storage costs, please consult the xref:cost-opt-storage[Cost Optimization - Storage] section of this guide.
+. *Compute costs:* Combining multiple types of instance families, purchasing options, and balancing scalability with availability require careful consideration. For further information, see the recommendations in the xref:cost-opt-compute[Cost Optimization - Compute] section of this guide.
+. *Networking costs:* using 3 AZs for EKS clusters can potentially increase inter-AZ traffic costs. For our recommendations on how to balance HA requirements with keeping network traffic costs down, please consult the xref:cost-opt-networking[Cost Optimization - Networking] section of this guide.
+. *Storage costs:* Depending on the stateful/stateless nature of the workloads in the EKS clusters, and how the different storage types are used, storage can be considered as part of the workload. For considerations relating to EKS storage costs, please consult the xref:cost-opt-storage[Cost Optimization - Storage] section of this guide.
 
 == The Plan pillar:  Planning and forecasting
 
@@ -71,10 +61,4 @@ Securing executive sponsorship for these types of activities is crucial for inte
 
 * https://aws.amazon.com/aws-cost-management/[AWS Cloud Economics, Cloud Financial Management]
 
-include::cost_opt_compute.adoc[leveloffset=+1]
 
-include::cost_opt_networking.adoc[leveloffset=+1]
-
-include::cost_opt_storage.adoc[leveloffset=+1]
-
-include::cost_opt_observability.adoc[leveloffset=+1]

@@ -23,9 +23,7 @@ https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html[Application
 Load Balancer (ALB)] which load balances traffic at Layer 7 of the OSI
 model.
 
-== Recommendations
-
-=== Choosing Load Balancer Type
+== Choosing Load Balancer Type
 
 The AWS Elastic Load Balancing portfolio supports the following load
 balancers: Application Load Balancers (ALB), Network Load Balancers
@@ -41,7 +39,7 @@ balancers, see
 https://aws.amazon.com/elasticloadbalancing/features/#Product_comparisons[Product
 Comparisons]
 
-==== Choose the Application Load Balancer (ALB) if your workload is HTTP/HTTPS
+=== Choose the Application Load Balancer (ALB) if your workload is HTTP/HTTPS
 
 If a workloads requires load balancing at Layer 7 of the OSI Model, the
 AWS Load Balancer Controller can be used to provision an ALB; we cover
@@ -52,7 +50,7 @@ customers with the flexibility to change the application traffic routing
 algorithm; the default routing algorithm is round robin with the least
 outstanding requests routing algorithm also an alternative.
 
-==== Choose the Network Load Balancer (NLB) if your workload is TCP, or if your workload requires Source IP Preservation of Clients
+=== Choose the Network Load Balancer (NLB) if your workload is TCP, or if your workload requires Source IP Preservation of Clients
 
 A Network Load Balancer functions at the fourth layer (Transport) of the
 Open Systems Interconnection (OSI) model. It is suited for TCP & UDP
@@ -60,7 +58,7 @@ based workloads. Network Load Balancer also by default preserves the
 Source IP of address of the clients when presenting the traffic to the
 pod.
 
-==== Choose the Network Load Balancer (NLB) if your workload cannot utilize DNS
+=== Choose the Network Load Balancer (NLB) if your workload cannot utilize DNS
 
 Another key reason to use the NLB is if your clients cannot utilize DNS.
 In this case, the NLB may be a better fit for your workload as the IPs
@@ -70,12 +68,12 @@ Load Balancers, if a client’s application doesn’t support DNS resolution
 and only accepts hard-coded IPs then an NLB is a better fit as the IPs
 are static and remain same for the life of the NLB.
 
-=== Provisioning Load Balancers
+== Provisioning Load Balancers
 
 After determining the Load Balancer best suited for your workloads,
 customers have a number of options for provisioning a load balancer.
 
-==== Provision Load Balancers by deploying the AWS Load Balancer Controller
+=== Provision Load Balancers by deploying the AWS Load Balancer Controller
 
 There are two key methods of provisioning load balancers within an EKS
 Cluster.
@@ -110,9 +108,9 @@ from the in-tree controller to the LBC, explicitly. With
 LoadBalancerClassWith
 `service.beta.kubernetes.io/aws-load-balancer-type` annotation
 
-=== Choosing Load Balancer Target-Type
+== Choosing Load Balancer Target-Type
 
-==== Register Pods as targets using IP Target-Type
+=== Register Pods as targets using IP Target-Type
 
 An AWS Elastic Load Balancer: Network & Application, sends received
 traffic to registered targets in a target group. For an EKS Cluster
@@ -173,7 +171,7 @@ Load Balancer)
 annotation to your Service’s Manifest when configuring your Kubernetes
 Service of type LoadBalancer (Network Load Balancer).
 
-=== Availability and Pod Lifecycle
+== Availability and Pod Lifecycle
 
 During an application upgrade you must make sure that your application
 is always available to process requests so users do not experience any
@@ -196,7 +194,7 @@ https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/main/docs/d
 on the controller.
 ====
 
-==== Use health checks
+=== Use health checks
 
 Kubernetes by default runs the
 https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-states[process
@@ -214,7 +212,7 @@ restarted.
 Please see the link:lb-pod-create[Pod Creation] in the Appendix section
 below to revisit the sequence of events in Pod creation process.
 
-==== Use readiness probes
+=== Use readiness probes
 
 By default when
 https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-readiness-status[all
@@ -236,7 +234,7 @@ can configure a readiness probe in the Pod manifest for each container.
 `kubelet` process on each node runs the readiness probe against the
 containers on that node.
 
-==== Utilize Pod readiness gates
+=== Utilize Pod readiness gates
 
 One aspect of the readiness probe is the fact that there is no external
 feedback/influence mechanism in it, kubelet process on the node executes
@@ -287,7 +285,7 @@ to prevent the rolling update of a deployment from terminating old pods
 until the newly created Pods target status turn "`Healthy`" on the AWS
 ELB.
 
-==== Gracefully shutdown applications
+=== Gracefully shutdown applications
 
 Your application should respond to a SIGTERM signal by starting its
 graceful shutdown so that clients do not experience any downtime. What
@@ -321,7 +319,7 @@ image::lb_podterminationlifecycle.png[podterminationlifecycle.png]
 Please see the link:lb-pod-delete[Pod Deletion] in the Appendix section
 below to revisit the sequence of events in Pod deletion process.
 
-==== Gracefully handle the client requests
+=== Gracefully handle the client requests
 
 The sequence of events in Pod deletion is different than Pod creation.
 When a Pod is created `kubelet` updates the Pod IP in Kubernetes API
@@ -383,7 +381,7 @@ in-flight requests/existing connections to that target to drain. Once
 the deregistration delay expires then the target is unused and any
 in-flight requests to that target is forcibly dropped.
 
-==== Use Pod disruption budget
+=== Use Pod disruption budget
 
 Configure a
 https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets[Pod
@@ -404,7 +402,7 @@ For more information please refer to the
 https://kubernetes.io/docs/tasks/run-application/configure-pdb/[Specifying
 a Disruption Budget for your Application] in Kubernetes documentation.
 
-=== References
+== References
 
 * KubeCon Europe 2019 Session -
 https://www.youtube.com/watch?v=Vw9GmSeomFg[Ready? A Deep Dive into Pod
@@ -417,10 +415,10 @@ https://aws.amazon.com/blogs/containers/how-to-rapidly-scale-your-application-wi
 to rapidly scale your application with ALB on EKS (without losing
 traffic)]
 
-=== Appendix
+== Appendix
 
 [[lb-pod-create,lb-pod-create.title]]
-==== Pod Creation
+=== Pod Creation
 
 It is imperative to understand what is the sequence of events in a
 scenario where a Pod is deployed and then it becomes healthy/ready to
@@ -450,7 +448,7 @@ https://en.wikipedia.org/wiki/Iptables[iptables] rules on each node,
 with the new Pod IP/port.
 
 [[lb-pod-delete,lb-pod-delete.title]]
-==== Pod Deletion
+=== Pod Deletion
 
 Just like Pod creation, it is imperative to understand what is the
 sequence of events during Pod deletion. Let’ s talk about the sequence

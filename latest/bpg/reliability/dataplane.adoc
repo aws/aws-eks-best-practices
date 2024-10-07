@@ -85,10 +85,6 @@ notices the eviction of the pause Pod and tries to reschedule it. But
 since the cluster is running at capacity, the pause Pod remains
 _Pending_, to which the Cluster Autoscaler reacts by adding nodes.
 
-A Helm chart is available to install
-https://github.com/helm/charts/tree/master/stable/cluster-overprovisioner[cluster
-overprovisioner].
-
 === Using Cluster Autoscaler with multiple Auto Scaling Groups
 
 Run the Cluster Autoscaler with the `--node-group-auto-discovery` flag
