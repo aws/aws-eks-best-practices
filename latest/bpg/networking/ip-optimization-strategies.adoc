@@ -2,7 +2,7 @@
 [."topic"]
 [[ip-opt,ip-opt.title]]
 = Optimizing IP Address Utilization
-:imagesdir: images/
+:imagesdir: images/networking/
 :info_doctype: section
 
 Containerized environments are growing in scale at a rapid pace, thanks to application modernization. This means that more and more worker nodes and pods are being deployed.
@@ -82,18 +82,18 @@ WARNING: These settings will be reset to defaults when you update the CNI. Pleas
 
 You can adjust the CNI parameters on the fly without downtime for your existing applications, but you should choose values that will support your scalability needs. For example, if you're working with batch workloads, we recommend updating the default `WARM_ENI_TARGET` to match the Pod scale needs. Setting `WARM_ENI_TARGET` to a high value always maintains the warm IP pool required to run large batch workloads and hence avoid data processing delays.
 
-WARNING: Improving your VPC design is the recommended response to IP address exhaustion. Consider solutions like IPv6 and Secondary CIDRs. Adjusting these values to minimize the number of Warm IPs should be a temporary solution after other options are excluded. Misconfiguring these values may interfere with cluster operation. Before making any changes to a production system, be sure to review the considerations on [this page](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/docs/eni-and-ip-target.md).
+WARNING: Improving your VPC design is the recommended response to IP address exhaustion. Consider solutions like IPv6 and Secondary CIDRs. Adjusting these values to minimize the number of Warm IPs should be a temporary solution after other options are excluded. Misconfiguring these values may interfere with cluster operation. Before making any changes to a production system, be sure to review the considerations on https://github.com/aws/amazon-vpc-cni-k8s/blob/master/docs/eni-and-ip-target.md[this page].
 
 ==== Monitor IP Address Inventory
 
-In addition to the solutions described above, it is also important to have visibility over IP utilization. You can monitor the IP addresses inventory of subnets using https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html[CNI Metrics Helper]. Some of the metrics available are:
+In addition to the solutions described above, it is also important to have visibility over IP utilization. You can monitor the IP addresses inventory of subnets using https://github.com/aws/amazon-vpc-cni-k8s/blob/master/cmd/cni-metrics-helper/README.md[CNI Metrics Helper]. Some of the metrics available are:
 
 * maximum number of ENIs the cluster can support
 * number of ENIs already allocated
 * number of IP addresses currently assigned to Pods
 * total and maximum number of IP address available
 
-You can also set https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch alarms] to get notified if a subnet is running out of IP addresses. Please visit EKS user guide for install instructions of https://docs.aws.amazon.com/eks/latest/userguide/cni-metrics-helper.html[CNI metrics helper]
+You can also set https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch alarms] to get notified if a subnet is running out of IP addresses.
 
 WARNING: Make sure `DISABLE_METRICS` variable for VPC CNI is set to false.
 

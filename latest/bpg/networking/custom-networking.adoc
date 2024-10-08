@@ -3,7 +3,7 @@
 [[custom-networking,custom-networking.title]]
 = Custom Networking
 :info_doctype: section
-:imagesdir: images/
+:imagesdir: images/networking/
 :info_title: Custom Networking
 :info_abstract: Custom Networking
 :info_titleabbrev: Custom Networking

@@ -13,7 +13,7 @@
 :info_title: Best Practices for Networking
 :info_abstract: Best Practices for Networking
 :info_titleabbrev: Networking
-:imagesdir: images/
+:imagesdir: images/networking/
 
 [abstract]
 --
@@ -102,3 +102,4 @@ include::loadbalancing.adoc[leveloffset=+1]
 
 include::monitoring.adoc[leveloffset=+1]
 
+include::ipvs.adoc[leveloffset=+1]

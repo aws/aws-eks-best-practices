@@ -1,0 +1,50 @@
+//!!NODE_ROOT <chapter>
+[[windows,windows.title]]
+= Amazon EKS Best Practices Guide for Windows
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Best Practices for Windows
+:info_abstract: Best Practices for Windows
+:info_titleabbrev: Windows
+:imagesdir: images/windows/
+
+This guide provides advice about running windows containers and nodes. 
+
+[.topiclist]
+[[Topic List]]
+
+include::ami.adoc[leveloffset=+1]
+
+include::gmsa.adoc[leveloffset=+1]
+
+include::hardening.adoc[leveloffset=+1]
+
+include::images.adoc[leveloffset=+1]
+
+include::licensing.adoc[leveloffset=+1]
+
+include::logging.adoc[leveloffset=+1]
+
+include::monitoring.adoc[leveloffset=+1]
+
+include::networking.adoc[leveloffset=+1]
+
+include::oom.adoc[leveloffset=+1]
+
+include::patching.adoc[leveloffset=+1]
+
+include::scheduling.adoc[leveloffset=+1]
+
+include::security.adoc[leveloffset=+1]
+
+include::storage.adoc[leveloffset=+1]
+
+
+

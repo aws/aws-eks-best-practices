@@ -3,7 +3,7 @@
 [[prefix-mode-win,prefix-mode-win.title]]
 = Prefix Mode for Windows
 :info_doctype: section
-:imagesdir: images/
+:imagesdir: images/networking/
 
 In Amazon EKS, each Pod that runs on a Windows host is assigned a secondary IP address by the https://github.com/aws/amazon-vpc-resource-controller-k8s[VPC resource controller] by default. This IP address is a VPC-routable address that is allocated from the host's subnet. On Linux, each ENI attached to the instance has multiple slots that can be populated by a secondary IP address or a /28 CIDR (a prefix). Windows hosts, however, only support a single ENI and its available slots. Using only secondary IP addresses can artifically limit the number of pods you can run on a Windows host, even when there is an abundance of IP addresses available for assignment.
 
@@ -44,10 +44,12 @@ By default, the `max-pods` on Windows nodes is set to `110`. For the vast majori
 
 For more details about the bootstrap configuration parameters for Windows nodes, please visit the documentation https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-windows-ami.html#bootstrap-script-configuration-parameters[here].
 
+[#windows-prefix-avoid]
 === Avoid Prefix Delegation when
 
 If your subnet is very fragmented and has insufficient available IP addresses to create /28 prefixes, avoid using prefix mode. The prefix attachment may fail if the subnet from which the prefix is produced is fragmented (a heavily used subnet with scattered secondary IP addresses). This problem may be avoided by creating a new subnet and reserving a prefix.
 
+[#windows-network-conserve]
 === Configure parameters for prefix delegation to conserve IPv4 addresses
 
 `warm-prefix-target`, `warm-ip-target`, and `minimum-ip-target` can be used to fine tune the behaviour of pre-scaling and dynamic scaling with prefixes. By default, the following values are used:

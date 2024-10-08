@@ -1,0 +1,68 @@
+//!!NODE_ROOT <chapter>
+[[cost-opt,cost-opt.title]]
+= Cost Optimization - Introduction
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Best Practices for Cost Optimization
+:info_abstract: Best Practices for Cost Optimization
+:info_titleabbrev: Cost Optimization
+:imagesdir: images/
+
+Cost Optimization is achieving your business outcomes at the lowest price point. By following the documentation in this guide you will optimize your Amazon EKS workloads.
+
+== General Guidelines
+
+In the cloud, there are a number of general guidelines that can help you achieve cost optimization of your microservices:
+
+* Ensure that workloads running on Amazon EKS are independent of specific infrastructure types for running your containers, this will give greater flexibility with regards to running them on the least expensive types of infrastructure. While using Amazon EKS with EC2, there can be exceptions when we have workloads that require specific type of EC2 Instance types like https://docs.aws.amazon.com/eks/latest/userguide/gpu-ami.html[requiring a GPU] or  other instance types, due to the nature of the workload.
+* Select optimally profiled container instances -- profile your production or pre-production environments and monitor critical metrics like CPU and memory, using services like https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[Amazon CloudWatch Container Insights for Amazon EKS] or third party tools that are available in the Kubernetes ecosystem. This will ensure that we can allocate the right amount of resources and avoid  wastage of resources.
+* Take advantage of the different purchasing options that are available in AWS for running EKS with EC2, e.g. On-Demand, Spot and Savings Plan.
+
+== EKS Cost Optimization Best Practices
+
+There are three general best practice areas for cost optimization in the cloud:
+
+* Cost-effective resources (Auto Scaling, Down Scaling, Policies and Purchasing Options)
+* Expenditure awareness (Using AWS and third party tools)
+* Optimizing over time (Right Sizing)
+
+As with any guidance there are trade-offs. Ensure you work with your organization to understand the priorities for this workload and which best practices are most important.
+
+=== How to use this guide
+
+This guide is meant for devops teams who are responsible for implementing and managing the EKS clusters and the workloads they support. The guide is organized into different best practice areas for easier consumption. Each topic has a list of recommendations, tools to use and best practices for cost optimization of your EKS clusters. The topics do not need to read in a particular order.
+
+=== Key AWS Services and Kubernetes features
+
+Cost optimization is supported by the following AWS services and features:
+
+* EC2 Instance types, Savings Plan (and Reserved Instances) and Spot Instances, at different prices.
+* Auto Scaling along with Kubernetes native Auto Scaling policies. Consider Savings Plan (Previously Reserved Instances) for predictable workloads. Use managed data stores like EBS and EFS, for elasticity and durability of the application data.
+* The Billing and Cost Management console dashboard along with AWS Cost Explorer provides an overview of your AWS usage. Use AWS Organizations for granular billing details. Details of several third party tools have also been shared.
+* Amazon CloudWatch Container Metrics provides metrics around usage of resources by the EKS cluster. In addition to the Kubernetes dashboard, there are several tools in the Kubernetes ecosystem that can be used to reduce wastage.
+
+This guide includes a set of recommendations that you can use to improve the cost optimization of your Amazon EKS cluster.
+
+== Feedback
+
+This guide is being released on GitHub so as to collect direct feedback and suggestions from the broader EKS/Kubernetes community. If you have a best practice that you feel we ought to include in the guide, please file an issue or submit a PR in the GitHub repository. Our intention is to update the guide periodically as new features are added to the service or when a new best practice evolves.
+
+include::cfm_framework.adoc[leveloffset=+1]
+
+include::awareness.adoc[leveloffset=+1]
+
+include::cost_opt_compute.adoc[leveloffset=+1]
+
+include::cost_opt_networking.adoc[leveloffset=+1]
+
+include::cost_opt_storage.adoc[leveloffset=+1]
+
+include::cost_opt_observability.adoc[leveloffset=+1]
+

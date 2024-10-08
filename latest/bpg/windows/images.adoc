@@ -1,0 +1,20 @@
+[."topic"]
+[#windows-images]
+= Container image scanning
+:info_doctype: section
+:info_titleabbrev: Scanning Windows Images
+:imagesdir: images/windows/
+
+Image Scanning is an automated vulnerability assessment feature that helps improve the security of your application's container images by scanning them for a broad range of operating system vulnerabilities.
+
+Currently, the Amazon Elastic Container Registry (ECR) is only able to scan Linux container image for vulnerabilities. However; there are third-party tools which can be integrated with an existing CI/CD pipeline for Windows container image scanning.
+
+* https://anchore.com/blog/scanning-windows-container-images/[Anchore]
+* https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/vulnerability_management/windows_image_scanning.html[PaloAlto Prisma Cloud]
+* https://www.trendmicro.com/en_us/business/products/hybrid-cloud/smart-check-image-scanning.html[Trend Micro - Deep Security Smart Check]
+
+To learn more about how to integrate these solutions with Amazon Elastic Container Repository (ECR), check:
+
+* https://anchore.com/blog/scanning-images-on-amazon-elastic-container-registry/[Anchore, scanning images on Amazon Elastic Container Registry (ECR)]
+* https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-admin-compute/vulnerability_management/registry_scanning0/scan_ecr.html[PaloAlto, scanning images on Amazon Elastic Container Registry (ECR)]
+* https://cloudone.trendmicro.com/docs/container-security/sc-about/[TrendMicro, scanning images on Amazon Elastic Container Registry (ECR)]
