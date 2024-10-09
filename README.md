@@ -2,7 +2,9 @@
 
 A best practices guide for day 2 operations, including operational excellence, security, reliability, performance efficiency, and cost optimization.
 
-Return to [Live Docs](https://aws.github.io/aws-eks-best-practices/).
+This guide is now published to the official [Amazon EKS Docs platform](https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html). While this repo continues to be the source, the GitHub.io page will be phased out.
+
+See [latest/bpg](latest/bpg) for the new AsciiDoc formatted files. Contribution guidelines coming soon!
 
 ## Contributing
 
