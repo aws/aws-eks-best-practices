@@ -1,7 +1,7 @@
 //!!NODE_ROOT <chapter>
 [."topic"]
 [[introduction,introduction.title]]
-= Introduction
+= Amazon EKS Best Practices Guide
 :doctype: book
 :sectnums:
 :toc: left
@@ -11,7 +11,8 @@
 :idseparator: -
 :sourcedir: .
 :info_doctype: chapter
-:info_title: Introduction
+:info_title: Amazon EKS Best Practices Guide
+:info_titleabbrev: Introduction
 :info_abstract: Learn best practices for operating EKS clusters.
 
 [abstract]
