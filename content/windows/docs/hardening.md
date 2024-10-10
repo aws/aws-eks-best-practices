@@ -63,7 +63,7 @@ https://inspector-agent.amazonaws.com/windows/installer/latest/AWSAgentInstall.e
 2. Transfer the agent to the Windows worker node.
 3. Run the following command on PowerShell to install the Amazon Inspector Agent: `.\AWSAgentInstall.exe /install`
 
-Below is the ouput after the first run. As you can see, it generated findings based on the [CVE](https://cve.mitre.org/) database. You can use this to harden your Worker nodes or create an AMI based on the hardened configurations.
+Below is the output after the first run. As you can see, it generated findings based on the [CVE](https://cve.mitre.org/) database. You can use this to harden your Worker nodes or create an AMI based on the hardened configurations.
 
 ![](./images/inspector-agent.png)
 
@@ -72,7 +72,7 @@ For more information on Amazon Inspector, including how to install Amazon Inspec
 ## Amazon GuardDuty
 > [Amazon GuardDuty](https://aws.amazon.com/guardduty/) is a threat detection service that continuously monitors for malicious activity and unauthorized behavior to protect your AWS accounts, workloads, and data stored in Amazon S3. With the cloud, the collection and aggregation of account and network activities is simplified, but it can be time consuming for security teams to continuously analyze event log data for potential threats. 
 
-By using Amazon GuardDuty you have visilitiby on malicious actitivy against Windows worker nodes, like RDP brute force and Port Probe attacks. 
+By using Amazon GuardDuty you have visibility on malicious activity against Windows worker nodes, like RDP brute force and Port Probe attacks. 
 
 Watch the [Threat Detection for Windows Workloads using Amazon GuardDuty](https://www.youtube.com/watch?v=ozEML585apQ) video to learn how to implement and run CIS Benchmarks on Optimized EKS Windows AMI
 

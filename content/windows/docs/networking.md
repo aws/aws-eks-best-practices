@@ -23,7 +23,7 @@ The number of pods that a Windows worker node can support is dictated by the siz
   ```
   Here, instead of allocating secondary IPv4 addresses, VPC Resource Controller will allocate `/28 prefixes` and therefore, the overall number of available IPv4 addresses will be boosted 16 times.
 
-Using the formula above, we can calculate max pods for an Windows worker noded based on a m5.large instance as below:
+Using the formula above, we can calculate max pods for an Windows worker node based on a m5.large instance as below:
 - By default, when running in secondary IP mode-
   ```
   10 secondary IPv4 addresses per ENI - 1 = 9 available IPv4 addresses

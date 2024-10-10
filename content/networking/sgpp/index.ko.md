@@ -115,7 +115,7 @@ kubectl set env daemonset -n kube-system aws-node AWS_VPC_K8S_CNI_EXTERNALSNAT=t
 
 ### Fargate를 이용하는 파드용 보안 그룹 사용
 
-Fargate에서 실행되는 파드의 보안 그룹은 EC2 워커 노드에서 실행되는 파드와 매우 유사하게 작동한다. 예를 들어 Fargate 파드에 연결하는 보안 그룹 정책에서 보안 그룹을 참조하기 전에 먼저 보안 그룹을 생성해야 합니다.기본적으로 보안 그룹 정책을 Fargate 파드에 명시적으로 할당하지 않으면 [클러스터 보안 그룹](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html)이 모든 Fargate 파드에 할당됩니다. 단순화를 위해 Fagate Pod의 SecurityGroupPolicy에 클러스터 보안 그룹을 추가할 수도 있습니다. 그렇지 않으면 보안 그룹에 최소 보안 그룹 규칙을 추가해야 합니다. 설명 클러스터 API를 사용하여 클러스터 보안 그룹을 찾을 수 있습니다.
+Fargate에서 실행되는 파드의 보안 그룹은 EC2 워커 노드에서 실행되는 파드와 매우 유사하게 작동한다. 예를 들어 Fargate 파드에 연결하는 보안 그룹 정책에서 보안 그룹을 참조하기 전에 먼저 보안 그룹을 생성해야 합니다.기본적으로 보안 그룹 정책을 Fargate 파드에 명시적으로 할당하지 않으면 [클러스터 보안 그룹](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html)이 모든 Fargate 파드에 할당됩니다. 단순화를 위해 Fargate Pod의 SecurityGroupPolicy에 클러스터 보안 그룹을 추가할 수도 있습니다. 그렇지 않으면 보안 그룹에 최소 보안 그룹 규칙을 추가해야 합니다. 설명 클러스터 API를 사용하여 클러스터 보안 그룹을 찾을 수 있습니다.
 
 ```bash
  aws eks describe-cluster --name CLUSTER_NAME --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId'

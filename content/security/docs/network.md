@@ -147,7 +147,7 @@ contains_label(arr, val) {
 
 #### Monitor the vpc-network-policy-controller, node-agent logs
 
-Enable the EKS Control plane controller manager logs to diagnose the network policy functionality.  You can stream the control plane logs to a CloudWatch log group and use [CloudWatch Log insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html) to perform advanced queries. From the logs, you can view what pod endpoint objects are resolved to a Network Policy, reconcilation status of the policies, and debug if the policy is working as expected.
+Enable the EKS Control plane controller manager logs to diagnose the network policy functionality.  You can stream the control plane logs to a CloudWatch log group and use [CloudWatch Log insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html) to perform advanced queries. From the logs, you can view what pod endpoint objects are resolved to a Network Policy, reconciliation status of the policies, and debug if the policy is working as expected.
 
 In addition, Amazon VPC CNI allows you to enable the collection and export of policy enforcement logs to [Amazon Cloudwatch](https://aws.amazon.com/cloudwatch/) from the EKS worker nodes. Once enabled, you can leverage [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) to provide insights on your usage related to Network Policies.
 
@@ -450,21 +450,21 @@ Whenever there's a CSR from a workload, it will be forwarded to _istio-csr_, whi
 6. Create an `istio-system` namespace. This is where the `istiod certificate` and other Istio resources will be deployed.
 7. Install Istio CSR configured with AWS Private CA Issuer Plugin. You can preserve the certificate signing requests for workloads to verify that they get approved and signed (`preserveCertificateRequests=true`).
 
-    ```bash
-    helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-csr \
-    --set "app.certmanager.issuer.group=awspca.cert-manager.io" \
-    --set "app.certmanager.issuer.kind=AWSPCAClusterIssuer" \
-    --set "app.certmanager.issuer.name=<the-name-of-the-issuer-you-created>" \
-    --set "app.certmanager.preserveCertificateRequests=true" \
-    --set "app.server.maxCertificateDuration=48h" \
-    --set "app.tls.certificateDuration=24h" \
-    --set "app.tls.istiodCertificateDuration=24h" \
-    --set "app.tls.rootCAFile=/var/run/secrets/istio-csr/ca.pem" \
-    --set "volumeMounts[0].name=root-ca" \
-    --set "volumeMounts[0].mountPath=/var/run/secrets/istio-csr" \
-    --set "volumes[0].name=root-ca" \
-    --set "volumes[0].secret.secretName=istio-root-ca"
-    ```
+```bash
+helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-csr \
+--set "app.certmanager.issuer.group=awspca.cert-manager.io" \
+--set "app.certmanager.issuer.kind=AWSPCAClusterIssuer" \
+--set "app.certmanager.issuer.name=<the-name-of-the-issuer-you-created>" \
+--set "app.certmanager.preserveCertificateRequests=true" \
+--set "app.server.maxCertificateDuration=48h" \
+--set "app.tls.certificateDuration=24h" \
+--set "app.tls.istiodCertificateDuration=24h" \
+--set "app.tls.rootCAFile=/var/run/secrets/istio-csr/ca.pem" \
+--set "volumeMounts[0].name=root-ca" \
+--set "volumeMounts[0].mountPath=/var/run/secrets/istio-csr" \
+--set "volumes[0].name=root-ca" \
+--set "volumes[0].secret.secretName=istio-root-ca"
+```
 
 8. Install Istio with custom configurations to replace `istiod` with `cert-manager istio-csr` as the certificate provider for the mesh. This process can be carried out using the [Istio Operator](https://tetrate.io/blog/what-is-istio-operator/).
 

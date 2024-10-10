@@ -173,7 +173,7 @@ Or make sure the webhook has a fail open policy with a timeout shorter than 30 s
 
 `Sysctl` is a Linux utility that allows users to modify kernel parameters during runtime. These kernel parameters control various aspects of the operating system's behavior, such as network, file system, virtual memory, and process management.
 
-Kubernetes allows assigning `sysctl` profiles for Pods. Kubernetes categorizes `systcls` as safe and unsafe. Safe `sysctls` are namespaced in the container or Pod, and setting them doesn’t impact other Pods on the node or the node itself. In contrast, unsafe sysctls are disabled by default since they can potentially disrupt other Pods or make the node unstable.
+Kubernetes allows assigning `sysctl` profiles for Pods. Kubernetes categorizes `systcls` as safe and unsafe. Safe `sysctls` are namespaced in the container or Pod, and setting them doesn’t impact other Pods on the node or the node itself. In contrast, unsafe `sysctls` are disabled by default since they can potentially disrupt other Pods or make the node unstable.
 
 As unsafe `sysctls` are disabled by default, the kubelet will not create a Pod with unsafe `sysctl` profile. If you create such a Pod, the scheduler will repeatedly assign such Pods to nodes, while the node fails to launch it. This infinite loop ultimately strains the cluster control plane, making the cluster unstable.
 
