@@ -62,6 +62,10 @@ For detailed information please see the dedicated section for [Custom Networking
 #### Enhanced Subnet Discovery
 
 Enhance Sunbet Discovry provides streamline network configuration alternative for IP exahusting, by tagging new Subnets so they will be discoveable by the VPC CNI. With Enhance Sunbet Discovry the current workloads can keep running on the same subnets and the EKS can now schedule additional pods on the new “usable subnet(s)”.  
+Extend the ip address allocation of your EKS cluster by simply tagging the new subnet with kubernetes.io/role/cni=1
+Set "ENABLE_SUBNET_DISCOVERY” VPI CNI add-on configuration  to “true” (Default since version 1.18.0)
+![image](https://github.com/user-attachments/assets/6eea1929-fc69-4c23-a1dc-313089d24121)
+
 
 #### Optimize the IPs warm pool
 
