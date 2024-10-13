@@ -68,7 +68,7 @@ If your cluster current subnets are running out of IP adresses, you can simply a
 3. Enable Set "ENABLE_SUBNET_DISCOVERY” VPI CNI add-on configuration  to “true” (Default since version 1.18.0)
 
 Once Enhance Sunbet Discovry is enabled on your VPC and EKS clusters, new ENI will be attached to your EKS nodes as discribe in the following diagram:
-
+./Enhanced Subnet Discovery.png
 
 
 #### Optimize the IPs warm pool
