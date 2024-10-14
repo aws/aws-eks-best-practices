@@ -10,7 +10,7 @@ search:
 
 다음 표는 다양한 컨테이너 서비스가 준수하는 규정 준수 프로그램을 보여줍니다.
 
-| 컴플라이언스 프로그램 | Amazon ECS 오케스트레이터 | Amazon EKS 오케스트레이터| ECS Fargete | 아마존 ECR |
+| 컴플라이언스 프로그램 | Amazon ECS 오케스트레이터 | Amazon EKS 오케스트레이터| ECS Fargate | 아마존 ECR |
 | --- |:----------:|:----------:|:---- -------:|:----------:|
 | PCI DSS Level 1 | 1 | 1 | 1 | 1 |
 | HIPAA Eligible | 1 | 1 | 1 | 1 |
