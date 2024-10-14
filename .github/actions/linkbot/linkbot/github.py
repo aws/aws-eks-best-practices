@@ -43,10 +43,10 @@ class Client:
         )
 
 
-    def get_open_issue_messages(self, repo_url, user):
+    def get_all_issue_messages(self, repo_url, user):
         full_name = repo_full_name_from_url(repo_url)
         repo = self._pygh.get_repo(full_name)
-        return [issue.body for issue in repo.get_issues(state='open', creator=user)]
+        return [issue.body for issue in repo.get_issues(state='all', creator=user)]
 
 
     def create_issue(self, repo_url, title, body):
