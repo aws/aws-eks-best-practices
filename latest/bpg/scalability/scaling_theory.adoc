@@ -113,3 +113,6 @@ Breaking this statement down.
 To address a bottleneck in the system, we will take the approach of finding a metric that shows us there is a problem upstream or downstream as this allows us to split the problem in half. It will also be a core tenet of how we display our metrics data.
 
 A good place to start with this process is the API server, as it allow us to see if there's a problem with a client application or the Control Plane.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/scaling_theory.adoc[Edit this page on GitHub]

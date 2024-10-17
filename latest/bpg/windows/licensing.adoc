@@ -16,3 +16,6 @@ Formerly called the "Long-Term Servicing Branch", this is the release model you 
 == Licensing
 
 When launching an Amazon EC2 instance with a Windows Server-based AMI, Amazon covers licensing costs and license compliance for you.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/licensing.adoc[Edit this page on GitHub]

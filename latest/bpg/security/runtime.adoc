@@ -211,3 +211,6 @@ profiles.
 * https://www.suse.com/neuvector/[NeuVector by SUSE] open source,
 zero-trust container security platform, provides process profile rules
 and file access rules.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/runtime.adoc[Edit this page on GitHub]

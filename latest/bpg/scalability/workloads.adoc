@@ -126,3 +126,6 @@ filter @logStream like "kube-apiserver-audit"
 | limit 1000
 ----
 
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/workloads.adoc[Edit this page on GitHub]

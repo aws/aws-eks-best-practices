@@ -55,3 +55,6 @@ RUN Import-Module WebAdministration; Set-ItemProperty 'IIS:\AppPools\SiteName' -
 RUN Import-Module WebAdministration; Set-WebConfigurationProperty -Filter '/system.webServer/security/authentication/anonymousAuthentication' -Name Enabled -Value False -PSPath 'IIS:\' -Location 'SiteName'
 RUN Import-Module WebAdministration; Set-WebConfigurationProperty -Filter '/system.webServer/security/authentication/windowsAuthentication' -Name Enabled -Value True -PSPath 'IIS:\' -Location 'SiteName'
 ----
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/gmsa.adoc[Edit this page on GitHub]

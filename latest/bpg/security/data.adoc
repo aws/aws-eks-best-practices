@@ -258,3 +258,6 @@ secrets in a Kubernetes-native way.
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/13-data-encryption-and-secret-management[Amazon
 EKS Security Immersion Workshop - Data Encryption and Secrets
 Management]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/data.adoc[Edit this page on GitHub]

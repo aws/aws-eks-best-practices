@@ -120,7 +120,7 @@ https://karpenter.sh/docs/concepts/nodeclasses/[NodeClasses].
 === Exclude instance types that do not fit your workload
 
 Consider excluding specific instances types with the
-http://node.kubernetes.io/instance-type[node.kubernetes.io/instance-type]
+`node.kubernetes.io/instance-type`
 key if they are not required by workloads running in your cluster.
 
 The following example shows how to avoid provisioning large Graviton
@@ -285,7 +285,6 @@ kind: Deployment
 metadata:
   name: inflate-gpu
 spec:
-  ...
     spec:
       tolerations:
       - key: "nvidia.com/gpu"
@@ -351,7 +350,6 @@ metadata:
   name: workload-my-team
 spec:
   replicas: 200
-  ...
     spec:
       affinity:
         nodeAffinity:
@@ -620,3 +618,6 @@ for your workload(s).
 Karpenter]
 * https://community.aws/tutorials/run-kubernetes-clusters-for-less-with-amazon-ec2-spot-and-karpenter#step-6-optional-simulate-spot-interruption[Tutorial:
 Run Kubernetes Clusters for Less with Amazon EC2 Spot and Karpenter]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/autoscaling/karpenter.adoc[Edit this page on GitHub]

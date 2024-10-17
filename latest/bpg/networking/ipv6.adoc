@@ -125,3 +125,6 @@ EKS supports IPv6 for Pods running on Fargate. Pods running on Fargate will cons
 *The upstream in-tree Kubernetes service controller does not support IPv6*. We recommend using the https://kubernetes-sigs.github.io/aws-load-balancer-controller[most recent version] of the AWS Load Balancer Controller add-on. The LBC will only deploy a dual-stack NLB or a dual-stack ALB upon consuming corresponding kubernetes service/ingress definition annotated with: `"alb.ingress.kubernetes.io/ip-address-type: dualstack"` and `"alb.ingress.kubernetes.io/target-type: ip"`
 
 AWS Network Load Balancer does not support dual-stack UDP protocol address types. If you have strong requirements for low-latency, real-time streaming, online gaming, and IoT, we recommend running IPv4 clusters. To learn more about managing health checks for UDP services, please refer to https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/["`How to route UDP traffic into Kubernetes`"].
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/ipv6.adoc[Edit this page on GitHub]

@@ -99,3 +99,6 @@ The ability to configure sampling depends on the agent software and can be imple
 If you are using CloudWatch and CloudWatch Logs you can add agent filtering using patterns https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html[described in the documentation].
 
 To avoid losing logs and metrics you should send your data to a system that can buffer data in case of an outage on the receiving endpoint. With fluentbit you can use https://docs.fluentbit.io/manual/pipeline/outputs/firehose[Amazon Kinesis Data Firehose] to temporarily keep data which can reduce the chance of overloading your final data storage location.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/cluster-services.adoc[Edit this page on GitHub]

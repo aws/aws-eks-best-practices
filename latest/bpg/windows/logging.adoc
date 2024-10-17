@@ -40,3 +40,6 @@ Class LoggingAspect { //interceptor
     }
 }
 ----
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/logging.adoc[Edit this page on GitHub]
