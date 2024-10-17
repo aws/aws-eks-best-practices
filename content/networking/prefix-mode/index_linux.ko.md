@@ -6,11 +6,11 @@ search:
 
 # Linux용 Prefix 모드
 
-Amazon VPC CNI는 [Amazon EC2 네트워크 인터페이스](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html)에 네트워크 Prefix를 할당하여 노드에 사용 가능한 IP 주소 수를 늘리고 노드당 파드 밀도를 높입니다. Amazon VPC CNI 애드온 버전 1.9.0 이상을 구성하여 네트워크 인터페이스에 개별 보조 IP 주소를 할당하는 대신 IPv4 및 IPv6 CIDR을 할당할 수 있습니다. 
+Amazon VPC CNI는 [Amazon EC2 네트워크 인터페이스](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html)에 네트워크 Prefix를 할당하여 노드에 사용 가능한 IP 주소 수를 늘리고 노드당 파드 밀도를 높입니다. Amazon VPC CNI 애드온 버전 1.9.0 이상을 구성하여 네트워크 인터페이스에 개별 보조 IP 주소를 할당하는 대신 IPv4 및 IPv6 CIDR을 할당할 수 있습니다.
 
 IPv6 클러스터에서는 Prefix 모드만 지원되며 기본적으로 활성화되어있습니다. VPC CNI는 ENI의 슬롯에 /80 IPv6 Prefix를 할당합니다. [이 가이드의 IPv6 섹션](../ipv6/index.md)을 참조합니다.
 
-Prefix 할당 모드에서 인스턴스 유형당 최대 elastic network interfaces 수는 동일하게 유지되지만, 네트워크 인터페이스의 슬롯에 개별 IPv4 주소를 할당하는 대신 /28(16개의 IP 주소) IPv4 주소 Prefix를 할당하도록 Amazon VPC CNI를 구성할 수 있습니다. `ENABLE_PREFIX_DELEGATION`이 true로 설정되면 CNI는 ENI에 할당된 Prefix에서 파드에 IP 주소를 할당합니다. [EKS 사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html)에 나와 있는 안내를 따라 Prefix IP 모드를 활성화합니다. 
+Prefix 할당 모드에서 인스턴스 유형당 최대 elastic network interfaces 수는 동일하게 유지되지만, 네트워크 인터페이스의 슬롯에 개별 IPv4 주소를 할당하는 대신 /28(16개의 IP 주소) IPv4 주소 Prefix를 할당하도록 Amazon VPC CNI를 구성할 수 있습니다. `ENABLE_PREFIX_DELEGATION`이 true로 설정되면 CNI는 ENI에 할당된 Prefix에서 파드에 IP 주소를 할당합니다. [EKS 사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html)에 나와 있는 안내를 따라 Prefix IP 모드를 활성화합니다.
 
 ![illustration of two worker subnets, comparing ENI secondary IPvs to ENIs with delegated prefixes](./image.png)
 
@@ -32,9 +32,9 @@ Prefix 할당 모드에서 인스턴스 유형당 최대 elastic network interfa
 
 ### 다음과 같은 경우 Prefix 모드 사용
 
-워커 노드에서 Pod 밀도 문제가 발생하는 경우 Prefix 모드를 사용합니다. VPC CNI 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약에 대한 세부 정보는 “[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” 섹션을 참조합니다. 
+워커 노드에서 Pod 밀도 문제가 발생하는 경우 Prefix 모드를 사용합니다. VPC CNI 오류를 방지하려면 Prefix 모드로 마이그레이션하기 전에 서브넷에서 /28 Prefix의 연속된 주소 블록이 있는지 확인할 것을 권장합니다. 서브넷 예약에 대한 세부 정보는 “[서브넷 예약을 사용하여 서브넷 파편화 (IPv4) 방지](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” 섹션을 참조합니다.
 
-이전 버전과의 호환성을 위해 [max-pods](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) 제한이 보조 IP 모드를 지원하도록 설정되었습니다. 파드 밀도를 높이려면, `max-pods` 값을 Kubelet에 지정하고, 노드의 사용자 데이터(User data)에 `--use-max-pods=false`를 지정합니다. [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh) 스크립트를 사용하여 특정 인스턴스 유형에 대한 EKS의 권장 최대 파드 수를 계산하는 것을 고려해 볼 수 있습니다. 사용자 데이터의 예는 EKS [사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html)를 참조합니다.
+이전 버전과의 호환성을 위해 [max-pods](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/shared/runtime/eni-max-pods.txt) 제한이 보조 IP 모드를 지원하도록 설정되었습니다. 파드 밀도를 높이려면, `max-pods` 값을 Kubelet에 지정하고, 노드의 사용자 데이터(User data)에 `--use-max-pods=false`를 지정합니다. [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/al2/runtime/max-pods-calculator.sh) 스크립트를 사용하여 특정 인스턴스 유형에 대한 EKS의 권장 최대 파드 수를 계산하는 것을 고려해 볼 수 있습니다. 사용자 데이터의 예는 EKS [사용자 가이드](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html)를 참조합니다.
 
 ```
 ./max-pods-calculator.sh --instance-type m5.large --cni-version ``1.9``.0 --cni-prefix-delegation-enabled
@@ -53,7 +53,7 @@ Prefix 모드에서는 워커 노드에 할당된 보안 그룹이 파드에 공
 
 노드 그룹에는 여러 유형의 인스턴스가 포함될 수 있습니다. 최대 파드 수가 적은 인스턴스의 값이 노드 그룹의 모든 노드에 적용됩니다. 노드 사용을 극대화하려면 노드 그룹에서 유사한 인스턴스 유형을 사용하는 것이 좋습니다. 노드 오토스케일링을 위해 Karpenter를 사용하는 경우 provisioner API의 requirements 부분에서 [node.kubernetes.io/instance-type](https://karpenter.sh/docs/concepts/nodepools/)을 구성할 것을 권장합니다.
 
-!!! warning 
+!!! warning
     특정 노드 그룹의 모든 노드에 대한 최대 파드 수는 노드 그룹 내 단일 인스턴스 유형의 *최소* 최대 파드 수로 정의됩니다.
 
 ### IPv4 주소를 보존하도록 'WARM_PREFIX_TARGET'을 구성
@@ -85,4 +85,3 @@ Prefix 모드는 VPC CNI 버전 1.9.0 이상에서 작동합니다. Prefix 모�
 ### Prefix Delegation으로 전환하는 동안 모든 노드를 교체
 
 기존 워커 노드를 순차적으로 교체하는 대신 신규 노드 그룹을 생성하여 사용 가능한 IP 주소 수를 늘리는 것을 권장합니다. 기존 노드를 모두 차단하고 drain하여 모든 기존 파드를 안전하게 제거합니다. 서비스 중단을 방지하려면 중요한 워크로드를 위해 프로덕션 클러스터에 [Pod Disruption Budgets](https://kubernetes.io/docs/tasks/run-application/configure-pdb)을 설정하는 것을 권장합니다. 신규 노드의 파드에는 ENI에 할당된 Prefix의 IP가 할당됩니다. 파드가 실행되고 있는지 확인한 후, 기존 노드와 노드 그룹을 삭제할 수 있습니다. 관리형 노드 그룹을 사용하는 경우, 설명된 단계에 따라 안전하게 [노드 그룹 삭제](https://docs.aws.amazon.com/eks/latest/userguide/delete-managed-node-group.html)를 진행합니다.
-

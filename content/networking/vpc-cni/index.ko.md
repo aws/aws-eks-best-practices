@@ -23,7 +23,7 @@ CNI 플러그인은 노드의 [Elastic Network Interface (ENI)](https://docs.aws
 
 ![flow chart illustrating procedure when new ENI delegated prefix is needed](./image.png)
 
-최대 네트워크 인터페이스 수, 사용할 수 있는 최대 슬롯 수는 EC2 인스턴스 유형에 따라 다릅니다. 각 파드는 슬롯의 IP 주소를 사용하기 때문에 특정 EC2 인스턴스에서 실행할 수 있는 파드의 수는 연결할 수 있는 ENI의 수와 각 ENI가 지원하는 슬롯의 수에 따라 달라집니다. 인스턴스의 CPU 및 메모리 리소스가 고갈되지 않도록 EKS 사용 가이드에 따라 최대 파드를 설정할 것을 권장합니다. `hostNetwork`를 사용하는 파드는 이 계산에서 제외됩니다. 주어진 인스턴스 유형에 대한 EKS의 권장 최대 파드 개수를 계산하기 위해 [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/master/files/max-pods-calculator.sh)라는 스크립트를 사용할 수 있습니다.
+최대 네트워크 인터페이스 수, 사용할 수 있는 최대 슬롯 수는 EC2 인스턴스 유형에 따라 다릅니다. 각 파드는 슬롯의 IP 주소를 사용하기 때문에 특정 EC2 인스턴스에서 실행할 수 있는 파드의 수는 연결할 수 있는 ENI의 수와 각 ENI가 지원하는 슬롯의 수에 따라 달라집니다. 인스턴스의 CPU 및 메모리 리소스가 고갈되지 않도록 EKS 사용 가이드에 따라 최대 파드를 설정할 것을 권장합니다. `hostNetwork`를 사용하는 파드는 이 계산에서 제외됩니다. 주어진 인스턴스 유형에 대한 EKS의 권장 최대 파드 개수를 계산하기 위해 [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/al2/runtime/max-pods-calculator.sh)라는 스크립트를 사용할 수 있습니다.
 
 ## 개요
 
@@ -169,7 +169,7 @@ Amazon EKS 지원을 받는 동안 노드에서 sudo `bash /opt/cni/bin/aws-cni-
 
 ### 비 EKS 최적화 AMI 인스턴스에서 IPtables 전달 정책 구성
 
-사용자 지정 AMI를 사용하는 경우 [kubelet.service](https://github.com/awslabs/amazon-eks-ami/blob/master/files/kubelet.service#L8)에서 iptables 전달 정책을 ACCEPT로 설정해야 합니다. 많은 시스템에서 iptables 전달 정책이 DROP으로 설정됩니다. [HashiCorp Packer](https://packer.io/intro/why.html)를 사용하여 사용자 지정 AMI를, [AWS GitHub의 Amazon EKS AMI 저장소](https://github.com/awslabs/amazon-eks-ami)에서 리소스 및 구성 스크립트를 사용하여 빌드 사양을 생성할 수 있습니다. [kubelet.service](https://github.com/awslabs/amazon-eks-ami/blob/master/files/kubelet.service#L8)를 업데이트하고 [이 링크](https://aws.amazon.com/premiumsupport/knowledge-center/eks-custom-linux-ami/)에 설명된 안내에 따라 사용자 지정 AMI를 생성할 수 있습니다. 
+사용자 지정 AMI를 사용하는 경우 [kubelet.service](https://github.com/awslabs/amazon-eks-ami/blob/master/files/kubelet.service#L8)에서 iptables 전달 정책을 ACCEPT로 설정해야 합니다. 많은 시스템에서 iptables 전달 정책이 DROP으로 설정됩니다. [HashiCorp Packer](https://packer.io/intro/why.html)를 사용하여 사용자 지정 AMI를, [AWS GitHub의 Amazon EKS AMI 저장소](https://github.com/awslabs/amazon-eks-ami)에서 리소스 및 구성 스크립트를 사용하여 빌드 사양을 생성할 수 있습니다. [kubelet.service](https://github.com/awslabs/amazon-eks-ami/blob/master/files/kubelet.service#L8)를 업데이트하고 [이 링크](https://aws.amazon.com/premiumsupport/knowledge-center/eks-custom-linux-ami/)에 설명된 안내에 따라 사용자 지정 AMI를 생성할 수 있습니다.
 
 ### 정기적인 CNI 버전 업그레이드
 
