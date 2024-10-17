@@ -254,3 +254,6 @@ Threats]
 Attack and Defense]
 * https://www.youtube.com/watch?v=1LMo0CftVC4[Compromising Kubernetes
 Cluster by Exploiting RBAC Permissions]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/incidents.adoc[Edit this page on GitHub]

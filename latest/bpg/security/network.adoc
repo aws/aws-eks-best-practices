@@ -978,3 +978,6 @@ protocol inspection
 zero-trust container security platform, provides policy network rules,
 data loss prevention (DLP), web application firewall (WAF) and network
 threat signatures.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/network.adoc[Edit this page on GitHub]

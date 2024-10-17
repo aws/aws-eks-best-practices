@@ -248,3 +248,6 @@ The metric `conntrack_allowance_exceeded` can be visualized in CloudWatch, provi
 image::mon_cw_metrics.png[CW_NW_Performance]
 
 We can clearly see that there were no packets dropped as the value is zero. If you are using Nitro-based instances, you can create a similar dashboard for `conntrack_allowance_available` and pro-actively monitor the connections in your EC2 instance. You can further extend this by configuring alerts in Amazon Managed Grafana to send notifications to Slack, SNS, Pagerduty etc.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/monitoring.adoc[Edit this page on GitHub]

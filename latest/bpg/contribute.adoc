@@ -162,7 +162,7 @@ For example,
 
 . Install the `asciidoctor` tool using `brew` on Linux or MacOS
 ** Learn how to https://docs.asciidoctor.org/asciidoctor/latest/install/[install asciidoctor cli] in the AsciiDoctor docs. 
-** Learn how https://brew.sh/[install the brew package manager].  
+** Learn how https://brew.sh/index.html[install the brew package manager].  
 . Open a terminal, and navigate to `latest/bpg/`
 . Run `asciidoctor book.adoc`
 ** Review any syntax warnings and errors
@@ -295,3 +295,6 @@ NOTE: This is a note admonition.
 
 
 
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/contribute.adoc[Edit this page on GitHub]

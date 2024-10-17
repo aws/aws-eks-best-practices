@@ -66,3 +66,6 @@ include::cost_opt_storage.adoc[leveloffset=+1]
 
 include::cost_opt_observability.adoc[leveloffset=+1]
 
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_optimization_index.adoc[Edit this page on GitHub]

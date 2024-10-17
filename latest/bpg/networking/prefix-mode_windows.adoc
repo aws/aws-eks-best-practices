@@ -103,3 +103,6 @@ That being said, you can use the migration strategy as described above to safely
 === Debugging Issues with Prefix Delegation
 
 You can use our debugging guide https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/docs/troubleshooting.md[here] to deep dive into the issue you are facing with prefix delegation on Windows.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/prefix-mode_windows.adoc[Edit this page on GitHub]
