@@ -79,7 +79,7 @@ Keep in mind that infrastructure pods, often running as daemon sets, each contri
 * Amazon Elastic LoadBalancer
 * Operational pods for metrics-server
 
-We suggest that you plan your infrastructure by combining these Pods' capacities. For a list of the maximum number of Pods supported by each instance type, see [eni-max-Pods.txt](https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt) on GitHub.
+We suggest that you plan your infrastructure by combining these Pods' capacities. For a list of the maximum number of Pods supported by each instance type, see [eni-max-pods.txt](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/shared/runtime/eni-max-pods.txt) on GitHub.
 
 ![illustration of multiple ENIs attached to a node](./image-5.png)
 
