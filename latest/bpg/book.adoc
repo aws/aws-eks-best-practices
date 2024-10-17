@@ -21,6 +21,7 @@
      trademarks not owned by Amazon are the property of their respective \
      owners, who may or may not be affiliated with, connected to, or  \
      sponsored by Amazon.
+:github_base: https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg
 
 [abstract]
 --
@@ -45,5 +46,7 @@ include::upgrades/index.adoc[leveloffset=+1]
 include::cost/cost_optimization_index.adoc[leveloffset=+1]
 
 include::windows/index.adoc[leveloffset=+1]
+
+include::contribute.adoc[leveloffset=+1]
 
 

@@ -72,3 +72,5 @@ or flaw in the guidance we've already published, please submit a PR to
 correct it. The guidelines for submitting PRs can be found in our
 https://github.com/aws/aws-eks-best-practices/blob/master/CONTRIBUTING.md[Contributing
 Guidelines].
+
+📝 {github_base}/index.adoc[Edit this page on GitHub]
