@@ -10,7 +10,6 @@ theme:
   features:
     - tabs
     - content.code.copy
-    - announce.dismiss
     - header.autohide
   palette:
     - scheme: default
