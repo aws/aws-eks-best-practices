@@ -502,3 +502,6 @@ image:../images/after-results.png[After results]
 * https://youtu.be/edSgEe7Rihc[Optimize Kubernetes Cost & Performance with Istio and Service Internal Traffic Policy]
 * https://aws.amazon.com/blogs/architecture/overview-of-data-transfer-costs-for-common-architectures/[Overview of Data Transfer Costs for Common Architectures]
 * https://aws.amazon.com/blogs/containers/understanding-data-transfer-costs-for-aws-container-services/[Understanding data transfer costs for AWS container services]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_opt_networking.adoc[Edit this page on GitHub]

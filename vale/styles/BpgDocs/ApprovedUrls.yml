@@ -4,7 +4,7 @@ level: error
 scope: raw
 ignorecase: true
 tokens:
-  - '(?:^|\s)(https://[^\s]+)(?:$|\s)'
+  - '(?:^|\s)(http(s)?://[^\s]+)(?:$|\s)'
 exceptions:
   - https://aws.github.io/
   - https://kubernetes-sigs.github.io/
@@ -29,3 +29,10 @@ exceptions:
   - https://raw.githubusercontent.com/aws-observability/
   - https://github.com/kubernetes-sigs/
   - https://d1.awsstatic.com/
+  - https://docs.github.com/
+  - https://code.visualstudio.com/
+  - https://cli.github.com/
+  - https://marketplace.visualstudio.com/
+  - https://docs.asciidoctor.org/
+  - https://brew.sh/
+  

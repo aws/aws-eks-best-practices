@@ -175,3 +175,6 @@ To better understand how Pod Networking (CNI) works, check the following link: h
 
 AWS Blog on Deploying Managed Node Group for Windows on EKS:
 https://aws.amazon.com/blogs/containers/deploying-amazon-eks-windows-managed-node-groups/
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/scheduling.adoc[Edit this page on GitHub]

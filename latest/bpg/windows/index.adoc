@@ -20,6 +20,8 @@ This guide provides advice about running windows containers and nodes.
 [.topiclist]
 [[Topic List]]
 
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/index.adoc[Edit this page on GitHub]
+
 include::ami.adoc[leveloffset=+1]
 
 include::gmsa.adoc[leveloffset=+1]
@@ -45,6 +47,8 @@ include::scheduling.adoc[leveloffset=+1]
 include::security.adoc[leveloffset=+1]
 
 include::storage.adoc[leveloffset=+1]
+
+
 
 
 

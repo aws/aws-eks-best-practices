@@ -382,3 +382,6 @@ cluster networking for Amazon EKS worker nodes]
 EKS cluster endpoint access control]
 * https://www.youtube.com/watch?v=7vxDWDD2YnM[AWS re:Invent 2019: Amazon
 EKS under the hood (CON421-R1)]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/controlplane.adoc[Edit this page on GitHub]

@@ -177,3 +177,6 @@ Another thing to consider is how long to persist cached images. You may want to 
 _To configure options for unused container and image garbage collection, tune the kubelet using a https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/[configuration file] and change the parameters related to garbage collection using the https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/[`KubeletConfiguration`] resource type._
 
 You can learn more about it in the Kubernetes https://kubernetes.io/docs/concepts/architecture/garbage-collection/#containers-images[documentation].
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_opt_storage.adoc[Edit this page on GitHub]

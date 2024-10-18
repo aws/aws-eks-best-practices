@@ -134,3 +134,6 @@ spec:
 ----
 
 For more details on the operator and the usage of ServiceMonitor, checkout the official https://github.com/prometheus-operator/kube-prometheus[operator] documentation. Note that Prometheus does support dynamic target discovery using many https://prometheus.io/blog/2015/06/01/advanced-service-discovery/[service discovery] options.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/monitoring.adoc[Edit this page on GitHub]

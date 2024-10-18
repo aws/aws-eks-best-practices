@@ -596,3 +596,6 @@ to validate conformance to the guidelines.
 * https://rafay.co/[Rafay]
 * https://rancher.com/products/rancher/[Rancher]
 * https://www.weave.works/oss/flux/[Weave Flux]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/multitenancy.adoc[Edit this page on GitHub]

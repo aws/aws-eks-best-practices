@@ -90,3 +90,6 @@ Prefix mode works with VPC CNI version 1.9.0 and later. Downgrading of the Amazo
 === Replace all nodes during the transition to Prefix Delegation
 
 It is highly recommended that you create new node groups to increase the number of available IP addresses rather than doing rolling replacement of existing worker nodes. Cordon and drain all the existing nodes to safely evict all of your existing Pods. To prevent service disruptions, we suggest implementing https://kubernetes.io/docs/tasks/run-application/configure-pdb[Pod Disruption Budgets] on your production clusters for critical workloads. Pods on new nodes will be assigned an IP from a prefix assigned to an ENI. After you confirm the Pods are running, you can delete the old nodes and node groups. If you are using managed node groups, please follow steps mentioned here to safely https://docs.aws.amazon.com/eks/latest/userguide/delete-managed-node-group.html[delete a node group].
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/prefix-mode_linux.adoc[Edit this page on GitHub]

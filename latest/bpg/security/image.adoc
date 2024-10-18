@@ -506,3 +506,6 @@ and govern your software supply chain
 * https://www.suse.com/neuvector/[NeuVector by SUSE] open source,
 zero-trust container security platform, provides container, image and
 registry scanning for vulnerabilities, secrets and compliance.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/image.adoc[Edit this page on GitHub]
