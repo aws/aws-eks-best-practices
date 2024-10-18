@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/custom-networking.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 ﻿# Custom Networking
 
 By default, Amazon VPC CNI will assign Pods an IP address selected from the primary subnet.  The primary subnet is the subnet CIDR that the primary ENI is attached to, usually the subnet of the node/host.
