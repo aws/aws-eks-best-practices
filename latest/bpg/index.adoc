@@ -64,4 +64,4 @@ Blueprints Quick Start]
 
 == Contributing
 
-We encourage you to contribute to these guides. If you have implemented a practice that has proven to be effective, please share it with us by opening an issue or a pull request. Similarly, if you discover an error or flaw in the guidance we've already published, please submit a PR to correct it. The guidelines for submitting PRs can be found in our xref:contribute[Contributing Guidelines].
+We encourage you to contribute to these guides. If you have implemented a practice that has proven to be effective, please share it with us by opening an issue or a pull request. Similarly, if you discover an error or flaw in the guidance we've already published, please submit a PR to correct it. The guidelines for submitting PRs can be found in our https://github.com/aws/aws-eks-best-practices/blob/master/CONTRIBUTING.md[Contributing Guidelines].
