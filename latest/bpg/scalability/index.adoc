@@ -35,6 +35,8 @@ Scaling in Kubernetes is multi-dimensional and there are no specific settings or
 
 If you are scaling a single cluster beyond 1000 nodes or 50,000 pods we would love to talk to you. We recommend reaching out to your support team or technical account manager to get in touch with specialists who can help you plan and scale beyond the information provided in this guide.
 
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/index.adoc[Edit this page on GitHub]
+
 include::control-plane.adoc[leveloffset=+1]
 
 include::data-plane.adoc[leveloffset=+1]
@@ -52,4 +54,6 @@ include::node_efficiency.adoc[leveloffset=+1]
 include::kubernetes_slos.adoc[leveloffset=+1]
 
 include::quotas.adoc[leveloffset=+1]
+
+
 

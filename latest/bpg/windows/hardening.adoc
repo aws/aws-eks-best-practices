@@ -92,3 +92,6 @@ Watch the https://www.youtube.com/watch?v=ozEML585apQ[Threat Detection for Windo
 == Security in Amazon EC2 for Windows
 
 Read up on the https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-security.html[Security best practices for Amazon EC2 Windows instances] to implement security controls at every layer.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/hardening.adoc[Edit this page on GitHub]

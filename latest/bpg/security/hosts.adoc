@@ -372,3 +372,6 @@ open source project from Intuit that orchestrates the rotation of worker
 nodes.
 * https://sysdig.com/products/kubernetes-security/[Sysdig Secure]
 * https://eksctl.io/[eksctl]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/hosts.adoc[Edit this page on GitHub]

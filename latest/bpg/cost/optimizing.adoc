@@ -79,3 +79,6 @@ Refer to the following resources to learn more about best practices for cost opt
 * https://github.com/mreferre/fargatecount[Fargate count]
 * https://github.com/FairwindsOps/goldilocks[FairwindsOps Goldilocks]
 * https://learnk8s.io/research#choosing-node-size[Choose Right Node Size]
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/optimizing.adoc[Edit this page on GitHub]

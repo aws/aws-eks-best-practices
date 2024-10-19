@@ -490,3 +490,6 @@ Controller] removes the endpoint from the
 https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/#conditions[EndpointSlice]
 object.
 . API server deletes the Pod object.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/loadbalancing.adoc[Edit this page on GitHub]

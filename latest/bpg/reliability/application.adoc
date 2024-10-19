@@ -796,3 +796,6 @@ Consider using a tracing tool like https://aws.amazon.com/xray/[AWS
 X-Ray] or https://www.jaegertracing.io[Jaeger] that supports both
 (shared library and service mesh) implementations so you will not have
 to switch tools if you later adopt service mesh.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/application.adoc[Edit this page on GitHub]

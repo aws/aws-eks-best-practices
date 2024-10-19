@@ -278,3 +278,6 @@ To sum up the section, it is easy to conflate the following concepts:
 * Linux performance rules with Kubernetes Scheduler logic
 
 Great care must be taken to keep these concepts separated. Performance and scale are linked on a deep level. Unnecessary scaling creates performance problems, which in turn creates scaling problems.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/node_efficiency.adoc[Edit this page on GitHub]

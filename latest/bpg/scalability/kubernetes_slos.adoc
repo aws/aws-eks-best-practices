@@ -159,3 +159,6 @@ If you are using the `kube-prometheus-stack` or similar Prometheus solution you 
 Consider that the SLOs are focused on the performance of the Kubernetes components in your clusters, but there are additional metrics you can review which provide different perspectives or insights in to your cluster. Kubernetes community projects like https://github.com/kubernetes/kube-state-metrics/tree/main[Kube-state-metrics] can help you quickly analyze trends in your cluster. Most common plugins and drivers from the Kubernetes community also emit Prometheus metrics, allowing you to investigate things like autoscalers or custom schedulers.
 
 The https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/best-practices-metrics-collection/#control-plane-metrics[Observability Best Practices Guide] has examples of other Kubernetes metrics you can use to gain further insight.
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/kubernetes_slos.adoc[Edit this page on GitHub]

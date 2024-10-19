@@ -365,3 +365,6 @@ https://www.armosec.io/blog/kubernetes-hardening-guidance-summary-by-armo/?utm_s
 and
 https://www.microsoft.com/security/blog/2021/03/23/secure-containerized-environments-with-updated-threat-matrix-for-kubernetes/[MITRE
 ATT&CK®].)
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/detective.adoc[Edit this page on GitHub]

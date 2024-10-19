@@ -312,3 +312,6 @@ If you call the API without any arguments it will be the most resource intensive
 ----
 /api/v1/pods
 ----
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/control-plane.adoc[Edit this page on GitHub]

@@ -148,3 +148,6 @@ Security Review] A 3rd party security assessment of Kubernetes 1.13.4
 * https://www.suse.com/neuvector/[NeuVector by SUSE] open source,
 zero-trust container security platform, provides compliance reporting
 and custom compliance checks
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/compliance.adoc[Edit this page on GitHub]

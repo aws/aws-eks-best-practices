@@ -1,0 +1,300 @@
+//!!NODE_ROOT <chapter>
+[."topic"]
+[[contribute,contribute.title]]
+= Contribute to this guide
+:info_doctype: chapter
+:info_titleabbrev: Contribute
+
+
+Anyone can contribute to the best practices guide. The EKS Best Practices Guide is written in the AsciiDoc format on GitHub. 
+
+== Summary for existing contributors
+
+* Open the https://github.com/aws/aws-eks-best-practices/blob/master/bpg-docs.code-workspace[`bpg-docs.code-workspace`] with VS Code to automatically install the AsciiDoc extension.
+** Learn more about the https://marketplace.visualstudio.com/items?itemName=asciidoctor.asciidoctor-vscode[AsciiDoc Extension] on the Visual Studio Marketplace. 
+* The source files for the AWS Docs website are stored in https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg[`latest/bpg`]
+* The syntax is highly similar to markdown. 
+** Review the https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/[Syntax Reference] in the AsciiDoctor docs. 
+* The docs platform only deploys `latest/bpg/images`. Each of the guide sections has a symbolic link back to this directory. For example, `latest/bpg/networking/images` points to `latest/bpg/images`. 
+
+== Setup a local editing environment
+
+If you plan to edit the guide frequently, setup a local editing environment. 
+
+=== Fork and clone the repo
+
+You need to be familiar with `git`, `github`, and text editors. For information on getting started with `git` and `github`, see https://docs.github.com/en/get-started/onboarding/getting-started-with-your-github-account[Getting started with your GitHub account] in the GitHub docs. 
+
+. View the https://github.com/aws/aws-eks-best-practices[EKS Best Practices Guide on GitHub]. 
+. Create a fork of the project repo. Learn how to https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository[fork a repository] in the GitHub docs. 
+. Clone your fork of the project repo. Learn how to https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#cloning-your-forked-repository[clone your forked repository]. 
+
+=== Open the VS Code Workspace
+
+AWS recommends using Visual Studio Code from Microsoft to edit the guide. For more information about VS Code, see https://code.visualstudio.com/download[Download Visual Studio Code] and https://code.visualstudio.com/docs/getstarted/getting-started[Get started with Visual Studio Code] in the Visual Studio Code Documentation. 
+
+. Open VS Code.
+. Open the `bpg-docs.code-workspace` file from the cloned repo.
+. If this is your first time opening this workspace, accept the prompt to install the AsciiDoc extension. This extension checks the syntax of AsciiDoc files and generates a live preview. 
+. Browse to the `latest/bpg` directory. This directory holds the source files that deploy to the AWS documentation site. The source files are organized by guide section, such as "security" or "networking".
+
+=== Edit a file
+
+. Open a file in the editor. 
+** View the AsciiDoc Syntax to learn how to create headings, links, and lists. 
+** You can use Markdown syntax to format text, create lists, and headings. You cannot use Markdown syntax to create links. 
+. Open a live preview of the page.
+** First, press `ctrl-k` or `cmd-k` (depending on keyboard). Second, press `v`. This opens a preview in split view. 
+
+AWS suggests using feature branches to organize your changes. Learn how to create branches with git. 
+
+=== Submit a Pull Request
+
+You can create a pull request from the GitHub website or the GitHub cli. 
+
+Learn how to https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork[create a pull request from a fork] by using the GitHub Website.
+
+Learn how to https://cli.github.com/manual/gh_pr_create[create a pull request] by using the GitHub cli. 
+
+// == Edit the guide online
+
+// Editing the guide online is a great way to make a small change to a single page. 
+
+== View and set the ID for a page
+
+This page explains how to view and set page ID. 
+
+The page ID is a unique string that identifies each page on the documentation site. You can view the page ID in the address bar of your browser when you're on a specific page. The page ID is used for the URL, the filename, and to create cross reference links. 
+
+For example, if you're viewing this page, the URL in your browser's address bar will look similar to:
+
+```
+https://docs.aws.amazon.com/view-set-page-id.html
+```
+
+The last part of the URL (`view-set-page-id`) is the page ID.
+
+=== Set the page ID
+
+When creating a new page, you need to set the page ID in the source file. The page ID should be a concise, hyphenated string that describes the page content.
+
+. Open the source file for your new page in a text editor.
+. At the top of the file, add the following line. It should be above the first heading.
++
+```asciidoc
+[#my-new-page]
+```
++
+Replace `my-new-page` with the desired page ID for your new page.
+. Save the file.
+
+NOTE: Page IDs must be unique across the entire documentation site. If you try to use an existing page ID, you'll get a build error.
+
+
+== Create a new page
+
+Learn how create a new page and update the guide table of contents. 
+
+=== Create page metadata
+
+. Determine the page title, and page short title. The page short title is optional, but recommended if the page title is more than a few words. 
+. Determine the ID of the page. This must be unique within the EKS Best Practices Guide. The convention is to use all lowercase, and separate words with `-`.
+. Create a new asciidoc file, in a folder if needed, and add the following text to the file:
++
+====
++[."topic"]+
++[#<page-id>]+
++= <page-title>+
++:info_titleabbrev: <page-short-title>+
+====
++
+For example,
++
+====
++[."topic"]+
++[#scalability]+
++= EKS Scalability best practices+
++:info_titleabbrev: Scalability+
+====
+
+
+=== Add to table of contents
+
+. Open the file for the parent page in the table of contents. For new top level guide sections, the parent file is `book.adoc`.
+. At the bottom of the parent file, update and insert the following directive:
++ 
+====
++include::<new-filename>[leveloffset=+1]+
+====
++
+For Example,
++
+====
++include::dataplane.adoc[leveloffset=+1]+
+====
+
+== Insert an image
+
+. Find the image prefix for the page you are editing. Review the `:imagesdir:` property in the heading of the file. For examples, ``:imagesdir: images/reliability/`
+. Place your image in this path, such as `latest/bpg/images/reliability`
+. Determine appropriate alt-text for you image. Write a short high-level description of the image. For example, "diagram of VPC with three availability zones" is appropriate alt-text. 
+. Update the following example with the alt-text and image filename. Insert at the desired location. 
++
+====
++image::<image-filename>[<image-alt-text>]+
+====
++
+For example,
++
+====
++image::eks-data-plane-connectivity.jpeg[Network diagram]+
+====
+
+== Check style with Vale
+
+. https://vale.sh/docs/vale-cli/installation/[Install the Vale CLI.]
+. Run `vale sync`
+. Install the https://marketplace.visualstudio.com/items?itemName=ChrisChinchilla.vale-vscode[Vale Extension] from the Visual Studio Marketplace. 
+. Restart VS Code, and open an AsciiDoc file
+. VS Code underlines problematic text. Learn how to work with https://code.visualstudio.com/docs/editor/editingevolved#_errors-warnings[Errors and Warnings] in the VS Code docs. 
+
+== Build a local preview
+
+. Install the `asciidoctor` tool using `brew` on Linux or MacOS
+** Learn how to https://docs.asciidoctor.org/asciidoctor/latest/install/[install asciidoctor cli] in the AsciiDoctor docs. 
+** Learn how https://brew.sh/index.html[install the brew package manager].  
+. Open a terminal, and navigate to `latest/bpg/`
+. Run `asciidoctor book.adoc`
+** Review any syntax warnings and errors
+. Open the `book.html` output file.
+** On MacOS, you can run `open book.html` to open the preview in your default browser. 
+
+== AsciiDoc Cheat Sheet
+
+=== Basic Formatting
+
+[source,asciidoc]
+----
+*bold text*
+_italic text_
+`monospace text`
+----
+
+=== Headers
+
+[source,asciidoc]
+----
+= Document Title (Header 1)
+== Header 2
+=== Header 3
+==== Header 4
+===== Header 5
+====== Header 6
+----
+
+=== Lists
+
+Unordered Lists:
+
+[source,asciidoc]
+----
+- Item 1
+- Item 2
+-- Subitem 2.1
+-- Subitem 2.2
+- Item 3
+----
+
+Ordered Lists:
+
+[source,asciidoc]
+----
+. First item
+. Second item
+.. Subitem 2.1
+.. Subitem 2.2
+. Third item
+----
+
+=== Links
+
+[source,asciidoc]
+----
+External link:  https://example.com[Link text]
+Internal link: <<page-id>>
+Internal link: xref:page-id[Link text]
+----
+
+=== Images
+
+[source,asciidoc]
+----
+image::image-file.jpg[Alt text]
+----
+
+=== Code Blocks
+
+[source,asciidoc]
+----
+ [source,python]
+ ----
+ def hello_world():
+     print("Hello, World!")
+ ----
+----
+
+=== Tables
+
+https://docs.asciidoctor.org/asciidoc/latest/tables/build-a-basic-table/[Learn how to build a basic table.]
+
+[source,asciidoc]
+----
+[cols="1,1"]
+|===
+|Cell in column 1, row 1
+|Cell in column 2, row 1
+
+|Cell in column 1, row 2
+|Cell in column 2, row 2
+
+|Cell in column 1, row 3
+|Cell in column 2, row 3
+|===
+----
+
+=== Admonitions
+
+[source,asciidoc]
+----
+NOTE: This is a note admonition.
+
+WARNING: This is a warning admonition.
+
+TIP: This is a tip admonition.
+
+IMPORTANT: This is an important admonition.
+
+CAUTION: This is a caution admonition.
+----
+
+Preview:
+
+NOTE: This is a note admonition.
+
+
+=== Includes
+
+[source,asciidoc]
+----
+ include::filename.adoc[]
+----
+
+
+
+
+
+
+
+
+
+📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/contribute.adoc[Edit this page on GitHub]
