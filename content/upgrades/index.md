@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 # Best Practices for Cluster Upgrades
 
 This guide shows cluster administrators how to plan and execute their Amazon EKS upgrade strategy. It also describes how to upgrade self-managed nodes, managed node groups, Karpenter nodes, and Fargate nodes. It does not include guidance on EKS Anywhere, self-managed Kubernetes, AWS Outposts, or AWS Local Zones. 

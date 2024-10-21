@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/prefix-mode-win.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 # Prefix Mode for Windows
 In Amazon EKS, each Pod that runs on a Windows host is assigned a secondary IP address by the [VPC resource controller](https://github.com/aws/amazon-vpc-resource-controller-k8s) by default. This IP address is a VPC-routable address that is allocated from the host's subnet. On Linux, each ENI attached to the instance has multiple slots that can be populated by a secondary IP address or a /28 CIDR (a prefix). Windows hosts, however, only support a single ENI and its available slots. Using only secondary IP addresses can artifically limit the number of pods you can run on a Windows host, even when there is an abundance of IP addresses available for assignment.
 

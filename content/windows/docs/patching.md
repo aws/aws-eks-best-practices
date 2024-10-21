@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/windows-patching.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 # Patching Windows Servers and Containers
 
 Patching Windows Server is a standard management task for Windows Administrators. This can be accomplished using different tools like Amazon System Manager - Patch Manager, WSUS, System Center Configuration Manager, and many others. However, Windows nodes in an Amazon EKS cluster should not be treated as an ordinary Windows servers. They should be treated as an immutable server. Simply put, avoid updating an existing node, just launch a new one based on an new updated AMI.

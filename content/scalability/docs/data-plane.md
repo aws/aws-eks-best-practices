@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/scale-data-plane.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 # Kubernetes Data Plane
 
 The Kubernetes Data Plane includes EC2 instances, load balancers, storage, and other APIs used by the Kubernetes Control Plane. For organization purposes we grouped [cluster services](./cluster-services.md) in a separate page and load balancer scaling can be found in the [workloads section](./workloads.md). This section will focus on scaling compute resources.

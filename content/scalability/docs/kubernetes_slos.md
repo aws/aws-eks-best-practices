@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/kubernetes_upstream_slos.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 # Kubernetes Upstream SLOs
 
 Amazon EKS runs the same code as the upstream Kubernetes releases and ensures that EKS clusters operate within the SLOs defined by the Kubernetes community. The Kubernetes[Scalability Special Interest Group (SIG)](https://github.com/kubernetes/community/tree/master/sig-scalability) defines the scalability goals and investigates bottlenecks in performance through SLIs and SLOs. 

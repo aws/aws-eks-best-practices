@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/ipvs.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 # Running kube-proxy in IPVS Mode
 
 EKS in IP Virtual Server (IPVS) mode solves the [network latency issue](https://aws.github.io/aws-eks-best-practices/reliability/docs/controlplane/#running-large-clusters) often seen when running large clusters with over 1,000 services with `kube-proxy` running in legacy iptables mode. This performance issue is the result of sequential processing of iptables packet filtering rules for each packet. This latency issue has been addressed in nftables, the successor to iptables. However, as of the time of this writing, [kube-proxy is still under development](https://kubernetes.io/docs/reference/networking/virtual-ips/#proxy-mode-nftables) to make use of nftables. To get around this issue, you can configure your cluster to run `kube-proxy` in IPVS mode.

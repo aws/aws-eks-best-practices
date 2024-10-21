@@ -1,3 +1,13 @@
+
+!!! info "We've Moved to the AWS Docs! 🚀"
+    This content has been updated and relocated to improve your experience. 
+    Please visit our new site for the latest version:
+    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/pod-security.html) on the AWS Docs
+
+    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
+
+---
+
 # Pod Security
 
 The pod specification includes a variety of different attributes that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that’s running in a container from escaping the isolation boundaries of the container runtime and gaining access to the underlying host.
