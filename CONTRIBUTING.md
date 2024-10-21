@@ -1,6 +1,6 @@
 # Guidelines for contributing
 
-We're so excited to have you join us and help make the Amazon EKS Best Practices project even better! Whether you're adding new content, code samples, or improving what's already here, there are just a few guidelines to follow. 
+We're excited to have you join us and help make the Amazon EKS Best Practices project even better! Whether you're adding new content, code samples, or improving what's already here, there are just a few guidelines to follow. 
 
 ## Goal and target audience
 It's important to note that our [open-source software (OSS) community](https://aws.amazon.com/what-is/open-source/) values our content most because it's openly governed and vendor-neutral in its guidance. Unless a vendor's product or service has an open source component and/or is widely recognized as a standard, we limit contributions to open source guidance and best practices, exclusively.
@@ -23,20 +23,16 @@ We look forward to receiving your pull requests for:
 
 ## How to contribute
 
-To contribute, send us a pull request. For small changes, such as fixing a typo or adding a link, you can use the [GitHub Edit Button](https://blog.github.com/2011-04-26-forking-with-the-edit-button/). For larger changes:
-
-1. [Fork the repository](https://help.github.com/articles/fork-a-repo/).
-2. In your fork, make your change in a branch that's based on this repo's **master** branch.
-3. Commit the change to your fork, using a clear and descriptive commit message.
-4. [Create a pull request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/), answering any questions in the pull request form.
-
-Before you send us a pull request, please be sure that:
+To contribute, send us a pull request. Please be sure that:
 
 1. You're working from the latest source on the **master** branch.
 2. You check [existing open](https://github.com/aws/aws-eks-best-practices/pulls), and [recently closed](https://github.com/aws/aws-eks-best-practices/pulls?q=is%3Apr+is%3Aclosed), pull requests to be sure that someone else hasn't already addressed the problem.
 3. You [create an issue](https://github.com/aws/aws-eks-best-practices/issues/new) before working on a contribution that will take a significant amount of your time.
 
 For contributions that will take a significant amount of time, [open a new issue](https://github.com/aws/aws-eks-best-practices/issues/new) to pitch your idea before you get started. Explain the problem and describe the content you want to see added to the documentation. Let us know if you'll write it yourself or if you'd like us to help. We'll discuss your proposal with you and let you know whether we're likely to accept it. We don't want you to spend a lot of time on a contribution that might be outside the scope of the documentation or that's already in the works.
+
+## Contributing to AsciiDoc
+The EKS Best Practices Guide is written in the AsciiDoc format. A full contribution guide can be found here in the [AWS Documentation](https://docs.aws.amazon.com/eks/latest/best-practices/contribute.html).
 
 ## Finding contributions to work on
 
