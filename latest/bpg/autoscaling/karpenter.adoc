@@ -611,12 +611,10 @@ for your workload(s).
 == Additional Resources
 
 * https://catalog.workshops.aws/karpenter/en-US[Karpenter Immersion Day Workshop]
-* https://ec2spotworkshops.com/karpenter.html[Karpenter/Spot Workshop]
-* https://youtu.be/_FXRIKWJWUk[Karpenter Node Provisioner]
-* https://youtu.be/zXqrNJaTCrU[TGIK Karpenter]
-* https://youtu.be/3QsVRHVdOnM[Karpenter vs. Cluster Autoscaler]
-* https://www.youtube.com/watch?v=43g8uPohTgc[Groupless Autoscaling with
-Karpenter]
+* https://ec2spotworkshops.com/karpenter.html[Karpenter Cost Optimization Workshop]
+* https://www.eksworkshop.com/docs/autoscaling/compute/karpenter/[EKS Workshop - Karpenter]
+* https://youtu.be/FIBc8GkjFU0[Karpenter vs Cluster Autoscaler]
+* https://youtu.be/lkg_9ETHeks[Karpenter Session at re:Invent 2023]
 * https://community.aws/tutorials/run-kubernetes-clusters-for-less-with-amazon-ec2-spot-and-karpenter#step-6-optional-simulate-spot-interruption[Tutorial:
 Run Kubernetes Clusters for Less with Amazon EC2 Spot and Karpenter]
 
