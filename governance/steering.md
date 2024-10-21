@@ -5,6 +5,7 @@
 | Name          | Profile                                          | Role                                        |
 | :------------ | :----------------------------------------------- | :------------------------------------------ |
 | Sai Vennam    | [@svennam92](https://github.com/svennam92)       | Steering Committee Lead                     |
+| Geoffrey Cline| [@geoffcline](https://github.com/geoffcline)     | EKS Docs Platform Lead                      |
 | Jeremy Cowan  | [@jicowan](https://github.com/jicowan)           | Emeritus (Project creator)                  |
 
 ## Working Groups
