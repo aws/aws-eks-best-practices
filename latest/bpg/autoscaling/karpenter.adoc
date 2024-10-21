@@ -610,6 +610,7 @@ for your workload(s).
 
 == Additional Resources
 
+* https://catalog.workshops.aws/karpenter/en-US[Karpenter Immersion Day Workshop]
 * https://ec2spotworkshops.com/karpenter.html[Karpenter/Spot Workshop]
 * https://youtu.be/_FXRIKWJWUk[Karpenter Node Provisioner]
 * https://youtu.be/zXqrNJaTCrU[TGIK Karpenter]
