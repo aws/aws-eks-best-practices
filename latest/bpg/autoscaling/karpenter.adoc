@@ -8,9 +8,9 @@
 :imagesdir: images/
 
 
-https://karpenter.sh/[Karpenter] is an open-source project that provides
-node lifecycle management for Kubernetes clusters. It automates
-provisioning and deprovisioning of nodes based on the scheduling needs
+https://karpenter.sh/[Karpenter] is an open-source project designed to 
+enhance node lifecycle management within Kubernetes clusters. It automates
+provisioning and deprovisioning of nodes based on the specific scheduling needs
 of pods, allowing efficient scaling and cost optimization. Its main
 functions are: 
 
@@ -27,10 +27,10 @@ longer needed.
 With Karpenter, you can define NodePools with constraints on node
 provisioning like taints, labels, requirements (instance types, zones,
 etc.), and limits on total provisioned resources. When deploying
-workloads, you can specify scheduling constraints in the pod spec like
+workloads, you can specify various scheduling constraints in the pod specifications like
 resource requests/limits, node selectors, node/pod affinities,
 tolerations, and topology spread constraints. Karpenter will then
-provision right sized nodes for those pods.
+provision right sized nodes based on these specifications.
 
 *Reasons to use Karpenter*
 
@@ -41,8 +41,8 @@ https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler[Kubernet
 Cluster Autoscaler] (CAS) to dynamically adjust the compute capacity of
 their clusters. With Karpenter, you don’t need to create dozens of node
 groups to achieve the flexibility and diversity you get with Karpenter.
-Moreover, Karpenter is not as tightly coupled to Kubernetes versions (as
-CAS is) and doesn’t require you to jump between AWS and Kubernetes APIs.
+Unlike CAS, Karpenter is not as tightly coupled to Kubernetes versions and doesn’t 
+require you to jump between AWS and Kubernetes APIs.
 
 Karpenter consolidates instance orchestration responsibilities within a
 single system, which is simpler, more stable and cluster-aware.
@@ -100,10 +100,9 @@ yet part of Karpenter.
 
 === Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
-Karpenter is installed using a
-https://karpenter.sh/docs/getting-started/[Helm chart]. The Helm chart
-installs the Karpenter controller and a webhook pod as a Deployment that
-needs to run before the controller can be used for scaling your cluster.
+Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter). 
+The Helm chart installs the Karpenter controller and a webhook pod as a Deployment 
+that needs to run before the controller can be used for scaling your cluster.
 We recommend a minimum of one small node group with at least one worker
 node. As an alternative, you can run these pods on EKS Fargate by
 creating a Fargate profile for the `karpenter` namespace. Doing so
@@ -112,7 +111,7 @@ Do not run Karpenter on a node that is managed by Karpenter.
 
 === No custom launch templates support with Karpenter
 
-There is no custom launch template support with v1beta1 APIs (v0.32+).
+There is no custom launch template support with v1 APIs.
 You can use custom user data and/or directly specifying custom AMIs in
 the EC2NodeClass. More information on how to do this is available at
 https://karpenter.sh/docs/concepts/nodeclasses/[NodeClasses].
@@ -237,20 +236,22 @@ on these (expensive) nodes:
 [source,yaml]
 ----
 # NodePool for GPU Instances with Taints
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: gpu
 spec:
   disruption:
-    consolidateAfter: 1m0s
-    consolidationPolicy: WhenEmpty
-    expireAfter: Never
+    consolidateAfter: 1m
+    consolidationPolicy: WhenEmptyOrUnderutilized
   template:
     metadata: {}
     spec:
       nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
         name: default
+      expireAfter: Never
       requirements:
       - key: node.kubernetes.io/instance-type
         operator: In
@@ -299,20 +300,21 @@ match `billing-team`.
 [source,yaml]
 ----
 # NodePool for regular EC2 instances
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: generalcompute
 spec:
-  disruption:
-    expireAfter: Never
   template:
     metadata:
       labels:
         billing-team: my-team
     spec:
       nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
         name: default
+      expireAfter: Never
       requirements:
       - key: node.kubernetes.io/instance-type
         operator: In
@@ -369,7 +371,7 @@ expiry can be used as a means of upgrading, so that nodes are retired
 and replaced with updated versions. See
 https://karpenter.sh/docs/concepts/disruption/[Expiration] in the
 Karpenter documentation for information on using
-`spec.disruption.expireAfter` to configure node expiry.
+`spec.template.spec` to configure node expiry.
 
 === Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
@@ -455,7 +457,7 @@ https://karpenter.sh/docs/concepts/scheduling/#selecting-nodes[Node
 selectors], please refer to the Kubernetes documentation.
 * Requiring certain kinds of processors or other hardware. See the
 https://karpenter.sh/docs/concepts/scheduling/#acceleratorsgpu-resources[Accelerators]
-section of the Karpenter docs for a podspec example that requires the
+section of the Karpenter docs for a pod spec example that requires the
 pod to run on a GPU.
 
 === Create billing alarms to monitor your compute spend
