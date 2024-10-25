@@ -48,6 +48,8 @@ include::security.adoc[leveloffset=+1]
 
 include::storage.adoc[leveloffset=+1]
 
+include::hardening_container_image.adoc[leveloffset=+1]
+
 
 
 
