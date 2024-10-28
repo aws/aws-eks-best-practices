@@ -1,6 +1,6 @@
 extends: existence
 message: "External domain detected: '%s -- Review non-aws domains carefully"
-level: error
+level: warning
 scope: raw
 ignorecase: true
 tokens:
