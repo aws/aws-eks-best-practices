@@ -781,7 +781,7 @@ method, you have to make changes to your code. This is further
 complicated if you have polyglot applications. You’re also responsible
 for maintaining yet another library, across your services.
 
-Service Meshes like http://linkerd.io[LinkerD], http://istio.io[Istio], can be used to
+Service Meshes like http://linkerd.io[LinkerD] and http://istio.io[Istio] can be used to
 implement distributed tracing in your application with minimal changes
 to the application code. You can use service mesh to standardize metrics
 generation, logging, and tracing.
