@@ -1,5 +1,5 @@
 extends: existence
 message: "Don't write out 'AWS' literally. Use the variable '{aws}' instead."
-level: error
+level: warning
 raw:
  - \bAWS\p{Z}+[\p{L}\p{N}]+\b
