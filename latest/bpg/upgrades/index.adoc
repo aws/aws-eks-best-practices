@@ -194,6 +194,14 @@ Build a checklist for each upgrade.
 For specific EKS version upgrade guidance, review the documentation for
 notable changes and considerations for each version.
 
+* https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.31[EKS
+1.31]
+* https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.30[EKS
+1.30]
+* https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.29[EKS
+1.29]
+* https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.28[EKS
+1.28]
 * https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.27[EKS
 1.27]
 * https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.26[EKS
@@ -202,10 +210,6 @@ notable changes and considerations for each version.
 1.25]
 * https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.24[EKS
 1.24]
-* https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.23[EKS
-1.23]
-* https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.22[EKS
-1.22]
 
 [[upgrade-addons]]
 == Upgrade add-ons and components using the Kubernetes API
