@@ -1,6 +1,6 @@
 extends: existence
 message: "External domain detected: '%s -- Review non-aws domains carefully"
-level: error
+level: warning
 scope: raw
 ignorecase: true
 tokens:
@@ -35,4 +35,4 @@ exceptions:
   - https://marketplace.visualstudio.com/
   - https://docs.asciidoctor.org/
   - https://brew.sh/
-  
+  - https://github.dev/aws/

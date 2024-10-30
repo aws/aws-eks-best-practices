@@ -56,15 +56,31 @@ Learn how to https://docs.github.com/en/pull-requests/collaborating-with-pull-re
 
 Learn how to https://cli.github.com/manual/gh_pr_create[create a pull request] by using the GitHub cli. 
 
-// == Edit the guide online
+== Use the github.dev web-based editor
 
-// Editing the guide online is a great way to make a small change to a single page. 
+The `github.dev` web-based editor is based on VS Code. This is a great way to edit multiple files and preview content without any setup. 
+
+It has support for the AsciiDoc extension. You can do git operations by using the GUI. The web-based editor does not have a shell or terminal for running commands. 
+
+You must have a GitHub account. You will be prompted to login if required. 
+
+https://github.dev/aws/aws-eks-best-practices/blob/master/bpg-docs.code-workspace?workspace=true[🚀 Launch the GitHub web-based editor.] 
+
+== Edit a single page 
+
+You can rapidly update individual pages by using GitHub. Each page contains an "📝 Edit this page on GitHub" link at the bottom. 
+
+. Navigate to the page in this guide you want to edit
+. Click the "Edit this page on GitHub" link at the bottom
+. Click the edit pencil icon on the top right of the GitHub file viewer, or press `e`
+. Edit the file
+. Submit your changes using the "Commit changes..." button. This button creates a GitHub pull request. The guide maintainers will review this pull request. A reviewer will approve the pull request, or request changes. 
 
 == View and set the ID for a page
 
 This page explains how to view and set page ID. 
 
-The page ID is a unique string that identifies each page on the documentation site. You can view the page ID in the address bar of your browser when you're on a specific page. The page ID is used for the URL, the filename, and to create cross reference links. 
+The page ID is a unique string that identifies each page on the documentation site. You can view the page ID in the address bar of your browser when you're on a specific page. The page ID is used for the URL, the filename, and to create cross-reference links. 
 
 For example, if you're viewing this page, the URL in your browser's address bar will look similar to:
 
@@ -85,7 +101,7 @@ When creating a new page, you need to set the page ID in the source file. The pa
 [#my-new-page]
 ```
 +
-Replace `my-new-page` with the desired page ID for your new page.
+Replace `my-new-page` with the page ID for your new page.
 . Save the file.
 
 NOTE: Page IDs must be unique across the entire documentation site. If you try to use an existing page ID, you'll get a build error.
