@@ -1004,8 +1004,7 @@ The aws-node daemonset supports EKS Pod Identities in versions v1.15.5 and later
 When you use IRSA or EKS Pod Identities, it updates the credential chain
 of the pod to use IRSA or EKS Pod Identities first, however, the pod
 _can still inherit the rights of the instance profile assigned to the
-worker node_. When using IRSA or EKS Pod Identities, it is *strongly*
-recommended that you block access
+worker node_. For pods that do not need these permissions, you can block access to the
 https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html[instance
 metadata] to help ensure that your applications only have the
 permissions they require, and not their nodes.
