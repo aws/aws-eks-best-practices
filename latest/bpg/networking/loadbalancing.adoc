@@ -139,8 +139,7 @@ carefully correlate the packet received on the Worker Node to to the
 Service ClusterIP and eventually the pod to have full end-to-end
 visibility into the packet’s path for proper troubleshooting.
 
-.targettype_instance.png
-image::lb_target_type_instance.png[targettype_instance.png]
+image::lb_target_type_instance.png[Diagram illustrating the instance target type for load balancers]
 
 By contrast if you configure the target type as '`IP`' as we recommend
 the implication will be the following:
@@ -159,8 +158,7 @@ captures packet IP address will directly reveal the bi-directional
 traffic between the Load Balancer and the pod in its source and
 destination fields.
 
-.targettype_ip.png
-image::lb_target_type_ip.png[targettype_ip.png]
+image::lb_target_type_ip.png[Diagram illustrating the IP address target type for load balancers]
 
 To create an AWS Elastic Load Balancing that uses IP Targets you add:
 
@@ -313,8 +311,7 @@ application, or the result of the PreStop hook, the application
 containers are eventually terminated at the end of the grace period via
 SIGKILL.
 
-.podterminationlifecycle.png
-image::lb_podterminationlifecycle.png[podterminationlifecycle.png]
+image::lb_podterminationlifecycle.png[Process sequence diagram for pod termination]
 
 Please see the link:lb-pod-delete[Pod Deletion] in the Appendix section
 below to revisit the sequence of events in Pod deletion process.
@@ -328,8 +325,7 @@ when a Pod is being terminated Kubernetes API notifies both the kubelet
 and EndpointSlice controller at the same time. Carefully inspect the
 following diagram which shows the sequence of events.
 
-.statepropagation.png
-image::lb_statepropagation.png[statepropagation.png]
+image::lb_statepropagation.png[Diagram illustrating process for updating kubelet]
 
 The way the state propagates all the way from API server down to the
 iptables rules on the nodes explained above creates an interesting race
