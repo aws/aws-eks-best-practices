@@ -194,8 +194,8 @@ Build a checklist for each upgrade.
 For specific EKS version upgrade guidance, review the documentation for
 notable changes and considerations for each version.
 
-* link:eks/latest/userguide/kubernetes-versions-standard.html["Review release notes for Kubernetes versions on standard support",type="Documentation"]
-* link:eks/latest/userguide/kubernetes-versions-extended.html[Review release notes for Kubernetes versions on extended support, type="Documentation"]
+* link:eks/latest/userguide/kubernetes-versions-standard.html["Review release notes for Kubernetes versions on standard support",type="documentation"]
+* link:eks/latest/userguide/kubernetes-versions-extended.html[Review release notes for Kubernetes versions on extended support, type="documentation"]
 
 [[upgrade-addons]]
 == Upgrade add-ons and components using the Kubernetes API
