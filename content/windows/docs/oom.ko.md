@@ -21,7 +21,7 @@ search:
 --kube-reserved memory=0.5Gi,ephemeral-storage=1Gi --system-reserved memory=1.5Gi,ephemeral-storage=1Gi --eviction-hard memory.available<200Mi,nodefs.available<10%"
 ```
 
-eksctl을 배포 도구로 사용하는 경우, 다음 https://eksctl.io/usage/customizing-the-kubelet/ 문서를 참조하여 kublet을 커스터마이즈 할 수 있습니다.
+eksctl을 배포 도구로 사용하는 경우, 다음 https://eksctl.io/usage/customizing-the-kubelet/ 문서를 참조하여 kubelet을 커스터마이즈 할 수 있습니다.
 
 ## 윈도우 컨테이너 메모리 요구 사항
 [Microsoft 문서](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/system-requirements)에 따르면 NANO용 Windows Server 베이스 이미지에는 최소 30MB가 필요한 반면 윈도우 Server Core 이미지에는 45MB가 필요합니다. 이 수치는 .NET 프레임워크, IIS 웹 서비스 및 응용 프로그램과 같은 윈도우 구성 요소를 추가함에 따라 증가합니다.
