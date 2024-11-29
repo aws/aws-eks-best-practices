@@ -62,7 +62,7 @@ Below is an example of a snippet of cluster configuration that uses a `ConfigMap
 
 [,yaml]
 ----
-apiVersion: eksctl.io/v1alpha5
+apiVersion: eksctl.io/v1
 kind: ClusterConfig
 metadata:
   name: my-cluster
@@ -112,7 +112,7 @@ Karpenter can continuously monitor and binpack to improve instance resource util
 
 [,yaml]
 ----
-apiVersion: karpenter.sh/v1alpha5
+apiVersion: karpenter.sh/v1
 kind: Provisioner
 metadata:
   name: enable-binpacking
@@ -209,7 +209,7 @@ It is possible to balance spot and on-demand instances in a single cluster. With
 Here is an example of using Karpenter to prioritize Spot instances ahead of On-Demand instances. When creating a provisioner, you can specify either Spot, On-Demand, or both (as shown below). When you specify both, and if the pod does not explicitly specify whether it needs to use Spot or On-Demand, then Karpenter prioritizes Spot when provisioning a node with https://aws.amazon.com/blogs/compute/introducing-price-capacity-optimized-allocation-strategy-for-ec2-spot-instances/[price-capacity-optimization allocation strategy] .
 
 ----
-apiVersion: karpenter.sh/v1alpha5
+apiVersion: karpenter.sh/v1
 kind: Provisioner
 metadata:
   name: spot-prioritized
@@ -279,7 +279,7 @@ Provisioners can be configured with multiple architectures and workloads can als
 
 [,yaml]
 ----
-apiVersion: karpenter.sh/v1alpha5
+apiVersion: karpenter.sh/v1
 kind: Provisioner
 metadata:
   name: default
