@@ -829,8 +829,20 @@ print("---")
 print("sqs response:")
 print(sqsresponse)
 ```
-
 If you're migrating an application from another AWS compute service, such as EC2, to EKS with IRSA, this is a particularly important detail. On other compute services initializing an AWS SDK session does not call AWS STS unless you instruct it to.
+
+
+### CloudWatch query to help users identify clients sending requests to global STS endpoint
+
+Run CloudWatch query below to get ste endpoint. Run this If stsendpoint equals to "sts.amazonaws.com", then it is a global STS endpoint.
+
+```aidl
+fields @timestamp, @message, @logStream, @log,stsendpoint
+| filter @logStream like /authenticator/
+| filter @message like /stsendpoint/
+| sort @timestamp desc
+| limit 10000
+```
 
 ### Alternative approaches
 
