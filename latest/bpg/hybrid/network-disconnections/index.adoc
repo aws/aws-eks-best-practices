@@ -1,0 +1,33 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[hybrid-nodes-network-disconnections,hybrid-nodes-network-disconnections.title]]
+= EKS Hybrid Nodes and network disconnections
+:doctype: section
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: EKS Hybrid Nodes and network disconnections
+:info_abstract: EKS Hybrid Nodes and network disconnections
+:info_titleabbrev: Hybrid-Nodes-Network-Disconnections
+:imagesdir: images/hybrid/
+
+The EKS Hybrid Nodes architecture can be new to customers who are accustomed to running local Kubernetes clusters entirely in their own data centers or edge locations. With EKS Hybrid Nodes, the Kubernetes control plane runs in an AWS Region and only the nodes run on-premises, resulting in a “stretched” or “extended” Kubernetes cluster architecture. 
+
+This leads to a common question, “What happens if my nodes get disconnected from the Kubernetes control plane?” 
+
+In this guide, we answer that question through a review of the following topics. It is recommended to validate the stability and reliability of your applications through network disconnections as each application may behave differently based on its dependencies, configuration, and environment. See the aws-samples/eks-hybrid-examples GitHub repo for test setup, procedures, and results you can reference to test network disconnections with EKS Hybrid Nodes and your own applications. The GitHub repo also contains additional details of the tests used to validate the behavior explained in this guide.
+
+- xref:hybrid-nodes-network-disconnection-best-practices[Best practices for stability through network disconnections]
+- xref:hybrid-nodes-kubernetes-pod-failover[Kubernetes pod failover behavior through network disconnections]
+- xref:hybrid-nodes-app-network-traffic[Application network traffic through network disconnections]
+- xref:hybrid-nodes-host-creds[Host credentials through network disconnections]
+
+include::best-practices.adoc[leveloffset=+1]
+include::kubernetes-pod-failover.adoc[leveloffset=+1]
+include::app-network-traffic.adoc[leveloffset=+1]
+include::host-credentials.adoc[leveloffset=+1]
