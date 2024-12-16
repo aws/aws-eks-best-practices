@@ -834,7 +834,7 @@ If you're migrating an application from another AWS compute service, such as EC2
 
 ### CloudWatch query to help users identify clients sending requests to global STS endpoint
 
-Run CloudWatch query below to get ste endpoint. Run this If stsendpoint equals to "sts.amazonaws.com", then it is a global STS endpoint.
+Run CloudWatch query below to get sts endpoint. Run this If stsendpoint equals to "sts.amazonaws.com", then it is a global STS endpoint.
 
 ```aidl
 fields @timestamp, @message, @logStream, @log,stsendpoint
