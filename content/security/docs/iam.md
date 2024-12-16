@@ -21,7 +21,20 @@ The webhook authentication strategy calls a webhook that verifies bearer tokens.
 To manually generate a authentication token, type the following command in a terminal window:
 
 ```bash
-aws eks get-token --cluster-name <cluster_name>
+aws eks get-token --cluster-name <cluster_name> --region <region>
+```
+
+The output should resemble this:
+```json
+{
+    "kind": "ExecCredential",
+    "apiVersion": "client.authentication.k8s.io/v1alpha1",
+    "spec": {},
+    "status": {
+        "expirationTimestamp": "2024-12-20T17:38:48Z",
+        "token": "k8s-aws-v1.aHR0cHM6Ly9zdHMudXMtd2VzdC0yLmFtYXpvbmF3cy5jb20vP0FjdGlvbj1HZ...."
+    }
+}
 ```
 
 You can also get a token programmatically. Below is an example written in Go:
@@ -70,6 +83,18 @@ The token consists of a pre-signed URL that includes an Amazon credential and si
 The token has a time to live (TTL) of 15 minutes after which a new token will need to be generated. This is handled automatically when you use a client like `kubectl`, however, if you're using the Kubernetes dashboard, you will need to generate a new token and re-authenticate each time the token expires.
 
 Once the user's identity has been authenticated by the AWS IAM service, the kube-apiserver reads the `aws-auth` ConfigMap in the `kube-system` Namespace to determine the RBAC group to associate with the user.  The `aws-auth` ConfigMap is used to create a static mapping between IAM principals, i.e. IAM Users and Roles, and Kubernetes RBAC groups. RBAC groups can be referenced in Kubernetes RoleBindings or ClusterRoleBindings. They are similar to IAM Roles in that they define a set of actions (verbs) that can be performed against a collection of Kubernetes resources (objects).
+
+### CloudWatch query to help users identify clients sending requests to global STS endpoint
+
+Run CloudWatch query below to get sts endpoint. If stsendpoint equals to "sts.amazonaws.com", then it is a global STS endpoint. If stsendpoint equals like "sts.<region>.amazonaws.com", then it is a regional STS endpoint.
+
+```aidl
+fields @timestamp, @message, @logStream, @log,stsendpoint
+| filter @logStream like /authenticator/
+| filter @message like /stsendpoint/
+| sort @timestamp desc
+| limit 10000
+```
 
 ### Cluster Access Manager
 
@@ -830,19 +855,6 @@ print("sqs response:")
 print(sqsresponse)
 ```
 If you're migrating an application from another AWS compute service, such as EC2, to EKS with IRSA, this is a particularly important detail. On other compute services initializing an AWS SDK session does not call AWS STS unless you instruct it to.
-
-
-### CloudWatch query to help users identify clients sending requests to global STS endpoint
-
-Run CloudWatch query below to get sts endpoint. Run this If stsendpoint equals to "sts.amazonaws.com", then it is a global STS endpoint.
-
-```aidl
-fields @timestamp, @message, @logStream, @log,stsendpoint
-| filter @logStream like /authenticator/
-| filter @message like /stsendpoint/
-| sort @timestamp desc
-| limit 10000
-```
 
 ### Alternative approaches
 
