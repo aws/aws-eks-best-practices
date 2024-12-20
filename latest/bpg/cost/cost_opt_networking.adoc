@@ -78,7 +78,7 @@ To run all your Pods in the same AZ, either provision the worker nodes in the sa
 
 [source,yaml]
 ----
-apiVersion: karpenter.sh/v1
+apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
 name: single-az
