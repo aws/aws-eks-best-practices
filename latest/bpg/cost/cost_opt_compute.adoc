@@ -62,7 +62,7 @@ Below is an example of a snippet of cluster configuration that uses a `ConfigMap
 
 [,yaml]
 ----
-apiVersion: eksctl.io/v1
+apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
   name: my-cluster
