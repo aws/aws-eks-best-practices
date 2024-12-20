@@ -10,7 +10,7 @@ cryptography==42.0.4
 docutils==0.15.2
 feedparser==5.2.1
 google-auth==1.21.0
-idna==2.10
+idna==3.7
 jmespath==0.10.0
 kubernetes==11.0.0
 macholib==1.14
