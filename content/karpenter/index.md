@@ -48,7 +48,7 @@ Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-st
 
 ### No custom launch templates support with Karpenter
 
-There is no custom launch template support with v1 APIs. You can use custom user data and/or directly specifying custom AMIs in the EC2NodeClass. More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
+There is no custom launch template support with v1 APIs (v0.32+). You can use custom user data and/or directly specifying custom AMIs in the EC2NodeClass. More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
 
 ### Exclude instance types that do not fit your workload
 
