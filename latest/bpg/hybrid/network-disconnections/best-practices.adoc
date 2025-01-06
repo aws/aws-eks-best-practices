@@ -6,16 +6,15 @@
 :info_titleabbrev: Best practices
 :info_abstract: Best practices for stability through network disconnections
 
-
 == Highly available networking 
 
-The best thing you can do to avoid network disconnections between hybrid nodes and the Kubernetes control plane is to have redundant, resilient connections from your on-premises environment to/from AWS. Reference the https://docs.aws.amazon.com/directconnect/latest/UserGuide/resiliency_toolkit.html[AWS Direct Connect Resiliency Toolkit] and https://docs.aws.amazon.com/vpn/latest/s2svpn/vpn-redundant-connection.html[AWS Site-to-Site VPN documentation] for more information on architecting for highly available hybrid networks with those solutions.
+The best approach to avoid network disconnections between hybrid nodes and the Kubernetes control plane is to use redundant, resilient connections from your on-premises environment to and from AWS. Refer to the https://docs.aws.amazon.com/directconnect/latest/UserGuide/resiliency_toolkit.html[AWS Direct Connect Resiliency Toolkit] and https://docs.aws.amazon.com/vpn/latest/s2svpn/vpn-redundant-connection.html[AWS Site-to-Site VPN documentation] for more information on architecting highly available hybrid networks with those solutions.
 
 == Highly available applications
 
-When architecting applications, consider your failure domains and the effects of different types of outages. Kubernetes has built-in mechanisms to deploy and maintain application replicas across node, zone, and regional domains. The usage of these mechanisms depends on your application architecture, environments, and availability requirements. For example, stateless applications can often be deployed with multiple replicas and can move across arbitrary hosts and infrastructure capacity, and you can use node selectors and topology spread constraints to run instances of the application across different domains. For details of application-level techniques you can use to build resilient applications on Kubernetes, reference the https://aws.github.io/aws-eks-best-practices/reliability/docs/application/[EKS Best Practices Guide].
+When architecting applications, consider your failure domains and the effects of different types of outages. Kubernetes provides built-in mechanisms to deploy and maintain application replicas across node, zone, and regional domains. The use of these mechanisms depends on your application architecture, environments, and availability requirements. For example, stateless applications can often be deployed with multiple replicas and can move across arbitrary hosts and infrastructure capacity, and you can use node selectors and topology spread constraints to run instances of the application across different domains. For details of application-level techniques to build resilient applications on Kubernetes, refer to the https://aws.github.io/aws-eks-best-practices/reliability/docs/application/[EKS Best Practices Guide].
 
-Kubernetes evaluates zonal information for nodes when they are disconnected from the Kubernetes control plane while determining whether to move pods to other nodes. If all nodes in a zone are unreachable, Kubernetes cancels pod evictions for the nodes in that zone. As a best practice, if you have a deployment with nodes running in multiple data centers or physical locations, you should assign a zone to each node based on the data center or physical location where the node is running. When you run EKS with nodes in the cloud, this zone label is automatically applied by the AWS cloud-controller-manager. However, a cloud-controller-manager is not used with hybrid nodes, so you can pass this information via your kubelet configuration. An example of how to configure a zone in your node configuration for hybrid nodes is shown below. The configuration below is passed when you connect your hybrid nodes to your cluster with the hybrid nodes CLI (`nodeadm`). For more information on the `topology.kubernetes.io/zone` label, see the https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesiozone[Kubernetes documentation]. For more information on the hybrid nodes CLI, see the https://docs.aws.amazon.com/eks/latest/userguide/hybrid-nodes-nodeadm.html[Hybrid Nodes nodeadm reference].
+Kubernetes evaluates zonal information for nodes that are disconnected from the Kubernetes control plane when determining whether to move pods to other nodes. If all nodes in a zone are unreachable, Kubernetes cancels pod evictions for the nodes in that zone. As a best practice, if you have a deployment with nodes running in multiple data centers or physical locations, assign a zone to each node based on its data center or physical location. When you run EKS with nodes in the cloud, this zone label is automatically applied by the AWS cloud-controller-manager. However, a cloud-controller-manager is not used with hybrid nodes, so you can pass this information through your kubelet configuration. An example of how to configure a zone in your node configuration for hybrid nodes is shown below. The configuration is passed when you connect your hybrid nodes to your cluster with the hybrid nodes CLI (`nodeadm`). For more information on the `topology.kubernetes.io/zone` label, see the https://kubernetes.io/docs/reference/labels-annotations-taints/#topologykubernetesiozone[Kubernetes documentation]. For more information on the hybrid nodes CLI, see the https://docs.aws.amazon.com/eks/latest/userguide/hybrid-nodes-nodeadm.html[Hybrid Nodes nodeadm reference].
 
 [source,yaml,subs="verbatim,attributes,quotes"]
 ----
@@ -34,11 +33,11 @@ spec:
 
 == Network monitoring
 
-If you are using AWS Direct Connect or AWS Site-to-Site VPN for your hybrid connectivity, you can use CloudWatch alarms, logs, and metrics to observe the state of your hybrid connection and diagnose issues. For more information, see https://docs.aws.amazon.com/directconnect/latest/UserGuide/monitoring-overview.html[Monitoring AWS Direct Connect resources] and https://docs.aws.amazon.com/vpn/latest/s2svpn/monitoring-overview-vpn.html[Monitor an AWS Site-to-Site VPN connection]. 
+If you use AWS Direct Connect or AWS Site-to-Site VPN for your hybrid connectivity, you can take advantage of CloudWatch alarms, logs, and metrics to observe the state of your hybrid connection and diagnose issues. For more information, see https://docs.aws.amazon.com/directconnect/latest/UserGuide/monitoring-overview.html[Monitoring AWS Direct Connect resources] and https://docs.aws.amazon.com/vpn/latest/s2svpn/monitoring-overview-vpn.html[Monitor an AWS Site-to-Site VPN connection]. 
 
-It is recommended to create alarms for `NodeNotReady` events reported by the node-lifecycle-controller running on the EKS control plane, which signals that a hybrid node may be experiencing a network disconnection. You can create this alarm by enabling EKS control plane logging for the Controller Manager and creating a Metric Filter in CloudWatch for the “Recording status change event message for node” message with the status=“NodeNotReady”. After creating a Metric Filter, you can create an alarm for this filter based on your desired thresholds. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Alarm-On-Logs.html[Alarming for logs in the CloudWatch documentation] for more information.
+It is recommended to create alarms for `NodeNotReady` events reported by the node-lifecycle-controller running on the EKS control plane, which signals that a hybrid node might be experiencing a network disconnection. You can create this alarm by enabling EKS control plane logging for the Controller Manager and creating a Metric Filter in CloudWatch for the “Recording status change event message for node” message with the status=“NodeNotReady”. After creating a Metric Filter, you can create an alarm for this filter based on your desired thresholds. For more information, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Alarm-On-Logs.html[Alarming for logs in the CloudWatch documentation].
 
-You can use the Transit Gateway (TGW) and Virtual Private Gateway (VGW) built-in metrics to observe the network traffic into and out of your TGW or VPW. You can create alarms for these metrics to detect scenarios when network traffic dips below normal levels, signaling a network issue between hybrid nodes and the EKS control plane. The TGW and VGW metrics are described in the table below.
+You can use the Transit Gateway (TGW) and Virtual Private Gateway (VGW) built-in metrics to observe the network traffic into and out of your TGW or VGW. You can create alarms for these metrics to detect scenarios where network traffic dips below normal levels, indicating a potential network issue between hybrid nodes and the EKS control plane. The TGW and VGW metrics are described in the following table.
 
 [cols="2,1,5"]
 |===
@@ -58,46 +57,47 @@ You can use the Transit Gateway (TGW) and Virtual Private Gateway (VGW) built-in
 
 |Virtual Private Gateway
 |TunnelDataOut
-|The bytes received on the AWS side of the connection through the VPN tunnel from a customer gateway (hybrid nodes to EKS control plane)
+|The bytes received on the AWS side of the connection through the VPN tunnel from the customer gateway (hybrid nodes to EKS control plane)
 |===
 
-You can also use https://aws.amazon.com/blogs/networking-and-content-delivery/monitor-hybrid-connectivity-with-amazon-cloudwatch-network-monitor/[CloudWatch Network Monitor] to gain further insight into your hybrid connections to reduce mean time to recovery and determine if network issues are in AWS or your environment. CloudWatch Network Monitor can be used to visualize packet loss and latency of your hybrid network connections, set alerts and thresholds, and then take action to improve your network experience. For more information, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/what-is-network-monitor.html[Using Amazon CloudWatch Network Monitor].
+You can also use https://aws.amazon.com/blogs/networking-and-content-delivery/monitor-hybrid-connectivity-with-amazon-cloudwatch-network-monitor/[CloudWatch Network Monitor] to gain deeper insight into your hybrid connections to reduce mean time to recovery and determine whether network issues originate in AWS or your environment. CloudWatch Network Monitor can be used to visualize packet loss and latency in your hybrid network connections, set alerts and thresholds, and then take action to improve your network performance. For more information, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/what-is-network-monitor.html[Using Amazon CloudWatch Network Monitor].
 
-EKS offers several options for monitoring the health of your clusters and applications. For cluster health you can use the observability dashboard in the EKS console to quickly detect, troubleshoot, and remediate issues. You can also use Amazon Managed Service for Prometheus, AWS Distro for Open Telemetry (ADOT), and CloudWatch for cluster, application, and infrastructure monitoring. For more information on the observability options in EKS, see https://docs.aws.amazon.com/eks/latest/userguide/eks-observe.html[Monitor your cluster performance and view logs]. 
+EKS offers several options for monitoring the health of your clusters and applications. For cluster health, you can use the observability dashboard in the EKS console to quickly detect, troubleshoot, and remediate issues. You can also use Amazon Managed Service for Prometheus, AWS Distro for Open Telemetry (ADOT), and CloudWatch for cluster, application, and infrastructure monitoring. For more information on EKS observability options, see https://docs.aws.amazon.com/eks/latest/userguide/eks-observe.html[Monitor your cluster performance and view logs]. 
 
 == Local troubleshooting
 
-To prepare for network disconnections between hybrid nodes and the EKS control plane, you can set up secondary monitoring and logging backends to enable continuous observability for applications when regional AWS services are not available. For example, this can be accomplished with the AWS Distro for Open Telemetry (ADOT) collector which can be configured to send metrics and logs to multiple backends. You can also use local tools such as `crictl` to interact locally with pods and containers as a replacement for `kubectl` or other Kubernetes API-compatible clients that typically query through the Kubernetes API server endpoint. For more information on `crictl`, see the https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md[`crictl` documentation] in the cri-tools GitHub. A few useful crictl commands are listed below.
+To prepare for network disconnections between hybrid nodes and the EKS control plane, you can set up secondary monitoring and logging backends to maintain observability for applications when regional AWS services are not reachable. For example, you can configure the AWS Distro for Open Telemetry (ADOT) collector to send metrics and logs to multiple backends. You can also use local tools, such as the `crictl` CLI, to interact locally with pods and containers as a replacement for `kubectl` or other Kubernetes API-compatible clients that typically query the Kubernetes API server endpoint. For more information on `crictl`, see the https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md[`crictl` documentation] in the cri-tools GitHub. A few useful `crictl` commands are listed below.
 
-List pods running on the host
+List pods running on the host:
 
 [source,bash,subs="verbatim,attributes,quotes"]
 ----
 crictl pods
 ----
 
-List containers running on the host
+List containers running on the host:
 
 [source,bash,subs="verbatim,attributes,quotes"]
 ----
 crictl ps
 ----
 
-List images running on the host
+List images running on the host:
 
 [source,bash,subs="verbatim,attributes,quotes"]
 ----
 crictl images
 ----
 
-Get logs of a container running on the host
+Get logs of a container running on the host:
 
 [source,bash,subs="verbatim,attributes,quotes"]
 ----
 crictl logs CONTAINER_NAME
 ----
 
-Get statistics of pods running on the host
+Get statistics of pods running on the host:
+
 [source,bash,subs="verbatim,attributes,quotes"]
 ----
 crictl statsp
@@ -105,21 +105,23 @@ crictl statsp
 
 == Application network traffic
 
-When using hybrid nodes, it is important to consider and understand the network flows of your application traffic and the technologies you are using to expose your applications externally to your cluster. Different technologies for application load balancing and ingress behave differently during network disconnections. For example, if you are using Cilium’s BGP Control Plane capability for application load balancing, the BGP session for your pods and services may be down during network disconnections because the BGP speaker functionality is integrated with the Cilium agent, and the Cilium agent will continuously restart when disconnected from the Kubernetes control plane. The reason for the restart is due to Cilium’s health check failing because its health is coupled with access to the Kubernetes control plane (see https://github.com/cilium/cilium/issues/31702[CFP: #31702] with opt-in improvement in Cilium v1.17). Similarly, if you are using Application Load Balancers (ALB) or Network Load Balancers (NLB) for AWS Region-originated application traffic, this traffic be temporarily down if your on-premises environment loses connectivity to the AWS Region. It is recommended to validate the technologies you are using for load balancing and ingress remain stable during network disconnections before deploying to production to avoid unexpected behaviors. The example in the https://github.com/aws-samples/eks-hybrid-examples[aws-samples/eks-hybrid-examples] GitHub repo uses MetalLB for load balancing in https://metallb.universe.tf/concepts/layer2/[L2 mode], which remains stable during network disconnections between hybrid nodes and the EKS control plane.
+When using hybrid nodes, it is important to consider and understand the network flows of your application traffic and the technologies you use to expose your applications externally to your cluster. Different technologies for application load balancing and ingress behave differently during network disconnections. For example, if you are using Cilium's BGP Control Plane capability for application load balancing, the BGP session for your pods and services might be down during network disconnections. This happens because the BGP speaker functionality is integrated with the Cilium agent, and the Cilium agent will continuously restart when disconnected from the Kubernetes control plane. The reason for the restart is due to Cilium's health check failing because its health is coupled with access to the Kubernetes control plane (see https://github.com/cilium/cilium/issues/31702[CFP: #31702] with an opt-in improvement in Cilium v1.17). Similarly, if you are using Application Load Balancers (ALB) or Network Load Balancers (NLB) for AWS Region-originated application traffic, that traffic might be temporarily down if your on-premises environment loses connectivity to the AWS Region. It is recommended to validate that the technologies you use for load balancing and ingress remain stable during network disconnections before deploying to production. The example in the https://github.com/aws-samples/eks-hybrid-examples[aws-samples/eks-hybrid-examples] GitHub repo uses MetalLB for load balancing in https://metallb.universe.tf/concepts/layer2/[L2 mode], which remains stable during network disconnections between hybrid nodes and the EKS control plane.
 
 == Review dependencies on remote AWS services
 
-When using hybrid nodes, you should be aware of and intentional about the dependencies you take on regional AWS services that are external to your on-premises or edge environment. Examples include accessing S3 or RDS for application data, using Amazon Managed Service for Prometheus or CloudWatch for metrics and logs, using Application and Network Load Balancers for region-originated traffic, and pulling containers from Elastic Container Registry. These services will not be accessible during network disconnections between your on-premises environment and AWS. If your on-premises environment is highly susceptible to network disconnections with AWS, you should review your use of AWS services and ensure that losing a connection to other AWS services does not impact the static stability of your applications.
+When using hybrid nodes, be aware of the dependencies you take on regional AWS services that are external to your on-premises or edge environment. Examples include accessing Amazon S3 or Amazon RDS for application data, using Amazon Managed Service for Prometheus or CloudWatch for metrics and logs, using Application and Network Load Balancers for Region-originated traffic, and pulling containers from Amazon Elastic Container Registry. These services will not be accessible during network disconnections between your on-premises environment and AWS. If your on-premises environment is prone to network disconnections with AWS, review your usage of AWS services and ensure that losing a connection to those services does not compromise the static stability of your applications.
 
 == Tune Kubernetes pod failover behavior
 
-There are options to tune pod failover behavior during network disconnections for applications that are not portable across hosts or for resource-constrained environments that do not have spare capacity for pod failover. Generally, it is important to consider the resource requirements of your applications and to have enough capacity for one or more instances of the application to failover to a different host in the event of node failure.
+There are options to tune pod failover behavior during network disconnections for applications that are not portable across hosts, or for resource-constrained environments that do not have spare capacity for pod failover. Generally, it is important to consider the resource requirements of your applications and to have enough capacity for one or more instances of the application to fail over to a different host if a node fails.
 
-- [.underline]#Option 1 - Use DaemonSets#: This option applies for applications that can and should run on all nodes in the cluster. DaemonSets are automatically configured to tolerate the unreachable taint, which binds the DaemonSet pods to nodes through network disconnections.
-- [.underline]#Option 2 - Tune `tolerationSeconds` for unreachable taint#: You can tune the amount of time your pods remain bound to nodes in the event of network disconnections. You can do this by configuring application pods to tolerate the unreachable taint with `NoExecute` effect for a duration you configure (`tolerationSeconds` in application spec). With option, when there are network disconnections, your application pods remain bound to nodes until `tolerationSeconds` expires. This option should be considered with care, as increasing the `tolerationSeconds` for the unreachable taint with `NoExecute` means that pods running on unreachable hosts may take longer to be moved to other reachable, healthy hosts.
-- [.underline]#Option 3: Custom controller#: You can create and run a custom controller (or other software) that monitors Kubernetes for the unreachable taint with `NoExecute` effect. When this taint is detected, the custom controller can check application-specific metrics for the health of the application. If the application is healthy, the custom controller can remove the unreachable taint, which will negate the eviction of pods from nodes during network disconnections.
+- [.underline]#Option 1 - Use DaemonSets#: This option applies to applications that can and should run on all nodes in the cluster. DaemonSets are automatically configured to tolerate the unreachable taint, which keeps DaemonSet pods bound to their nodes through network disconnections.
 
-An example of how to configure a Deployment with `tolerationSeconds` for the unreachable taint is shown below. In the example below, `tolerationSeconds` is set to `1800` (30 minutes), which means pods running on unreachable nodes will only be evicted if the network disconnection lasts for longer than 30 minutes.
+- [.underline]#Option 2 - Tune `tolerationSeconds` for unreachable taint#: You can tune the amount of time your pods remain bound to nodes during network disconnections. Do this by configuring application pods to tolerate the unreachable taint with the `NoExecute` effect for a duration you specify (`tolerationSeconds` in the application spec). With this option, when there are network disconnections, your application pods remain bound to nodes until `tolerationSeconds` expires. Carefully consider this, because increasing `tolerationSeconds` for the unreachable taint with `NoExecute` means that pods running on unreachable hosts might take longer to move to other reachable, healthy hosts.
+
+- [.underline]#Option 3: Custom controller#: You can create and run a custom controller (or other software) that monitors Kubernetes for the unreachable taint with the `NoExecute` effect. When this taint is detected, the custom controller can check application-specific metrics to assess application health. If the application is healthy, the custom controller can remove the unreachable taint, preventing eviction of pods from nodes during network disconnections.
+
+An example of how to configure a Deployment with `tolerationSeconds` for the unreachable taint is shown below. In the example, `tolerationSeconds` is set to `1800` (30 minutes), which means pods running on unreachable nodes will only be evicted if the network disconnection lasts longer than 30 minutes.
 
 [source,yaml,subs="verbatim,attributes,quotes"]
 ----

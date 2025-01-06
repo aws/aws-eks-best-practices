@@ -19,6 +19,6 @@ This guide provides guidance on running deployments in on-premises or edge envir
 
 We currently have published guides for the following topics:
 
-- xref:network-disconnections[Best Practices for EKS Hybrid Nodes and network disconnections]
+- xref:hybrid-nodes-network-disconnections[Best Practices for EKS Hybrid Nodes and network disconnections]
 
 include::network-disconnections/index.adoc[leveloffset=+1]
