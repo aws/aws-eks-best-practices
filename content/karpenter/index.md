@@ -12,7 +12,7 @@
 
 ## Karpenter
 
-[Karpenter](https://karpenter.sh/) is an open-source project that provides node lifecycle management for Kubernetes clusters. It automates provisioning and deprovisioning of nodes based on the scheduling needs of pods, allowing efficient scaling and cost optimization. Its main functions are:
+[Karpenter](https://karpenter.sh/) is an open-source project designed to enhance node lifecycle management within Kubernetes clusters. It automates provisioning and deprovisioning of nodes based on the specific scheduling needs of pods, allowing efficient scaling and cost optimization. Its main functions are:
 
 * Monitor pods that the Kubernetes scheduler cannot schedule due to resource constraints.
 * Evaluate the scheduling requirements (resource requests, node selectors, affinities, tolerations, etc.) of the unschedulable pods.
@@ -20,11 +20,11 @@
 * Remove nodes when they are no longer needed.
   
 With Karpenter, you can define NodePools with constraints on node provisioning like taints, labels, requirements (instance types, zones, etc.), and limits on total provisioned resources.
-When deploying workloads, you can specify scheduling constraints in the pod spec like resource requests/limits, node selectors, node/pod affinities, tolerations, and topology spread constraints. Karpenter will then provision right sized nodes for those pods.
+When deploying workloads, you can specify various scheduling constraints in the pod specifications like resource requests/limits, node selectors, node/pod affinities, tolerations, and topology spread constraints. Karpenter will then provision right sized nodes based on these specifications.
 
 **Reasons to use Karpenter**
 
-Before the launch of Karpenter, Kubernetes users relied primarily on [Amazon EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) and the [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) (CAS) to dynamically adjust the compute capacity of their clusters. With Karpenter, you don’t need to create dozens of node groups to achieve the flexibility and diversity you get with Karpenter. Moreover, Karpenter is not as tightly coupled to Kubernetes versions (as CAS is) and doesn’t require you to jump between AWS and Kubernetes APIs.
+Before the launch of Karpenter, Kubernetes users relied primarily on [Amazon EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) and the [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler) (CAS) to dynamically adjust the compute capacity of their clusters. With Karpenter, you don’t need to create dozens of node groups to achieve the flexibility and diversity you get with Karpenter. Unlike CAS, Karpenter is not as tightly coupled to Kubernetes versions and doesn’t require you to jump between AWS and Kubernetes APIs.
 
 Karpenter consolidates instance orchestration responsibilities within a single system, which is simpler, more stable and cluster-aware. Karpenter was designed to overcome some of the challenges presented by Cluster Autoscaler by providing simplified ways to:
 
@@ -54,11 +54,11 @@ You need features that are still being developed in Karpenter. Because Karpenter
 
 ### Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
-Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-started/). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
+Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter). The Helm chart installs the Karpenter controller and a webhook pod as a Deployment that needs to run before the controller can be used for scaling your cluster. We recommend a minimum of one small node group with at least one worker node. As an alternative, you can run these pods on EKS Fargate by creating a Fargate profile for the `karpenter` namespace. Doing so will cause all pods deployed into this namespace to run on EKS Fargate. Do not run Karpenter on a node that is managed by Karpenter.
 
 ### No custom launch templates support with Karpenter
 
-There is no custom launch template support with v1beta1 APIs (v0.32+). You can use custom user data and/or directly specifying custom AMIs in the EC2NodeClass. More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
+There is no custom launch template support with v1 APIs (v0.32+). You can use custom user data and/or directly specifying custom AMIs in the EC2NodeClass. More information on how to do this is available at [NodeClasses](https://karpenter.sh/docs/concepts/nodeclasses/).
 
 ### Exclude instance types that do not fit your workload
 
@@ -130,20 +130,22 @@ Creating a NodePool with GPU and only allowing special workloads to run on these
 
 ```yaml
 # NodePool for GPU Instances with Taints
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: gpu
 spec:
   disruption:
-    consolidateAfter: 1m0s
-    consolidationPolicy: WhenEmpty
-    expireAfter: Never
+    consolidateAfter: 1m
+    consolidationPolicy: WhenEmptyOrUnderutilized
   template:
     metadata: {}
     spec:
       nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
         name: default
+      expireAfter: Never
       requirements:
       - key: node.kubernetes.io/instance-type
         operator: In
@@ -189,20 +191,21 @@ For a general deployment for another team, the NodePool spec could include nodeA
 
 ```yaml
 # NodePool for regular EC2 instances
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: generalcompute
 spec:
-  disruption:
-    expireAfter: Never
   template:
     metadata:
       labels:
         billing-team: my-team
     spec:
       nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
         name: default
+      expireAfter: Never
       requirements:
       - key: node.kubernetes.io/instance-type
         operator: In
@@ -253,7 +256,7 @@ spec:
 
 ### Use timers (TTL) to automatically delete nodes from the cluster
 
-You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [Expiration](https://karpenter.sh/docs/concepts/disruption/) in the Karpenter documentation for information on using `spec.disruption.expireAfter` to configure node expiry.
+You can use timers on provisioned nodes to set when to delete nodes that are devoid of workload pods or have reached an expiration time. Node expiry can be used as a means of upgrading, so that nodes are retired and replaced with updated versions. See [Expiration](https://karpenter.sh/docs/concepts/disruption/) in the Karpenter documentation for information on using `spec.template.spec` to configure node expiry.
 
 ### Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
@@ -286,7 +289,7 @@ If you need to run highly available applications, follow general EKS best practi
 Karpenter’s model of layered constraints allows you to create a complex set of NodePool and pod deployment constraints to get the best possible matches for pod scheduling. Examples of constraints that a pod spec can request include the following:
 
 * Needing to run in availability zones where only particular applications are available. Say, for example, you have pod that has to communicate with another application that runs on an EC2 instance residing in a particular availability zone. If your aim is to reduce cross-AZ traffic in your VPC, you may want to co-locate the pods in the AZ where the EC2 instance is located. This sort of targeting is often accomplished using node selectors. For additional information on [Node selectors](https://karpenter.sh/docs/concepts/scheduling/#selecting-nodes), please refer to the Kubernetes documentation.
-* Requiring certain kinds of processors or other hardware. See the [Accelerators](https://karpenter.sh/docs/concepts/scheduling/#acceleratorsgpu-resources) section of the Karpenter docs for a podspec example that requires the pod to run on a GPU.
+* Requiring certain kinds of processors or other hardware. See the [Accelerators](https://karpenter.sh/docs/concepts/scheduling/#acceleratorsgpu-resources) section of the Karpenter docs for a pod spec example that requires the pod to run on a GPU.
 
 ### Create billing alarms to monitor your compute spend
 
