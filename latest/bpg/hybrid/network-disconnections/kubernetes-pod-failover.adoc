@@ -1,6 +1,8 @@
+//!!NODE_ROOT <section>
 [.topic]
 [[hybrid-nodes-kubernetes-pod-failover,hybrid-nodes-kubernetes-pod-failover.title]]
 = Kubernetes pod failover through network disconnections
+:doctype: section
 :info_doctype: section
 :info_title: Kubernetes pod failover through network disconnections
 :info_titleabbrev: Kubernetes pod failover
