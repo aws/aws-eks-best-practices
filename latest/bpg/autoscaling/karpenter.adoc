@@ -71,7 +71,7 @@ The following best practices cover topics related to Karpenter itself.
 
 === Lock down AMIs in production clusters
 
-We strongly recommend that you pin well-known AMIs used by Karpenter for production clusters.
+We strongly recommend that you pin well-known Amazon Machine Images (AMIs) used by Karpenter for production clusters.
 Using `amiSelector` with an alias set to `@latest`, or using some other method that results in deploying untested AMIs as they are released, offers the risk of workload failures and downtime in your production clusters. As a result, we strongly recommend pinning tested working versions of AMIs for your production clusters while you test newer versions in non-production clusters. For example, you could set an alias in your NodeClass as follows:
 
 amiSelectorTerms
