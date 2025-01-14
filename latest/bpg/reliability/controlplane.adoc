@@ -384,4 +384,3 @@ EKS cluster endpoint access control]
 EKS under the hood (CON421-R1)]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/controlplane.adoc[Edit this page on GitHub]

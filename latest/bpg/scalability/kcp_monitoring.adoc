@@ -268,4 +268,3 @@ fields *@timestamp*, *@message*
 image::defrag.png[Defrag query]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/kcp_monitoring.adoc[Edit this page on GitHub]

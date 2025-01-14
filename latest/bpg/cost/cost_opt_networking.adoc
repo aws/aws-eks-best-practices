@@ -504,4 +504,3 @@ image:../images/after-results.png[After results]
 * https://aws.amazon.com/blogs/containers/understanding-data-transfer-costs-for-aws-container-services/[Understanding data transfer costs for AWS container services]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_opt_networking.adoc[Edit this page on GitHub]

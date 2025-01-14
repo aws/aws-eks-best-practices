@@ -367,4 +367,3 @@ https://www.microsoft.com/security/blog/2021/03/23/secure-containerized-environm
 ATT&CK®].)
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/detective.adoc[Edit this page on GitHub]

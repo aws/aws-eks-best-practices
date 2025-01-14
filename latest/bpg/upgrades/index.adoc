@@ -964,4 +964,4 @@ https://github.com/FairwindsOps/GoNoGo[GoNoGo] is an alpha-stage tool to
 determine the upgrade confidence of your cluster add-ons.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/upgrades/index.adoc[Edit this page on GitHub]
+

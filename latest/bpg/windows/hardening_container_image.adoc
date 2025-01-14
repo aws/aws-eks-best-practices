@@ -324,4 +324,4 @@ Securing Windows containers also aligns with regulatory requirements that mandat
 
 In summary, the rise of containerized applications, coupled with the growing number of cyber threats, makes container security a nonnegotiable aspect of modern infrastructure management. By adhering to best practices and continuously monitoring for vulnerabilities, businesses can enjoy the agility and efficiency of Windows containers without compromising on security. In this threat-rich environment, securing your Windows containers is not just an option--it's a must-have.
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/hardening_container_image.adoc[Edit this page on GitHub]
+

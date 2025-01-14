@@ -796,4 +796,4 @@ X-Ray] or https://www.jaegertracing.io[Jaeger] that supports both
 to switch tools if you later adopt service mesh.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/application.adoc[Edit this page on GitHub]
+

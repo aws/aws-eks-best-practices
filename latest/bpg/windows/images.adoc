@@ -20,4 +20,3 @@ To learn more about how to integrate these solutions with Amazon Elastic Contain
 * https://cloudone.trendmicro.com/docs/container-security/sc-about/[TrendMicro, scanning images on Amazon Elastic Container Registry (ECR)]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/images.adoc[Edit this page on GitHub]

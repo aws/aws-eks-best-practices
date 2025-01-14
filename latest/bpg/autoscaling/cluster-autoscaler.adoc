@@ -634,4 +634,3 @@ Marcin Wielgus
 * https://github.com/aws/aws-node-termination-handler
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/autoscaling/cluster-autoscaler.adoc[Edit this page on GitHub]

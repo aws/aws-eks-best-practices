@@ -374,4 +374,3 @@ nodes.
 * https://eksctl.io/[eksctl]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/hosts.adoc[Edit this page on GitHub]

@@ -170,4 +170,3 @@ UDP  ip-10-100-0-10.us-east-1 rr
 NOTE: This example output comes from an EKS cluster with a service IP address range of `10.100.0.0/16`.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/ipvs.adoc[Edit this page on GitHub]

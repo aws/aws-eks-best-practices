@@ -176,4 +176,3 @@ AWS Cloud9 is a web-based IDE than can run securely in Private Subnets without i
 image::subnet_image-2.jpg[illustration of AWS Cloud9 console connecting to no-ingress EC2 instance.]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/subnets.adoc[Edit this page on GitHub]

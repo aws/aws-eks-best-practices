@@ -354,4 +354,3 @@ For example, if you have traces that are 90 days old, https://aws.amazon.com/s3/
 * https://www.youtube.com/watch?v=YiegAlC_yyc[AWS re:Invent 2022 - Observability: Best practices for modern applications (COP344)]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_opt_observability.adoc[Edit this page on GitHub]

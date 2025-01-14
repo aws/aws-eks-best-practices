@@ -161,4 +161,3 @@ Consider that the SLOs are focused on the performance of the Kubernetes componen
 The https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/best-practices-metrics-collection/#control-plane-metrics[Observability Best Practices Guide] has examples of other Kubernetes metrics you can use to gain further insight.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/kubernetes_slos.adoc[Edit this page on GitHub]

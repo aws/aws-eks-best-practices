@@ -312,4 +312,4 @@ Some GPU hardware can be shared across multiple workloads so a single GPU can be
 * https://aws.amazon.com/blogs/containers/maximizing-gpu-utilization-with-nvidias-multi-instance-gpu-mig-on-amazon-eks-running-more-pods-per-gpu-for-enhanced-performance/[Maximizing GPU utilization with NVIDIA's Multi-Instance GPU (MIG) on Amazon EKS: Running more pods per GPU for enhanced performance]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_opt_compute.adoc[Edit this page on GitHub]
+

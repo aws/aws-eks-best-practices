@@ -229,4 +229,3 @@ spec:
 The following https://aws.amazon.com/blogs/containers/using-amazon-fsx-for-windows-file-server-on-eks-windows-containers/[blog] has implementation details on how to setup Amazon FSx for Windows File Server as a persistent storage for Windows Pods.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/storage.adoc[Edit this page on GitHub]

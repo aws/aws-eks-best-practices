@@ -621,4 +621,4 @@ for your workload(s).
 Run Kubernetes Clusters for Less with Amazon EC2 Spot and Karpenter]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/autoscaling/karpenter.adoc[Edit this page on GitHub]
+

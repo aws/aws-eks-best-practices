@@ -125,7 +125,7 @@ file an issue or submit a PR in the GitHub repository. We intend to
 update the guide periodically as new features are added to the service
 or when a new best practice evolves.
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/index.adoc[Edit this page on GitHub]
+
 
 include::application.adoc[leveloffset=+1]
 

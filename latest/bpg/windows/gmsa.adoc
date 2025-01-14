@@ -57,4 +57,3 @@ RUN Import-Module WebAdministration; Set-WebConfigurationProperty -Filter '/syst
 ----
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/gmsa.adoc[Edit this page on GitHub]

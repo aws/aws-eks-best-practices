@@ -150,4 +150,3 @@ zero-trust container security platform, provides compliance reporting
 and custom compliance checks
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/compliance.adoc[Edit this page on GitHub]
