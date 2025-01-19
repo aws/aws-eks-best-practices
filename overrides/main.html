@@ -3,3 +3,10 @@
 {% block announce %}
 <h2 style="color:#F2F2F2;text-align: center;"><b> The EKS Best Practices Guide has moved to the <a style="color:#ff9900;text-decoration: underline" href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html">AWS Documentation</a></u>. Check there for the latest updates. </b></h2>
 {% endblock %}
+
+{% block extrahead %}
+  {% if page.meta and page.meta.redirect %}
+    <meta http-equiv="refresh" content="0; URL='{{ page.meta.redirect }}'" />
+  {% endif %}
+  {{ super() }}
+{% endblock %} 
