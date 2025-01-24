@@ -102,6 +102,9 @@ The AWS Load Balancer Controller (LBC) has to be installed in the EKS
 clusters and provisions AWS load balancers that point to cluster Service
 or Ingress resources.
 
+If you are utilizing [EKS Auto Mode](https://docs.aws.amazon.com/eks/latest/userguide/automode.html) 
+the AWS Load Balancer comes pre-installed on your cluster.
+
 In order for the LBC to manage the reconciliation of Kubernetes Service
 resources of type LoadBalancer, you need to offload the reconciliation
 from the in-tree controller to the LBC, explicitly. With
