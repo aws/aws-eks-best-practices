@@ -34,25 +34,35 @@ While AWS handles most operational aspects, customers retain responsibility for 
 Auto Mode is geared towards users that want the benefits of Kubernetes and EKS but need to minimize operational burden around Kubernetes like upgrades and installation/maintenance of critical platform pieces like auto-scaling, load balancing, and storage.  Auto Mode takes EKS a step further in the minimization of the undifferentiated heavy lifting that goes along with Kubernetes maintenance
 
 
+== FAQ
 
-== Components
+=== What is the difference between EKS Auto Mode and Open Source Karpenter?
 
-EKS Auto Mode completely automates the deployment most of the pieces of a data plane needed for production-grade Kubernetes.  This includes:
+EKS Auto Mode is a large suite of features that make running production-grade 
+Kubernetes simple.  One of these features is the auto-scaling benefits of Karpenter, 
+fully managed.  From an operations standpoint, the only difference is in EKS
+Auto Mode you do not need to manage the deployment, scaling, and upgrade of
+the Karpenter pods themselves.  All other operations, like managed NodeClasses
+and NodePools works the same as with open source Karpenter.
 
-* Karpenter, for auto-scaling the compute of your cluster
-* AWS Load Balancer Controller to allow you to easily expose Kubernetes services via automated Elastic Load Balancer integration
-* EBS CSI
-* VPC CNI
-* EKS Pod Identity Agent
+=== Can I run managed node groups alongside Auto Mode-managed nodes?
 
+Yes, you may run static nodes via a managed node groups alongside your autoscaling nodes provided with Auto Mode
 
+=== Can I migrate a cluster from standard EKS to EKS Auto Mode?
 
-== Configuring NodePools in EKS Auto Mode
+Yes, instructions to enable EKS Auto Mode on an existing cluster can be found
+in the official https://docs.aws.amazon.com/eks/latest/userguide/auto-enable-existing.html[AWS Documentation]
+
+Things to note:
+1. After enabling Auto Mode, you'll want to uninstall any components you had installed that are now managed by Auto Mode, like Karpenter or the AWS Load Balancer Controller
+2. You need to make sure your installed add-ons are up-to-date.  See documentation.
+
+=== How do I configure NodePools in EKS Auto Mode?
 
 A new cluster will come pre-configured with two NodePools
 
-
-=== general-purpose
+==== general-purpose
 
 image:gp_nodepool.png[General Purpose NodePool]
 
@@ -68,7 +78,7 @@ This NodePool instructs Karpenter to launch nodes with the following characteris
 It also defines what the scale down logic is by declaring that only 10% of all nodes may be in a disrupted state at any given time and that consolidation should only occur when nodes are empty or underutilized.
 
 
-=== system
+==== system
 
 image:system_nodepool.png[System NodePool]
 
@@ -78,7 +88,31 @@ This NodePool is similar to “general-purpose” except for the following diffe
 1. It allows for nodes with the ARM architecture as well as AMD architecture
 2. It taints these nodes with a NoSchedule unless there’s a toleration for “CriticalAddonsOnly”.  This is for internal use by EKS add-ons
 
-== Troubleshooting
+==== custom
 
-TODO
+You may create your own custom NodePools depending on your needs.  To learn more about 
+NodePools please consult the https://karpenter.sh/docs/concepts/nodepools/[Karpenter Documentation].
 
+=== Can I customize the AMI used by Auto Mode when new nodes are launched?
+
+No, currently the only supported AMIs are for Amazon-provided Bottlerocket
+
+=== How can I install custom tooling or agents on my Kubernetes hosts? ===
+
+Because AMI customization is not supported, if you have a need for host-level software for things like security scanning you should 
+be deploying the workload as a Kubernetes https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/[DaemonSet].
+
+=== What components are running in my cluster data plane when I provision a new EKS Auto Mode cluster?
+
+By default, the only pods running in an EKS Auto Mode cluster are Kubernetes Metrics Server pods.  The other components of EKS Auto Mode
+like Karpenter, the AWS Load Balancer Controller, and the EBS CSI Driver are all running and managed off-cluster.
+
+=== What managed components are running to support my new EKS Auto Mode cluster?
+
+EKS Auto Mode completely automates the deployment most of the pieces of a data plane needed for production-grade Kubernetes.  This includes:
+
+* Karpenter, for auto-scaling the compute of your cluster
+* AWS Load Balancer Controller to allow you to easily expose Kubernetes services via automated Elastic Load Balancer integration
+* EBS CSI
+* VPC CNI
+* EKS Pod Identity Agent
