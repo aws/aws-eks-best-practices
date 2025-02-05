@@ -2,6 +2,8 @@ site_name: EKS Best Practices Guides
 repo_name: "aws/aws-eks-best-practices"
 repo_url: "https://github.com/aws/aws-eks-best-practices"
 docs_dir: "content"
+hooks:
+  - overrides/set-url.py
 theme:
   name: material
   custom_dir: overrides
