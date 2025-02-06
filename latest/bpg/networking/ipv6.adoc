@@ -38,8 +38,7 @@ image::ipv6_eks-cluster-ipv6-foundation.png[Dual Stack VPC, EKS Cluster in IPv6 
 
 == Overview
 
-EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix
-Mode].
+EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix Mode].
 
 Prefix assignment only works on Nitro-based EC2 instances, hence EKS/IPv6 is only supported when the cluster data-plane uses EC2 Nitro-based instances.
 
