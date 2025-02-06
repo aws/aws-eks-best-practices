@@ -279,19 +279,19 @@ AZs in the region. Even if a Pod using EFS-backed Persistent Volume gets
 terminated and gets scheduled in different AZ, it will be able to mount
 the volume.
 
-=== Run node-problem-detector
+=== Detect node problems with node monitoring agent
 
-Failures in worker nodes can impact the availability of your
-applications.
-https://github.com/kubernetes/node-problem-detector[node-problem-detector]
-is a Kubernetes add-on that you can install in your cluster to detect
-worker node issues. You can use a
-https://github.com/kubernetes/node-problem-detector#remedy-systems[npd’s
-remedy system] to drain and terminate the node automatically.
+Failures in worker nodes can impact the availability of your applications.
+You can use the node monitoring agent to detect and show health issues.
+You can also enable node auto repair to automatically replace nodes when issues are detected.
 
-=== Reserving resources for system and Kubernetes daemons
+The node monitoring agent is included as a capability for all Amazon EKS Auto Mode clusters.
+For other cluster types, you can add the monitoring agent as an Amazon EKS add-on. 
+For more information, see link:eks/latest/userguide/node-health.html[Enable node auto repair and investigate node health issues,type="documentation"] in the _Amazon EKS User Guide_.
 
-You can improve worker nodes’ stability by
+=== Reserve resources for system and Kubernetes daemons
+
+You can improve worker nodes' stability by
 https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/[reserving
 compute capacity for the operating system and Kubernetes daemons]. Pods
 - especially ones without `limits` declared - can saturate system
