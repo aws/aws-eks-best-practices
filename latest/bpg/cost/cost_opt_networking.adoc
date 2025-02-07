@@ -309,9 +309,9 @@ To further reduce costs in such architectures, _you should use https://docs.aws.
 
 _There are no hourly or data transfer costs associated with Gateway VPC Endpoints_. When using Gateway VPC Endpoints, it's important to note that they are not extendable across VPC boundaries. They can't be used in VPC peering, VPN networking, or via Direct Connect.
 
-*Interface VPC Endpoint*
+*Interface VPC Endpoints*
 
-VPC Endpoints have an https://aws.amazon.com/privatelink/pricing/[hourly charge] and, depending on the AWS service, may or may not have an additional charge associated with data processing via the underlying ENI. To reduce inter-AZ data transfer costs related to Interface VPC Endpoints, you can create a VPC Endpoint in each AZ. You can create multiple VPC Endpoints in the same VPC even if they're pointing to the same AWS service.
+VPC Endpoints have an https://aws.amazon.com/privatelink/pricing/[hourly charge] and have an additional charge associated with data processing via the underlying ENI. Note that inter-AZ data transfer is [not charged](https://aws.amazon.com/about-aws/whats-new/2022/04/aws-data-transfer-price-reduction-privatelink-transit-gateway-client-vpn-services/).
 
 The diagram below shows Pods communicating with AWS services via VPC Endpoints.
 
