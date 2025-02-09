@@ -18,7 +18,7 @@ We currently have published guides for the following topics:
 
 * [Best Practices for Security](security/docs/)
 * [Best Practices for Reliability](reliability/docs/)
-* Best Practices for Cluster Autoscaling: [karpenter](karpenter/), [cluster-autoscaler](cluster-autoscaling/)
+* Best Practices for Cluster Autoscaling: [karpenter](karpenter/), [cluster-autoscaler](cluster-autoscaling/), [EKS Auto Mode](auto-mode/)
 * [Best Practices for Networking](networking/index/)
 * [Best Practices for Scalability](scalability/docs/)
 * [Best Practices for Cluster Upgrades](upgrades/)
