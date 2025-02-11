@@ -53,7 +53,7 @@ Additionally, Amazon EKS, can create up to 4 elastic network interfaces (X-ENI) 
 
 You can use the link:https://github.com/aws/aws-eks-best-practices/blob/master/content/networking/subnet-calc/subnet-calc.xlsx[sample EKS Subnet Calculator] spreadsheet to plan for your network. The spreadsheet calculates IP usage based on workloads and VPC ENI configuration. The IP usage is compared to an IPv4 subnet to determine if the configuration and subnet size is sufficient for your workload. Keep in mind that, if subnets in your VPC run out of available IP addresses, we suggest https://docs.aws.amazon.com/vpc/latest/userguide/working-with-subnets.html#create-subnets[creating a new subnet] using the VPC's original CIDR blocks. Notice that now https://aws.amazon.com/about-aws/whats-new/2023/10/amazon-eks-modification-cluster-subnets-security/[Amazon EKS now allows modification of cluster subnets and security groups].
 
-==== Expand the IP space
+==== Custom Networking
 
 If you are about to exhaust the RFC1918 IP space, you can use the xref:custom-networking[Custom Networking] pattern to conserve routable IPs by scheduling Pods inside dedicated additional subnets.
 While custom networking will accept valid VPC range for secondary CIDR range, we recommend that you use CIDRs (/16) from the CG-NAT space, i.e. `100.64.0.0/10` or `198.19.0.0/16` as those are less likely to be used in a corporate setting than RFC1918 ranges.
@@ -61,6 +61,17 @@ While custom networking will accept valid VPC range for secondary CIDR range, we
 For detailed information please see the dedicated section for xref:custom-networking[Custom Networking].
 
 image::opt_custom-networking.gif[Custom Networking, traffic flow]
+
+==== Enhanced Subnet Discovery
+Enhance Sunbet Discovry provides streamline network configuration alternative for IP exahusting, by tagging new Subnets so they will be discoveable by the VPC CNI. With Enhance Sunbet Discovry the current workloads can keep running on the same subnets and the EKS can now schedule additional pods on the new “usable subnet(s)”.
+If your cluster current subnets are running out of IP adresses, you can simply add additional subnet to your EKS cluster as following:
+
+Assosiate new CIDR block to your VPC
+Create new Subnet in the new CIDR block and tag it with "kubernetes.io/role/cni" = "1"
+Enable Set "ENABLE_SUBNET_DISCOVERY” VPI CNI add-on configuration to “true” (Default since version 1.18.0)
+Once Enhance Sunbet Discovry is enabled on your VPC and EKS clusters, new ENI will be attached to your EKS nodes as discribe in the following diagram:
+
+image::opt_enhanced-subnet-discovery.png[Enhanced Subnet Discovery, traffic flow]
 
 ==== Optimize the IPs warm pool
 
