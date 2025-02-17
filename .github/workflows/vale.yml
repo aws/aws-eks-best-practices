@@ -16,10 +16,11 @@ jobs:
         run: sudo apt-get install -y asciidoctor
           
       - name: Run Vale
-        uses: errata-ai/vale-action@reviewdog
+        uses: errata-ai/vale-action@v2.1.1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
+          version: 3.9.1
           fail_on_error: true
           reporter: github-pr-check
           filter_mode: added
