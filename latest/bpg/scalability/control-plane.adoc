@@ -313,4 +313,127 @@ If you call the API without any arguments it will be the most resource intensive
 /api/v1/pods
 ----
 
+=== Prevent DaemonSet thundering herds
+
+A DaemonSet ensures that all (or some) nodes run a copy of a pod. As nodes join the cluster, the daemonset-controller creates pods for those nodes. As nodes leave the cluster, those pods are garbage collected. Deleting a DaemonSet will clean up the pods it created.
+
+Some typical uses of a DaemonSet are:
+
+* Running a cluster storage daemon on every node
+* Running a logs collection daemon on every node
+* Running a node monitoring daemon on every node
+
+On clusters with thousands of nodes, creating a new DaemonSet, updating a DaemonSet, or increasing the number of nodes can result in a high load placed on the control plane. If DaemonSet pods issue expensive API server requests on pod start-up, they can cause high resource use on the control plane from a large number of concurrent requests. 
+
+In normal operation, you can use a `RollingUpdate` to ensure a gradual rollout of new DaemonSet pods. With a `RollingUpdate` update strategy, after you update a DaemonSet template, the controller kills old DaemonSet pods and creates new DaemonSet pods automatically in a controlled fashion. At most one pod of the DaemonSet will be running on each node during the whole update process. You can perform a gradual rollout by setting `maxUnavailable` to 1, `maxSurge` to 0, and `minReadySeconds` to 60. If you do not specify an update strategy, Kubernetes will default to a creating a `RollingUpdate` with `maxUnavailable` as 1, `maxSurge` as 0, and `minReadySeconds` as 0.
+```
+minReadySeconds: 60
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+```
+
+A `RollingUpdate` ensures the gradual rollout of new DaemonSet pods if the DaemonSet is already created and has the expected number of `Ready` pods across all nodes. Thundering herd issues can result under certain conditions that are not covered by `RollingUpdate` strategies.
+
+==== Prevent thundering herds on DaemonSet creation
+
+By default, regardless of the `RollingUpdate` configuration, the daemonset-controller in the kube-controller-manager will create pods for all matching nodes simultaneously when you create a new DaemonSet. To force a gradual rollout of pods after you create a DaemonSet, you can use either a `NodeSelector` or `NodeAffinity`. This will create a DaemonSet that matches zero nodes and then you can gradually update nodes to make them eligible for running a pod from the DaemonSet at a controlled rate. You can follow this approach:
+
+* Add a label to all nodes for `run-daemonset=false`.
+```
+kubectl label nodes --all run-daemonset=false
+```
+* Create your DaemonSet with a `NodeAffinity` setting to match any node without a `run-daemonset=false` label. Initially, this will result in your DaemonSet having no corresponding pods.
+```
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: run-daemonset
+          operator: NotIn
+          values:
+          - "false"
+```
+* Remove the `run-daemonset=false` label from your nodes at a controlled rate. You can use this bash script as an example:
+```
+#!/bin/bash
+
+nodes=$(kubectl get --raw "/api/v1/nodes" | jq -r '.items | .[].metadata.name')
+
+for node in ${nodes[@]}; do
+   echo "Removing run-daemonset label from node $node"
+   kubectl label nodes $node run-daemonset- 
+   sleep 5
+done
+```
+* Optionally, remove the `NodeAffinity` setting from your DaemonSet object. Note that this will also trigger a `RollingUpdate` and gradually replace all existing DaemonSet pods because the DaemonSet template changed.
+
+==== Prevent thundering herds on node scale-outs
+
+Similarly to DaemonSet creation, creating new nodes at a fast rate can result in a large number of DaemonSet pods starting concurrently. You should create new nodes at a controlled rate so that the controller creates DaemonSet pods at this same rate. If this is not possible, you can make the new nodes initially ineligible for the existing DaemonSet by using `NodeAffinity`. Next, you can add a label to the new nodes gradually so that the daemonset-controller creates pods at a controlled rate. You can follow this approach:
+
+* Add a label to all existing nodes for `run-daemonset=true`
+```
+kubectl label nodes --all run-daemonset=true
+```
+* Update your DaemonSet with a `NodeAffinity` setting to match any node with a `run-daemonset=true` label. Note that this will also trigger a `RollingUpdate` and gradually replace all existing DaemonSet pods because the DaemonSet template changed. You should wait for the `RollingUpdate` to complete before advancing to the next step.
+```
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: run-daemonset
+          operator: In
+          values:
+          - "true"
+```
+* Create new nodes in your cluster. Note that these nodes will not have the `run-daemonset=true` label so the DaemonSet will not match those nodes.
+* Add the `run-daemonset=true` label to your new nodes (which currently do not have the `run-daemonset` label) at a controlled rate. You can use this bash script as an example:
+```
+#!/bin/bash
+
+nodes=$(kubectl get --raw "/api/v1/nodes?labelSelector=%21run-daemonset" | jq -r '.items | .[].metadata.name')
+
+for node in ${nodes[@]}; do
+   echo "Adding run-daemonset=true label to node $node"
+   kubectl label nodes $node run-daemonset=true
+   sleep 5
+done
+```
+* Optionally, remove the `NodeAffinity` setting from your DaemonSet object and remove the `run-daemonset` label from all nodes.
+
+==== Prevent thundering herds on DaemonSet updates
+
+A `RollingUpdate` policy will only respect the `maxUnavailable` setting for DaemonSet pods that are `Ready`. If a DaemonSet has only `NotReady` pods or a large percentage of `NotReady` pods and you update its template, the daemonset-controller will create new pods concurrently for any `NotReady` pods. This can result in thundering herd issues if there are a significant number of `NotReady` pods, for example if pods are continually crash looping or are failing to pull images. 
+
+To force a gradual rollout of pods when you update a DaemonSet and there are `NotReady` pods, you can temporarily change the update strategy on the DaemonSet from `RollingUpdate` to `OnDelete`. With `OnDelete`, after you update a DaemonSet template, the controller creates new pods after you manually delete the old ones so you can control the rollout of new pods. You can follow this approach:
+
+* Check if you have any `NotReady` pods in your DaemonSet. 
+* If no, you can safely update the DaemonSet template and the `RollingUpdate` strategy will ensure a gradual rollout.
+* If yes, you should first update your DaemonSet to use the `OnDelete` strategy. 
+```
+updateStrategy:
+  type: OnDelete
+```
+* Next, update your DaemonSet template with the needed changes.
+* After this update, you can delete the old DaemonSet pods by issuing delete pod requests at a controlled rate. You can use this bash script as an example where the DaemonSet name is fluentd-elasticsearch in the kube-system namespace:
+```
+#!/bin/bash
+
+daemonset_pods=$(kubectl get --raw "/api/v1/namespaces/kube-system/pods?labelSelector=name%3Dfluentd-elasticsearch" | jq -r '.items | .[].metadata.name')
+
+for pod in ${daemonset_pods[@]}; do
+   echo "Deleting pod $pod"
+   kubectl delete pod $pod -n kube-system
+   sleep 5
+done
+```
+* Finally, you can update your DaemonSet back to the earlier `RollingUpdate` strategy.
+
+
+
 
