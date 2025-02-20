@@ -223,6 +223,3 @@ Refer to the following resources to learn more about best practices for cost opt
 * https://kubecost.com/[Kubecost]
 * https://github.com/hjacobs/kube-ops-view[Kube Opsview]
 * https://github.com/rchakode/kube-opex-analytics[Kubernetes Opex Analytics]
-
-
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/awareness.adoc[Edit this page on GitHub]
