@@ -252,4 +252,3 @@ You can review the EC2 rate limit defaults and the steps to request a rate limit
 * In EKS environment, etcd storage limit is *8 GiB* as per https://etcd.io/docs/v3.5/dev-guide/limit/#storage-size-limit[upstream guidance]. Please monitor metric `etcd_db_total_size_in_bytes` to track etcd db size. You can refer to https://github.com/etcd-io/etcd/blob/main/contrib/mixin/mixin.libsonnet#L213-L240[alert rules] `etcdBackendQuotaLowSpace` and `etcdExcessiveDatabaseGrowth` to setup this monitoring.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/quotas.adoc[Edit this page on GitHub]

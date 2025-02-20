@@ -38,8 +38,7 @@ image::ipv6_eks-cluster-ipv6-foundation.png[Dual Stack VPC, EKS Cluster in IPv6 
 
 == Overview
 
-EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix
-Mode].
+EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix Mode].
 
 Prefix assignment only works on Nitro-based EC2 instances, hence EKS/IPv6 is only supported when the cluster data-plane uses EC2 Nitro-based instances.
 
@@ -90,10 +89,6 @@ image::ipv6_image-5.png[illustration of cluster including X-ENIs]
 
 == Recommendations
 
-=== Maintain Access to IPv4 EKS APIs
-
-EKS APIs are accessible by IPv4 only. This also includes the Cluster API Endpoint. You will not be able to access cluster endpoints and APIs from an IPv6 only network. It is required that your network supports (1) an IPv6 transition mechanism such as NAT64/DNS64 that facilitates communication between IPv6 and IPv4 hosts and (2) a DNS service that supports translations of IPv4 endpoints.
-
 === Schedule Based on Compute Resources
 
 A single IPv6 prefix is sufficient to run many Pods on a single node. This also effectively removes ENI and IP limitations on the maximum number of Pods on a node. Although IPv6 removes direct dependency on max-Pods, when using prefix attachments with smaller instance types like the m5.large, you're likely to exhaust the instance's CPU and memory resources long before you exhaust its IP addresses. You must set the EKS recommended maximum Pod value by hand if you are using self-managed node groups or a managed node group with a custom AMI ID.
@@ -127,4 +122,3 @@ EKS supports IPv6 for Pods running on Fargate. Pods running on Fargate will cons
 AWS Network Load Balancer does not support dual-stack UDP protocol address types. If you have strong requirements for low-latency, real-time streaming, online gaming, and IoT, we recommend running IPv4 clusters. To learn more about managing health checks for UDP services, please refer to https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/["`How to route UDP traffic into Kubernetes`"].
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/ipv6.adoc[Edit this page on GitHub]

@@ -1,5 +1,5 @@
-//!!NODE_ROOT <section>
-[."topic"]
+//!!NODE_ROOT <chapter>
+[.topic]
 [[hybrid-nodes-network-disconnections,hybrid-nodes-network-disconnections.title]]
 = EKS Hybrid Nodes and network disconnections
 :doctype: section
@@ -10,10 +10,10 @@
 :idprefix:
 :idseparator: -
 :sourcedir: .
-:info_doctype: chapter
+:info_doctype: section
 :info_title: EKS Hybrid Nodes and network disconnections
 :info_abstract: EKS Hybrid Nodes and network disconnections
-:info_titleabbrev: Hybrid-Nodes-Network-Disconnections
+:info_titleabbrev: Network Disconnection
 :imagesdir: images/hybrid/
 
 The EKS Hybrid Nodes architecture can be new to customers who are accustomed to running local Kubernetes clusters entirely in their own data centers or edge locations. With EKS Hybrid Nodes, the Kubernetes control plane runs in an AWS Region and only the nodes run on-premises, resulting in a “stretched” or “extended” Kubernetes cluster architecture. 
@@ -28,6 +28,9 @@ In this guide, we answer that question through a review of the following topics.
 - xref:hybrid-nodes-host-creds[Host credentials through network disconnections]
 
 include::best-practices.adoc[leveloffset=+1]
+
 include::kubernetes-pod-failover.adoc[leveloffset=+1]
+
 include::app-network-traffic.adoc[leveloffset=+1]
+
 include::host-credentials.adoc[leveloffset=+1]

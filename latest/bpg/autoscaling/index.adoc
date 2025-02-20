@@ -20,7 +20,7 @@ This guide provides advice about Cluster Autoscaling, including guidance for Kub
 [.topiclist]
 [[Topic List]]
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/autoscaling/index.adoc[Edit this page on GitHub]
+
 
 include::karpenter.adoc[leveloffset=+1]
 

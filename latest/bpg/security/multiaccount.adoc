@@ -427,4 +427,3 @@ accounts are delivered directly to pods with IRSA or EKS Pod Identities
 |===
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/multiaccount.adoc[Edit this page on GitHub]

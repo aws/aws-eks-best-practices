@@ -1,3 +1,7 @@
+---
+redirect: https://docs.aws.amazon.com/eks/latest/best-practices/custom-networking.html
+---
+
 
 !!! info "We've Moved to the AWS Docs! 🚀"
     This content has been updated and relocated to improve your experience. 

@@ -806,4 +806,3 @@ zero-trust container security platform, provides process and filesystem
 policies as well as admission control rules.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/pods.adoc[Edit this page on GitHub]

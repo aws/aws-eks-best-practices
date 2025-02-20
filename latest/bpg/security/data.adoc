@@ -260,4 +260,3 @@ EKS Security Immersion Workshop - Data Encryption and Secrets
 Management]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/data.adoc[Edit this page on GitHub]

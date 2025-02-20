@@ -88,4 +88,3 @@ Also note that, secrets are written in clear text on the node's volume (as compa
 * Use volume-level encryption using https://docs.microsoft.com/en-us/windows/security/information-protection/bitlocker/bitlocker-how-to-deploy-on-windows-server[BitLocker]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/security.adoc[Edit this page on GitHub]

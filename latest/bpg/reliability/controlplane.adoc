@@ -273,7 +273,7 @@ https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-con
 admission webhooks and mutating admission webhooks]. These allow a user
 to extend the kubernetes API and validate or mutate objects before they
 are accepted by the API. Poor configurations of these webhooks can
-distabilize the EKS control plane by blocking cluster critical
+destabilize the EKS control plane by blocking cluster critical
 operations.
 
 In order to avoid impacting cluster critical operations either avoid
@@ -384,4 +384,3 @@ EKS cluster endpoint access control]
 EKS under the hood (CON421-R1)]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/controlplane.adoc[Edit this page on GitHub]

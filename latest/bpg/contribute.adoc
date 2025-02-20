@@ -313,4 +313,3 @@ NOTE: This is a note admonition.
 
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/contribute.adoc[Edit this page on GitHub]

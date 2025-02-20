@@ -74,4 +74,4 @@ correct it. The guidelines for submitting PRs can be found in our
 https://github.com/aws/aws-eks-best-practices/blob/master/CONTRIBUTING.md[Contributing
 Guidelines].
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/index.adoc[Edit this page on GitHub]
+
