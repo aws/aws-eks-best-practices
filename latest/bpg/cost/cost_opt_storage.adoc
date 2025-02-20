@@ -179,4 +179,3 @@ _To configure options for unused container and image garbage collection, tune th
 You can learn more about it in the Kubernetes https://kubernetes.io/docs/concepts/architecture/garbage-collection/#containers-images[documentation].
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_opt_storage.adoc[Edit this page on GitHub]

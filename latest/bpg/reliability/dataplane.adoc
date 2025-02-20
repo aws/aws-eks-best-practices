@@ -536,4 +536,3 @@ aws ec2 describe-images --image-id ami-xxx --no-include-deprecated
 ....
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/dataplane.adoc[Edit this page on GitHub]

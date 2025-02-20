@@ -88,4 +88,3 @@ In the following blog post, you will find a step by step on how to implement cac
 https://aws.amazon.com/blogs/containers/speeding-up-windows-container-launch-times-with-ec2-image-builder-and-image-cache-strategy/[Speeding up Windows container launch times with EC2 Image builder and image cache strategy]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/ami.adoc[Edit this page on GitHub]

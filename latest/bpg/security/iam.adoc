@@ -1414,4 +1414,4 @@ resources, including blogs and tools, for Kubernetes RBAC
 * https://github.com/uswitch/kiam[kiam]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/iam.adoc[Edit this page on GitHub]
+

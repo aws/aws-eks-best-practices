@@ -69,6 +69,19 @@ and pod scheduling.
 
 The following best practices cover topics related to Karpenter itself.
 
+=== Lock down AMIs in production clusters
+
+We strongly recommend that you pin well-known Amazon Machine Images (AMIs) used by Karpenter for production clusters.
+Using `amiSelector` with an alias set to `@latest`, or using some other method that results in deploying untested AMIs as they are released, offers the risk of workload failures and downtime in your production clusters. As a result, we strongly recommend pinning tested working versions of AMIs for your production clusters while you test newer versions in non-production clusters. For example, you could set an alias in your NodeClass as follows:
+
+[source,yaml]
+----
+amiSelectorTerms
+  - alias: al2023@v20240807
+----
+
+For information on managing and pinning down AMIs in Karpenter, see https://karpenter.sh/docs/tasks/managing-amis/[Managing AMIs] in the Karpenter documentation.
+
 === Use Karpenter for workloads with changing capacity needs
 
 Karpenter brings scaling management closer to Kubernetes native APIs
@@ -602,7 +615,7 @@ is not yet ready or has been terminated.
 As Karpenter takes an application-first approach to provision compute
 capacity for to the Kubernetes data plane, there are common workload
 scenarios that you might be wondering how to configure them properly.
-https://github.com/aws-samples/karpenter-blueprints[Karpenter
+https://github.com/aws-ia/terraform-aws-eks-blueprints-addons[Karpenter
 Blueprints] is a repository that includes a list of common workload
 scenarios following the best practices described here. You’ll have all
 the resources you need to even create an EKS cluster with Karpenter
@@ -621,4 +634,4 @@ for your workload(s).
 Run Kubernetes Clusters for Less with Amazon EC2 Spot and Karpenter]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/autoscaling/karpenter.adoc[Edit this page on GitHub]
+

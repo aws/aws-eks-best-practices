@@ -107,4 +107,3 @@ Learn more about these patterns here:
 * https://aws.amazon.com/blogs/networking-and-content-delivery/build-secure-multi-account-multi-vpc-connectivity-for-your-applications-with-amazon-vpc-lattice/[Build secure multi-account multi-VPC connectivity with Amazon VPC Lattice].
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/ip-optimization-strategies.adoc[Edit this page on GitHub]

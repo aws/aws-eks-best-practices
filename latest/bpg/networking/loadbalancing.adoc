@@ -488,4 +488,3 @@ object.
 . API server deletes the Pod object.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/loadbalancing.adoc[Edit this page on GitHub]

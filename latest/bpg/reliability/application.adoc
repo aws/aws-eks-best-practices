@@ -380,10 +380,8 @@ Deployment and stop sending traffic to the new Deployment.
 
 Although Kubernetes offers no native way to perform canary deployments,
 you can use tools such as https://github.com/weaveworks/flagger[Flagger]
-with
-https://docs.flagger.app/tutorials/istio-progressive-delivery[Istio] or
-https://docs.flagger.app/install/flagger-install-on-eks-appmesh[App
-Mesh].
+with 
+https://docs.flagger.app/tutorials/istio-progressive-delivery[Istio].
 
 == Health checks and self-healing
 
@@ -796,4 +794,4 @@ X-Ray] or https://www.jaegertracing.io[Jaeger] that supports both
 to switch tools if you later adopt service mesh.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/application.adoc[Edit this page on GitHub]
+

@@ -1,0 +1,24 @@
+//!!NODE_ROOT <chapter>
+[[hybrid,hybrid.title]]
+= Best Practices for Hybrid Deployments
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Best Practices for Hybrid Deployments
+:info_abstract: Best Practices for Hybrid Deployments
+:info_titleabbrev: Hybrid
+:imagesdir: images/hybrid/
+
+This guide provides guidance on running deployments in on-premise or edge environments with EKS Hybrid Nodes or EKS Anywhere. 
+
+We currently have published guides for the following topics:
+
+- xref:hybrid-nodes-network-disconnections[Best Practices for EKS Hybrid Nodes and network disconnections]
+
+include::network-disconnections/index.adoc[leveloffset=+1]

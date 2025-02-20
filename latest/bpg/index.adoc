@@ -38,6 +38,7 @@ We currently have published guides for the following topics:
 * xref:cluster-upgrades[Best Practices for Cluster Upgrades]
 * xref:cost-opt[Best Practices for Cost Optimization]
 * xref:windows[Best Practices for Running Windows Containers]
+* xref:hybrid[Best Practices for Hybrid Deployments]
 
 We also open sourced a Python based CLI (Command Line Interface) called
 https://github.com/aws-samples/hardeneks[hardeneks] to check some of the
@@ -73,4 +74,4 @@ correct it. The guidelines for submitting PRs can be found in our
 https://github.com/aws/aws-eks-best-practices/blob/master/CONTRIBUTING.md[Contributing
 Guidelines].
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/index.adoc[Edit this page on GitHub]
+

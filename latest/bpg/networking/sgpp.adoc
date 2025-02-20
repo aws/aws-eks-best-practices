@@ -171,4 +171,3 @@ kubectl rollout restart -n example-ns deployment example-pod
 ----
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/sgpp.adoc[Edit this page on GitHub]

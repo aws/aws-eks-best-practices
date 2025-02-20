@@ -82,7 +82,7 @@ Outputs:
  ** Number of Warm IPs/ENIs per instance
  ** Number of Active IPs/ENIs per instance
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/index.adoc[Edit this page on GitHub]
+
 
 include::subnets.adoc[leveloffset=+1]
 
