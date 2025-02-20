@@ -80,7 +80,7 @@ Viewing resource usage metrics with kubectl top and kubectl describe commands. k
  $ kubectl top nodes
  $ kubectl top pod pod-name --namespace mynamespace --containers
 
-Using the top command, the output will displays the total amount of CPU (in cores) and memory (in MiB) that the node is using, and the percentages of the node's allocatable capacity those numbers represent. You can then drill-down to the next level, container level within pods by adding a _--containers_ flag.
+Using the top command, the output will display the total amount of CPU (in cores) and memory (in MiB) that the node is using, and the percentages of the node's allocatable capacity those numbers represent. You can then drill-down to the next level, container level within pods by adding a _--containers_ flag.
 
  $ kubectl describe node <node>
  $ kubectl describe pod <pod>
@@ -223,5 +223,3 @@ Refer to the following resources to learn more about best practices for cost opt
 * https://kubecost.com/[Kubecost]
 * https://github.com/hjacobs/kube-ops-view[Kube Opsview]
 * https://github.com/rchakode/kube-opex-analytics[Kubernetes Opex Analytics]
-
-
