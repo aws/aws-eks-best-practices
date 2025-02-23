@@ -71,7 +71,7 @@ Create new Subnet in the new CIDR block and tag it with "kubernetes.io/role/cni"
 Enable Set "ENABLE_SUBNET_DISCOVERY” VPC CNI add-on configuration to “true” (Default since version 1.18.0)
 Once Enhance Sunbet Discovry is enabled on your VPC and EKS clusters, new ENI will be attached to your EKS nodes as describe in the following diagram:
 
-image::opt_enhanced-subnet-discovery.png[Enhanced Subnet Discovery, traffic flow]
+image::opt_enhanced-subnet-discovery.gif[Enhanced Subnet Discovery, traffic flow]
 
 ==== Optimize the IPs warm pool
 
