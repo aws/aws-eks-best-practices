@@ -63,13 +63,13 @@ For detailed information please see the dedicated section for xref:custom-networ
 image::opt_custom-networking.gif[Custom Networking, traffic flow]
 
 ==== Enhanced Subnet Discovery
-Enhance Sunbet Discovry provides streamline network configuration alternative for IP exahusting, by tagging new Subnets so they will be discoveable by the VPC CNI. With Enhance Sunbet Discovry the current workloads can keep running on the same subnets and the EKS can now schedule additional pods on the new “usable subnet(s)”.
-If your cluster current subnets are running out of IP adresses, you can simply add additional subnet to your EKS cluster as following:
+Enhanced Sunbet Discovery provides streamline network configuration alternative for IP exhausting, by tagging new Subnets so they will be discoveable by the VPC CNI. With Enhance Sunbet Discovry the current workloads can keep running on the same subnets and the EKS can now schedule additional pods on the new “usable subnet(s)”.
+If your cluster current subnets are running out of IP addresses, you can simply add additional subnet to your EKS cluster as following:
 
-Assosiate new CIDR block to your VPC
+Associate new CIDR block to your VPC
 Create new Subnet in the new CIDR block and tag it with "kubernetes.io/role/cni" = "1"
-Enable Set "ENABLE_SUBNET_DISCOVERY” VPI CNI add-on configuration to “true” (Default since version 1.18.0)
-Once Enhance Sunbet Discovry is enabled on your VPC and EKS clusters, new ENI will be attached to your EKS nodes as discribe in the following diagram:
+Enable Set "ENABLE_SUBNET_DISCOVERY” VPC CNI add-on configuration to “true” (Default since version 1.18.0)
+Once Enhance Sunbet Discovry is enabled on your VPC and EKS clusters, new ENI will be attached to your EKS nodes as describe in the following diagram:
 
 image::opt_enhanced-subnet-discovery.png[Enhanced Subnet Discovery, traffic flow]
 
