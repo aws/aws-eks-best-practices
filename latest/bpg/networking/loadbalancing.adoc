@@ -23,6 +23,9 @@ https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html[Application
 Load Balancer (ALB)] which load balances traffic at Layer 7 of the OSI
 model.
 
+== EKS Auto Mode and Load Balancing
+When you create the EKS cluster with Auto Mode enable, AWS runs the Load Balancer controller at AWS managed account. That controller manages the provisioning of both netowrk and application load balancer for your cluster. This reduces you operation overhead for managing a load balancer. You also have a bility to edit networking behaviors by defining NodeClass objects and applying specific annotations to your Service and Ingress resources. 
+
 == Choosing Load Balancer Type
 
 The AWS Elastic Load Balancing portfolio supports the following load
