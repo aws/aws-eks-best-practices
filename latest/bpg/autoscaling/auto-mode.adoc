@@ -116,3 +116,7 @@ EKS Auto Mode completely automates the deployment most of the pieces of a data p
 * EBS CSI
 * VPC CNI
 * EKS Pod Identity Agent
+
+=== How do I troubleshoot the components of Auto Mode that used to run as pods in my cluster? ===
+
+With EKS Auto Mode, many of the components like the AWS Load Balancer Controller and Karpenter are managed for you outside of your cluster, therefore you won't have the same visibility into the logs that you are used to when self-managing.  If you are in a situation where you need to troubleshoot the functionality of a piece of Auto Mode functionality create an AWS Support Ticket.
