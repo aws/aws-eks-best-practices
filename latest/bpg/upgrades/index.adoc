@@ -181,7 +181,9 @@ controllers, as required.
 kubectl.]
 . https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html[Upgrade
 the cluster data plane.] Upgrade your nodes to the same Kubernetes minor
-version as your upgraded cluster.
+version as your upgraded cluster.  
+
+TIP: If your cluster was created using EKS Auto Mode you do not need to upgrade your cluster data plane.  After upgrading your control plane EKS Auto Mode will begin incrementally updating managed nodes while respecting all pod disruption bodgets.
 
 [[usedocs, usedocs.title]]
 == Use the EKS Documentation to create an upgrade checklist
@@ -274,6 +276,8 @@ to find the address of the latest release corresponding to your
 Kubernetes minor version.
 * *Karpenter:* For installation and upgrade information, see the
 https://karpenter.sh/docs/upgrading/[Karpenter documentation.]
+
+TIP: You do not have to manually upgrade any of the capabilities of Amazon EKS Auto Mode, including the compute autoscaling, block storage, and load balancing capabilities.
 
 == Verify basic EKS requirements before upgrading
 
