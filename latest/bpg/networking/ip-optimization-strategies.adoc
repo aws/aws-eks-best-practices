@@ -63,13 +63,16 @@ For detailed information please see the dedicated section for xref:custom-networ
 image::opt_custom-networking.gif[Custom Networking, traffic flow]
 
 ==== Enhanced Subnet Discovery
-Enhanced Sunbet Discovery provides streamline network configuration alternative for IP exhausting, by tagging new Subnets so they will be discoveable by the VPC CNI. With Enhance Sunbet Discovry the current workloads can keep running on the same subnets and the EKS can now schedule additional pods on the new “usable subnet(s)”.
-If your cluster current subnets are running out of IP addresses, you can simply add additional subnet to your EKS cluster as following:
 
-Associate new CIDR block to your VPC
-Create new Subnet in the new CIDR block and tag it with "kubernetes.io/role/cni" = "1"
-Enable Set "ENABLE_SUBNET_DISCOVERY” VPC CNI add-on configuration to “true” (Default since version 1.18.0)
-Once Enhance Sunbet Discovry is enabled on your VPC and EKS clusters, new ENI will be attached to your EKS nodes as describe in the following diagram:
+Enhanced Subnet Discovery provides a streamlined network configuration alternative for IP exhaustion, by tagging new subnets so they will be discoverable by the VPC CNI. With Enhanced Subnet Discovery, the current workloads can keep running on the same subnets and EKS can now schedule additional pods on the new "usable subnet(s)".
+
+If your cluster's current subnets are running out of IP addresses, you can simply add additional subnets to your EKS cluster as follows:
+
+. Associate a new CIDR block to your VPC.
+. Create a new subnet in the new CIDR block and tag it with "kubernetes.io/role/cni" = "1".
+. Enable the ENABLE_SUBNET_DISCOVERY VPC CNI add-on configuration to "true" (default since version 1.18.0).
+
+Once Enhanced Subnet Discovery is enabled on your VPC and EKS clusters, new Elastic Network Interfaces (ENIs) will be attached to your EKS nodes as described in the following diagram:
 
 image::opt_enhanced-subnet-discovery.gif[Enhanced Subnet Discovery, traffic flow]
 
