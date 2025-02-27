@@ -183,7 +183,8 @@ kubectl.]
 the cluster data plane.] Upgrade your nodes to the same Kubernetes minor
 version as your upgraded cluster.  
 
-TIP: If your cluster was created using EKS Auto Mode you do not need to upgrade your cluster data plane.  After upgrading your control plane EKS Auto Mode will begin incrementally updating managed nodes while respecting all pod disruption bodgets.
+TIP: If your cluster was created using EKS Auto Mode you do not need to upgrade your cluster data plane. After upgrading your control plane, EKS Auto Mode will begin incrementally updating managed nodes while respecting all pod disruption budgets. Ensure to monitor these updates to verify compliance with your operational requirements.
+
 
 [[usedocs, usedocs.title]]
 == Use the EKS Documentation to create an upgrade checklist

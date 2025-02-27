@@ -21,13 +21,13 @@ The new system introduces several operational improvements:
 
 * Automatic pod-driven scaling without manual node group configuration 
 * Built-in managed load balancer controllers that automatically create ALB/NLB based on Ingress resources 
-* Integrated security features with pre-configured Pod identity Maximum node runtime of 21 days with automatic replacement 
+* Integrated security features with pre-configured Pod identity 
 * Maximum node runtime of 21 days with automatic replacement
 
 
 From a cost perspective, EKS Auto Mode maintains standard EC2 pricing while adding a management fee only for Auto Mode-managed nodes. Importantly, customers can still mix Auto Mode managed nodes with self-managed nodes in the same cluster . 
 
-While AWS handles most operational aspects, customers retain responsibility for cluster version management and can perform controlled upgrades that trigger rolling updates of worker nodes . 
+While AWS handles most operational aspects, customers retain responsibility for https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html[cluster version management] and can perform controlled upgrades that trigger rolling updates of worker nodes . 
 
 == Reasons to use Auto Mode
 
