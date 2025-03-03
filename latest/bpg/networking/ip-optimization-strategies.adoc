@@ -64,15 +64,15 @@ image::opt_custom-networking.gif[Custom Networking, traffic flow]
 
 ==== Enhanced Subnet Discovery
 
-Enhanced Subnet Discovery provides a streamlined network configuration alternative for IP exhaustion, by tagging new subnets so they will be discoverable by the VPC CNI. With Enhanced Subnet Discovery, the current workloads can keep running on the same subnets and EKS can now schedule additional pods on the new "usable subnet(s)".
+Enhanced Subnet Discovery provides a streamlined network configuration alternative for IP exhaustion, by tagging new subnets so they will be discoverable by the xref:vpc-cni[Amazon VPC CNI]. With Enhanced Subnet Discovery, the current workloads can keep running on the same subnets and Amazon Elastic Kubernetes Service (Amazon EKS) can now schedule additional pods on the new "usable subnet(s)".
 
-If your cluster's current subnets are running out of IP addresses, you can simply add additional subnets to your EKS cluster as follows:
+If your cluster's current subnets are running out of IP addresses, you can simply add additional subnets to your Amazon EKS cluster as follows:
 
 . Associate a new CIDR block to your VPC.
 . Create a new subnet in the new CIDR block and tag it with "kubernetes.io/role/cni" = "1".
-. Enable the ENABLE_SUBNET_DISCOVERY VPC CNI add-on configuration to "true" (default since version 1.18.0).
+. Enable the ENABLE_SUBNET_DISCOVERY configuration of Amazon VPC CNI add-on to "true" (default since version 1.18.0).
 
-Once Enhanced Subnet Discovery is enabled on your VPC and EKS clusters, new Elastic Network Interfaces (ENIs) will be attached to your EKS nodes as described in the following diagram:
+Once Enhanced Subnet Discovery is enabled on your VPC and Amazon EKS clusters, new Elastic Network Interfaces (ENIs) will be attached to your Amazon EKS nodes as described in the following diagram:
 
 image::opt_enhanced-subnet-discovery.gif[Enhanced Subnet Discovery, traffic flow]
 
