@@ -38,8 +38,7 @@ image::ipv6_eks-cluster-ipv6-foundation.png[Dual Stack VPC, EKS Cluster in IPv6 
 
 == Overview
 
-EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix
-Mode].
+EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix Mode].
 
 Prefix assignment only works on Nitro-based EC2 instances, hence EKS/IPv6 is only supported when the cluster data-plane uses EC2 Nitro-based instances.
 
@@ -89,10 +88,6 @@ EKS will provision Cross-Account ENIs (X-ENIs) in dual stack mode (IPv4/IPv6). K
 image::ipv6_image-5.png[illustration of cluster including X-ENIs]
 
 == Recommendations
-
-=== Maintain Access to IPv4 EKS APIs
-
-EKS APIs are accessible by IPv4 only. This also includes the Cluster API Endpoint. You will not be able to access cluster endpoints and APIs from an IPv6 only network. It is required that your network supports (1) an IPv6 transition mechanism such as NAT64/DNS64 that facilitates communication between IPv6 and IPv4 hosts and (2) a DNS service that supports translations of IPv4 endpoints.
 
 === Schedule Based on Compute Resources
 
