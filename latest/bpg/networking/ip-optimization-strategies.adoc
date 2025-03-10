@@ -76,6 +76,8 @@ Once Enhanced Subnet Discovery is enabled on your VPC and Amazon EKS clusters, n
 
 image::opt_enhanced-subnet-discovery.gif[Enhanced Subnet Discovery, traffic flow]
 
+For more information, see https://aws.amazon.com/blogs/containers/amazon-vpc-cni-introduces-enhanced-subnet-discovery/[Amazon VPC CNI introduces Enhanced Subnet Discovery] on the AWS containers blog. 
+
 ==== Optimize the IPs warm pool
 
 With the default configuration, the VPC CNI keeps an entire ENI (and associated IPs) in the warm pool. This may consume a large number of IPs, especially on larger instance types.
