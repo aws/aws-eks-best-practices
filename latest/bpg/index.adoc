@@ -33,6 +33,7 @@ We currently have published guides for the following topics:
 * xref:reliability[Best Practices for Reliability]
 * xref:karpenter[Best Practices for Cluster Autoscaling: Karpenter]
 * xref:cas[Best Practices for Cluster Autoscaling: cluster-autoscaler]
+* xref:automode[Best Practices for Cluster Autoscaling: EKS Auto Mode]
 * xref:networking[Best Practices for Networking]
 * xref:scalability[Best Practices for Scalability]
 * xref:cluster-upgrades[Best Practices for Cluster Upgrades]
