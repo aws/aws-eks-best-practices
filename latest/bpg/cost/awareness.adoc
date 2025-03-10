@@ -169,18 +169,6 @@ https://github.com/rchakode/kube-opex-analytics[Kubernetes Opex Analytics] is a 
 
 image::kube-opex-analytics.png[Kubernetes Opex Analytics]
 
-=== Magalix Kubeadvisor
-
-https://www.magalix.com/kubeadvisor[KubeAdvisor] continuously scans your Kubernetes clusters and reports how you can fix issues, apply best practices, and optimize your cluster (with recommendations of resources like CPU/Memory around cost-efficiency).
-
-=== Spot.io, previously called Spotinst
-
-Spotinst Ocean is an application scaling service. Similar to Amazon Elastic Compute Cloud (Amazon EC2) Auto Scaling groups, Spotinst Ocean is designed to optimize performance and costs by leveraging Spot Instances combined with On-Demand and Reserved Instances. Using a combination of automated Spot Instance management and the variety of instance sizes, the Ocean cluster autoscaler scales according to the pod resource requirements. Spotinst Ocean also includes a prediction algorithm to predict Spot Instance interruption 15 minutes ahead of time and spin up a new node in a different Spot capacity pool.
-
-This is available as an https://aws.amazon.com/quickstart/architecture/spotinst-ocean-eks/[AWS Quickstart] developed by Spotinst, Inc. in collaboration with AWS.
-
-The EKS workshop also has a module on https://eksworkshop.com/beginner/190_ocean/[Optimized Worker Node on Amazon EKS Management] with Ocean by Spot.io which includes sections on cost allocation, right sizing and scaling strategies.
-
 === Yotascale
 
 Yotascale helps with accurately allocating Kubernetes costs. Yotascale Kubernetes Cost Allocation feature utilizes actual cost data, which is inclusive of Reserved Instance discounts and spot instance pricing instead of generic market-rate estimations, to inform the total Kubernetes cost footprint
