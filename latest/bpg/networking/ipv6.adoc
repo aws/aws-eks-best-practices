@@ -25,7 +25,8 @@ Amazon EKS IPv6 support leverages the native VPC IPv6 capabilities. Each VPC is 
 
 image::ipv6_eks-ipv6-foundation.png[Dual Stack VPC, mandatory foundation for EKS cluster in IPv6 mode]
 
-In the IPv6 world, every address is internet routable. By default, VPC allocates IPv6 CIDR from the public GUA range. VPCs do not support assigning private IPv6 addresses from the https://en.wikipedia.org/wiki/Unique_local_address[Unique Local Address (ULA)] range as defined by RFC 4193 (fd00::/8 or fc00::/8). This is true even when you would like to assign an IPv6 CIDR owned by you. Egressing to the internet from Private Subnets is supported by implementing an egress-only internet gateway (EIGW) in a VPC, allowing outbound traffic while blocking all incoming traffic.
+In the IPv6 world, every address is internet routable. By default, VPC allocates IPv6 CIDR from the public GUA range. However since https://aws.amazon.com/about-aws/whats-new/2024/08/aws-private-ipv6-addressing-vpcs-subnets/[August 2024] you can also use private IPv6 addressing for VPCs and subnets with Amazon VPC IP Address Manager (IPAM). Please see the https://aws.amazon.com/blogs/networking-and-content-delivery/understanding-ipv6-addressing-on-aws-and-designing-a-scalable-addressing-plan[this AWS Networking blog post] and https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html#vpc-ipv6-addresses[VPC documentation] for more information.
+
 The following diagram depict a Pod IPv6 Internet egress flow inside an EKS/IPv6 cluster:
 
 image::ipv6_eks-egress-ipv6.png[Dual Stack VPC, EKS Cluster in IPv6 Mode, Pods in private subnets egressing to Internet IPv6 endpoints]
