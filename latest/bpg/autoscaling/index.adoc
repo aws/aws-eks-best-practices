@@ -26,3 +26,5 @@ include::karpenter.adoc[leveloffset=+1]
 
 include::cluster-autoscaler.adoc[leveloffset=+1]
 
+include::auto-mode.adoc[leveloffset=+1]
+
