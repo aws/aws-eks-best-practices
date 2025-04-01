@@ -148,6 +148,24 @@ spec:
 Do not require that pods be scheduled across distinct AZs otherwise, the number of pods in a deployment will never exceed the number of AZs.
 ====
 
+=== Ensure ability to launch Nodes in each AZ when using EBS volumes
+
+If you use Amazon EBS to provide Persistent Volumes, then you need to ensure that the pods
+and associated EBS volume are located in the same AZ. A Pod cannot
+access EBS-backed persistent volumes located in a different AZ.
+The Kubernetes
+https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone[scheduler
+knows which AZ a worker node] is located in from the labels that are on the Node and 
+will always schedule a Pod that requires an EBS volume in the same AZ as the volume.
+However, if there are no worker nodes available in the AZ where the volume is located, then the Pod cannot be scheduled.
+
+If using EKS Auto Mode or Karpenter you will need to ensure that your NodeClass selects subnets
+in each AZ. If using Managed Node Groups, you need to ensure that you have a Node Group in each AZ.
+
+An EBS storage capability is built into EKS Auto Mode, but if using Karpenter or Managed Node Groups
+the https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html[EBS CSI] will also need to be installed.
+
+
 === Use EKS Auto Mode to manage worker nodes
 
 EKS Auto Mode streamlines EKS management by providing production-ready 
