@@ -25,6 +25,16 @@ the current state with the desired state].
 
 == Recommendations
 
+=== Configure Pod Disruption Budgets
+
+https://kubernetes.io/docs/tasks/run-application/configure-pdb/[Pod Disruption Budgets] are
+used to limit the amount of concurrent disruption that an 
+application will experience. They should be configured for workloads if its important to 
+always have a portion of that workload available.  EKS Auto Mode, Karpenter, and Cluster Autoscaler
+are aware of and adhere to configured Pod Disruption Budgets when scaling down.
+EKS Auto Mode, Karpenter and Managed Node Groups also adhere to Pod Disruption
+Budgets when updating Nodes
+
 === Avoid running singleton Pods
 
 If your entire application runs in a single Pod, then your application

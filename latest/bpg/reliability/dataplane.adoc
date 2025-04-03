@@ -13,17 +13,24 @@ that Kubernetes can scale and heal your applications automatically. A
 resilient data plane consists of two or more worker nodes, can grow and
 shrink with the workload, and automatically recover from failures.
 
-You have two choices for worker nodes with EKS:
-https://docs.aws.amazon.com/eks/latest/userguide/worker.html[EC2
-instances] and
+You have multiple choices for worker nodes with EKS:
+https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode managed nodes], 
+https://docs.aws.amazon.com/eks/latest/userguide/worker.html[EC2 Instances] and
 https://docs.aws.amazon.com/eks/latest/userguide/fargate.html[Fargate].
+
+EKS Auto Mode offers the easiest path to a resilient data plane. Auto Mode extends AWS 
+management of Kubernetes clusters beyond the cluster itself, to allow AWS to also set up
+and manage the infrastructure that enables the smooth operation of your workloads. Auto Mode
+automatically scales the data plane up or down as Kubernetes scales Pods and works to 
+continually ensure that the Nodes in your cluster are sized appropriately and cost-effectively
+for the currently running workloads. 
+
 If you choose EC2 instances, you can manage the worker nodes yourself or
 use
 https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS
-managed node groups]. You can have a cluster with a mix of managed,
+managed node groups]. You can have a cluster with a mix of Auto Mode, managed,
 self-managed worker nodes, and Fargate.
 
-EKS on Fargate offers the easiest path to a resilient data plane.
 Fargate runs each Pod in an isolated compute environment. Each Pod
 running on Fargate gets its own worker node. Fargate automatically
 scales the data plane as Kubernetes scales pods. You can scale both the
@@ -31,85 +38,28 @@ data plane and your workload by using the
 https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html[horizontal
 pod autoscaler].
 
-The preferred way to scale EC2 worker nodes is by using
+The preferred way to scale EC2 worker nodes (if not using EKS Auto Mode where this is performed
+automatically by AWS) is by using
+https://karpenter.sh/[Karpenter],
 https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md[Kubernetes
-Cluster Autoscaler],
+Cluster Autoscaler], or
 https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html[EC2
-Auto Scaling groups] or community projects like
-https://github.com/atlassian/escalator[Atlassian’s Escalator].
+Auto Scaling groups].
 
 == Recommendations
 
-=== Use EC2 Auto Scaling Groups to create worker nodes
-
-It is a best practice to create worker nodes using EC2 Auto Scaling
-groups instead of creating individual EC2 instances and joining them to
-the cluster. Auto Scaling Groups will automatically replace any
-terminated or failed nodes ensuring that the cluster always has the
-capacity to run your workload.
-
-=== Use Kubernetes Cluster Autoscaler to scale nodes
-
-Cluster Autoscaler adjusts the size of the data plane when there are
-pods that cannot be run because the cluster has insufficient resources,
-and adding another worker node would help. Although Cluster Autoscaler
-is a reactive process, it waits until pods are in _Pending_ state due to
-insufficient capacity in the cluster. When such an event occurs, it adds
-EC2 instances to the cluster. Whenever the cluster runs out of capacity,
-new replicas - or new pods - will be unavailable (_in Pending state_)
-until worker nodes are added. This delay may impact your applications’
-reliability if the data plane cannot scale fast enough to meet the
-demands of the workload. If a worker node is consistently underutilized
-and all of its pods can be scheduled on other worker nodes, Cluster
-Autoscaler terminates it.
-
-=== Configure over-provisioning with Cluster Autoscaler
-
-Cluster Autoscaler triggers a scale-up of the data-plane when Pods in
-the cluster are already _Pending_. Hence, there may be a delay between
-the time your application needs more replicas, and when it, in fact,
-gets more replicas. An option to account for this possible delay is
-through adding more than required replicas, inflating the number of
-replicas for the application.
-
-Another pattern that Cluster Autoscaler recommends uses
-https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler[_pause_
-Pods and the Priority Preemption feature]. The _pause Pod_ runs a
-https://github.com/kubernetes/kubernetes/tree/master/build/pause[pause
-container], which as the name suggests, does nothing but acts as a
-placeholder for compute capacity that can be used by other Pods in your
-cluster. Because it runs with a _very low assigned priority_, the pause
-Pod gets evicted from the node when another Pod needs to be created, and
-the cluster doesn’t have available capacity. The Kubernetes Scheduler
-notices the eviction of the pause Pod and tries to reschedule it. But
-since the cluster is running at capacity, the pause Pod remains
-_Pending_, to which the Cluster Autoscaler reacts by adding nodes.
-
-=== Using Cluster Autoscaler with multiple Auto Scaling Groups
-
-Run the Cluster Autoscaler with the `--node-group-auto-discovery` flag
-enabled. Doing so will allow the Cluster Autoscaler to find all
-autoscaling groups that include a particular defined tag and prevents
-the need to define and maintain each autoscaling group in the manifest.
-
-=== Using Cluster Autoscaler with local storage
-
-By default, the Cluster Autoscaler does not scale-down nodes that have
-pods deployed with local storage attached. Set the
-`--skip-nodes-with-local-storage` flag to false to allow Cluster
-Autoscaler to scale-down these nodes.
-
-=== Spread worker nodes and workload across multiple AZs
+=== Spread worker nodes and workloads across multiple AZs
 
 You can protect your workloads from failures in an individual AZ by
-running worker nodes and pods in multiple AZs. You can control the AZ
+running worker nodes and Pods in multiple AZs. You can control the AZ
 the worker nodes are created in using the subnets you create the nodes
-in.
+in. 
 
-If you are using Kubernetes 1.18+, the recommended method for spreading
-pods across AZs is to use
+The recommended method for spreading pods across AZs is to use
 https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods[Topology
-Spread Constraints for Pods].
+Spread Constraints for Pods]. Auto-scaling capabilities like EKS Auto Mode and Karpenter are
+aware of topology spread constraints and will automatically launch Nodes in the correct
+AZs to allow your constraints to be met.
 
 The deployment below spreads pods across AZs if possible, letting those
 pods run anyway if not:
@@ -146,7 +96,8 @@ spec:
 
 [NOTE]
 ====
-`kube-scheduler` is only aware of topology domains via nodes that exist with those labels. If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `kube-scheduler` isn’t aware of the other zones. For this topology spread to work as expected with the scheduler, nodes must already exist in all zones. This issue will be resolved in Kubernetes 1.24 with the addition of the `MinDomainsInPodToplogySpread` https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api[feature gate] which allows specifying a `minDomains` property to inform the scheduler of the number of eligible domains.
+`kube-scheduler` is only aware of topology domains via nodes that exist with those labels. If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `kube-scheduler` isn’t aware of the other zones. For this topology spread to work as expected with the scheduler, nodes must already exist in all zones. The `minDomains` property of a topology spread constraints 
+is used to inform the scheduler of the number of eligible domains, even if there is a Node running there to avoid this issue.
 ====
 
 [WARNING]
@@ -197,129 +148,43 @@ spec:
 Do not require that pods be scheduled across distinct AZs otherwise, the number of pods in a deployment will never exceed the number of AZs.
 ====
 
-=== Ensure capacity in each AZ when using EBS volumes
+=== Ensure ability to launch Nodes in each AZ when using EBS volumes
 
-If you use
-https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html[Amazon EBS
-to provide Persistent Volumes], then you need to ensure that the pods
-and associated EBS volume are located in the same AZ. At the time of
-writing, EBS volumes are only available within a single AZ. A Pod cannot
+If you use Amazon EBS to provide Persistent Volumes, then you need to ensure that the pods
+and associated EBS volume are located in the same AZ. A Pod cannot
 access EBS-backed persistent volumes located in a different AZ.
-Kubernetes
+The Kubernetes
 https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone[scheduler
-knows which AZ a worker node] is located in. Kubernetes will always
-schedule a Pod that requires an EBS volume in the same AZ as the volume.
-However, if there are no worker nodes available in the AZ where the
-volume is located, then the Pod cannot be scheduled.
+knows which AZ a worker node] is located in from the labels that are on the Node and 
+will always schedule a Pod that requires an EBS volume in the same AZ as the volume.
+However, if there are no worker nodes available in the AZ where the volume is located, then the Pod cannot be scheduled.
 
-Create Auto Scaling Group for each AZ with enough capacity to ensure
-that the cluster always has capacity to schedule pods in the same AZ as
-the EBS volumes they need. In addition, you should enable the
-`--balance-similar-node-groups` feature in Cluster Autoscaler.
+If using EKS Auto Mode or Karpenter you will need to ensure that your NodeClass selects subnets
+in each AZ. If using Managed Node Groups, you need to ensure that you have a Node Group in each AZ.
 
-If you are running an application that uses EBS volume but has no
-requirements to be highly available, then you can restrict the
-deployment of the application to a single AZ. In EKS, worker nodes are
-automatically added `failure-domain.beta.kubernetes.io/zone` label,
-which contains the name of the AZ. You can see the labels attached to
-your nodes by running `kubectl get nodes --show-labels`. More
-information about built-in node labels is available
-https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#built-in-node-labels[here].
-You can use node selectors to schedule a pod in a particular AZ.
+An EBS storage capability is built into EKS Auto Mode, but if using Karpenter or Managed Node Groups
+the https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html[EBS CSI] will also need to be installed.
 
-In the example below, the pod will only be scheduled in `us-west-2c`
-AZ:
 
-....
-apiVersion: v1
-kind: Pod
-metadata:
-  name: single-az-pod
-spec:
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: failure-domain.beta.kubernetes.io/zone
-            operator: In
-            values:
-            - us-west-2c
-  containers:
-  - name: single-az-container
-    image: kubernetes/pause
-....
+=== Use EKS Auto Mode to manage worker nodes
 
-Persistent volumes (backed by EBS) are also automatically labeled with
-the name of AZ; you can see which AZ your persistent volume belongs to
-by running `kubectl get pv -L topology.ebs.csi.aws.com/zone`. When a
-pod is created and claims a volume, Kubernetes will schedule the Pod on
-a node in the same AZ as the volume.
+EKS Auto Mode streamlines EKS management by providing production-ready 
+clusters with minimal operational overhead. Auto Mode is responsible for
+scaling the number of Nodes up or down depending on the Pods that are 
+running in the cluster. Nodes are kept up to date with software patches
+and fixes automatically, with the updates being performed in accordance with
+the configured https://docs.aws.amazon.com/eks/latest/userguide/create-node-pool.html#_disruption[NodePool]
+disruption settings and Pod Disruption Budgets.
 
-Consider this scenario; you have an EKS cluster with one node group.
-This node group has three worker nodes spread across three AZs. You have
-an application that uses an EBS-backed Persistent Volume. When you
-create this application and the corresponding volume, its Pod gets
-created in the first of the three AZs. Then, the worker node that runs
-this Pod becomes unhealthy and subsequently unavailable for use. Cluster
-Autoscaler will replace the unhealthy node with a new worker node;
-however, because the autoscaling group spans across three AZs, the new
-worker node may get launched in the second or the third AZ, but not in
-the first AZ as the situation demands. As the AZ-constrained EBS volume
-only exists in the first AZ, but there are no worker nodes available in
-that AZ, the Pod cannot be scheduled. Therefore, you should create one
-node group in each AZ, so there is always enough capacity available to
-run pods that cannot be scheduled in other AZs.
+=== Run the Node Monitoring Agent
 
-Alternatively,
-https://github.com/kubernetes-sigs/aws-efs-csi-driver[EFS] can simplify
-cluster autoscaling when running applications that need persistent
-storage. Clients can access EFS file systems concurrently from all the
-AZs in the region. Even if a Pod using EFS-backed Persistent Volume gets
-terminated and gets scheduled in different AZ, it will be able to mount
-the volume.
+The https://docs.aws.amazon.com/eks/latest/userguide/node-health.html[Node Monitoring Agent] monitors
+and reacts to Node health issues by publishing Kubernetes events and updating the status condition
+on Nodes. The Node Monitoring Agent is included with EKS Auto Mode Nodes, and can be installed
+as an EKS Addon for Nodes that aren't managed by Auto Mode.  
 
-=== Run node-problem-detector
-
-Failures in worker nodes can impact the availability of your
-applications.
-https://github.com/kubernetes/node-problem-detector[node-problem-detector]
-is a Kubernetes add-on that you can install in your cluster to detect
-worker node issues. You can use a
-https://github.com/kubernetes/node-problem-detector#remedy-systems[npd’s
-remedy system] to drain and terminate the node automatically.
-
-=== Reserving resources for system and Kubernetes daemons
-
-You can improve worker nodes’ stability by
-https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/[reserving
-compute capacity for the operating system and Kubernetes daemons]. Pods
-- especially ones without `limits` declared - can saturate system
-resources putting nodes in a situation where operating system processes
-and Kubernetes daemons (`kubelet`, container runtime, etc.) compete
-with pods for system resources. You can use `kubelet` flags
-`--system-reserved` and `--kube-reserved` to reserve resources for
-system process (`udev`, `sshd`, etc.) and Kubernetes daemons
-respectively.
-
-If you use the
-https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[EKS-optimized
-Linux AMI], the CPU, memory, and storage are reserved for the system and
-Kubernetes daemons by default. When worker nodes based on this AMI
-launch, EC2 user-data is configured to trigger the
-https://github.com/awslabs/amazon-eks-ami/blob/master/files/bootstrap.sh[`bootstrap.sh`
-script]. This script calculates CPU and memory reservations based on the
-number of CPU cores and total memory available on the EC2 instance. The
-calculated values are written to the `KubeletConfiguration` file
-located at `/etc/kubernetes/kubelet/kubelet-config.json`.
-
-You may need to increase the system resource reservation if you run
-custom daemons on the node and the amount of CPU and memory reserved by
-default is insufficient.
-
-`eksctl` offers the easiest way to customize
-https://eksctl.io/usage/customizing-the-kubelet/[resource reservation
-for system and Kubernetes daemons].
+EKS Auto Mode, Managed Node Groups, and Karpenter all have the ability to detect fatal Node conditions
+reported by the Node Monitoring Agent and repair those Nodes automatically when those conditions occur.
 
 === Implement QoS
 
@@ -414,125 +279,20 @@ enforce limits at a container as well as namespace level. Setting these
 limits will ensure that a container or a namespace does not impinge on
 resources used by other tenants in the cluster.
 
-== CoreDNS
-
-CoreDNS fulfills name resolution and service discovery functions in
-Kubernetes. It is installed by default on EKS clusters. For
-interoperability, the Kubernetes Service for CoreDNS is still named
-https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/[kube-dns].
-CoreDNS Pods run as part of a Deployment in `kube-system` namespace,
-and in EKS, by default, it runs two replicas with declared requests and
-limits. DNS queries are sent to the `kube-dns` Service that runs in
-the `kube-system` Namespace.
-
-== Recommendations
-
-=== Monitor CoreDNS metrics
-
-CoreDNS has built in support for
-https://github.com/coredns/coredns/tree/master/plugin/metrics[Prometheus].
-You should especially consider monitoring CoreDNS latency
-(`coredns_dns_request_duration_seconds_sum`, before
-https://github.com/coredns/coredns/blob/master/notes/coredns-1.7.0.md[1.7.0]
-version the metric was called `core_dns_response_rcode_count_total`),
-errors (`coredns_dns_responses_total`, NXDOMAIN, SERVFAIL, FormErr)
-and CoreDNS Pod’s memory consumption.
-
-For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
-
-[source,shell]
-----
-for p in $(kubectl get pods -n kube-system -l k8s-app=kube-dns -o jsonpath='{.items[*].metadata.name}'); do kubectl logs $p -n kube-system; done
-----
-
 === Use NodeLocal DNSCache
 
 You can improve the Cluster DNS performance by running
 https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/[NodeLocal
 DNSCache]. This feature runs a DNS caching agent on cluster nodes as a
 DaemonSet. All the pods use the DNS caching agent running on the node
-for name resolution instead of using `kube-dns` Service.
+for name resolution instead of using `kube-dns` Service. This feature is automatically
+included in EKS Auto Mode.
 
-=== Configure cluster-proportional-scaler for CoreDNS
+=== Configure auto-scaling CoreDNS
 
 Another method of improving Cluster DNS performance is by
-https://kubernetes.io/docs/tasks/administer-cluster/dns-horizontal-autoscaling/#enablng-dns-horizontal-autoscaling[automatically
-horizontally scaling the CoreDNS Deployment] based on the number of
-nodes and CPU cores in the cluster.
-https://github.com/kubernetes-sigs/cluster-proportional-autoscaler/blob/master/README.md[Horizontal
-cluster-proportional-autoscaler] is a container that resizes the number
-of replicas of a Deployment based on the size of the schedulable
-data-plane.
+enabling the built-in https://docs.aws.amazon.com/eks/latest/userguide/coredns-autoscaling.html[auto-scaling of CoreDNS Pods]. 
 
-Nodes and the aggregate of CPU cores in the nodes are the two metrics
-with which you can scale CoreDNS. You can use both metrics
-simultaneously. If you use larger nodes, CoreDNS scaling is based on the
-number of CPU cores. Whereas, if you use smaller nodes, the number of
-CoreDNS replicas depends on the CPU cores in your data-plane.
-Proportional autoscaler configuration looks like this:
-
-....
-linear: '{"coresPerReplica":256,"min":1,"nodesPerReplica":16}'
-....
-
-=== Choosing an AMI with Node Group
-
-EKS provides optimized EC2 AMIs that are used by customers to create
-both self-managed and managed nodegroups. These AMIs are published in
-every region for every supported Kubernetes version. EKS marks these
-AMIs as deprecated when any CVEs or bugs are discovered. Hence, the
-recommendation is not to consume deprecated AMIs while choosing an AMI
-for the node group.
-
-Deprecated AMIs can be filtered using Ec2 describe-images api using
-below command:
-
-....
-aws ec2 describe-images --image-id ami-0d551c4f633e7679c --no-include-deprecated
-....
-
-You can also recognize a deprecated AMI by verifying if the
-describe-image output contains a DeprecationTime as a field. For ex:
-
-....
-aws ec2 describe-images --image-id ami-xxx --no-include-deprecated
-{
-    "Images": [
-        {
-            "Architecture": "x86_64",
-            "CreationDate": "2022-07-13T15:54:06.000Z",
-            "ImageId": "ami-xxx",
-            "ImageLocation": "123456789012/eks_xxx",
-            "ImageType": "machine",
-            "Public": false,
-            "OwnerId": "123456789012",
-            "PlatformDetails": "Linux/UNIX",
-            "UsageOperation": "RunInstances",
-            "State": "available",
-            "BlockDeviceMappings": [
-                {
-                    "DeviceName": "/dev/xvda",
-                    "Ebs": {
-                        "DeleteOnTermination": true,
-                        "SnapshotId": "snap-0993a2fc4bbf4f7f4",
-                        "VolumeSize": 20,
-                        "VolumeType": "gp2",
-                        "Encrypted": false
-                    }
-                }
-            ],
-            "Description": "EKS Kubernetes Worker AMI with AmazonLinux2 image, (k8s: 1.19.15, docker: 20.10.13-2.amzn2, containerd: 1.4.13-3.amzn2)",
-            "EnaSupport": true,
-            "Hypervisor": "xen",
-            "Name": "aws_eks_optimized_xxx",
-            "RootDeviceName": "/dev/xvda",
-            "RootDeviceType": "ebs",
-            "SriovNetSupport": "simple",
-            "VirtualizationType": "hvm",
-            "DeprecationTime": "2023-02-09T19:41:00.000Z"
-        }
-    ]
-}
-....
-
-
+This feature continuously monitors the cluster state, including the number of nodes and 
+CPU cores. Based on that information, the controller will dynamically adapt 
+the number of replicas of the CoreDNS deployment in an EKS cluster.
