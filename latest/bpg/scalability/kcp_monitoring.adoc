@@ -108,8 +108,8 @@ An appropriate Count needs to be used as to not pull normal List/Resync behavior
 ====
 
 ----
-fields *@timestamp*, *@message*
-| filter *@logStream* like "kube-apiserver-audit"
+fields @timestamp, @message
+| filter @logStream like "kube-apiserver-audit"
 | filter ispresent(requestURI)
 | filter verb = "list"
 | parse requestReceivedTimestamp /\d+-\d+-(?<StartDay>\d+)T(?<StartHour>\d+):(?<StartMinute>\d+):(?<StartSec>\d+).(?<StartMsec>\d+)Z/
@@ -144,10 +144,10 @@ max without(instance)(scheduler_pending_pods)
 Since we do not have access to the above metric in EKS, we will use the below CloudWatch Logs Insights query to see the backlog by checking for how many pods were unable to unscheduled during a particular time frame. Then we could dive further into into the messages at the peak time frame to understand the nature of the bottleneck. For example, nodes not spinning up fast enough, or the rate limiter in the scheduler itself.
 
 ----
-fields timestamp, pod, err, *@message*
-| filter *@logStream* like "scheduler"
-| filter *@message* like "Unable to schedule pod"
-| parse *@message*  /^.(?<date>\d{4})\s+(?<timestamp>\d+:\d+:\d+\.\d+)\s+\S*\s+\S+\]\s\"(.*?)\"\s+pod=(?<pod>\"(.*?)\")\s+err=(?<err>\"(.*?)\")/
+fields timestamp, pod, err, @message
+| filter @logStream like "scheduler"
+| filter @message like "Unable to schedule pod"
+| parse @message  /^.(?<date>\d{4})\s+(?<timestamp>\d+:\d+:\d+\.\d+)\s+\S*\s+\S+\]\s\"(.*?)\"\s+pod=(?<pod>\"(.*?)\")\s+err=(?<err>\"(.*?)\")/
 | count(*) as count by pod, err
 | sort count desc
 ----
@@ -259,10 +259,10 @@ From a monitoring standpoint, if system latency spikes occur in a set pattern se
 If you want to see start/end times of defrag use the following query:
 
 ----
-fields *@timestamp*, *@message*
-| filter *@logStream* like /etcd-manager/
-| filter *@message* like /defraging|defraged/
-| sort *@timestamp* asc
+fields @timestamp, @message
+| filter @logStream like /etcd-manager/
+| filter @message like /defraging|defraged/
+| sort @timestamp asc
 ----
 
 image::defrag.png[Defrag query]
