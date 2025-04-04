@@ -183,8 +183,52 @@ and reacts to Node health issues by publishing Kubernetes events and updating th
 on Nodes. The Node Monitoring Agent is included with EKS Auto Mode Nodes, and can be installed
 as an EKS Addon for Nodes that aren't managed by Auto Mode.  
 
+<<<<<<< HEAD
+=== Detect node problems with node monitoring agent
+
+Failures in worker nodes can impact the availability of your applications.
+You can use the node monitoring agent to detect and show health issues.
+You can also enable node auto repair to automatically replace nodes when issues are detected.
+
+The node monitoring agent is included as a capability for all Amazon EKS Auto Mode clusters.
+For other cluster types, you can add the monitoring agent as an Amazon EKS add-on. 
+For more information, see link:eks/latest/userguide/node-health.html[Enable node auto repair and investigate node health issues,type="documentation"] in the _Amazon EKS User Guide_.
+
+=== Reserve resources for system and Kubernetes daemons
+
+You can improve worker nodes' stability by
+https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/[reserving
+compute capacity for the operating system and Kubernetes daemons]. Pods
+- especially ones without `limits` declared - can saturate system
+resources putting nodes in a situation where operating system processes
+and Kubernetes daemons (`kubelet`, container runtime, etc.) compete
+with pods for system resources. You can use `kubelet` flags
+`--system-reserved` and `--kube-reserved` to reserve resources for
+system process (`udev`, `sshd`, etc.) and Kubernetes daemons
+respectively.
+
+If you use the
+https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[EKS-optimized
+Linux AMI], the CPU, memory, and storage are reserved for the system and
+Kubernetes daemons by default. When worker nodes based on this AMI
+launch, EC2 user-data is configured to trigger the
+https://github.com/awslabs/amazon-eks-ami/blob/master/files/bootstrap.sh[`bootstrap.sh`
+script]. This script calculates CPU and memory reservations based on the
+number of CPU cores and total memory available on the EC2 instance. The
+calculated values are written to the `KubeletConfiguration` file
+located at `/etc/kubernetes/kubelet/kubelet-config.json`.
+
+You may need to increase the system resource reservation if you run
+custom daemons on the node and the amount of CPU and memory reserved by
+default is insufficient.
+
+`eksctl` offers the easiest way to customize
+https://eksctl.io/usage/customizing-the-kubelet/[resource reservation
+for system and Kubernetes daemons].
+=======
 EKS Auto Mode, Managed Node Groups, and Karpenter all have the ability to detect fatal Node conditions
 reported by the Node Monitoring Agent and repair those Nodes automatically when those conditions occur.
+>>>>>>> github/master
 
 === Implement QoS
 
