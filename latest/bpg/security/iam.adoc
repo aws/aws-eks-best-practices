@@ -49,7 +49,22 @@ in a terminal window:
 
 [source,bash]
 ----
-aws eks get-token --cluster-name <cluster_name>
+aws eks get-token --cluster-name <cluster_name> --region <region>
+----
+
+The output should resemble this:
+
+[source,json]
+----
+{
+    "kind": "ExecCredential",
+    "apiVersion": "client.authentication.k8s.io/v1alpha1",
+    "spec": {},
+    "status": {
+        "expirationTimestamp": "2024-12-20T17:38:48Z",
+        "token": "k8s-aws-v1.aHR0cHM6Ly9zdHMudXMtd2VzdC0yLmFtYXpvbmF3cy5jb20vP0FjdGlvbj1HZ...."
+    }
+}
 ----
 
 You can also get a token programmatically. Below is an example written
@@ -118,6 +133,18 @@ groups. RBAC groups can be referenced in Kubernetes RoleBindings or
 ClusterRoleBindings. They are similar to IAM Roles in that they define a
 set of actions (verbs) that can be performed against a collection of
 Kubernetes resources (objects).
+
+=== CloudWatch query to help users identify clients sending requests to global STS endpoint
+
+Run CloudWatch query below to get sts endpoint. If stsendpoint equals to "sts.amazonaws.com", then it is a global STS endpoint. If stsendpoint equals like "sts.<region>.amazonaws.com", then it is a regional STS endpoint.
+
+----
+fields @timestamp, @message, @logStream, @log,stsendpoint
+| filter @logStream like /authenticator/
+| filter @message like /stsendpoint/
+| sort @timestamp desc
+| limit 10000
+----
 
 === Cluster Access Manager
 
