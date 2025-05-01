@@ -95,7 +95,7 @@ Amazon EKS provides two ways to grant AWS IAM permissions to workloads that run 
 
 While both IRSA and EKS Pod Identities provide the benefits of least privilege access, credential isolation and auditability, EKS Pod Identity is the recommended way to grant permissions to workloads.
 
-For detailed guidance on Identity and credentials for EKS pods, please refer to the !(Identities and Credentials section)[https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html#_identities_and_credentials_for_eks_pods] of Security best practices.
+For detailed guidance on Identity and credentials for EKS pods, please refer to the [Identities and Credentials section](https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html#_identities_and_credentials_for_eks_pods) of Security best practices.
 
 ### Recommendation: 
 
@@ -104,4 +104,4 @@ For detailed guidance on Identity and credentials for EKS pods, please refer to 
 * **Simplified management**: By using the Cluster Access Management API in conjunction with IAM Identity Center, administrators can manage EKS cluster access alongside other AWS services, reducing the need to switch between different interfaces or edit ConfigMaps manually.
 * Use access entries to manage the Kubernetes permissions of IAM principals from outside the cluster. You can add and manage access to the cluster by using the EKS API, AWS Command Line Interface, AWS SDKs, AWS CloudFormation, and AWS Management Console. This means you can manage users with the same tools that you created the cluster with.
 * Granular Kubernetes permissions can be applied with mapping Kubernetes users or groups with IAM principals associated with SSO identities via access entries and access policies.
-* To get started, follow ![Change authentication mode to use access entries](https://docs.aws.amazon.com/eks/latest/userguide/setting-up-access-entries.html#access-entries-setup-console), then !(Migrating existing aws-auth ConfigMap entries to access entries)[https://docs.aws.amazon.com/eks/latest/userguide/migrating-access-entries.html].
+* To get started, follow [Change authentication mode to use access entries](https://docs.aws.amazon.com/eks/latest/userguide/setting-up-access-entries.html#access-entries-setup-console), then [Migrating existing aws-auth ConfigMap entries to access entries](https://docs.aws.amazon.com/eks/latest/userguide/migrating-access-entries.html).
