@@ -11,14 +11,14 @@ Effective access management is crucial for maintaining the security and integrit
 * Centralized user and permission management
 * Integration with existing identity providers (e.g. Microsoft AD,Okta, PingId and more)
 * The CAM API uses Access Entries to link AWS IAM principals (users or roles) to the EKS cluster. These entries work with IAM Identity Center's managed identities, allowing administrators to control cluster access for users and groups defined in Identity Center.
-* EKS cluster authentication flow:
+#### EKS cluster authentication flow:
 
 ![Image](/content/security/docs/images/eks-auth-flow.jpg)
 
-a. Principals(human users) or automated processes authenticate via AWS IAM by presenting appropriate AWS account permissions. In this step, they are mapped to appropriate AWS IAM principal (role or user).
-b. Next, an EKS access entry maps this IAM principal to a Kubernetes RBAC principal(user or group) by defining appropriate access policy, which contains Kubernetes permissions only.
-c. When a Kubernetes end user tries to access a cluster, its authentication request is processed by aws-iam-authenticator or AWS EKS CLI and validated against the cluster context in kubeconfig file.
-d. Finally, the EKS authorizer verifies the permissions associated with the authenticated user’s access entry and grants or denies access accordingly.
+1. Principals(human users) or automated processes authenticate via AWS IAM by presenting appropriate AWS account permissions. In this step, they are mapped to appropriate AWS IAM principal (role or user).
+2. Next, an EKS access entry maps this IAM principal to a Kubernetes RBAC principal(user or group) by defining appropriate access policy, which contains Kubernetes permissions only.
+3. When a Kubernetes end user tries to access a cluster, its authentication request is processed by aws-iam-authenticator or AWS EKS CLI and validated against the cluster context in kubeconfig file.
+4. Finally, the EKS authorizer verifies the permissions associated with the authenticated user’s access entry and grants or denies access accordingly.
 
 * The API uses Amazon EKS-specific Access Policies to define the level of authorization for each Access Entry. These policies can be mapped to roles and permissions set up in IAM Identity Center, ensuring consistent access control across AWS services and EKS clusters.
 
