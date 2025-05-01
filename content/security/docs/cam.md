@@ -1,24 +1,10 @@
----
-redirect: https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html
----
-
-
-!!! info "We've Moved to the AWS Docs! 🚀"
-    This content has been updated and relocated to improve your experience. 
-    Please visit our new site for the latest version:
-    [AWS EKS Best Practices Guide](https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html) on the AWS Docs
-
-    Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.
-
----
-
 # Cluster access management
 
 Effective access management is crucial for maintaining the security and integrity of your Amazon EKS clusters. This guide explores various options for EKS access management, with a focus on using AWS IAM Identity Center (formerly AWS SSO). We'll compare different approaches, discuss their trade-offs, and highlight known limitations and considerations.
 
 ## EKS access management options
 
-![NOTE] ConfigMap-based access management is only supported in the short term, it will be deprecated soon and replaced by Cluster Access Management (CAM) API. For new EKS clusters, implement CAM API to manage cluster access. For existing clusters using aws-auth ConfigMap, migrate to using CAM API.
+> ConfigMap-based access management is only supported in the short term, it will be deprecated soon and replaced by Cluster Access Management (CAM) API. For new EKS clusters, implement CAM API to manage cluster access. For existing clusters using aws-auth ConfigMap, migrate to using CAM API.
 
 ### AWS IAM Identity Center with Cluster Access Management (CAM) API
 
