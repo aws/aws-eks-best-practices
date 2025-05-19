@@ -8,7 +8,9 @@
 :info_titleabbrev: Kubernetes pod failover
 :info_abstract: Kubernetes pod failover through network disconnections
 
-We begin with a review of the key concepts, components, and settings that influence how Kubernetes behaves during network disconnections between nodes and the Kubernetes control plane. EKS is upstream Kubernetes conformant, so all the Kubernetes concepts, components, and settings described here apply to EKS and EKS Hybrid Nodes deployments.
+We begin with a review of the key concepts, components, and settings that influence how Kubernetes behaves during network disconnections between nodes and the Kubernetes control plane. EKS is upstream Kubernetes conformant, so all the Kubernetes concepts, components, and settings described here apply to EKS and EKS Hybrid Nodes deployments. 
+
+There are improvements that have been made to EKS specifically to improve pod failover behavior during network disconnections, for more information see GitHub issues link:https://github.com/kubernetes/kubernetes/pull/131294[#131294] and link:https://github.com/kubernetes/kubernetes/issues/131481[#131481] in the upstream Kubernetes repository.
 
 == Concepts
 
@@ -99,17 +101,25 @@ The behavior described here assumes pods are running as Kubernetes Deployments w
 
 When there are network disconnections between nodes and the Kubernetes control plane, the kubelet on each disconnected node cannot communicate with the Kubernetes control plane. Consequently, the kubelet cannot evict pods on those nodes until the connection is restored. This means that pods running on those nodes before the network disconnection continue to run during the disconnection, assuming no other failures cause them to shut down. In summary, you can achieve static stability during network disconnections between nodes and the Kubernetes control plane, but you cannot perform mutating operations on your nodes or workloads until the connection is restored.
 
-There are four main scenarios that produce different pod failover behaviors based on the nature of the network disconnection. In all scenarios, the cluster becomes healthy again without operator intervention once the nodes reconnect to the Kubernetes control plane. The scenarios below outline expected results based on our observations, but these results might not apply to all possible application and cluster configurations.
+There are five main scenarios that produce different pod failover behaviors based on the nature of the network disconnection. In all scenarios, the cluster becomes healthy again without operator intervention once the nodes reconnect to the Kubernetes control plane. The scenarios below outline expected results based on our observations, but these results might not apply to all possible application and cluster configurations.
 
-=== Scenario 1: Full disruption
+=== Scenario 1: Full cluster disruption
 
 *Expected result*: Pods on unreachable nodes are not evicted and continue running on those nodes.
 
-A full disruption means all nodes in the cluster are disconnected from the Kubernetes control plane. In this scenario, the node-lifecycle-controller on the control plane detects that all nodes in the cluster are unreachable and cancels any pod evictions.
+A full cluster disruption means all nodes in the cluster are disconnected from the Kubernetes control plane. In this scenario, the node-lifecycle-controller on the control plane detects that all nodes in the cluster are unreachable and cancels any pod evictions.
 
-Cluster administrators will see all nodes with status `Unknown` during the disconnection. Pod status does not change, and no new pods are scheduled on any nodes during the disconnection and subsequent reconnection.
+Cluster administrators will see all nodes with status `Not Ready` during the disconnection. Pod status does not change, and no new pods are scheduled on any nodes during the disconnection and subsequent reconnection.
 
-=== Scenario 2: Majority zone disruption
+=== Scenario 2: Full zone disruption
+
+*Expected result*: Pods on unreachable nodes are not evicted and continue running on those nodes.
+
+A full zone disruption means all nodes in the zone are disconnected from the Kubernetes control plane. In this scenario, the node-lifecycle-controller on the control plane detects that all nodes in the zone are unreachable and cancels any pod evictions.
+
+Cluster administrators will see all nodes with status `Not Ready` during the disconnection. Pod status does not change, and no new pods are scheduled on any nodes during the disconnection and subsequent reconnection.
+
+=== Scenario 3: Majority zone disruption
 
 *Expected result*: Pods on unreachable nodes are not evicted and continue running on those nodes.
 
@@ -121,7 +131,7 @@ Note that the behavior above applies only to clusters larger than three nodes. I
 
 During testing, we occasionally observed that pods were evicted from exactly one unreachable node during network disconnections, even when a majority of the zone’s nodes were unreachable. We are still investigating a possible race condition in the Kubernetes node-lifecycle-controller as the cause of this behavior.
 
-=== Scenario 3: Minority disruption
+=== Scenario 4: Minority zone disruption
 
 *Expected result*: Pods are evicted from unreachable nodes, and new pods are scheduled on available, eligible nodes.
 
@@ -129,7 +139,7 @@ A minority disruption means that a smaller percentage of nodes in a zone are dis
 
 Cluster administrators will see new pods created on healthy nodes, and the pods on disconnected nodes will show as `Terminating`. Remember that, even though pods on disconnected nodes have a `Terminating` status, they are not fully evicted until the node reconnects to the Kubernetes control plane.
 
-=== Scenario 4: Node restart during network disruption
+== Scenario 5: Node restart during network disruption
 
 *Expected result*: Pods on unreachable nodes are not started until the nodes reconnect to the Kubernetes control plane. Pod failover follows the logic described in Scenarios 1–3, depending on the number of unreachable nodes.
 
