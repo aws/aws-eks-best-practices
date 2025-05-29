@@ -1,0 +1,62 @@
+//!!NODE_ROOT <chapter>
+[[aiml,aiml.title]]
+= AI/ML on EKS - Introduction
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:idprefix:
+:idseparator: -
+:sourcedir: .
+:info_doctype: chapter
+:info_title: Best Practices for Artificial Intelligence/Machine Learning on EKS
+:info_abstract: Best Practices for AI/ML on EKS
+:info_titleabbrev: AI/ML on EKS
+:imagesdir: images/
+
+
+
+== General Guidelines
+
+Here are general best practices guidelines for running AI/ML workloads on EKS:
+
+* 
+
+== AI/ML on EKS Best Practices
+
+There are X general best practice areas for running AI/ML workloads in EKS:
+
+* 
+
+=== How to use this guide
+
+This guide is meant for...
+
+=== Key AWS Services and Kubernetes features
+
+AI/ML workloads are supported by the following AWS services and features:
+
+* Karpenter
+* X
+* X
+
+This guide includes a set of recommendations that you can use to improve the cost optimization of your Amazon EKS cluster.
+
+== Feedback
+
+This guide is being released on GitHub so as to collect direct feedback and suggestions from the broader EKS/Kubernetes community. If you have a best practice that you feel we ought to include in the guide, please file an issue or submit a PR in the GitHub repository. Our intention is to update the guide periodically as new features are added to the service or when a new best practice evolves.
+
+
+include::ai_ml_compute.adoc[leveloffset=+1]
+
+include::ai_ml_networking.adoc[leveloffset=+1]
+
+include::ai_ml_storage.adoc[leveloffset=+1]
+
+include::ai_ml_observability.adoc[leveloffset=+1]
+
+include::ai_ml_performance.adoc[leveloffset=+1]
+
+
+

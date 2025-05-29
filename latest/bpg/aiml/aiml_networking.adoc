@@ -1,0 +1,35 @@
+[."topic"]
+[[#aiml-networking,aiml-networking.title]]
+= AI/ML - Networking
+:info_doctype: section
+:info_titleabbrev: Network
+:imagesdir: images/
+:authors: ["Leah Tucker"]
+:date: 2025-05-25
+
+=== Consider Higher Network Bandwidth or Elastic Fabric Adapter For Applications with High Inter-Node Communication
+
+For distributed training workloads on Amazon EKS with high inter-node communication demands, consider selecting instances with higher network bandwidth or https://docs.aws.amazon.com/eks/latest/userguide/node-efa.html[Elastic Fabric Adapter] (EFA). Insufficient network performance can bottleneck data transfer, slowing down machine learning tasks like distributed multi-GPU training. Note that inference workloads don’t typically have high inter-node communication.
+
+**Example**
+For example, using Karpenter:
+
+[,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ml-workload
+spec:
+  nodeSelector:
+    karpenter.k8s.aws/instance-network-bandwidth: "100000"  # 100 Gbps in Mbps
+    node.kubernetes.io/instance-type: p5.48xlarge  # EFA-enabled instance
+  containers:
+  - name: training-job
+    image: `763104351884.dkr.ecr.us-west-2.amazonaws.com/pytorch-inference:2.6.0-gpu-py312-cu124-ubuntu22.04-ec2-v1.6`
+    resources:
+      limits:
+        vpc.amazonaws.com/efa: 1  # Requires EFA device plugin
+----
+
+Ensure tools like MPI and NCCL are installed in your container image to leverage EFA for training jobs.
