@@ -41,9 +41,6 @@ The following are general guidelines for AI/ML on EKS best practices covered in 
 
 This guide is being released on GitHub so as to collect direct feedback and suggestions from the broader EKS/Kubernetes community. If you have a best practice that you feel we ought to include in the guide, please file an issue or submit a PR in the GitHub repository. Our intention is to update the guide periodically as new features are added to the service or when a new best practice evolves.
 
-[.topiclist]
-[[Topic List]]
-
 include::ai_ml_compute.adoc[leveloffset=+1]
 
 include::ai_ml_networking.adoc[leveloffset=+1]
