@@ -1,0 +1,237 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[aiml-compute,aiml-compute.title]]
+= AI/ML on EKS - Compute
+:info_doctype: section
+:imagesdir: images/
+:info_title: Compute and Autoscaling
+:info_abstract: Compute and Autoscaling
+:info_titleabbrev: Compute
+:authors: ["Leah Tucker"]
+:date: 2025-05-30
+
+
+== GPU Resource Optimization and Cost Management
+
+=== Schedule workloads with GPU requirements using Well-Known labels
+For AI/ML workloads sensitive to different GPU characteristics (e.g. GPU, GPU memory) we recommend specifying GPU requirements using https://kubernetes.io/docs/reference/labels-annotations-taints/[known scheduling labels] supported by node types used with https://karpenter.sh/v1.0/concepts/scheduling/#labels[Karpenter] and https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[managed node groups]. Failing to define these can result in pods being scheduled on instances with inadequate GPU resources, causing failures or degraded performance. We recommend using https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector[nodeSelector] or https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity[Node affinity] to specify which node a pod should run on and setting compute https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[resources] (CPU, memory, GPUs etc) in the pod’s resources section. 
+
+**Example**
+
+For example, using GPU name node selector when using Karpenter:
+
+[,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-pod-example
+spec:
+  containers:
+  - name: ml-workload
+    image: <image>
+    resources:
+      limits:
+        nvidia.com/gpu: 1  # Request one NVIDIA GPU
+  nodeSelector:
+    karpenter.k8s.aws/instance-gpu-name: "l40s"  # Run on nodes with NVIDIA L40S GPUs
+----
+
+=== Use Kubernetes Device Plugin for exposing GPUs
+To expose GPUs on nodes, the NVIDIA GPU driver must be installed on the node’s operating system and container runtime configured to allow the Kubernetes scheduler to assign pods to nodes with available GPUs. The setup process for the NVIDIA Kubernetes Device Plugin depends on the EKS Accelerated AMI you are using:
+
+* **https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html[Bottlerocket Accelerated AMI]**: This AMI includes the NVIDIA GPU driver **and** the https://github.com/NVIDIA/k8s-device-plugin[NVIDIA Kubernetes Device Plugin] is pre-installed and ready to use, enabling GPU support out of the box. No additional configuration is required to expose GPUs to the Kubernetes scheduler.
+* **https://aws.amazon.com/blogs/containers/amazon-eks-optimized-amazon-linux-2023-accelerated-amis-now-available/[AL2023 Accelerated AMI]**: This AMI includes NVIDIA GPU driver but the https://github.com/NVIDIA/k8s-device-plugin[NVIDIA Kubernetes Device Plugin] is **not** pre-installed. You must install and configure the device plugin separately, typically via a DaemonSet.
+
+To verify that the NVIDIA Device Plugin is active and GPUs are correctly exposed, run:
+
+[source,bash]
+----
+kubectl describe node | grep nvidia.com/gpu
+----
+
+This command checks if the `nvidia.com/gpu` resource is in the node’s capacity and allocatable resources. For example, a node with one GPU should show `nvidia.com/gpu: 1`. See the https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/[Kubernetes GPU Scheduling Guide] for more information.
+
+=== Use ML Capacity Blocks for capacity assurance
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-blocks.html[Capacity Blocks for ML] allow you to reserve highly sought-after GPU instances on a future date to support your short duration machine learning (ML) workloads. To reserve GPUs for AI/ML workloads on Amazon EKS for predicable capacity assurance we recommend leveraging ML Capacity Blocks for short-term or https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-reservations.html[On-Demand Capacity Reservations] (ODCRs) for general-purpose capacity assurance.
+
+* ODCRs allow you to reserve EC2 instance capacity (e.g., GPU instances like g5 or p5) in a specific Availability Zone for a duration, ensuring availability even during high demand. ODCRs have no long-term commitment, but you pay the On-Demand rate for the reserved capacity, whether used or idle. In EKS, ODCRs are supported by node types like https://karpenter.sh/[Karpenter] and https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[managed node groups]. To prioritize ODCRs in Karpenter, configure the NodeClass to use the capacityReservationSelectorTerms field. See the https://karpenter.sh/docs/concepts/nodeclasses/#speccapacityreservationselectorterms[Karpenter NodePools Documentation].
+* Capacity Blocks are a specialized reservation mechanism for GPU (e.g., p5, p4d) or Trainium (trn1, trn2) instances, designed for short-term ML workloads like model training, fine-tuning, or experimentation. You reserve capacity for a defined period (typically 24 hours to 182 days) starting on a future date, paying only for the reserved time. They are pre-paid, require pre-planning for capacity needs and do not support autoscaling, but they are colocated in EC2 UltraClusters for low-latency networking. They charge only for the reserved period. In EKS, Capacity Blocks are supported by node types like https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[managed node groups] but are **not** currently supported by Karpenter.
+
+Reserve capacity via the AWS Management Console and configure your nodes to use ML capacity blocks.  Plan reservations based on workload schedules and test in a staging cluster. Refer to the https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-blocks.html[Capacity Blocks Documentation] for more information.
+
+=== Optimize GPU Resource Allocation with Time-Slicing, MIG, and Fractional GPU Allocation
+Static resource limits in Kubernetes (e.g., CPU, memory, GPU counts) can lead to over-provisioning or underutilization, particularly for dynamic AI/ML workloads like inference. Selecting the right GPU is important and for low-volume/spiky workloads, time-slicing allows multiple workloads to share a single GPU by sharing its compute resources, potentially improving efficiency and reducing waste. GPU sharing can be achieved through different options:
+
+* **Leverage Node Selectors / Node affinity to influence scheduling**: Ensure the nodes provisioned and pods are scheduled on the appropriate GPUs for the workload (e.g., `karpenter.k8s.aws/instance-gpu-name: "a100"`)
+* **Time-Slicing**:  Schedules workloads to share a GPU’s compute resources over time, allowing concurrent execution without physical partitioning. This is ideal for workloads with variable compute demands, but may lack memory isolation.
+* **Multi-Instance GPU (MIG)**: MIG allows a single NVIDIA GPU to be partitioned into multiple, isolated instances and is supported with NVIDIA Ampere (e.g., A100 GPU), NVIDIA Hopper (e.g., H100 GPU), and NVIDIA Blackwell (e.g., Blackwell GPUs) GPUs. Each MIG instance receives dedicated compute and memory resources, enabling resource sharing in multi-tenant environments or workloads requiring resource guarantees, which allows you to optimize GPU resource utilization, including scenarios like serving multiple models with different batch sizes through time-slicing.
+* **Fractional GPU Allocation**: Uses software-based scheduling to allocate portions of a GPU’s compute or memory to workloads, offering flexibility for dynamic workloads. The https://github.com/NVIDIA/KAI-Scheduler[NVIDIA KAI Scheduler], part of the Run:ai platform, enables this by allowing pods to request fractional GPU resources.
+
+To enable these features in EKS, you can deploy the NVIDIA Device Plugin, which exposes GPUs as schedulable resources and supports time-slicing and MIG. To learn more, see 
+https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html[Time-Slicing GPUs in Kubernetes] and https://aws.amazon.com/blogs/containers/gpu-sharing-on-amazon-eks-with-nvidia-time-slicing-and-accelerated-ec2-instances/[GPU sharing on Amazon EKS with NVIDIA time-slicing and accelerated EC2 instances].
+
+**Example**
+
+For example, to enable time-slicing with the NVIDIA Device Plugin:
+
+[,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvidia-device-plugin-config
+  namespace: kube-system
+data:
+  config.yaml: |
+    version: v1
+    sharing:
+      timeSlicing:
+        resources:
+        - name: nvidia.com/gpu
+          replicas: 4  # Allow 4 pods to share each GPU
+----
+
+**Example**
+
+For example, to use KAI Scheduler for fractional GPU allocation, deploy it alongside the NVIDIA GPU Operator and specify fractional GPU resources in the pod spec:
+
+[,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fractional-gpu-pod-example
+  annotations:
+    gpu-fraction: "0.5"  # Annotation for 50% GPU
+  labels:
+    runai/queue: "default"  # Required queue assignment
+spec:
+  containers:
+  - name: ml-workload
+    image: nvcr.io/nvidia/pytorch:25.04-py3
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+  nodeSelector:
+    nvidia.com/gpu: "true"
+  schedulerName: kai-scheduler
+----
+
+== Node Resiliency and Training Job Management
+
+=== Disable Karpenter Consolidation for interruption sensitive Workloads
+
+For workload sensitive to interruptions, such as processing, large-scale AI/ML prediction tasks or training, we recommend tuning https://karpenter.sh/v1.0/concepts/disruption/#consolidation[Karpenter consolidation policies] to prevent disruptions during job execution. Karpenter's consolidation feature automatically optimizes cluster costs by terminating underutilized nodes or replacing them with lower-priced alternatives. However, even when a workload fully utilizes a GPU, Karpenter may consolidate nodes if it identifies a lower-priced right-sized instance type that meets the pod’s requirements, leading to job interruptions.
+
+The `WhenEmptyOrUnderutilized` consolidation policy may terminate nodes prematurely, leading to longer execution times. For example, interruptions may delay job resumption due to pod rescheduling, data reloading, which could be costly for long-running batch inference jobs.  To mitigate this, you can set the `consolidationPolicy` to `WhenEmpty` and configure a `consolidateAfter` duration, such as 1 hour, to retain nodes during workload spikes. For example:
+
+[,yaml]
+----
+disruption:
+  consolidationPolicy: WhenEmpty
+  consolidateAfter: 60m
+----
+
+This approach improves pod startup latency for spiky batch inference workloads and other interruption-sensitive jobs, such as real-time online inference data processing or model training, where the cost of interruption outweighs compute cost savings. Karpenter https://karpenter.sh/docs/concepts/disruption/#nodepool-disruption-budgets[NodePool Disruption Budgets] is another feature for managing Karpenter disruptions. With budgets, you can make sure that no more than a certain number of nodes nodes will be disrupted in the chosen NodePool at a point in time. You can also use disruption budgets to prevent all nodes from being disrupted at a certain time (e.g. peak hours). To learn more, see https://karpenter.sh/docs/concepts/disruption/#consolidation[Karpenter Consolidation] documentation.
+
+=== Use ttlSecondsAfterFinished to Auto Clean-Up Kubernetes Jobs
+
+We recommend setting `ttlSecondsAfterFinished` for Kubernetes jobs in Amazon EKS to automatically delete completed job objects. Lingering job objects consume cluster resources, such as API server memory, and complicate monitoring by cluttering dashboards (e.g., Grafana, Amazon CloudWatch). For example, setting a TTL of 1 hour ensures jobs are removed shortly after completion, keeping your cluster tidy. For more details, refer to https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/[Automatic Cleanup for Finished Jobs].
+
+=== Configure Low-Priority Job Preemption for Higher-Priority Jobs/workloads
+
+For mixed-priority AI/ML workloads on Amazon EKS, you may configure low-priority job preemption to ensure higher-priority tasks (e.g., real-time inference) receive resources promptly. Without preemption, low-priority workloads such as batch processes (e.g., batch inference, data processing), non-batch services (e.g., background tasks, cron jobs), or CPU/memory-intensive jobs (e.g., web services) can delay critical pods by occupying nodes. Preemption allows Kubernetes to evict low-priority pods when high-priority pods need resources, ensuring efficient resource allocation on nodes with GPUs, CPUs, or memory. We recommend using Kubernetes `PriorityClass` to assign priorities and `PodDisruptionBudget` to control eviction behavior.
+
+[,yaml]
+----
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: low-priority
+value: 100
+---
+spec:
+  priorityClassName: low-priority
+----
+
+See the https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/[Kubernetes Priority and Preemption Documentation] for more information.
+
+== Application Scaling and Performance
+
+=== Tailor Compute Capacity for ML workloads with Karpenter or Static Nodes
+To ensure cost-efficient and responsive compute capacity for machine learning (ML) workflows on Amazon EKS, we recommend tailoring your node provisioning strategy to your workload’s characteristics and cost commitments. Below are two approaches to consider: just-in-time scaling with https://karpenter.sh/docs/[Karpenter] and static node groups for reserved capacity.
+
+* **Just-in-time data plane scalers like Karpenter**: For dynamic ML workflows with variable compute demands (e.g., GPU-based inference followed by CPU-based plotting), we recommend using just-in-time data plane scalers like Karpenter.
+* **Use static node groups for predictable workloads**: For predictable, steady-state ML workloads or when using Reserved instances, https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS managed node groups] can help ensure reserved capacity is fully provisioned and utilized, maximizing savings. This approach is ideal for specific instance types committed via RIs or ODCRs.
+
+**Example**
+
+This is an example of a diverse Karpenter https://karpenter.sh/docs/concepts/nodepools/[NodePool] that enables launching of `g` Amazon EC2 instances where instance generation is greater than three.
+
+[,yaml]
+----
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: gpu-inference
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["g"]
+        - key: karpenter.k8s.aws/instance-generation
+          operator: Gt
+          values: ["3"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+      taints:
+        - key: nvidia.com/gpu
+          effect: NoSchedule
+  limits:
+    cpu: "1000"
+    memory: "4000Gi"
+    nvidia.com/gpu: "10"  *# Limit the total number of GPUs to 10 for the NodePool*
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 60m
+    expireAfter: 720h
+----
+
+**Example**
+
+Example using static node groups for a training workload:
+
+[,yaml]
+----
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: ml-cluster
+  region: us-west-2
+managedNodeGroups:
+  - name: gpu-node-group
+    instanceType: p4d.24xlarge
+    minSize: 2
+    maxSize: 2
+    desiredCapacity: 2
+    taints:
+      - key: nvidia.com/gpu
+        effect: NoSchedule
+----
+
+=== Use taints and tolerations to prevent non-accelerated workloads from being scheduled on accelerated instances
+Scheduling non accelerated workloads on GPU resources is not compute-efficient, we recommend using taints and toleration to ensure non accelerated workloads pods are not scheduled on inappropriate nodes. See the https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/[Kubernetes documentation] for more information.
+
+=== Scale Based on Model Performance
+For inference workloads, we recommend using Kubernetes Event-Driven Autoscaling (KEDA) to scale based on model performance metrics like inference requests or token throughput, with appropriate cooldown periods. Static scaling policies may over- or under-provision resources, impacting cost and latency. Learn more in the https://keda.sh/[KEDA Documentation].
