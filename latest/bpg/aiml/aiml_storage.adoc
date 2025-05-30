@@ -131,7 +131,8 @@ You can deploy an Amazon EFS file system with the following throughput modes:
 * **Bursting Throughput**: Scales throughput with file system size, suitable for varying workloads with occasional bursts.
 * **Provisioned Throughput**: Dedicated throughput, ideal for consistent ML training jobs with predictable performance needs within limits.
 * **Elastic Throughput (recommended for ML)**: Automatically scales based on workload, cost-effectiveness for varying ML workloads.
-* To view performance specifications, see https://docs.aws.amazon.com/efs/latest/ug/performance.html[Amazon EFS performance specifications].
+
+To view performance specifications, see https://docs.aws.amazon.com/efs/latest/ug/performance.html[Amazon EFS performance specifications].
 
 **Performance considerations**:
 
