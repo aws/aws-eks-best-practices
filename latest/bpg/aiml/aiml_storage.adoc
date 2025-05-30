@@ -43,10 +43,10 @@ Performance considerations:
 * **Elastic Fabric Adapter (EFA)**: Persistent-SSD storage deployment types support https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html[Elastic Fabric Adapter (EFA)], where using EFA is ideal for high performance and throughput-based GPU-based workloads. Note that FSx for Lustre supports NVIDIA GPUDirect Storage (GDS), where GDS is a technology that creates a direct data path between local or remote storage and GPU memory, to enable faster data access.
 * **Compression**: Enable data compression on the file system if you have file types that can be compressed. This can help to increase performance as data compression reduces the amount of data that is transferred between FSx for Lustre file servers and storage.
 * **Lustre file system striping configuration**:
-    * **Data striping**: Allows FSx for Luster to distribute a file’s data across multiple Object Storage Targets (OSTs) within a Lustre file system maximizes parallel access and throughput, especially for large-scale ML training jobs.
-    * **Standalone file system striping**: By default, a 4-component Lustre striping configuration is created for you via the https://docs.aws.amazon.com/fsx/latest/LustreGuide/performance.html#striping-pfl[Progressive file layouts (PFL)] capability of FSx for Lustre. In most scenarios you don't need to update the default PFL Lustre stripe count/size. If you need to adjust the Lustre data striping, then you can manually adjust the Lustre striping by referring to https://docs.aws.amazon.com/fsx/latest/LustreGuide/performance.html#striping-data[striping parameters of a FSx for Lustre file system].
-    * **S3-Linked File system**:  Files imported into the FSx file system using the native Amazon S3 integration (Data Repository Association or DRA) don't use the default PFL layout, but instead use the layout in the file system's `ImportedFileChunkSize` parameter. S3-imported files larger than the `ImportedFileChunkSize` will be stored on multiple OSTs with a stripe count based on the `ImportedFileChunkSize` defined value (default 1GiB). If you have large files, we recommend tuning this parameter to a higher value.
-    * **Placement**: Deploy an FSx for Lustre file system in the same Availability Zone as your compute or GPU nodes to enable the lowest latency access to the data, avoid cross Availability Zone access access patterns. If you have multiple GPU nodes located in different Availability Zones, then we recommend deploying a FSx file system in each Availability Zone for low latency data access.
+ ** **Data striping**: Allows FSx for Luster to distribute a file’s data across multiple Object Storage Targets (OSTs) within a Lustre file system maximizes parallel access and throughput, especially for large-scale ML training jobs.
+ ** **Standalone file system striping**: By default, a 4-component Lustre striping configuration is created for you via the https://docs.aws.amazon.com/fsx/latest/LustreGuide/performance.html#striping-pfl[Progressive file layouts (PFL)] capability of FSx for Lustre. In most scenarios you don't need to update the default PFL Lustre stripe count/size. If you need to adjust the Lustre data striping, then you can manually adjust the Lustre striping by referring to https://docs.aws.amazon.com/fsx/latest/LustreGuide/performance.html#striping-data[striping parameters of a FSx for Lustre file system].
+ ** **S3-Linked File system**:  Files imported into the FSx file system using the native Amazon S3 integration (Data Repository Association or DRA) don't use the default PFL layout, but instead use the layout in the file system's `ImportedFileChunkSize` parameter. S3-imported files larger than the `ImportedFileChunkSize` will be stored on multiple OSTs with a stripe count based on the `ImportedFileChunkSize` defined value (default 1GiB). If you have large files, we recommend tuning this parameter to a higher value.
+ ** **Placement**: Deploy an FSx for Lustre file system in the same Availability Zone as your compute or GPU nodes to enable the lowest latency access to the data, avoid cross Availability Zone access access patterns. If you have multiple GPU nodes located in different Availability Zones, then we recommend deploying a FSx file system in each Availability Zone for low latency data access.
 
 **Example**
 
@@ -77,7 +77,7 @@ spec:
 
 **Example**
 
-Persistent Volume Claim definition for PV called `fsx-pv``:
+Persistent Volume Claim definition for PV called `fsx-pv`:
 
 [,yaml]
 ----
