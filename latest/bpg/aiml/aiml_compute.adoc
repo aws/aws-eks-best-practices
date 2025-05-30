@@ -213,7 +213,7 @@ spec:
 Example using static node groups for a training workload:
 
 [,yaml]
-----]
+----
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:

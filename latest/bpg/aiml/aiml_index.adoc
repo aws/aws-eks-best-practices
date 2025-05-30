@@ -17,11 +17,11 @@
 :authors: ["Leah Tucker"]
 :date: 2025-05-30
 
-
 Implementing best practices when running AI/ML workloads on EKS can ensure that those workloads are performant, cost-effective, resilient, and properly resourced.
-Read the best practices for details on the following general guidelines.
+Best practices for AI/ML on EKS are divided into the following general sections: Compute, Networking, Storage, Observability, and Performance.
 
 == General Guidelines
+The following are general guidelines for AI/ML on EKS best practices covered in this guide.
 
 * **GPU resource optimization and cost management**: AI/ML workloads require expensive, GPU-intensive resources. Optimize resource use by scheduling with well-known labels on appropriate GPU types. Use GPU sharing techniques (time-slicing, MIG, fractional allocation) to maximize GPU utilization.
 
