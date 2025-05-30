@@ -40,6 +40,7 @@ We currently have published guides for the following topics:
 * xref:cost-opt[Best Practices for Cost Optimization]
 * xref:windows[Best Practices for Running Windows Containers]
 * xref:hybrid[Best Practices for Hybrid Deployments]
+* xref:aiml[Best Practices for Running AI/ML Workloads]
 
 We also open sourced a Python based CLI (Command Line Interface) called
 https://github.com/aws-samples/hardeneks[hardeneks] to check some of the

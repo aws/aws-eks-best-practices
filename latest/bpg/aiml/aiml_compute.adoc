@@ -63,7 +63,8 @@ Reserve capacity via the AWS Management Console and configure your nodes to use 
 === Optimize GPU Resource Allocation with Time-Slicing, MIG, and Fractional GPU Allocation
 Static resource limits in Kubernetes (e.g., CPU, memory, GPU counts) can lead to over-provisioning or underutilization, particularly for dynamic AI/ML workloads like inference. Selecting the right GPU is important and for low-volume/spiky workloads, time-slicing allows multiple workloads to share a single GPU by sharing its compute resources, potentially improving efficiency and reducing waste. GPU sharing can be achieved through different options:
 
-* **Time-Slicing**: Schedules workloads to share a GPU’s compute resources over time, allowing concurrent execution without physical partitioning. This is ideal for workloads with variable compute demands, but may lack memory isolation.
+* **Leverage Node Selectors / Node affinity to influence scheduling**: Ensure the nodes provisioned and pods are scheduled on the appropriate GPUs for the workload (e.g., `karpenter.k8s.aws/instance-gpu-name: "a100"`)
+* **Time-Slicing**:  Schedules workloads to share a GPU’s compute resources over time, allowing concurrent execution without physical partitioning. This is ideal for workloads with variable compute demands, but may lack memory isolation.
 * **Multi-Instance GPU (MIG)**: MIG allows a single NVIDIA GPU to be partitioned into multiple, isolated instances and is supported with NVIDIA Ampere (e.g., A100 GPU), NVIDIA Hopper (e.g., H100 GPU), and NVIDIA Blackwell (e.g., Blackwell GPUs) GPUs. Each MIG instance receives dedicated compute and memory resources, enabling resource sharing in multi-tenant environments or workloads requiring resource guarantees, which allows you to optimize GPU resource utilization, including scenarios like serving multiple models with different batch sizes through time-slicing.
 * **Fractional GPU Allocation**: Uses software-based scheduling to allocate portions of a GPU’s compute or memory to workloads, offering flexibility for dynamic workloads. The https://github.com/NVIDIA/KAI-Scheduler[NVIDIA KAI Scheduler], part of the Run:ai platform, enables this by allowing pods to request fractional GPU resources.
 
@@ -120,6 +121,7 @@ spec:
 == Node Resiliency and Training Job Management
 
 === Disable Karpenter Consolidation for interruption sensitive Workloads
+
 For workload sensitive to interruptions, such as processing, large-scale AI/ML prediction tasks or training, we recommend tuning https://karpenter.sh/v1.0/concepts/disruption/#consolidation[Karpenter consolidation policies] to prevent disruptions during job execution. Karpenter's consolidation feature automatically optimizes cluster costs by terminating underutilized nodes or replacing them with lower-priced alternatives. However, even when a workload fully utilizes a GPU, Karpenter may consolidate nodes if it identifies a lower-priced right-sized instance type that meets the pod’s requirements, leading to job interruptions.
 
 The `WhenEmptyOrUnderutilized` consolidation policy may terminate nodes prematurely, leading to longer execution times. For example, interruptions may delay job resumption due to pod rescheduling, data reloading, which could be costly for long-running batch inference jobs.  To mitigate this, you can set the `consolidationPolicy` to `WhenEmpty` and configure a `consolidateAfter` duration, such as 1 hour, to retain nodes during workload spikes. For example:
@@ -133,22 +135,12 @@ disruption:
 
 This approach improves pod startup latency for spiky batch inference workloads and other interruption-sensitive jobs, such as real-time online inference data processing or model training, where the cost of interruption outweighs compute cost savings. Karpenter https://karpenter.sh/docs/concepts/disruption/#nodepool-disruption-budgets[NodePool Disruption Budgets] is another feature for managing Karpenter disruptions. With budgets, you can make sure that no more than a certain number of nodes nodes will be disrupted in the chosen NodePool at a point in time. You can also use disruption budgets to prevent all nodes from being disrupted at a certain time (e.g. peak hours). To learn more, see https://karpenter.sh/docs/concepts/disruption/#consolidation[Karpenter Consolidation] documentation.
 
-=== Implement Node Health Checks with Automated Recovery
-For distributed training jobs on Amazon EKS, such as multi-GPU model training with high inter-node communication, hardware issues like GPU failures can disrupt a training job. These disruptions can lead to loss of training progress, and increased costs, particularly for long-running AI/ML workloads that rely on stable hardware.
-
-To help add resilience against hardware failures, such as GPU failures in EKS clusters running GPU workloads, we recommend leveraging either the EKS Node Monitoring Agent or Amazon SageMaker Hyperpod. SageMaker Hyperpod’s targeted resilience makes it ideal for ML-focused clusters, while EKS offers broader flexibility, allowing organizations to balance general and specialized needs.
-
-* The https://docs.aws.amazon.com/eks/latest/userguide/node-health.html[EKS Node Monitoring Agent] with Node Auto Repair continuously monitors node health by reading logs and applying NodeConditions (e.g., Ready, DiskPressure) to identify issues like GPU or networking failures. Node Auto-Repair cordons and replaces unhealthy nodes, relying on Kubernetes mechanisms for pod rescheduling and job restarts based on job-specific policies.
-* https://catalog.workshops.aws/sagemaker-hyperpod-eks/en-US[SageMaker HyperPod] is tailored for AI/ML workloads, using labels (e.g., node-health-status) to manage node health and automatically replacing faulty hardware, such as GPUs, while supporting auto-resume to restart training jobs interrupted by hardware failures, minimizing disruptions for large-scale ML tasks.
-
-To monitor EFA-specific metrics (e.g., Remote Direct Memory Access (RDMA) errors, packet drops), ensure the AWS EFA driver is installed. Additionally, we recommend deploying the 
-https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-EKS-addon.html[CloudWatch Observability Add-on] or DCGM Exporter, and Prometheus/Grafana to monitor EFA, GPU, and HyperPod-specific metrics. For more details, refer to the **Observability** section.
-
 === Use ttlSecondsAfterFinished to Auto Clean-Up Kubernetes Jobs
-We recommend setting `ttlSecondsAfterFinished` for Kubernetes jobs in Amazon EKS to automatically delete completed job objects. Lingering job objects consume cluster resources, such as API server memory, and complicate monitoring by cluttering dashboards (e.g., Grafana, Amazon CloudWatch). For example, setting a TTL of 1 hour ensures jobs are removed shortly after completion, keeping your cluster tidy. For more details, refer to 
-https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/[Automatic Cleanup for Finished Jobs].
+
+We recommend setting `ttlSecondsAfterFinished` for Kubernetes jobs in Amazon EKS to automatically delete completed job objects. Lingering job objects consume cluster resources, such as API server memory, and complicate monitoring by cluttering dashboards (e.g., Grafana, Amazon CloudWatch). For example, setting a TTL of 1 hour ensures jobs are removed shortly after completion, keeping your cluster tidy. For more details, refer to https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/[Automatic Cleanup for Finished Jobs].
 
 === Configure Low-Priority Job Preemption for Higher-Priority Jobs/workloads
+
 For mixed-priority AI/ML workloads on Amazon EKS, you may configure low-priority job preemption to ensure higher-priority tasks (e.g., real-time inference) receive resources promptly. Without preemption, low-priority workloads such as batch processes (e.g., batch inference, data processing), non-batch services (e.g., background tasks, cron jobs), or CPU/memory-intensive jobs (e.g., web services) can delay critical pods by occupying nodes. Preemption allows Kubernetes to evict low-priority pods when high-priority pods need resources, ensuring efficient resource allocation on nodes with GPUs, CPUs, or memory. We recommend using Kubernetes `PriorityClass` to assign priorities and `PodDisruptionBudget` to control eviction behavior.
 
 [,yaml]
@@ -167,12 +159,11 @@ See the https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-pre
 
 == Application Scaling and Performance
 
-Tailor Compute Capacity for ML workloads with Karpenter or Static Nodes
+=== Tailor Compute Capacity for ML workloads with Karpenter or Static Nodes
 To ensure cost-efficient and responsive compute capacity for machine learning (ML) workflows on Amazon EKS, we recommend tailoring your node provisioning strategy to your workload’s characteristics and cost commitments. Below are two approaches to consider: just-in-time scaling with https://karpenter.sh/docs/[Karpenter] and static node groups for reserved capacity.
 
-* **Just-in-time data plane scalers like Karpenter**. For dynamic ML workflows with variable compute demands (e.g., GPU-based inference followed by CPU-based plotting), we recommend using just-in-time data plane scalers like Karpenter.
-* **Use static node groups for predictable workloads**. For predictable, steady-state ML workloads or when using Reserved instances, 
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS managed node groups] can help ensure reserved capacity is fully provisioned and utilized, maximizing savings. This approach is ideal for specific instance types (e.g., `p4d.24xlarge` for GPU workloads) committed via RIs or ODCRs.
+* **Just-in-time data plane scalers like Karpenter**: For dynamic ML workflows with variable compute demands (e.g., GPU-based inference followed by CPU-based plotting), we recommend using just-in-time data plane scalers like Karpenter.
+* **Use static node groups for predictable workloads**: For predictable, steady-state ML workloads or when using Reserved instances, https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS managed node groups] can help ensure reserved capacity is fully provisioned and utilized, maximizing savings. This approach is ideal for specific instance types committed via RIs or ODCRs.
 
 **Example**
 
@@ -210,6 +201,7 @@ spec:
   limits:
     cpu: "1000"
     memory: "4000Gi"
+    nvidia.com/gpu: "10"  *# Limit the total number of GPUs to 10 for the NodePool*
   disruption:
     consolidationPolicy: WhenEmpty
     consolidateAfter: 60m
@@ -221,7 +213,7 @@ spec:
 Example using static node groups for a training workload:
 
 [,yaml]
-----
+----]
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
@@ -239,8 +231,7 @@ managedNodeGroups:
 ----
 
 === Use taints and tolerations to prevent non-accelerated workloads from being scheduled on accelerated instances
-Scheduling non accelerated workloads on GPU resources is not compute-efficient, we recommend using taints and toleration to ensure non accelerated workloads pods are not scheduled on inappropriate nodes. See the 
-https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/[Kubernetes documentation] for more information.
+Scheduling non accelerated workloads on GPU resources is not compute-efficient, we recommend using taints and toleration to ensure non accelerated workloads pods are not scheduled on inappropriate nodes. See the https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/[Kubernetes documentation] for more information.
 
 === Scale Based on Model Performance
 For inference workloads, we recommend using Kubernetes Event-Driven Autoscaling (KEDA) to scale based on model performance metrics like inference requests or token throughput, with appropriate cooldown periods. Static scaling policies may over- or under-provision resources, impacting cost and latency. Learn more in the https://keda.sh/[KEDA Documentation].
