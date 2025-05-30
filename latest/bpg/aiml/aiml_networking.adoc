@@ -1,6 +1,6 @@
 [."topic"]
 [[#aiml-networking,aiml-networking.title]]
-= AI/ML - Networking
+= AI/ML on EKS - Networking
 :info_doctype: section
 :info_titleabbrev: Network
 :imagesdir: images/

@@ -1,7 +1,7 @@
 //!!NODE_ROOT <section>
 [."topic"]
 [[aiml-storage,aiml-storage.title]]
-= Storage
+= AI/ML on EKS - Storage
 :info_doctype: section
 :imagesdir: images/
 :info_title: Storage

@@ -1,7 +1,7 @@
 //!!NODE_ROOT <section>
 [."topic"]
 [[aiml-compute,aiml-compute.title]]
-= AI/ML - Compute
+= AI/ML on EKS - Compute
 :info_doctype: section
 :imagesdir: images/
 :info_title: Compute and Autoscaling

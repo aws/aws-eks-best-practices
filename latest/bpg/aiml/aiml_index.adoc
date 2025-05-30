@@ -10,43 +10,39 @@
 :idseparator: -
 :sourcedir: .
 :info_doctype: chapter
-:info_title: Best Practices for Artificial Intelligence/Machine Learning on EKS
-:info_abstract: Best Practices for AI/ML on EKS
+:info_title: Best Practices for Running AI/ML Workloads
+:info_abstract: Best Practices for running AI/ML workloads on EKS
 :info_titleabbrev: AI/ML on EKS
 :imagesdir: images/
+:authors: ["Leah Tucker"]
+:date: 2025-05-30
 
 
+Implementing best practices when running AI/ML workloads on EKS can ensure that those workloads are performant, cost-effective, resilient, and properly resourced.
+Read the best practices for details on the following general guidelines.
 
 == General Guidelines
 
-Here are general best practices guidelines for running AI/ML workloads on EKS:
+* **GPU resource optimization and cost management**: AI/ML workloads require expensive, GPU-intensive resources. Optimize resource use by scheduling with well-known labels on appropriate GPU types. Use GPU sharing techniques (time-slicing, MIG, fractional allocation) to maximize GPU utilization.
 
-* 
+* **Capacity assurance for critical workloads**: Use ML Capacity Blocks and On-Demand Capacity Reservations to ensure GPU availability for time-sensitive training jobs. This can prevent capacity-related failures during critical ML training or inference periods.
 
-== AI/ML on EKS Best Practices
+* **Node resiliency and training job management**: Prevent disruption of long-running training jobs by configuring appropriate consolidation policies. Use automatic cleanup of completed jobs with `ttlSecondsAfterFinished` to maintain cluster health. Use priority-based scheduling to ensure that critical ML workloads get resources when they are needed.
 
-There are X general best practice areas for running AI/ML workloads in EKS:
+* **Performance optimization** Optimizing container image pulls reduces pod startup times, which is critical for inference workloads. You can preload container images into data volumes to minimize initialization delays. Use model performance metrics rather than generic CPU/memory metrics for scaling your workloads.
 
-* 
+* **Resource isolation and efficiency**: Use taints and tolerations to prevent non-GPU workloads from consuming GPU resources, to ensure that ML workloads get the specialized hardware they need.
 
-=== How to use this guide
+* **Flexible compute provisioning**: Use Karpenter for dynamic node scaling for just-in-time ML workflows and use static node groups for predictable workloads or when using reserved instances.
 
-This guide is meant for...
-
-=== Key AWS Services and Kubernetes features
-
-AI/ML workloads are supported by the following AWS services and features:
-
-* Karpenter
-* X
-* X
-
-This guide includes a set of recommendations that you can use to improve the cost optimization of your Amazon EKS cluster.
+* **Specialized infrastructure requirements**: Ensure that the infrastructure you deploy can handle the high throughput and low latency requirements of AI/ML workloads.
 
 == Feedback
 
 This guide is being released on GitHub so as to collect direct feedback and suggestions from the broader EKS/Kubernetes community. If you have a best practice that you feel we ought to include in the guide, please file an issue or submit a PR in the GitHub repository. Our intention is to update the guide periodically as new features are added to the service or when a new best practice evolves.
 
+[.topiclist]
+[[Topic List]]
 
 include::ai_ml_compute.adoc[leveloffset=+1]
 
@@ -57,6 +53,3 @@ include::ai_ml_storage.adoc[leveloffset=+1]
 include::ai_ml_observability.adoc[leveloffset=+1]
 
 include::ai_ml_performance.adoc[leveloffset=+1]
-
-
-
