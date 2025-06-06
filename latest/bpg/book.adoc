@@ -50,4 +50,6 @@ include::hybrid/index.adoc[leveloffset=+1]
 
 include::contribute.adoc[leveloffset=+1]
 
+include::aiml/aiml_index.adoc[leveloffset=+1]
+
 
