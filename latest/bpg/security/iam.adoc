@@ -312,7 +312,27 @@ Check the subsection
 https://aws.github.io/aws-eks-best-practices/security/docs/iam/#use-tools-to-make-changes-to-the-aws-auth-configmap[Use
 tools to make changes to the aws-auth ConfigMap] below for more details.
 
+=== Benefits over ConfigMap-based access management
+
+[arabic]
+. *Reduced risk of misconfigurations*: Direct API-based management eliminates 
+common errors associated with manual ConfigMap editing. This helps in preventing 
+accidental deletions or syntax errors that could lock users out of the cluster.
+. *Enhanced least privilege principle*: Removes the need for cluster-admin permission 
+from the cluster creator identity and allows for more granular and appropriate 
+permissions assignment. You can choose to add this permission for break-glass use cases.
+. *Enhanced security model*: Provides built-in validation of access entries before 
+they are applied. Additionally, offers tighter integration with AWS IAM for authentication.
+. *Streamlined operations*: Offers a more intuitive way to manage permissions through AWS-native tooling.
+
 == Cluster Access Recommendations
+
+=== Combine IAM Identity Center with CAM API
+
+* *Simplified management*: By using the Cluster Access Management API in conjunction with IAM Identity Center, administrators can manage EKS cluster access alongside other AWS services, reducing the need to switch between different interfaces or edit ConfigMaps manually.
+* Use access entries to manage the Kubernetes permissions of IAM principals from outside the cluster. You can add and manage access to the cluster by using the EKS API, AWS Command Line Interface, AWS SDKs, AWS CloudFormation, and AWS Management Console. This means you can manage users with the same tools that you created the cluster with.
+* Granular Kubernetes permissions can be applied with mapping Kubernetes users or groups with IAM principals associated with SSO identities via access entries and access policies.
+* To get started, follow https://docs.aws.amazon.com/eks/latest/userguide/setting-up-access-entries.html#access-entries-setup-console[Change authentication mode to use access entries], then https://docs.aws.amazon.com/eks/latest/userguide/migrating-access-entries.html[Migrating existing aws-auth ConfigMap entries to access entries].
 
 === Make the EKS Cluster Endpoint private
 
