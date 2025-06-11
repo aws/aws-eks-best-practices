@@ -19,6 +19,8 @@ Depending on your setup, network communication and data transfer between Pods ca
 
 === Restricting Traffic to an Availability Zone
 
+The Kubernetes project early on began developing topology-aware constructs including labels like kubernetes.io/hostname, topology.kubernetes.io/region, and topology.kubernetes.io/zone assigned to nodes to enable features such as workload distribution across failure domains and topology-aware volume provisioners. Having graduated in Kubernetes 1.17, the labels were also leveraged to enable topology-aware routing capabilities for Pod to Pod communication. 
+
 Below are some strategies on how to control the amount of cross-AZ traffic between Pods in your EKS cluster to reduce costs and even latency. 
 
 _If you want granular visibility into the amount of cross-AZ traffic between Pods in your cluster (such as the amount of data transferred in bytes), https://aws.amazon.com/blogs/containers/getting-visibility-into-your-amazon-eks-cross-az-pod-to-pod-network-bytes/[refer to this post]._
@@ -69,6 +71,44 @@ image::slice_shell.png[Slice shell]
 ====
 It’s important to note that topology aware routing is still in beta. This feature performs more predictably with evenly distributed workloads across the cluster topology, as the controller allocates endpoints proportionally across zones but may skip hint assignments when node resources in a zone are too imbalanced to avoid excessive overload. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/[pod topology spread constraints]. Note that hints may also not be assigned when capacity fluctuates across zones, such as when using https://aws.amazon.com/ec2/spot/[Amazon EC2 Spot Instances], as interruptions or replacements are not detected in real-time when calculating the proportional distribution.
 ====
+
+*Using Traffic Distribution*
+
+Introduced in Kubernetes 1.30, promoted to beta in 1.31 and generally available in 1.33, https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution[Traffic Distribution] offers a simpler alternative to Topology Aware Routing for same-zone traffic preference. While Topology Aware Routing attempts to use an intelligent approach to traffic routing to avoid overloading endpoints, it resulted in unpredictable behavior. Traffic Distribution prioritizes predictability instead. The PreferClose option directs kube-proxy to create rules that route traffic to same-zone endpoints first. When no same-zone endpoints are available, it falls back to the default strategy of distributing traffic across any cluster endpoint. This feature is designed for workloads that accept the tradeoff of optimizing for proximity rather than the attempted even distribution of load that Topology Aware Routing provides. 
+
+Below is a code snippet on how to enable _traffic distributio_ for a Service.
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-service
+  namespace: ecommerce
+spec:
+  trafficDistribution: PreferClose
+  selector:
+    app: orders
+  type: ClusterIP
+  ports:
+
+* protocol: TCP
+port: 3003
+targetPort: 3003
+----
+
+When enabling Traffic Distribution, a common challenge emerges: endpoints within a single AZ can become overloaded if most traffic originates from that same zone. This overloading can create significant issues:
+
+* A single Horizontal Pod Autoscaler (HPA) managing a multi-AZ deployment may respond by scaling out pods across different AZs. However, this action fails to effectively address the increased load in the affected zone.
+
+* This situation in turn can lead to resource inefficiency. When cluster autoscalers like Karpenter detect the pod scale-out across different AZs, they may provision additional nodes in the unaffected AZs, resulting in unnecessary resource allocation.
+
+To overcome this challenge:
+
+* Create separate deployments per zone which would have their own HPAs to scale independent of one another.
+
+* Leverage Topology Spread Constraints to ensure workload distribution across the cluster, which helps prevent endpoint overloads in high-traffic zones. 
+
 
 *Using Autoscalers: Provision Nodes to a Specific AZ*
 
