@@ -76,7 +76,7 @@ It’s important to note that topology aware routing is still in beta. This feat
 
 Introduced in Kubernetes 1.30, promoted to beta in 1.31 and generally available in 1.33, https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution[Traffic Distribution] offers a simpler alternative to Topology Aware Routing for same-zone traffic preference. While Topology Aware Routing attempts to use an intelligent approach to traffic routing to avoid overloading endpoints, it resulted in unpredictable behavior. Traffic Distribution prioritizes predictability instead. The PreferClose option directs kube-proxy to create rules that route traffic to same-zone endpoints first. When no same-zone endpoints are available, it falls back to the default strategy of distributing traffic across any cluster endpoint. This feature is designed for workloads that accept the tradeoff of optimizing for proximity rather than the attempted even distribution of load that Topology Aware Routing provides. 
 
-Below is a code snippet on how to enable _traffic distributio_ for a Service.
+Below is a code snippet on how to enable _traffic distribution_ for a Service.
 
 [source,yaml]
 ----
