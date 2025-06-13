@@ -122,6 +122,49 @@ spec:
 
 For complete examples, see the https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes[FSx for Lustre Driver Examples in GitHub].
 
+**Scenario: Single GPU instance workload**
+
+**Mountpoint for Amazon S3 with CSI Driver:** You can mount an S3 bucket as a volume in your pods using https://docs.aws.amazon.com/eks/latest/userguide/s3-csi.html[Mountpoint for Amazon S3 CSI driver]. This method allows for fine-grained access control over which Pods can access specific S3 buckets. Each pod has its own mountpoint instance and local cache (5-10GB), isolating model loading and read performance between pods. This setup supports pod-level authentication with IAM Roles for Service Accounts (IRSA) and independent model versioning for different models or customers. The trade-off is increased memory usage and API traffic, as each pod issues S3 API calls and maintains its own cache.
+
+**Example**
+Partial example of a Pod deployment YAML with CSI Driver:
+
+```yaml
+# CSI driver dynamically mounts the S3 bucket for each pod
+
+volumes:
+  - name: s3-mount
+    csi:
+      driver: s3.csi.aws.com
+      volumeAttributes:
+        bucketName: your-s3-bucket-name
+        mountOptions: "--allow-delete"  # Optional
+        region: us-west-2
+
+containers:
+  - name: inference
+    image: your-inference-image
+    volumeMounts:
+      - mountPath: /models
+        name: s3-mount
+volumeMounts:
+  - name: model-cache
+    mountPath: /models
+volumes:
+  - name: model-cache
+    hostPath:
+      path: /mnt/s3-model-cache
+
+```
+**Performance considerations:**
+
+* **Data caching**: Mountpoint for S3 can cache content to reduce costs and improve performance for repeated reads to the same file. Refer to https://github.com/awslabs/mountpoint-s3/blob/main/doc/CONFIGURATION.md#caching-configuration[Caching configuration] for caching options and parameters.
+* **Object part-size**: When storing and accessing files over 72GB in size, refer to https://github.com/awslabs/mountpoint-s3/blob/main/doc/CONFIGURATION.md#configuring-mountpoint-performance[Configuring Mountpoint performance] to understand how to configure the  `--read-part-size` and `--write-part-size` command-line parameters to meet your data profile and workload requirements.
+* **https://github.com/awslabs/mountpoint-s3/blob/main/doc/CONFIGURATION.md#shared-cache[Shared-cache]** is designed for objects up to 1MB in size. It does not support large objects. Use the https://github.com/awslabs/mountpoint-s3/blob/main/doc/CONFIGURATION.md#local-cache[Local cache] option for caching objects in NVMe or EBS volumes on the EKS node.
+* **API request charges**: When performing a high number of file operations with the Mountpoint for S3, API request charges can become a portion of storage costs. To mitigate this, if strong consistency is not required, always enable metadata caching and set  the `metadata-ttl` period to reduce the number of API operations to S3.
+
+For more details, see the https://docs.aws.amazon.com/eks/latest/userguide/s3-csi.html[Mountpoint for Amazon S3 CSI Driver] in the Amazon EKS official documentation. We recommend monitoring the performance metrics of https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudwatch-monitoring.html[Amazon S3 with Amazon CloudWatch metrics] if bottlenecks occur and adjusting your configuration where required.
+
 === Amazon EFS for shared model caches
 
 In scenarios where you have a **multiple EC2 GPU compute instance environment** and have dynamic workloads requiring shared model access across multiple nodes and Availability Zones (e.g., real-time online inference with Karpenter) with moderate performance and scalability needs, we recommend using an Amazon Elastic File System (EFS) file system as a Persistent Volume through the EFS CSI Driver. https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html[Amazon EFS] is a fully managed, highly available, and scalable cloud-based NFS file system that enables EC2 instances and containers with shared file storage,  with consistent performance, and where no upfront provisioning of storage is required. Use EFS as the model volume, and mount the volume as a shared filesystem through defining a Persistent Volume on the EKS cluster. Each Persistent Volume Claim (PVC) that is backed by an EFS file system is created as an https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html[EFS Access-point to the EFS file system]. EFS allows multiple nodes and pods to access the same model files, eliminating the need to sync data to each node’s filesystem. https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html[Install the EFS CSI driver] to integrate EFS with EKS.
