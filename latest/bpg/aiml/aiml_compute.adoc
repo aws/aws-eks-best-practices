@@ -70,8 +70,7 @@ ODCRs have no long-term commitment, but you pay the On-Demand rate for the reser
 === Consider other accelerated instance types and sizes
 Selecting the appropriate accelerated instance and size is essential for optimizing both performance and cost in your ML workloads on Amazon EKS. For example, different GPU instance families have different performance and capabilities such as GPU memory. To help you choose the most price-performant option, review the available GPU instances in the https://aws.amazon.com/ec2/instance-types/[EC2 Instance Types] page under **Accelerated Computing**. Evaluate multiple instance types and sizes to find the best fit for your specific workload requirements. Consider factors such as the number of GPUs, memory, and network performance. By carefully selecting the right GPU instance type and size, you can achieve better resource utilization and cost efficiency in your EKS clusters.
 
-
-To get a quick sense of whether you are fully utilizing the GPU(s) in your instance, you can use https://docs.nvidia.com/deploy/nvidia-smi/index.html[nvidia-smi] as shown here:
+If you use a GPU instance in an EKS node then it will have the `nvidia-device-plugin-daemonset` pod in the `kube-system` namespace by default. To get a quick sense of whether you are fully utilizing the GPU(s) in your instance, you can use https://docs.nvidia.com/deploy/nvidia-smi/index.html[nvidia-smi] as shown here:
 
 ```bash
 kubectl exec nvidia-device-plugin-daemonset-xxxxx \
@@ -82,8 +81,7 @@ kubectl exec nvidia-device-plugin-daemonset-xxxxx \
 
 * If `utilization.memory` is close to 100%, then your code(s) are likely memory bound. This means that the GPU (memory) is fully utilized but could suggest that further performance optimization should be investigated.
 * If the `utilization.gpu` is close to 100%, this does not necessarily mean the GPU is fully utilized. A better metric to look at is the ratio of `power.draw` to `power.limit`. If this ratio is 100% or more, then your code(s) are fully utilizing the compute capacity of the GPU.
-
-If you use a GPU instance in an EKS node then it will have the `nvidia-device-plugin-daemonset` pod in the `kube-system` namespace by default. The `-l 5` flag says to output the metrics every 5 seconds. In the case of a single GPU instance type, the index query flag is not needed.
+* The `-l 5` flag says to output the metrics every 5 seconds. In the case of a single GPU instance type, the index query flag is not needed.
 
 
 To learn more, see https://docs.aws.amazon.com/dlami/latest/devguide/gpu.html[GPU instances] in AWS documentation.
