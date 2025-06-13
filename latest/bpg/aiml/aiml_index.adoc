@@ -4,7 +4,7 @@
 :info_doctype: chapter
 :info_title: Best Practices for Running AI/ML Workloads
 :info_abstract: Best Practices for running AI/ML workloads on EKS
-:info_titleabbrev: AI/ML on EKS
+:info_titleabbrev: AI/ML 
 :imagesdir: images/
 :authors: ["Leah Tucker"]
 :date: 2025-05-30
