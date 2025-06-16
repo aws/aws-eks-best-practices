@@ -2,6 +2,9 @@
 
 set -e  # Exit on any error
 
+# Configuration
+GITHUB_SSH_URL="git@github.com:aws/aws-eks-best-practices.git"
+
 # Color codes for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,7 +21,7 @@ print_warning() {
 }
 
 print_error() {
-    echo -e "${RED}Error:${NC} $1"
+    echo -e "${RED}ERROR:${NC} $1"
     exit 1
 }
 
@@ -27,45 +30,67 @@ if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     print_error "Not in a git repository"
 fi
 
-# Check if both remotes exist
-if ! git remote | grep -q "^gitfarm$"; then
-    print_error "Remote 'gitfarm' not found"
-fi
-
-if ! git remote | grep -q "^github$"; then
-    print_error "Remote 'github' not found"
-fi
-
-# Check for uncommitted changes
-if ! git diff-index --quiet HEAD --; then
-    print_warning "You have uncommitted changes. Please commit or stash them before syncing."
-    exit 1
-fi
-
-# Store current branch
+# Check if current branch is mainline
 current_branch=$(git symbolic-ref --short HEAD)
-
-# Switch to mainline branch
 if [ "$current_branch" != "mainline" ]; then
-    print_status "Switching to mainline branch..."
-    if ! git checkout mainline; then
-        print_error "Failed to switch to mainline branch"
+    print_error "Must be on 'mainline' branch to sync. Currently on '$current_branch'"
+fi
+
+# Check for origin remote
+if ! git remote | grep -q "^origin$"; then
+    print_error "Remote 'origin' not found"
+fi
+
+# Check for GitHub remote, add if missing
+if ! git remote | grep -q "^github$"; then
+    print_status "GitHub remote not found. Adding it..."
+    if ! git remote add github "$GITHUB_SSH_URL"; then
+        print_error "Failed to add GitHub remote"
     fi
 fi
 
-print_status "Fetching from github remote..."
+# Test GitHub authentication
+print_status "Testing GitHub authentication..."
+if ! git ls-remote github &>/dev/null; then
+    print_error "GitHub authentication failed. Please check your SSH keys and permissions"
+fi
+
+# Check for uncommitted changes
+ if ! git diff-index --quiet HEAD --; then
+     print_warning "You have uncommitted changes. Please commit or stash them before syncing."
+     exit 1
+ fi
+
+print_status "Fetching from GitHub remote..."
 if ! git fetch github; then
-    print_error "Failed to fetch from github remote"
+    print_error "Failed to fetch from GitHub remote. Check your internet connection and repository permissions"
 fi
 
 print_status "Attempting to merge github/master into mainline..."
 if ! git merge github/master --no-edit; then
-    print_error "Merge failed. Please resolve conflicts and try again"
+    print_warning "Merge conflicts detected. Please:"
+    echo "1. Resolve the conflicts"
+    echo "2. Complete the merge with 'git commit'"
+    echo "3. Run this script again to finish syncing"
+    exit 1
 fi
 
-print_status "Pushing changes to gitfarm..."
-if ! git push gitfarm mainline; then
-    print_error "Failed to push to gitfarm remote"
+print_status "Pushing changes to GitHub..."
+if ! git push github; then
+    print_error "Failed to push to GitHub remote. Possible causes:"
+    echo "- You don't have push permissions"
+    echo "- The remote branch is protected"
+    echo "- There are new changes on the remote that you need to pull first"
+    exit 1
+fi
+
+print_status "Pushing changes to origin..."
+if ! git push origin; then
+    print_error "Failed to push to origin remote. Possible causes:"
+    echo "- You don't have push permissions"
+    echo "- The remote branch is protected"
+    echo "- There are new changes on the remote that you need to pull first"
+    exit 1
 fi
 
 # If we got here, everything worked
