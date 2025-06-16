@@ -95,9 +95,3 @@ fi
 
 # If we got here, everything worked
 print_status "Successfully synced changes from github/master to gitfarm/mainline!"
-
-# Return to original branch if we weren't on mainline
-if [ "$current_branch" != "mainline" ]; then
-    print_status "Returning to branch '$current_branch'..."
-    git checkout "$current_branch"
-fi
