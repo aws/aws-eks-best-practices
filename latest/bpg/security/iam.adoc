@@ -331,6 +331,7 @@ they are applied. Additionally, offers tighter integration with AWS IAM for auth
 
 * *Simplified management*: By using the Cluster Access Management API in conjunction with IAM Identity Center, administrators can manage EKS cluster access alongside other AWS services, reducing the need to switch between different interfaces or edit ConfigMaps manually.
 * Use access entries to manage the Kubernetes permissions of IAM principals from outside the cluster. You can add and manage access to the cluster by using the EKS API, AWS Command Line Interface, AWS SDKs, AWS CloudFormation, and AWS Management Console. This means you can manage users with the same tools that you created the cluster with.
+* Leverage automation as demonstrated in https://github.com/aws-ia/terraform-aws-eks-blueprints/tree/main/patterns/sso-iam-identity-center[this example] for deploying clusters with AWS IAM Identity Center as IdP having CAM API as entrypoint.
 * Granular Kubernetes permissions can be applied with mapping Kubernetes users or groups with IAM principals associated with SSO identities via access entries and access policies.
 * To get started, follow https://docs.aws.amazon.com/eks/latest/userguide/setting-up-access-entries.html#access-entries-setup-console[Change authentication mode to use access entries], then https://docs.aws.amazon.com/eks/latest/userguide/migrating-access-entries.html[Migrating existing aws-auth ConfigMap entries to access entries].
 
