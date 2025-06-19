@@ -169,11 +169,9 @@ container.
 * *Run commands to save container-level state before evidence is
 altered*. You can use capabilities of the container runtime to capture
 information about currently running containers. For example, with
-Docker, you could do the following:
-** `docker top CONTAINER` for processes running.
-** `docker logs CONTAINER` for daemon level held logs.
-** `docker inspect CONTAINER` for various information about the
-container.
+Containerd, you could do the following:
+** `crictl ps` for processes running.
+** `crictl logs CONTAINER` for daemon level held logs.
 +
 The same could be achieved with containerd using the
 https://github.com/containerd/nerdctl[nerdctl] CLI, in place of
