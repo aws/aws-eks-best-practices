@@ -112,7 +112,7 @@ spec:
 
 [IMPORTANT]
 ====
-A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS Security Groups] to isolate a compromised host from other hosts. When changing a host’s security group, be aware that it will impact all containers running on that host.
+A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS Security Groups] to isolate a compromised host from other hosts. When changing a host's security group, be aware that it will impact all containers running on that host.
 ====
 
 === Revoke temporary security credentials assigned to the pod or worker node if necessary
@@ -125,7 +125,7 @@ IAM policies from the role without impacting other workloads.
 
 === Cordon the worker node
 
-By cordoning the impacted worker node, you’re informing the scheduler to
+By cordoning the impacted worker node, you're informing the scheduler to
 avoid scheduling pods onto the affected node. This will allow you to
 remove the node for forensic study without disrupting other workloads.
 
@@ -186,7 +186,7 @@ https://kubernetes.io/blog/2022/12/05/forensic-container-checkpointing-alpha/[th
 Kubernetes blog post] for discussion of similar capabilities with
 containerd or CRI-O runtimes.
 * *Pause the container for forensic capture*.
-* *Snapshot the instance’s EBS volumes*.
+* *Snapshot the instance's EBS volumes*.
 
 === Redeploy compromised Pod or Workload Resource
 
@@ -217,7 +217,7 @@ Security Incident Response].
 Divide your security practitioners into 2 teams: red and blue. The red
 team will be focused on probing different systems for vulnerabilities
 while the blue team will be responsible for defending against them. If
-you don’t have enough security practitioners to create separate teams,
+you don't have enough security practitioners to create separate teams,
 consider hiring an outside entity that has knowledge of Kubernetes
 exploits.
 

@@ -59,7 +59,7 @@ Upon creating the `ENIconfig` custom resources, you will need to create new work
 
 ### Use Custom Networking When
 
-We recommend you to consider custom networking if you are dealing with IPv4 exhaustion and can’t use IPv6 yet. Amazon EKS support for [RFC6598](https://datatracker.ietf.org/doc/html/rfc6598) space enables you to scale Pods beyond [RFC1918](https://datatracker.ietf.org/doc/html/rfc1918) address exhaustion challenges. Please consider using prefix delegation with custom networking to increase the Pods density on a node. 
+We recommend you to consider custom networking if you are dealing with IPv4 exhaustion and can't use IPv6 yet. Amazon EKS support for [RFC6598](https://datatracker.ietf.org/doc/html/rfc6598) space enables you to scale Pods beyond [RFC1918](https://datatracker.ietf.org/doc/html/rfc1918) address exhaustion challenges. Please consider using prefix delegation with custom networking to increase the Pods density on a node. 
 
 You might consider custom networking if you have a security requirement to run Pods on a different network with different security group requirements. When custom networking enabled, the pods use different subnet or security groups as defined in the ENIConfig than the node's primary network interface.
 
@@ -114,7 +114,7 @@ If you had any nodes in your cluster with running Pods before you switched to th
 
 ### Calculate Max Pods per Node
 
-Since the node’s primary ENI is no longer used to assign Pod IP addresses, there is a decrease in the number of Pods you can run on a given EC2 instance type. To work around this limitation you can use prefix assignment with custom networking. With prefix assignment, each secondary IP is replaced with a /28 prefix on secondary ENIs. 
+Since the node's primary ENI is no longer used to assign Pod IP addresses, there is a decrease in the number of Pods you can run on a given EC2 instance type. To work around this limitation you can use prefix assignment with custom networking. With prefix assignment, each secondary IP is replaced with a /28 prefix on secondary ENIs. 
 
 Consider the maximum number of Pods for an m5.large instance with custom networking.
 
@@ -133,5 +133,5 @@ However, we suggest setting max-pods to 110 rather than 290 because the instance
 
 ### Identify Existing Usage of CG-NAT Space
 
-Custom networking allows you to mitigate IP exhaustion issue, however it can’t solve all the challenges. If you already using CG-NAT space for your cluster, or simply don’t have the ability to associate a secondary CIDR with your cluster VPC, we suggest you to explore other options, like using an alternate CNI or moving to IPv6 clusters.
+Custom networking allows you to mitigate IP exhaustion issue, however it can't solve all the challenges. If you already using CG-NAT space for your cluster, or simply don't have the ability to associate a secondary CIDR with your cluster VPC, we suggest you to explore other options, like using an alternate CNI or moving to IPv6 clusters.
 

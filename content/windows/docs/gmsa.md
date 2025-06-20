@@ -18,7 +18,7 @@ redirect: https://docs.aws.amazon.com/eks/latest/best-practices/windows-gmsa.htm
 
 Windows-based applications such as .NET applications often use Active Directory as an identity provider, providing authorization/authentication using NTLM or Kerberos protocol. 
 
-An application server to exchange Kerberos tickets with Active Directory requires to be domain-joined. Windows containers don’t support domain joins and would not make much sense as containers are ephemeral resources, creating a burden on the Active Directory RID pool.
+An application server to exchange Kerberos tickets with Active Directory requires to be domain-joined. Windows containers don't support domain joins and would not make much sense as containers are ephemeral resources, creating a burden on the Active Directory RID pool.
 
 However, administrators can leverage [gMSA Active Directory](https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) accounts to negotiate a Windows authentication for resources such as Windows containers, NLB, and server farms.
 

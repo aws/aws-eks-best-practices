@@ -79,27 +79,27 @@ With LoadBalancerClassWith `service.beta.kubernetes.io/aws-load-balancer-type` a
 ### Register Pods as targets using IP Target-Type
 
 An AWS Elastic Load Balancer: Network & Application, sends received traffic to registered targets in a target group. For an EKS Cluster there are 2 types of targets you can register in the target group: Instance & IP, which target type is used has implications on what gets registered and how traffic is routed from the Load Balancer to the pod. 
-By default the AWS Load Balancer controller will register targets using ‘Instance’ type and this target will be the Worker Node’s IP and NodePort, implication of this include:
+By default the AWS Load Balancer controller will register targets using ‘Instance' type and this target will be the Worker Node's IP and NodePort, implication of this include:
 
 * Traffic from the Load Balancer will be forwarded to the Worker Node on the NodePort, this gets processed by iptables rules (configured by kube-proxy running on the node), and gets forwarded to the Service on its ClusterIP (still on the node), finally the Service randomly selects a pod registered to it and forwards the traffic to it. This flow involves multiple hops and extra latency can be incurred especially because the Service will sometimes select a pod running on another worker node which might also be in another AZ.
 * Because the Load Balancer registers the Worker Node as its target this means its health check which gets sent to the target will not be directly received by the pod but by the Worker Node on its NodePort and health check traffic will follow the same path described above.
-* Monitoring and Troubleshooting is more complex since traffic forwarded by the Load Balancer isn’t directly sent to the pods and you’d have to carefully correlate the packet received on the Worker Node to to the Service ClusterIP and eventually the pod to have full end-to-end visibility into the packet’s path for proper troubleshooting.
+* Monitoring and Troubleshooting is more complex since traffic forwarded by the Load Balancer isn't directly sent to the pods and you'd have to carefully correlate the packet received on the Worker Node to to the Service ClusterIP and eventually the pod to have full end-to-end visibility into the packet's path for proper troubleshooting.
 
 ![targettype_instance.png](target_type_instance.png)
 
 
-By contrast if you configure the target type as ‘IP’ as we recommend the implication will be the following: 
+By contrast if you configure the target type as ‘IP' as we recommend the implication will be the following: 
 
 * Traffic from the Load Balancer will be forwarded directly to the pod, this simplifies the network path as it bypasses the previous extra hops of Worker Nodes and Service Cluster IP, it reduces latency that would otherwise have been incurred if the Service forwarded traffic to a pod in another AZ and lastly it removes the iptables rules overhead processing on the Worker Nodes. 
-* The Load Balancer’s health check is directly received and responded to by the pod, this means the target status ‘healthy’ or ‘unhealthy’ are a direct representation of the pod’s health status. 
+* The Load Balancer's health check is directly received and responded to by the pod, this means the target status ‘healthy' or ‘unhealthy' are a direct representation of the pod's health status. 
 * Monitoring and Troubleshooting is easier and any tool used that captures packet IP address will directly reveal the bi-directional traffic between the Load Balancer and the pod in its source and destination fields.
 
 ![targettype_ip.png](target_type_ip.png)
 
 To create an AWS Elastic Load Balancing that uses IP Targets you add:
 
-* `alb.ingress.kubernetes.io/target-type: ip` annotation to your Ingress’ manifest when configuring your Kubernetes Ingress (Application Load Balancer)
-* `service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip` annotation to your Service’s Manifest when configuring your Kubernetes Service of type LoadBalancer (Network Load Balancer).
+* `alb.ingress.kubernetes.io/target-type: ip` annotation to your Ingress' manifest when configuring your Kubernetes Ingress (Application Load Balancer)
+* `service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip` annotation to your Service's Manifest when configuring your Kubernetes Service of type LoadBalancer (Network Load Balancer).
 
 
 ## Availability and Pod Lifecycle
@@ -125,9 +125,9 @@ One aspect of the readiness probe is the fact that there is no external feedback
 
 When you expose your applications using Kubernetes Service type of Load Balancer or Kubernetes Ingress (for north - south traffic) then the list of Pod IPs for the respective Kubernetes Service must be propagated to the external infrastructure load balancer so that the load balancer also has an up to date list targets. [AWS Load Balancer Controller](https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html) bridges the gap here. When you use AWS Load Balancer Controller and leverage  `target group: IP` , just like `kube-proxy` the AWS Load Balancer Controller also receives an update (via `watch`) and then it communicates with the [ELB API](https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/Welcome.html) to configure and start registering the Pod IP as a target on the ELB. 
 
-When you perform a rolling update of a Deployment, new Pods get created, and as soon as a new Pod’s condition is “Ready” an old/existing Pod gets terminated. During this process, the Kubernetes EndpointSlice object is updated faster than the time it takes the ELB to register the new Pods as targets, see [target registration](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-register-targets.html). For a brief time you could have a state mismatch between the Kubernetes layer and the infrastructure layer where client requests could be dropped. During this period within the Kubernetes layer new Pods would be ready to process requests but from ELB point of view they are not.
+When you perform a rolling update of a Deployment, new Pods get created, and as soon as a new Pod's condition is “Ready” an old/existing Pod gets terminated. During this process, the Kubernetes EndpointSlice object is updated faster than the time it takes the ELB to register the new Pods as targets, see [target registration](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-register-targets.html). For a brief time you could have a state mismatch between the Kubernetes layer and the infrastructure layer where client requests could be dropped. During this period within the Kubernetes layer new Pods would be ready to process requests but from ELB point of view they are not.
 
-[Pod Readiness Gates](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-readiness-gate) enables you to define additional requirements that must be met before the Pod condition is considered to be “Ready”. In the case of AWS ELB, the AWS Load Balancer Controller monitors the status of the target (the Pod) on the AWS ELB and once the target registration completes and its status turns “Healthy” then [the controller updates the Pod’ s condition to “Ready”](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/pod_readiness_gate/). With this approach you influence the Pod condition based on the state of the external network, which is the target status on the AWS ELB. Pod Readiness Gates is crucial in rolling update scenarios as it enables you to prevent the rolling update of a deployment from terminating old pods until the newly created Pods target status turn “Healthy” on the AWS ELB. 
+[Pod Readiness Gates](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-readiness-gate) enables you to define additional requirements that must be met before the Pod condition is considered to be “Ready”. In the case of AWS ELB, the AWS Load Balancer Controller monitors the status of the target (the Pod) on the AWS ELB and once the target registration completes and its status turns “Healthy” then [the controller updates the Pod' s condition to “Ready”](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/pod_readiness_gate/). With this approach you influence the Pod condition based on the state of the external network, which is the target status on the AWS ELB. Pod Readiness Gates is crucial in rolling update scenarios as it enables you to prevent the rolling update of a deployment from terminating old pods until the newly created Pods target status turn “Healthy” on the AWS ELB. 
 
 ### Gracefully shutdown applications
 
@@ -159,7 +159,7 @@ The behavior and the recommendation mentioned above would be equally applicable 
 
 ### Use Pod disruption budget
 
-Configure a [Pod Disruption Budget](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets) (PDB) for your applications. PDBlimits the number of Pods of a replicated application that are down simultaneously from [voluntary disruptions](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#voluntary-and-involuntary-disruptions). It ensures that a minimum number or percentage of pods remain available in a StatefulSet or Deployment. For example, a quorum-based application needs to ensure that the number of replicas running is never brought below the number needed for a quorum. Or a web front end might ensure that the number of replicas serving load never falls below a certain percentage of the total. PDB will protect the application against actions such as nodes being drained, or new versions of Deployments being rolled out. Keep in mind that PDB’s will not protect the application against involuntary disruptions such as a failure of the node operating system or loss of network connectivity. For more information please refer to the [Specifying a Disruption Budget for your Application](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) in Kubernetes documentation.
+Configure a [Pod Disruption Budget](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets) (PDB) for your applications. PDBlimits the number of Pods of a replicated application that are down simultaneously from [voluntary disruptions](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#voluntary-and-involuntary-disruptions). It ensures that a minimum number or percentage of pods remain available in a StatefulSet or Deployment. For example, a quorum-based application needs to ensure that the number of replicas running is never brought below the number needed for a quorum. Or a web front end might ensure that the number of replicas serving load never falls below a certain percentage of the total. PDB will protect the application against actions such as nodes being drained, or new versions of Deployments being rolled out. Keep in mind that PDB's will not protect the application against involuntary disruptions such as a failure of the node operating system or loss of network connectivity. For more information please refer to the [Specifying a Disruption Budget for your Application](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) in Kubernetes documentation.
 
 ## References
 
@@ -171,7 +171,7 @@ Configure a [Pod Disruption Budget](https://kubernetes.io/docs/concepts/workload
 
 ### Pod Creation
 
-It is imperative to understand what is the sequence of events in a scenario where a Pod is deployed and then it becomes healthy/ready to receive and process client requests.  Let’s talk about the sequence of events.
+It is imperative to understand what is the sequence of events in a scenario where a Pod is deployed and then it becomes healthy/ready to receive and process client requests.  Let's talk about the sequence of events.
 
 1. A Pod is created on the Kubernetes control plane (i.e. by a kubectl command, or Deployment update, or scaling action).
 2. `kube-scheduler` assigns the Pod to a node in the cluster.
@@ -182,7 +182,7 @@ It is imperative to understand what is the sequence of events in a scenario wher
 
 ### Pod Deletion
 
-Just like Pod creation, it is imperative to understand what is the sequence of events during Pod deletion. Let’ s talk about the sequence of events. 
+Just like Pod creation, it is imperative to understand what is the sequence of events during Pod deletion. Let' s talk about the sequence of events. 
 
 1. A Pod deletion request is sent to the Kubernetes API server (i.e. by a `kubectl` command, or Deployment update, or scaling action). 
 2. Kubernetes API server [starts a grace period](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination), which is 30 seconds by default, by setting the [deletionTimestamp](https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion) field in the Pod object. (Grace period can be configured in Pod spec through `terminationGracePeriodSeconds`)

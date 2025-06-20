@@ -42,7 +42,7 @@ As more Pods scheduled additional prefixes will be requested for the existing EN
 
 Use prefix mode if you are experiencing Pod density issue on the worker nodes. To avoid VPC CNI errors, we recommend examining the subnets for contiguous block of addresses for /28 prefix before migrate to prefix mode. Please refer “[Use Subnet Reservations to Avoid Subnet Fragmentation (IPv4)](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html)” section for Subnet reservation details. 
 
-For backward compatibility, the [max-pods](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/shared/runtime/eni-max-pods.txt) limit is set to support secondary IP mode. To increase the pod density, please specify the `max-pods` value to Kubelet and `--use-max-pods=false` as the user data for the nodes. You may consider using the [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/al2/runtime/max-pods-calculator.sh) script to calculate EKS’s recommended maximum number of pods for a given instance type. Refer to the EKS [user guide](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) for example user data.
+For backward compatibility, the [max-pods](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/shared/runtime/eni-max-pods.txt) limit is set to support secondary IP mode. To increase the pod density, please specify the `max-pods` value to Kubelet and `--use-max-pods=false` as the user data for the nodes. You may consider using the [max-pod-calculator.sh](https://github.com/awslabs/amazon-eks-ami/blob/main/templates/al2/runtime/max-pods-calculator.sh) script to calculate EKS's recommended maximum number of pods for a given instance type. Refer to the EKS [user guide](https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html) for example user data.
 
 ```
 ./max-pods-calculator.sh --instance-type m5.large --cni-version ``1.9``.0 --cni-prefix-delegation-enabled
@@ -66,7 +66,7 @@ Your node group may contain instances of many types. If an instance has a low ma
 
 ### Configure `WARM_PREFIX_TARGET` to conserve IPv4 addresses
 
-The [installation manifest’s](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni.yaml) default value for `WARM_PREFIX_TARGET` is 1. In most cases, the recommended value of 1 for `WARM_PREFIX_TARGET` will provide a good mix of fast pod launch times while minimizing unused IP addresses assigned to the instance.
+The [installation manifest's](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/master/aws-k8s-cni.yaml) default value for `WARM_PREFIX_TARGET` is 1. In most cases, the recommended value of 1 for `WARM_PREFIX_TARGET` will provide a good mix of fast pod launch times while minimizing unused IP addresses assigned to the instance.
 
 If you have a need to further conserve IPv4 addresses per node use `WARM_IP_TARGET` and `MINIMUM_IP_TARGET` settings, which override `WARM_PREFIX_TARGET` when configured. By setting `WARM_IP_TARGET` to a value less than 16, you can prevent the CNI from keeping an entire excess prefix attached.
 

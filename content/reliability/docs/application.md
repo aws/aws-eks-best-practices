@@ -14,9 +14,9 @@ redirect: https://docs.aws.amazon.com/eks/latest/best-practices/application.html
 
 # Running highly-available applications
 
-Your customers expect your application to be always available, including when you're making changes and especially during spikes in traffic. A scalable and resilient architecture keeps your applications and services running without disruptions, which keeps your users happy. A scalable infrastructure grows and shrinks based on the needs of the business. Eliminating single points of failure is a critical step towards improving an application’s availability and making it resilient.
+Your customers expect your application to be always available, including when you're making changes and especially during spikes in traffic. A scalable and resilient architecture keeps your applications and services running without disruptions, which keeps your users happy. A scalable infrastructure grows and shrinks based on the needs of the business. Eliminating single points of failure is a critical step towards improving an application's availability and making it resilient.
 
-With Kubernetes, you can operate your applications and run them in a highly-available and resilient fashion. Its declarative management ensures that once you’ve set up the application, Kubernetes will continuously try to [match the current state with the desired state](https://kubernetes.io/docs/concepts/architecture/controller/#desired-vs-current).
+With Kubernetes, you can operate your applications and run them in a highly-available and resilient fashion. Its declarative management ensures that once you've set up the application, Kubernetes will continuously try to [match the current state with the desired state](https://kubernetes.io/docs/concepts/architecture/controller/#desired-vs-current).
 
 ## Recommendations
 
@@ -30,13 +30,13 @@ Running multiple replicas Pods of an app using a Deployment helps it run in a hi
 
 ### Schedule replicas across nodes
 
-Running multiple replicas won’t be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity or pod topology spread constraints to spread replicas of a Deployment across multiple worker nodes. 
+Running multiple replicas won't be very useful if all the replicas are running on the same node, and the node becomes unavailable. Consider using pod anti-affinity or pod topology spread constraints to spread replicas of a Deployment across multiple worker nodes. 
 
-You can further improve a typical application’s reliability by running it across multiple AZs. 
+You can further improve a typical application's reliability by running it across multiple AZs. 
 
 #### Using Pod anti-affinity rules
 
-The manifest below tells Kubernetes scheduler to *prefer* to place pods on separate nodes and AZs. It doesn’t require distinct nodes or AZ because if it did, then Kubernetes will not be able to schedule any pods once there is a pod running in each AZ. If your application requires just three replicas, you can use `requiredDuringSchedulingIgnoredDuringExecution` for `topologyKey: topology.kubernetes.io/zone`, and Kubernetes scheduler will not schedule two pods in the same AZ.
+The manifest below tells Kubernetes scheduler to *prefer* to place pods on separate nodes and AZs. It doesn't require distinct nodes or AZ because if it did, then Kubernetes will not be able to schedule any pods once there is a pod running in each AZ. If your application requires just three replicas, you can use `requiredDuringSchedulingIgnoredDuringExecution` for `topologyKey: topology.kubernetes.io/zone`, and Kubernetes scheduler will not schedule two pods in the same AZ.
 
 ```
 apiVersion: apps/v1
@@ -129,7 +129,7 @@ spec:
 
 Install the Kubernetes [metrics server](https://github.com/kubernetes-sigs/metrics-server) to help scale your applications. Kubernetes autoscaler add-ons like [HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) and [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) need to track metrics of applications to scale them. The metrics-server collects resource metrics that can be used to make scaling decisions. The metrics are collected from kubelets and served in [Metrics API format](https://github.com/kubernetes/metrics).
 
-The metrics server doesn’t retain any data, and it’s not a monitoring solution. Its purpose is to expose CPU and memory usage metrics to other systems. If you want to track your application's state over time, you need a monitoring tool like Prometheus or Amazon CloudWatch. 
+The metrics server doesn't retain any data, and it's not a monitoring solution. Its purpose is to expose CPU and memory usage metrics to other systems. If you want to track your application's state over time, you need a monitoring tool like Prometheus or Amazon CloudWatch. 
 
 Follow the [EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html) to install metrics-server in your EKS cluster. 
 
@@ -161,7 +161,7 @@ To autoscale Kubernetes workloads you can use KEDA (Kubernetes Event-driven Auto
 
 VPA automatically adjusts the CPU and memory reservation for your Pods to help you “right-size” your applications. For applications that need to be scaled vertically - which is done by increasing resource allocation - you can use [VPA](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) to automatically scale Pod replicas or provide scaling recommendations.
 
-Your application may become temporarily unavailable if VPA needs to scale it because VPA’s current implementation does not perform in-place adjustments to Pods; instead, it will recreate the Pod that needs to be scaled. 
+Your application may become temporarily unavailable if VPA needs to scale it because VPA's current implementation does not perform in-place adjustments to Pods; instead, it will recreate the Pod that needs to be scaled. 
 
 [EKS Documentation](https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html) includes a walkthrough for setting up VPA. 
 
@@ -171,7 +171,7 @@ Your application may become temporarily unavailable if VPA needs to scale it bec
 
 Modern applications require rapid innovation with a high degree of stability and availability. Kubernetes gives you the tools to update your applications continuously without disrupting your customers. 
 
-Let’s look at some of the best practices that make it possible to quickly deploy changes without sacrificing availability.
+Let's look at some of the best practices that make it possible to quickly deploy changes without sacrificing availability.
 
 ### Have a mechanism to perform rollbacks
 
@@ -189,13 +189,13 @@ By default, when you update a Deployment that requires a recreation of pods, Dep
 
 When performing a *rolling update* of a Deployment, you can use the [`Max Unavailable`](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#max-unavailable) property to specify the maximum number of Pods that can be unavailable during the update. The `Max Surge` property of Deployment allows you to set the maximum number of Pods that can be created over the desired number of Pods.
 
-Consider adjusting `max unavailable` to ensure that a rollout doesn’t disrupt your customers. For example, Kubernetes sets 25% `max unavailable` by default, which means if you have 100 Pods, you may have only 75 Pods actively working during a rollout. If your application needs a minimum of 80 Pods, this rollout can be disruptive. Instead, you can set `max unavailable` to 20% to ensure that there are at least 80 functional Pods throughout the rollout. 
+Consider adjusting `max unavailable` to ensure that a rollout doesn't disrupt your customers. For example, Kubernetes sets 25% `max unavailable` by default, which means if you have 100 Pods, you may have only 75 Pods actively working during a rollout. If your application needs a minimum of 80 Pods, this rollout can be disruptive. Instead, you can set `max unavailable` to 20% to ensure that there are at least 80 functional Pods throughout the rollout. 
 
 ### Use blue/green deployments
 
 Changes are inherently risky, but changes that cannot be undone can be potentially catastrophic. Change procedures that allow you to effectively turn back time through a *rollback* make enhancements and experimentation safer. Blue/green deployments give you a method to quickly retract the changes if things go wrong. In this deployment strategy, you create an environment for the new version. This environment is identical to the current version of the application being updated. Once the new environment is provisioned, traffic is routed to the new environment. If the new version produces the desired results without generating errors, the old environment is terminated. Otherwise, traffic is restored to the old version. 
 
-You can perform blue/green deployments in Kubernetes by creating a new Deployment that is identical to the existing version’s Deployment. Once you verify that the Pods in the new Deployment are running without errors, you can start sending traffic to the new Deployment by changing the `selector` spec in the Service that routes traffic to your application’s Pods.
+You can perform blue/green deployments in Kubernetes by creating a new Deployment that is identical to the existing version's Deployment. Once you verify that the Pods in the new Deployment are running without errors, you can start sending traffic to the new Deployment by changing the `selector` spec in the Service that routes traffic to your application's Pods.
 
 Many continuous integration tools such as [Flux](https://fluxcd.io), [Jenkins](https://www.jenkins.io), and [Spinnaker](https://spinnaker.io) let you automate blue/green deployments. AWS Containers Blog includes a walkthrough using AWS Load Balancer Controller: [Using AWS Load Balancer Controller for blue/green deployment, canary deployment and A/B testing](https://aws.amazon.com/blogs/containers/using-aws-load-balancer-controller-for-blue-green-deployment-canary-deployment-and-a-b-testing/)
 
@@ -223,13 +223,13 @@ If you choose an `exec`-based probe, which runs a shell script inside a containe
 ## Recommendations
 ### Use Liveness Probe to remove unhealthy pods
 
-The Liveness probe can detect *deadlock* conditions where the process continues to run, but the application becomes unresponsive. For example, if you are running a web service that listens on port 80, you can configure a Liveness probe to send an HTTP GET request on Pod’s port 80. Kubelet will periodically send a GET request to the Pod and expect a response; if the Pod responds between 200-399 then the kubelet considers that Pod is healthy; otherwise, the Pod will be marked as unhealthy. If a Pod fails health-checks continuously, the kubelet will terminate it. 
+The Liveness probe can detect *deadlock* conditions where the process continues to run, but the application becomes unresponsive. For example, if you are running a web service that listens on port 80, you can configure a Liveness probe to send an HTTP GET request on Pod's port 80. Kubelet will periodically send a GET request to the Pod and expect a response; if the Pod responds between 200-399 then the kubelet considers that Pod is healthy; otherwise, the Pod will be marked as unhealthy. If a Pod fails health-checks continuously, the kubelet will terminate it. 
 
 You can use `initialDelaySeconds` to delay the first probe.
 
-When using the Liveness Probe, ensure that your application doesn’t run into a situation in which all Pods simultaneously fail the Liveness Probe because Kubernetes will try to replace all your Pods, which will render your application offline. Furthermore, Kubernetes will continue to create new Pods that will also fail Liveness Probes, putting unnecessary strain on the control plane. Avoid configuring the Liveness Probe to depend on an a factor that is external to your Pod, for example, a external database. In other words, a non-responsive external-to-your-Pod database shouldn’t make your Pods fail their Liveness Probes.
+When using the Liveness Probe, ensure that your application doesn't run into a situation in which all Pods simultaneously fail the Liveness Probe because Kubernetes will try to replace all your Pods, which will render your application offline. Furthermore, Kubernetes will continue to create new Pods that will also fail Liveness Probes, putting unnecessary strain on the control plane. Avoid configuring the Liveness Probe to depend on an a factor that is external to your Pod, for example, a external database. In other words, a non-responsive external-to-your-Pod database shouldn't make your Pods fail their Liveness Probes.
 
-Sandor Szücs’s post [LIVENESS PROBES ARE DANGEROUS](https://srcco.de/posts/kubernetes-liveness-probes-are-dangerous.html) describes problems that can be caused by misconfigured probes.
+Sandor Szücs's post [LIVENESS PROBES ARE DANGEROUS](https://srcco.de/posts/kubernetes-liveness-probes-are-dangerous.html) describes problems that can be caused by misconfigured probes.
 
 ### Use Startup Probe for applications that take longer to start
 
@@ -243,11 +243,11 @@ The Startup Probe is similar to the Liveness Probe -- if they fail, the Pod is r
 
 While the Liveness probe detects failures in an app that are resolved by terminating the Pod (hence, restarting the app), Readiness Probe detects conditions where the app may be _temporarily_ unavailable. In these situations, the app may become temporarily unresponsive; however, it is expected to be healthy again once this operation completes.  
 
-For example, during intense disk I/O operations, applications may be temporarily unavailable to handle requests. Here, terminating the application’s Pod is not a remedy; at the same time, additional requests sent to the Pod can fail. 
+For example, during intense disk I/O operations, applications may be temporarily unavailable to handle requests. Here, terminating the application's Pod is not a remedy; at the same time, additional requests sent to the Pod can fail. 
 
 You can use the Readiness Probe to detect temporary unavailability in your app and stop sending requests to its Pod until it becomes functional again. *Unlike Liveness Probe, where a failure would result in a recreation of Pod, a failed Readiness Probe would mean that Pod will not receive any traffic from Kubernetes Service*. When the Readiness Probe succeeds, Pod will resume receiving traffic from Service. 
 
-Just like the Liveness Probe, avoid configuring Readiness Probes that depend on a resource that’s external to the Pod (such as a database). Here’s a scenario where a poorly configured Readiness can render the application nonfunctional - if a Pod’s Readiness Probe fails when the app’s database is unreachable, other Pod replicas will also fail simultaneously since they share the same health-check criteria. Setting the probe in this way will ensure that whenever the database is unavailable, the Pod’s Readiness Probes will fail, and Kubernetes will stop sending traffic *all* Pods.  
+Just like the Liveness Probe, avoid configuring Readiness Probes that depend on a resource that's external to the Pod (such as a database). Here's a scenario where a poorly configured Readiness can render the application nonfunctional - if a Pod's Readiness Probe fails when the app's database is unreachable, other Pod replicas will also fail simultaneously since they share the same health-check criteria. Setting the probe in this way will ensure that whenever the database is unavailable, the Pod's Readiness Probes will fail, and Kubernetes will stop sending traffic *all* Pods.  
 
 A side-effect of using Readiness Probes is that they can increase the time it takes to update Deployments. New replicas will not receive traffic unless Readiness Probes are successful; until then, old replicas will continue to receive traffic. 
 
@@ -255,13 +255,13 @@ A side-effect of using Readiness Probes is that they can increase the time it ta
 
 ## Dealing with disruptions
 
-Pods have a finite lifetime - even if you have long-running Pods, it’s prudent to ensure Pods terminate correctly when the time comes. Depending on your upgrade strategy, Kubernetes cluster upgrades may require you to create new worker nodes, which requires all Pods to be recreated on newer nodes. Proper termination handling and Pod Disruption Budgets can help you avoid service disruptions as Pods are removed from older nodes and recreated on newer nodes.  
+Pods have a finite lifetime - even if you have long-running Pods, it's prudent to ensure Pods terminate correctly when the time comes. Depending on your upgrade strategy, Kubernetes cluster upgrades may require you to create new worker nodes, which requires all Pods to be recreated on newer nodes. Proper termination handling and Pod Disruption Budgets can help you avoid service disruptions as Pods are removed from older nodes and recreated on newer nodes.  
 
 The preferred way to upgrade worker nodes is by creating new worker nodes and terminating old ones. Before terminating worker nodes, you should `drain` it. When a worker node is drained, all its pods are *safely* evicted. Safely is a key word here; when pods on a worker are evicted, they are not simply sent a `SIGKILL` signal. Instead, a `SIGTERM` signal is sent to the main process (PID 1) of each container in the Pods being evicted. After the `SIGTERM` signal is sent, Kubernetes will give the process some time (grace period) before a `SIGKILL` signal is sent. This grace period is 30 seconds by default; you can override the default by using `grace-period` flag in kubectl or declare `terminationGracePeriodSeconds` in your Podspec.
 
 `kubectl delete pod <pod name> —grace-period=<seconds>`
 
-It is common to have containers in which the main process doesn’t have PID 1. Consider this Python-based sample container:
+It is common to have containers in which the main process doesn't have PID 1. Consider this Python-based sample container:
 
 ```
 $ kubectl exec python-app -it ps
@@ -270,7 +270,7 @@ $ kubectl exec python-app -it ps
  5   root 0:00 python app.py
 ```
 
-In this example, the shell script receives `SIGTERM`, the main process, which happens to be a Python application in this example, doesn’t get a `SIGTERM` signal. When the Pod is terminated, the Python application will be killed abruptly. This can be remediated by changing the [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#entrypoint) of the container to launch the Python application. Alternatively, you can use a tool like [dumb-init](https://github.com/Yelp/dumb-init) to ensure that your application can handle signals.  
+In this example, the shell script receives `SIGTERM`, the main process, which happens to be a Python application in this example, doesn't get a `SIGTERM` signal. When the Pod is terminated, the Python application will be killed abruptly. This can be remediated by changing the [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#entrypoint) of the container to launch the Python application. Alternatively, you can use a tool like [dumb-init](https://github.com/Yelp/dumb-init) to ensure that your application can handle signals.  
 
 You can also use [Container hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks) to execute a script or an HTTP request at container start or stop. The `PreStop` hook action runs before the container receives a `SIGTERM` signal and must complete before this signal is sent. The `terminationGracePeriodSeconds` value applies from when the `PreStop` hook action begins executing, not when the `SIGTERM` signal is sent.
 
@@ -299,7 +299,7 @@ For self-managed nodes, you can also use tools like [AWS Node Termination Handle
 You can use Pod anti-affinity to schedule a Deployment‘s Pods on different nodes and avoid PDB related delays during node upgrades. 
 
 ### Practice chaos engineering 
-> Chaos Engineering is the discipline of experimenting on a distributed system in order to build confidence in the system’s capability to withstand turbulent conditions in production.
+> Chaos Engineering is the discipline of experimenting on a distributed system in order to build confidence in the system's capability to withstand turbulent conditions in production.
 
 In his blog, Dominik Tornow explains that [Kubernetes is a declarative system](https://medium.com/@dominik.tornow/the-mechanics-of-kubernetes-ac8112eaa302) where “*the user supplies a representation of the desired state of the system to the system. The system then considers the current state and the desired state to determine the sequence of commands to transition from the current state to the desired state.*” This means Kubernetes always stores the *desired state* and if the system deviates, Kubernetes will take action to restore the state. For example, if a worker node becomes unavailable, Kubernetes will reschedule the Pods onto another worker node. Similarly, if a `replica` crashes, the [Deployment Contoller](https://kubernetes.io/docs/concepts/architecture/controller/#design) will create a new `replica`. In this way, Kubernetes controllers automatically fix failures. 
 
@@ -307,7 +307,7 @@ Chaos engineering tools like [Gremlin](https://www.gremlin.com) help you test th
 
 ### Use a Service Mesh
 
-You can use a service mesh to improve your application’s resiliency. Service meshes enable service-to-service communication and increase the observability of your microservices network. Most service mesh products work by having a small network proxy run alongside each service that intercepts and inspects the application’s network traffic. You can place your application in a mesh without modifying your application. Using service proxy’s built-in features, you can have it generate network statistics, create access logs, and add HTTP headers to outbound requests for distributed tracing.
+You can use a service mesh to improve your application's resiliency. Service meshes enable service-to-service communication and increase the observability of your microservices network. Most service mesh products work by having a small network proxy run alongside each service that intercepts and inspects the application's network traffic. You can place your application in a mesh without modifying your application. Using service proxy's built-in features, you can have it generate network statistics, create access logs, and add HTTP headers to outbound requests for distributed tracing.
 
 A service mesh can help you make your microservices more resilient with features like automatic request retries, timeouts, circuit-breaking, and rate-limiting.
 
@@ -323,9 +323,9 @@ If you operate multiple clusters, you can use a service mesh to enable cross-clu
 
 ## Observability 
 
-Observability is an umbrella term that includes monitoring, logging, and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in a distributed application architecture, you need to monitor each component’s performance. You can use cluster-level monitoring, logging, and distributed tracing systems to identify issues in your cluster before they disrupt your customers. 
+Observability is an umbrella term that includes monitoring, logging, and tracing. Microservices based applications are distributed by nature. Unlike monolithic applications where monitoring a single system is sufficient, in a distributed application architecture, you need to monitor each component's performance. You can use cluster-level monitoring, logging, and distributed tracing systems to identify issues in your cluster before they disrupt your customers. 
 
-Kubernetes built-in tools for troubleshooting and monitoring are limited. The metrics-server collects resource metrics and stores them in memory but doesn’t persist them. You can view the logs of a Pod using kubectl, but Kubernetes doesn't automatically retain logs. And the implementation of distributed tracing is done either at the application code level or using services meshes. 
+Kubernetes built-in tools for troubleshooting and monitoring are limited. The metrics-server collects resource metrics and stores them in memory but doesn't persist them. You can view the logs of a Pod using kubectl, but Kubernetes doesn't automatically retain logs. And the implementation of distributed tracing is done either at the application code level or using services meshes. 
 
 Kubernetes' extensibility shines here. Kubernetes allows you to bring your preferred centralized monitoring, logging, and tracing solution. 
 
@@ -333,16 +333,16 @@ Kubernetes' extensibility shines here. Kubernetes allows you to bring your prefe
 
 ### Monitor your applications
 
-The number of metrics you need to monitor in modern applications is growing continuously. It helps if you have an automated way to track your applications so you can focus on solving your customer’s challenges. Cluster-wide monitoring tools like [Prometheus](https://prometheus.io) or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) can monitor your cluster and workload and provide you signals when, or preferably, before things go wrong. 
+The number of metrics you need to monitor in modern applications is growing continuously. It helps if you have an automated way to track your applications so you can focus on solving your customer's challenges. Cluster-wide monitoring tools like [Prometheus](https://prometheus.io) or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) can monitor your cluster and workload and provide you signals when, or preferably, before things go wrong. 
 
 Monitoring tools allow you to create alerts that your operations team can subscribe to. Consider rules to activate alarms for events that can, when exacerbated, lead to an outage or impact application performance. 
 
-If you’re unclear on which metrics you should monitor, you can take inspiration from these methods:
+If you're unclear on which metrics you should monitor, you can take inspiration from these methods:
 
 - [RED method](https://www.weave.works/blog/a-practical-guide-from-instrumenting-code-to-specifying-alerts-with-the-red-method). Stands for requests, errors, and duration. 
 - [USE method](http://www.brendangregg.com/usemethod.html). Stands for utilization, saturation, and errors.  
 
-Sysdig’s post [Best practices for alerting on Kubernetes](https://sysdig.com/blog/alerting-kubernetes/) includes a comprehensive list of components that can impact the availability of your applications.
+Sysdig's post [Best practices for alerting on Kubernetes](https://sysdig.com/blog/alerting-kubernetes/) includes a comprehensive list of components that can impact the availability of your applications.
 
 ### Use Prometheus client library to expose application metrics
 
@@ -360,11 +360,11 @@ Logging in EKS falls under two categories: control plane logs and application lo
 4. Controller manager 
 5. Scheduler
 
-The controller manager and scheduler logs can help diagnose control plane problems such as bottlenecks and errors. By default, EKS control plane logs aren’t sent to CloudWatch Logs. You can enable control plane logging and select the types of EKS control plane logs you’d like to capture for each cluster in your account
+The controller manager and scheduler logs can help diagnose control plane problems such as bottlenecks and errors. By default, EKS control plane logs aren't sent to CloudWatch Logs. You can enable control plane logging and select the types of EKS control plane logs you'd like to capture for each cluster in your account
 
 Collecting application logs requires installing a log aggregator tool like [Fluent Bit](http://fluentbit.io), [Fluentd](https://www.fluentd.org), or [CloudWatch Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html) in your cluster.  
 
-Kubernetes log aggregator tools run as DaemonSets and scrape container logs from nodes. Application logs are then sent to a centralized destination for storage. For example, CloudWatch Container Insights can use either Fluent Bit or Fluentd to collect logs and ship them to CloudWatch Logs for storage. Fluent Bit and Fluentd support many popular log analytics systems such as Elasticsearch and InfluxDB giving you the ability to change the storage backend for your logs by modifying Fluent bit or Fluentd’s log configuration. 
+Kubernetes log aggregator tools run as DaemonSets and scrape container logs from nodes. Application logs are then sent to a centralized destination for storage. For example, CloudWatch Container Insights can use either Fluent Bit or Fluentd to collect logs and ship them to CloudWatch Logs for storage. Fluent Bit and Fluentd support many popular log analytics systems such as Elasticsearch and InfluxDB giving you the ability to change the storage backend for your logs by modifying Fluent bit or Fluentd's log configuration. 
 
 
 ### Use a distributed tracing system to identify bottlenecks
@@ -373,7 +373,7 @@ A typical modern application has components distributed over the network, and it
 
 You have two options to implement tracing in your applications: you can either implement distributed tracing at the code level using shared libraries or use a service mesh. 
 
-Implementing tracing at the code level can be disadvantageous. In this method, you have to make changes to your code. This is further complicated if you have polyglot applications. You’re also responsible for maintaining yet another library, across your services. 
+Implementing tracing at the code level can be disadvantageous. In this method, you have to make changes to your code. This is further complicated if you have polyglot applications. You're also responsible for maintaining yet another library, across your services. 
 
 Service Meshes like [LinkerD](http://linkerd.io), [Istio](http://istio.io), and [AWS App Mesh](https://aws.amazon.com/app-mesh/) can be used to implement distributed tracing in your application with minimal changes to the application code. You can use service mesh to standardize metrics generation, logging, and tracing. 
 

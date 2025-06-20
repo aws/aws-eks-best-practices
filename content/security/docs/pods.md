@@ -14,7 +14,7 @@ redirect: https://docs.aws.amazon.com/eks/latest/best-practices/pod-security.htm
 
 # Pod Security
 
-The pod specification includes a variety of different attributes that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that’s running in a container from escaping the isolation boundaries of the container runtime and gaining access to the underlying host.
+The pod specification includes a variety of different attributes that can strengthen or weaken your overall security posture.  As a Kubernetes practitioner your chief concern should be preventing a process that's running in a container from escaping the isolation boundaries of the container runtime and gaining access to the underlying host.
 
 ## Linux Capabilities
 
@@ -38,7 +38,7 @@ Read operations:
 - endpoints
 - nodes
 - pods
-- secrets, configmaps, persistent volume claims and persistent volumes related to pods bound to the kubelet’s node
+- secrets, configmaps, persistent volume claims and persistent volumes related to pods bound to the kubelet's node
 
 Write operations:
 
@@ -363,11 +363,11 @@ For further information about the dangers of privileged escalation, read Seth Ar
 
 ### Set requests and limits for each container to avoid resource contention and DoS attacks
 
-A pod without requests or limits can theoretically consume all of the resources available on a host.  As additional pods are scheduled onto a node, the node may experience CPU or memory pressure which can cause the Kubelet to terminate or evict pods from the node.  While you can’t prevent this from happening all together, setting requests and limits will help minimize resource contention and mitigate the risk from poorly written applications that consume an excessive amount of resources.
+A pod without requests or limits can theoretically consume all of the resources available on a host.  As additional pods are scheduled onto a node, the node may experience CPU or memory pressure which can cause the Kubelet to terminate or evict pods from the node.  While you can't prevent this from happening all together, setting requests and limits will help minimize resource contention and mitigate the risk from poorly written applications that consume an excessive amount of resources.
 
 The `podSpec` allows you to specify requests and limits for CPU and memory.  CPU is considered a compressible resource because it can be oversubscribed.  Memory is incompressible, i.e. it cannot be shared among multiple containers.  
 
-When you specify _requests_ for CPU or memory, you’re essentially designating the amount of _memory_ that containers are guaranteed to get.  Kubernetes aggregates the requests of all the containers in a pod to determine which node to schedule the pod onto.  If a container exceeds the requested amount of memory it may be subject to termination if there’s memory pressure on the node.
+When you specify _requests_ for CPU or memory, you're essentially designating the amount of _memory_ that containers are guaranteed to get.  Kubernetes aggregates the requests of all the containers in a pod to determine which node to schedule the pod onto.  If a container exceeds the requested amount of memory it may be subject to termination if there's memory pressure on the node.
 
 _Limits_ are the maximum amount of CPU and memory resources that a container is allowed to consume and directly corresponds to the `memory.limit_in_bytes` value of the cgroup created for the container.  A container that exceeds the memory limit will be OOM killed. If a container exceeds its CPU limit, it will be throttled.
 
@@ -381,7 +381,7 @@ Kubernetes uses three Quality of Service (QoS) classes to prioritize the workloa
 - burstable
 - best-effort
 
-If limits and requests are not set, the pod is configured as _best-effort_ (lowest priority).  Best-effort pods are the first to get killed when there is insufficient memory.  If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values and not equal to 0, the pod is configured as _guaranteed_ (highest priority).  Guaranteed pods will not be killed unless they exceed their configured memory limits. If the limits and requests are configured with different values and not equal to 0, or one container within the pod sets limits and the others don’t or have limits set for different resources, the pods are configured as _burstable_ (medium priority). These pods have some resource guarantees, but can be killed once they exceed their requested memory.
+If limits and requests are not set, the pod is configured as _best-effort_ (lowest priority).  Best-effort pods are the first to get killed when there is insufficient memory.  If limits are set on _all_ containers within the pod, or if the requests and limits are set to the same values and not equal to 0, the pod is configured as _guaranteed_ (highest priority).  Guaranteed pods will not be killed unless they exceed their configured memory limits. If the limits and requests are configured with different values and not equal to 0, or one container within the pod sets limits and the others don't or have limits set for different resources, the pods are configured as _burstable_ (medium priority). These pods have some resource guarantees, but can be killed once they exceed their requested memory.
 
 !!! Attention
 
@@ -395,7 +395,7 @@ If limits and requests are not set, the pod is configured as _best-effort_ (lowe
 
 For additional information about resource QoS, please refer to the [Kubernetes documentation](https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/).
 
-You can force the use of requests and limits by setting a [resource quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range](https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it’s applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. By contrast, limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.
+You can force the use of requests and limits by setting a [resource quota](https://kubernetes.io/docs/concepts/policy/resource-quotas/) on a namespace or by creating a [limit range](https://kubernetes.io/docs/concepts/policy/limit-range/).  A resource quota allows you to specify the total amount of resources, e.g. CPU and RAM, allocated to a namespace.  When it's applied to a namespace, it forces you to specify requests and limits for all containers deployed into that namespace. By contrast, limit ranges give you more granular control of the allocation of resources. With limit ranges you can min/max for CPU and memory resources per pod or per container within a namespace.  You can also use them to set default request/limit values if none are provided.
 
 Policy-as-code solutions can be used enforce requests and limits. or to even create the resource quotas and limit ranges when namespaces are created.
 

@@ -151,7 +151,7 @@ users:
 #      env: null
 - name: super-admin
   user:
-    token: <<super-admin sa’s secret>>
+    token: <<super-admin sa's secret>>
 ```
 
 ## Admission Webhooks

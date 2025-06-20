@@ -62,8 +62,8 @@ Console. Also unlike Fargate, MNGs will not automatically scale your
 infrastructure/cluster. That can be handled by the
 https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md[cluster-autoscaler]
 or other technologies such as https://karpenter.sh/[Karpenter], native
-AWS autoscaling, SpotInst’s
-https://spot.io/product/ocean[Ocean], or Atlassian’s
+AWS autoscaling, SpotInst's
+https://spot.io/product/ocean[Ocean], or Atlassian's
 https://github.com/atlassian/escalator[Escalator].
 
 .Shared Responsibility Model - MNG

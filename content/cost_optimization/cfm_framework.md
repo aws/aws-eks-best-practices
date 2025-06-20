@@ -45,7 +45,7 @@ This pillar is based on the technologies and capabilities developed in the “Se
 * Choose the best purchasing option, e.g. on-demand instances vs Spot instances.
 * Adapt as services evolve: as AWS services evolve, the way to efficiently use those services may change. Be willing to adapt to account for these changes. 
 
-Since these activities are operational, they are highly dependent on your environment’s characteristics. Ask yourself, what are the main drivers of costs? What business value do your different environments provide? What purchasing options and infrastructure choices, e.g. instance family types, are best suited for each environment?  
+Since these activities are operational, they are highly dependent on your environment's characteristics. Ask yourself, what are the main drivers of costs? What business value do your different environments provide? What purchasing options and infrastructure choices, e.g. instance family types, are best suited for each environment?  
 
 Below is a prioritized list of the most common cost drivers for EKS clusters:
 
@@ -67,7 +67,7 @@ Cost optimization is a continuous process and involves a flywheel of incremental
 
 ![Cost optimization flywheel](../images/flywheel.png)
 
-Securing executive sponsorship for these types of activities is crucial for integrating EKS cluster optimization into the organization’s “FinOps” efforts. It allows stakeholder alignment through a shared understanding of EKS cluster costs, implementation of EKS cluster cost guardrails, and ensuring that the tooling, automation, and activities evolve with the organization’s needs. 
+Securing executive sponsorship for these types of activities is crucial for integrating EKS cluster optimization into the organization's “FinOps” efforts. It allows stakeholder alignment through a shared understanding of EKS cluster costs, implementation of EKS cluster cost guardrails, and ensuring that the tooling, automation, and activities evolve with the organization's needs. 
 
 
 ## References

@@ -14,7 +14,7 @@ redirect: https://docs.aws.amazon.com/eks/latest/best-practices/windows-images.h
 
 # Container image scanning
 
-Image Scanning is an automated vulnerability assessment feature that helps improve the security of your application’s container images by scanning them for a broad range of operating system vulnerabilities.
+Image Scanning is an automated vulnerability assessment feature that helps improve the security of your application's container images by scanning them for a broad range of operating system vulnerabilities.
 
 Currently, the Amazon Elastic Container Registry (ECR) is only able to scan Linux container image for vulnerabilities. However; there are third-party tools which can be integrated with an existing CI/CD pipeline for Windows container image scanning.
 

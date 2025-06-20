@@ -86,7 +86,7 @@ image:system_nodepool.png[System NodePool]
 This NodePool is similar to “general-purpose” except for the following differences:
 
 1. It allows for nodes with the ARM architecture as well as AMD architecture
-2. It taints these nodes with a NoSchedule unless there’s a toleration for “CriticalAddonsOnly”.  This is for internal use by EKS add-ons
+2. It taints these nodes with a NoSchedule unless there's a toleration for “CriticalAddonsOnly”.  This is for internal use by EKS add-ons
 
 ==== custom
 

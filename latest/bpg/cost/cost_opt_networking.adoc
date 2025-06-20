@@ -409,7 +409,7 @@ image:istio-traffic-control.png[Istop Traffic Control]
 
 **Using the Service Internal Traffic Policy with Istio**
 
-To mitigate network costs associated with _external_ incoming traffic and _internal_ traffic between Pods, you can combine Istio’s Destination Rules and the Kubernetes Service _internal traffic policy_.  The way to combine Istio destination rules with the service internal traffic policy will largely depend on 3 things:
+To mitigate network costs associated with _external_ incoming traffic and _internal_ traffic between Pods, you can combine Istio's Destination Rules and the Kubernetes Service _internal traffic policy_.  The way to combine Istio destination rules with the service internal traffic policy will largely depend on 3 things:
 
 * The role of the microservices
 * Network traffic patterns across the microservices

@@ -10,7 +10,7 @@
 :date: 2025-05-30
 
 Implementing best practices when running AI/ML workloads on EKS can ensure that those workloads are performant, cost-effective, resilient, and properly resourced.
-Best practices for AI/ML on EKS are divided into the following general sections: Compute, Networking, Storage, Observability, and Performance.
+Best practices are divided into the following general sections: Compute, Networking, Storage, Observability, and Performance.
 
 == Feedback
 

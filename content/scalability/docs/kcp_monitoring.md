@@ -20,7 +20,7 @@ authors:
 # Control Plane Monitoring
 
 ## API Server
-When looking at our API server it’s important to remember that one of its functions is to throttle inbound requests to prevent overloading the control plane. What can seem like a bottleneck at the API server level might actually be protecting it from more serious issues. We need to factor in the pros and cons of increasing the volume of requests moving through the system. To make a determination if the API server values should be increased, here is small sampling of the things we need to be mindful of:
+When looking at our API server it's important to remember that one of its functions is to throttle inbound requests to prevent overloading the control plane. What can seem like a bottleneck at the API server level might actually be protecting it from more serious issues. We need to factor in the pros and cons of increasing the volume of requests moving through the system. To make a determination if the API server values should be increased, here is small sampling of the things we need to be mindful of:
 
 1. What is the latency of requests moving through the system?
 2. Is that latency the API server itself, or something “downstream” like etcd?
@@ -28,7 +28,7 @@ When looking at our API server it’s important to remember that one of its func
 4. Are the API Priority and Fairness (APF) queues setup correctly for the API call patterns we want?
 
 ## Where is the issue?
-To start, we can use the metric for API latency to give us insight into how long it’s taking the API server to service requests. Let’s use the below PromQL and Grafana heatmap to display this data.
+To start, we can use the metric for API latency to give us insight into how long it's taking the API server to service requests. Let's use the below PromQL and Grafana heatmap to display this data.
 
 ```
 max(increase(apiserver_request_duration_seconds_bucket{subresource!="status",subresource!="token",subresource!="scale",subresource!="/healthz",subresource!="binding",subresource!="proxy",verb!="WATCH"}[$__rate_interval])) by (le)
@@ -41,10 +41,10 @@ max(increase(apiserver_request_duration_seconds_bucket{subresource!="status",sub
 
 These requests are all under the one second mark, which is a good indication that the control plane is handling requests in a timely fashion.  But what if that was not the case?
 
-The format we are using in the above API Request Duration is a heatmap. What’s nice about the heatmap format, is that it tells us the timeout value for the API by default (60 sec). However, what we really need to know is at what threshold should this value be of concern before we reach the timeout threshold. For a rough guideline of what acceptable thresholds are we can use the upstream Kubernetes SLO, which can be found [here](https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md#steady-state-slisslos)
+The format we are using in the above API Request Duration is a heatmap. What's nice about the heatmap format, is that it tells us the timeout value for the API by default (60 sec). However, what we really need to know is at what threshold should this value be of concern before we reach the timeout threshold. For a rough guideline of what acceptable thresholds are we can use the upstream Kubernetes SLO, which can be found [here](https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md#steady-state-slisslos)
 
 !!! tip
-    Notice the max function on this statement? When using metrics that are aggregating multiple servers (by default two API servers on EKS) it’s important not to average those servers together.
+    Notice the max function on this statement? When using metrics that are aggregating multiple servers (by default two API servers on EKS) it's important not to average those servers together.
 
 ### Asymmetrical traffic patterns
 What if one API server [pod] was lightly loaded, and the other heavily loaded? If we averaged those two numbers together we might misinterpret what was happening. For example, here we have three API servers but all of the load is on one of these API servers. As a rule anything that has multiple servers such as etcd and API servers should be broken out when investing scale and performance issues.
@@ -53,7 +53,7 @@ What if one API server [pod] was lightly loaded, and the other heavily loaded? I
 
 With the move to API Priority and Fairness the total number of requests on the system is only one factor to check to see if the API server is oversubscribed. Since the system now works off a series of queues, we must look to see if any of these queues are full and if the traffic for that queue is getting dropped. 
 
-Let’s look at these queues with the following query:
+Let's look at these queues with the following query:
 
 ```
 max without(instance)(apiserver_flowcontrol_request_concurrency_limit{})
@@ -79,11 +79,11 @@ To focus on a simple impactful change you can make in APF we simply take shares 
 For more information, visit [API Priority and Fairness settings](https://aws.github.io/aws-eks-best-practices/scalability/docs/control-plane/#api-priority-and-fairness) in the EKS Best Practices Guide.
 
 ### API vs. etcd latency
-How can we use the metrics/logs of the API server to determine whether there’s a problem with API server, or a problem that’s upstream/downstream of the API server, or a combination of both. To understand this better, lets look at how API Server and etcd can be related, and how easy it can be to troubleshoot the wrong system.
+How can we use the metrics/logs of the API server to determine whether there's a problem with API server, or a problem that's upstream/downstream of the API server, or a combination of both. To understand this better, lets look at how API Server and etcd can be related, and how easy it can be to troubleshoot the wrong system.
 
 In the below chart we see API server latency, but we also see much of this latency is correlated to the etcd server due to the bars in the graph showing most of the latency at the etcd level. If there is 15 secs of etcd latency at the same time there is 20 seconds of API server latency, then the majority of the latency is actually at the etcd level.
 
-By looking at the whole flow, we see that it’s wise to not focus solely on the API Server, but also look for signals that indicate that etcd is under duress (i.e. slow apply counters increasing). Being able to quickly move to the right problem area with just a glance is what makes a dashboard powerful. 
+By looking at the whole flow, we see that it's wise to not focus solely on the API Server, but also look for signals that indicate that etcd is under duress (i.e. slow apply counters increasing). Being able to quickly move to the right problem area with just a glance is what makes a dashboard powerful. 
 
 !!! tip
     The dashboard in section can be found at https://github.com/RiskyAdventure/Troubleshooting-Dashboards/blob/main/api-troubleshooter.json
@@ -126,7 +126,7 @@ Using this query we found two different agents running a large number of high la
     For more details on this subject please see the following [blog](https://aws.amazon.com/blogs/containers/troubleshooting-amazon-eks-api-servers-with-prometheus/)
 
 ## Scheduler
-Since the EKS control plane instances are run in separate AWS account we will not be able to scrape those components for metrics (The API server being the exception). However, since we have access to the audit logs for these components, we can turn those logs into metrics to see if any of the sub-systems are causing a scaling bottleneck. Let’s use CloudWatch Logs Insights to see how many unscheduled pods are in the scheduler queue.
+Since the EKS control plane instances are run in separate AWS account we will not be able to scrape those components for metrics (The API server being the exception). However, since we have access to the audit logs for these components, we can turn those logs into metrics to see if any of the sub-systems are causing a scaling bottleneck. Let's use CloudWatch Logs Insights to see how many unscheduled pods are in the scheduler queue.
 
 ### Unscheduled pods in the scheduler log
 If we had access to scrape the scheduler metrics directly on a self managed Kubernetes (such as Kops) we would use the following PromQL to understand the scheduler backlog.
@@ -161,7 +161,7 @@ cloudWatch:
 ```
 
 ## Kube Controller Manager
-Kube Controller Manager, like all other controllers, has limits on how many operations it can do at once. Let’s review what some of those flags are by looking at a KOPS configuration where we can set these parameters.
+Kube Controller Manager, like all other controllers, has limits on how many operations it can do at once. Let's review what some of those flags are by looking at a KOPS configuration where we can set these parameters.
 
 ```yaml
   kubeControllerManager:
@@ -187,7 +187,7 @@ spec:
   revisionHistoryLimit: 2
 ```
 
-Other Kubernetes features can be tuned or turned off to reduce pressure in high churn rate systems. For example, if the application in our pods doesn’t need to speak to the k8s API directly then turning off the projected secret into those pods would decrease the load on ServiceaccountTokenSyncs. This is the more desirable way to address such issues if possible.
+Other Kubernetes features can be tuned or turned off to reduce pressure in high churn rate systems. For example, if the application in our pods doesn't need to speak to the k8s API directly then turning off the projected secret into those pods would decrease the load on ServiceaccountTokenSyncs. This is the more desirable way to address such issues if possible.
 
 ```yaml
 kind: Pod
@@ -195,7 +195,7 @@ spec:
   automountServiceAccountToken: false
 ```
 
-In systems where we can’t get access to the metrics, we can again look at the logs to detect contention. If we wanted to see the number of requests being being processed on a per controller or an aggregate level we would use the following CloudWatch Logs Insights Query. 
+In systems where we can't get access to the metrics, we can again look at the logs to detect contention. If we wanted to see the number of requests being being processed on a per controller or an aggregate level we would use the following CloudWatch Logs Insights Query. 
 
 ### Total Volume Processed by the KCM
 
@@ -225,7 +225,7 @@ fields @timestamp, @logStream, @message
 | sort count desc
 ```
 
-The key takeaway here is when looking into scalability issues, to look at every step in the path (API, scheduler, KCM, etcd) before moving to the detailed troubleshooting phase. Often in production you will find that it takes adjustments to more than one part of Kubernetes to allow the system to work at its most performant. It’s easy to inadvertently troubleshoot what is just a symptom (such as a node timeout) of a much larger bottle neck. 
+The key takeaway here is when looking into scalability issues, to look at every step in the path (API, scheduler, KCM, etcd) before moving to the detailed troubleshooting phase. Often in production you will find that it takes adjustments to more than one part of Kubernetes to allow the system to work at its most performant. It's easy to inadvertently troubleshoot what is just a symptom (such as a node timeout) of a much larger bottle neck. 
 
 ## ETCD 
 etcd uses a memory mapped file to store key value pairs efficiently. There is a protection mechanism to set the size of this memory space available set commonly at the 2, 4, and 8GB limits. Fewer objects in the database means less clean up etcd needs to do when objects are updated and older versions needs to be cleaned out. This process of cleaning old versions of an object out is referred to as compaction. After a number of compaction operations, there is a subsequent process that recovers usable space space called defragging that happens above a certain threshold or on a fixed schedule of time. 

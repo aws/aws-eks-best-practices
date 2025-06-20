@@ -22,7 +22,7 @@ authors:
 
 ## Introduction 
 
-Observability tools help you efficiently detect, remediate and investigate your workloads. The cost of telemetry data naturally increases as your use of EKS increases. At times, it can be challenging to balance your operational needs and measuring what matters to your business and keeping observability costs in check. This guide focuses on cost optimization strategies for the three pillars of observability: logs, metrics and traces. Each of these best practices can be applied independently to fit your organization’s optimization goals. 
+Observability tools help you efficiently detect, remediate and investigate your workloads. The cost of telemetry data naturally increases as your use of EKS increases. At times, it can be challenging to balance your operational needs and measuring what matters to your business and keeping observability costs in check. This guide focuses on cost optimization strategies for the three pillars of observability: logs, metrics and traces. Each of these best practices can be applied independently to fit your organization's optimization goals. 
 
 ## Logging
 
@@ -47,7 +47,7 @@ Another cost optimization best practice is streaming control plane logs to S3 vi
 
 ### Log Retention
 
-Amazon CloudWatch’s default retention policy is to keep logs indefinitely and never expire, incurring storage costs applicable to your AWS region. In order to reduce the storage costs, you can customize the retention policy for each log group based on your workload requirements.
+Amazon CloudWatch's default retention policy is to keep logs indefinitely and never expire, incurring storage costs applicable to your AWS region. In order to reduce the storage costs, you can customize the retention policy for each log group based on your workload requirements.
 
 In a development environment, a lengthy retention period may not be necessary. But in a production environment, you can set a longer retention policy to meet troubleshooting, compliance, and capacity planning requirements. For example, if you are running an e-commerce application during the peak holiday season the system is under heavier load and issues can arise that may not be immediately noticeable, you will want to set a longer log retention for detailed troubleshooting and post event analysis. 
 
@@ -196,10 +196,10 @@ The `[INPUT]` section above is ingesting all the container logs. This can genera
 
 The first cost reduction strategy is to reduce the number of metrics you are collecting and in turn, reduce retention costs. 
 
-1. Begin by working backwards from your and/or your stakeholder’s requirements to determine [the metrics that are most important](https://aws-observability.github.io/observability-best-practices/guides/#monitor-what-matters). Success metrics are different for everyone! Know what *good* looks like and measure for it.
+1. Begin by working backwards from your and/or your stakeholder's requirements to determine [the metrics that are most important](https://aws-observability.github.io/observability-best-practices/guides/#monitor-what-matters). Success metrics are different for everyone! Know what *good* looks like and measure for it.
 2. Consider diving deep into the workloads you are supporting and identifying its Key Performance Indicators (KPIs) a.k.a 'Golden Signals'. These should align to business and stake-holder requirements. Calculating SLIs, SLOs, and SLAs using Amazon CloudWatch and Metric Math is crucial for managing service reliability. Follow the best practices outlined in this [guide](https://aws-observability.github.io/observability-best-practices/guides/operational/business/key-performance-indicators/#10-understanding-kpis-golden-signals) to effectively monitor and maintain the performance of your EKS environment.  
 3. Then continue through the different layers of infrastructure to [connect and correlate](https://aws-observability.github.io/observability-best-practices/signals/metrics/#correlate-with-operational-metric-data) EKS cluster, node and additional infrastructure metrics to your workload KPIs. Store your business metrics and operational metrics in a system where you can correlate them together and draw conclusions based on observed impacts to both.
-4. EKS exposes metrics from the control plane, cluster kube-state-metrics, pods, and nodes. The relevance of all these metrics is dependent on your needs, however it’s likely that you will not need every single metric across the different layers. You can use this [EKS essential metrics](https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/best-practices-metrics-collection/) guide as a baseline for monitoring the overall health of an EKS cluster and your workloads. 
+4. EKS exposes metrics from the control plane, cluster kube-state-metrics, pods, and nodes. The relevance of all these metrics is dependent on your needs, however it's likely that you will not need every single metric across the different layers. You can use this [EKS essential metrics](https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/best-practices-metrics-collection/) guide as a baseline for monitoring the overall health of an EKS cluster and your workloads. 
 
 Here is an example prometheus scrape config where we are using the `relabel_config` to keep only kubelet metrics and `metric_relabel_config` to drop all container metrics. 
 
@@ -245,7 +245,7 @@ and the following PROMQL query can help you determine which scrape targets have 
 topk_max(5, max_over_time(scrape_series_added[1h]))
 ```
 
-If you are using grafana you can use Grafana Lab’s Mimirtool to analyze your grafana dashboards and prometheus rules to identify unused high-cardinality metrics. Follow [this guide](https://grafana.com/docs/grafana-cloud/account-management/billing-and-usage/control-prometheus-metrics-usage/usage-analysis-mimirtool/?pg=blog&plcmt=body-txt#analyze-and-reduce-metrics-usage-with-grafana-mimirtool) on how to use the `mimirtool analyze` and `mimirtool analyze prometheus` commands to identify active metrics which are not referenced in your dashboards. 
+If you are using grafana you can use Grafana Lab's Mimirtool to analyze your grafana dashboards and prometheus rules to identify unused high-cardinality metrics. Follow [this guide](https://grafana.com/docs/grafana-cloud/account-management/billing-and-usage/control-prometheus-metrics-usage/usage-analysis-mimirtool/?pg=blog&plcmt=body-txt#analyze-and-reduce-metrics-usage-with-grafana-mimirtool) on how to use the `mimirtool analyze` and `mimirtool analyze prometheus` commands to identify active metrics which are not referenced in your dashboards. 
 
 
 ### Consider metric granularity
@@ -287,7 +287,7 @@ metadata:
 
 ## Tracing
 
-The primary cost associated with tracing stem from trace storage generation. With tracing, the aim is to gather sufficient data to diagnose and understand performance aspects. However, as X-Ray traces costs are based on data forwarded to to X-Ray, erasing traces after it has been forward will not reduce your costs. Let’s review ways to lower your costs for tracing while maintaining data for you to perform proper analysis. 
+The primary cost associated with tracing stem from trace storage generation. With tracing, the aim is to gather sufficient data to diagnose and understand performance aspects. However, as X-Ray traces costs are based on data forwarded to to X-Ray, erasing traces after it has been forward will not reduce your costs. Let's review ways to lower your costs for tracing while maintaining data for you to perform proper analysis. 
 
 
 ### Apply Sampling rules
@@ -328,7 +328,7 @@ For example, you have java application that you want to debug the traces of all 
 
 ADOT Tail Sampling allows you to control the volume of traces ingested in the service. However, Tail Sampling allows you to define the sampling policies after all the spans in the request have been completed instead of at the beginning. This further limits the amount of raw data transferred to CloudWatch, hence reducing cost.
 
-For example, if you’re sampling 1% of traffic to a landing page and 10% of the requests to a payment page this might leave you with 300 traces for an 30 minute period. With an ADOT Tail Sampling rule of that filters specific errors, you could be left with 200 traces which decreases the number of traces stored. 
+For example, if you're sampling 1% of traffic to a landing page and 10% of the requests to a payment page this might leave you with 300 traces for an 30 minute period. With an ADOT Tail Sampling rule of that filters specific errors, you could be left with 200 traces which decreases the number of traces stored. 
 
 
 ```yaml hl_lines="5"

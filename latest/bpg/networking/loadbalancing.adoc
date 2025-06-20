@@ -64,7 +64,7 @@ Another key reason to use the NLB is if your clients cannot utilize DNS.
 In this case, the NLB may be a better fit for your workload as the IPs
 on a Network Load Balancer are static. While clients are recommended to
 use DNS when resolving Domain Names to IP Addresses when connecting to
-Load Balancers, if a client’s application doesn’t support DNS resolution
+Load Balancers, if a client's application doesn't support DNS resolution
 and only accepts hard-coded IPs then an NLB is a better fit as the IPs
 are static and remain same for the life of the NLB.
 
@@ -121,7 +121,7 @@ there are 2 types of targets you can register in the target group:
 Instance & IP, which target type is used has implications on what gets
 registered and how traffic is routed from the Load Balancer to the pod.
 By default the AWS Load Balancer controller will register targets using
-'`Instance`' type and this target will be the Worker Node’s IP and
+'`Instance`' type and this target will be the Worker Node's IP and
 NodePort, implication of this include:
 
 * Traffic from the Load Balancer will be forwarded to the Worker Node on
@@ -137,10 +137,10 @@ means its health check which gets sent to the target will not be
 directly received by the pod but by the Worker Node on its NodePort and
 health check traffic will follow the same path described above.
 * Monitoring and Troubleshooting is more complex since traffic forwarded
-by the Load Balancer isn’t directly sent to the pods and you’d have to
+by the Load Balancer isn't directly sent to the pods and you'd have to
 carefully correlate the packet received on the Worker Node to to the
 Service ClusterIP and eventually the pod to have full end-to-end
-visibility into the packet’s path for proper troubleshooting.
+visibility into the packet's path for proper troubleshooting.
 
 image::lb_target_type_instance.png[Diagram illustrating the instance target type for load balancers]
 
@@ -153,9 +153,9 @@ of Worker Nodes and Service Cluster IP, it reduces latency that would
 otherwise have been incurred if the Service forwarded traffic to a pod
 in another AZ and lastly it removes the iptables rules overhead
 processing on the Worker Nodes.
-* The Load Balancer’s health check is directly received and responded to
+* The Load Balancer's health check is directly received and responded to
 by the pod, this means the target status '`healthy`' or '`unhealthy`'
-are a direct representation of the pod’s health status.
+are a direct representation of the pod's health status.
 * Monitoring and Troubleshooting is easier and any tool used that
 captures packet IP address will directly reveal the bi-directional
 traffic between the Load Balancer and the pod in its source and
@@ -166,10 +166,10 @@ image::lb_target_type_ip.png[Diagram illustrating the IP address target type for
 To create an AWS Elastic Load Balancing that uses IP Targets you add:
 
 * `alb.ingress.kubernetes.io/target-type: ip` annotation to your
-Ingress’ manifest when configuring your Kubernetes Ingress (Application
+Ingress' manifest when configuring your Kubernetes Ingress (Application
 Load Balancer)
 * `service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip`
-annotation to your Service’s Manifest when configuring your Kubernetes
+annotation to your Service's Manifest when configuring your Kubernetes
 Service of type LoadBalancer (Network Load Balancer).
 
 == Availability and Pod Lifecycle
@@ -260,7 +260,7 @@ API] to configure and start registering the Pod IP as a target on the
 ELB.
 
 When you perform a rolling update of a Deployment, new Pods get created,
-and as soon as a new Pod’s condition is "`Ready`" an old/existing Pod
+and as soon as a new Pod's condition is "`Ready`" an old/existing Pod
 gets terminated. During this process, the Kubernetes EndpointSlice
 object is updated faster than the time it takes the ELB to register the
 new Pods as targets, see
@@ -278,7 +278,7 @@ case of AWS ELB, the AWS Load Balancer Controller monitors the status of
 the target (the Pod) on the AWS ELB and once the target registration
 completes and its status turns "`Healthy`" then
 https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/pod_readiness_gate/[the
-controller updates the Pod’ s condition to "`Ready`"]. With this
+controller updates the Pod' s condition to "`Ready`"]. With this
 approach you influence the Pod condition based on the state of the
 external network, which is the target status on the AWS ELB. Pod
 Readiness Gates is crucial in rolling update scenarios as it enables you
@@ -394,7 +394,7 @@ running is never brought below the number needed for a quorum. Or a web
 front end might ensure that the number of replicas serving load never
 falls below a certain percentage of the total. PDB will protect the
 application against actions such as nodes being drained, or new versions
-of Deployments being rolled out. Keep in mind that PDB’s will not
+of Deployments being rolled out. Keep in mind that PDB's will not
 protect the application against involuntary disruptions such as a
 failure of the node operating system or loss of network connectivity.
 For more information please refer to the
@@ -421,7 +421,7 @@ traffic)]
 
 It is imperative to understand what is the sequence of events in a
 scenario where a Pod is deployed and then it becomes healthy/ready to
-receive and process client requests. Let’s talk about the sequence of
+receive and process client requests. Let's talk about the sequence of
 events.
 
 [arabic]
@@ -450,7 +450,7 @@ with the new Pod IP/port.
 === Pod Deletion
 
 Just like Pod creation, it is imperative to understand what is the
-sequence of events during Pod deletion. Let’ s talk about the sequence
+sequence of events during Pod deletion. Let' s talk about the sequence
 of events.
 
 [arabic]

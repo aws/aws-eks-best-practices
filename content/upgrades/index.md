@@ -116,7 +116,7 @@ See the following examples of common add-ons and their relevant upgrade document
 
 ## Verify basic EKS requirements before upgrading
 
-AWS requires certain resources in your account to complete the upgrade process. If these resources aren’t present, the cluster cannot be upgraded. A control plane upgrade requires the following resources:
+AWS requires certain resources in your account to complete the upgrade process. If these resources aren't present, the cluster cannot be upgraded. A control plane upgrade requires the following resources:
 
 1. Available IP addresses: Amazon EKS requires up to five available IP addresses from the subnets you specified when you created the cluster in order to update the cluster. If not, update your cluster configuration to include new cluster subnets prior to performing the version update.
 2. EKS IAM role: The control plane IAM role is still present in the account with the necessary permissions.
@@ -452,7 +452,7 @@ Before proceeding with a Kubernetes upgrade in Amazon EKS, it's vital to ensure 
 
 ## Use Drift for Karpenter managed nodes
 
-Karpenter’s [Drift](https://karpenter.sh/docs/concepts/disruption/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Refer to [How to upgrade an EKS Cluster with Karpenter](https://karpenter.sh/docs/faq/#how-do-i-upgrade-an-eks-cluster-with-karpenter) for more details.
+Karpenter's [Drift](https://karpenter.sh/docs/concepts/disruption/#drift) can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Refer to [How to upgrade an EKS Cluster with Karpenter](https://karpenter.sh/docs/faq/#how-do-i-upgrade-an-eks-cluster-with-karpenter) for more details.
 
 This means that if the AMI ID specified in the Karpenter EC2 Nodeclass is updated, Karpenter will detect the drift and start replacing the nodes with the new AMI. 
 To understand how Karpenter manages AMIs and the different options available to Karpenter users to control the AMI upgrade process see the documentation on [how to manage AMIs in Karpenter](https://karpenter.sh/docs/tasks/managing-amis/).
@@ -463,7 +463,7 @@ Karpenter will mark nodes as expired and disrupt them after they have lived the 
 
 If you're using automatic AMI upgrades, ExpireAfter can periodically refresh and upgrade your nodes.
 
-If it’s happened that the node is drifted, but hasn’t been cleaned up, node expiration will also replace the instance with the new AMI in EC2NodeClass.
+If it's happened that the node is drifted, but hasn't been cleaned up, node expiration will also replace the instance with the new AMI in EC2NodeClass.
 
 ## Use eksctl to automate upgrades for self-managed node groups
 
@@ -479,7 +479,7 @@ Some common tools include:
 
 ## Backup the cluster before upgrading
 
-New versions of Kubernetes introduce significant changes to your Amazon EKS cluster. After you upgrade a cluster, you can’t downgrade it.
+New versions of Kubernetes introduce significant changes to your Amazon EKS cluster. After you upgrade a cluster, you can't downgrade it.
 
 [Velero](https://velero.io/) is an community supported open-source tool that can be used to take backups of existing clusters and apply the backups to a new cluster.
 
@@ -519,9 +519,9 @@ Review these blogs posts for more information:
 
 ## Track planned major changes in the Kubernetes project — Think ahead
 
-Don’t look only at the next version. Review new versions of Kubernetes as they are released, and identify major changes. For example, some applications directly used the docker API, and support for Container Runtime Interface (CRI) for Docker (also known as Dockershim) was removed in Kubernetes `1.24`. This kind of change requires more time to prepare for. 
+Don't look only at the next version. Review new versions of Kubernetes as they are released, and identify major changes. For example, some applications directly used the docker API, and support for Container Runtime Interface (CRI) for Docker (also known as Dockershim) was removed in Kubernetes `1.24`. This kind of change requires more time to prepare for. 
  
-Review all documented changes for the version that you’re upgrading to, and note any required upgrade steps. Also, note any requirements or procedures that are specific to Amazon EKS managed clusters.
+Review all documented changes for the version that you're upgrading to, and note any required upgrade steps. Also, note any requirements or procedures that are specific to Amazon EKS managed clusters.
 
 * [Kubernetes changelog](https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG)
 

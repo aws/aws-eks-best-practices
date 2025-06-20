@@ -44,7 +44,7 @@ When using topology aware routing, it's important to understand how Services, En
 
 When [*topology aware routing*](https://kubernetes.io/docs/concepts/services-networking/topology-aware-routing/) is enabled and implemented on a Kubernetes Service, the EndpointSlice controller will proportionally allocate endpoints to the different zones that your cluster is spread across. For each of those endpoints, the EndpointSlice controller will also set a _hint_ for the zone. _Hints_ describe which zone an endpoint should serve traffic for. `kube-proxy` will then route traffic from a zone to an endpoint based on the _hints_ that get applied. 
 
-The diagram below shows how EndpointSlices with hints are organized in such a way that `kube-proxy` can know what destination they should go to based on their zonal point of origin. Without hints, there is no such allocation or organization and traffic will be proxied to different zonal destinations regardless of where it’s coming from. 
+The diagram below shows how EndpointSlices with hints are organized in such a way that `kube-proxy` can know what destination they should go to based on their zonal point of origin. Without hints, there is no such allocation or organization and traffic will be proxied to different zonal destinations regardless of where it's coming from. 
 
 ![Endpoint Slice](../images/endpoint_slice.png)
 
@@ -75,13 +75,13 @@ The screenshot below shows the result of the EndpointSlice controller having suc
 ![Slice shell](../images/slice_shell.png)
 
 !!! note
-    It’s important to note that topology aware routing is still in **beta**. Also, this feature is more predictable when workloads are widely and evenly distributed across the cluster topology. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as [pod topology spread constraints](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/).
+    It's important to note that topology aware routing is still in **beta**. Also, this feature is more predictable when workloads are widely and evenly distributed across the cluster topology. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as [pod topology spread constraints](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/).
 
 **Using Autoscalers: Provision Nodes to a Specific AZ**
 
 _We strongly recommend_ running your workloads in highly available environments across multiple AZs. This improves the reliability of your applications, especially when there is an incident of an issue with an AZ. In the case you're willing to sacrifice reliability for the sake of reducing their network-related costs, you can restrict your nodes to a single AZ. 
 
-To run all your Pods in the same AZ, either provision the worker nodes in the same AZ or schedule the Pods on the worker nodes running on the same AZ. To provision nodes within a single AZ, define a node group with subnets belonging to the same AZ with [Cluster Autoscaler (CA)](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler). For [Karpenter,](https://karpenter.sh/) use “[_topology.kubernetes.io/zone”_](http://topology.kubernetes.io/zone%E2%80%9D) and specify the AZ where you’d like to create the worker nodes. For example, the below Karpenter provisioner snippet provisions the nodes in the us-west-2a AZ.
+To run all your Pods in the same AZ, either provision the worker nodes in the same AZ or schedule the Pods on the worker nodes running on the same AZ. To provision nodes within a single AZ, define a node group with subnets belonging to the same AZ with [Cluster Autoscaler (CA)](https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler). For [Karpenter,](https://karpenter.sh/) use “[_topology.kubernetes.io/zone”_](http://topology.kubernetes.io/zone%E2%80%9D) and specify the AZ where you'd like to create the worker nodes. For example, the below Karpenter provisioner snippet provisions the nodes in the us-west-2a AZ.
 
 **Karpenter**
 
@@ -141,14 +141,14 @@ spec:
 
 ### Restricting Traffic to a Node
 
-There are cases where restricting traffic at a zonal level isn’t sufficient. Apart from reducing costs, you may have the added requirement of reducing network latency between certain applications that have frequent inter-communication. In order to achieve optimal network performance and reduce costs, you need a way to restrict traffic to a specific node. For example, Microservice A should always talk to Microservice B on Node 1, even in highly available (HA) setups. Having Microservice A on Node 1 talk to Microservice B on Node 2 may have a negative impact on the desired performance for applications of this nature, especially if Node 2 is in a separate AZ altogether. 
+There are cases where restricting traffic at a zonal level isn't sufficient. Apart from reducing costs, you may have the added requirement of reducing network latency between certain applications that have frequent inter-communication. In order to achieve optimal network performance and reduce costs, you need a way to restrict traffic to a specific node. For example, Microservice A should always talk to Microservice B on Node 1, even in highly available (HA) setups. Having Microservice A on Node 1 talk to Microservice B on Node 2 may have a negative impact on the desired performance for applications of this nature, especially if Node 2 is in a separate AZ altogether. 
 
 **Using the Service Internal Traffic Policy**
 
-In order to restrict Pod network traffic to a node, you can make use of the _[Service internal traffic policy](https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)_. By default, traffic sent to a workload’s Service will be randomly distributed across the different generated endpoints. So in a HA architecture, that means traffic from Microservice A could go to any replica of Microservice B on any given node across the different AZs. However, with the Service's internal traffic policy set to `Local`, traffic will be restricted to endpoints on the node that the traffic originated from. This policy dictates the exclusive use of node-local endpoints. By implication, your network traffic-related costs for that workload will be lower than if the distribution was cluster wide. Also, the latency will be lower, making your application more performant. 
+In order to restrict Pod network traffic to a node, you can make use of the _[Service internal traffic policy](https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)_. By default, traffic sent to a workload's Service will be randomly distributed across the different generated endpoints. So in a HA architecture, that means traffic from Microservice A could go to any replica of Microservice B on any given node across the different AZs. However, with the Service's internal traffic policy set to `Local`, traffic will be restricted to endpoints on the node that the traffic originated from. This policy dictates the exclusive use of node-local endpoints. By implication, your network traffic-related costs for that workload will be lower than if the distribution was cluster wide. Also, the latency will be lower, making your application more performant. 
 
 !!! note
-    It’s important to note that this feature cannot be combined with topology aware routing in Kubernetes.
+    It's important to note that this feature cannot be combined with topology aware routing in Kubernetes.
 
 ![Local internal traffic](../images/local_traffic.png)
 
@@ -261,7 +261,7 @@ The diagram below depicts a network path for traffic flowing from the load balan
 When using _ip mode_, network traffic is proxied from the load balancer directly to the destination Pod. As a result, there are _no data transfer charges_ involved in this approach. 
 
 !!! tip
-    It is recommended that you set your load balancer to _ip traffic mode_ to reduce data transfer charges. For this setup, it’s also important to make sure that your load balancer is deployed across all the subnets in your VPC. 
+    It is recommended that you set your load balancer to _ip traffic mode_ to reduce data transfer charges. For this setup, it's also important to make sure that your load balancer is deployed across all the subnets in your VPC. 
 
 The diagram below depicts network paths for traffic flowing from the load balancer to Pods in the network _ip mode_. 
 
@@ -275,9 +275,9 @@ Data transfer into the Amazon ECR private registry is free. _In-region data tran
 
 You should utilize ECRs built-in [image replication feature](https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html) to replicate the relevant container images into the same region as your workloads. This way the replication would be charged once, and all the same region (intra-region) image pulls would be free.
 
-You can further reduce data transfer costs associated with pulling images from ECR (data transfer out) by _using [Interface VPC Endpoints](https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html) to connect to the in-region ECR repositories_. The alternative approach of connecting to ECR’s public AWS endpoint (via a NAT Gateway and an Internet Gateway) will incur higher data processing and transfer costs. The next section will cover reducing data transfer costs between your workloads and AWS Services in greater detail. 
+You can further reduce data transfer costs associated with pulling images from ECR (data transfer out) by _using [Interface VPC Endpoints](https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html) to connect to the in-region ECR repositories_. The alternative approach of connecting to ECR's public AWS endpoint (via a NAT Gateway and an Internet Gateway) will incur higher data processing and transfer costs. The next section will cover reducing data transfer costs between your workloads and AWS Services in greater detail. 
 
-If you’re running workloads with especially large images, you can build your own custom Amazon Machine Images (AMIs) with pre-cached container images. This can reduce the initial image pull time and potential data transfer costs from a container registry to the EKS worker nodes. 
+If you're running workloads with especially large images, you can build your own custom Amazon Machine Images (AMIs) with pre-cached container images. This can reduce the initial image pull time and potential data transfer costs from a container registry to the EKS worker nodes. 
 
 
 ## Data Transfer to Internet & AWS Services
@@ -290,7 +290,7 @@ NAT Gateways are network components that perform network address translation (NA
 
 ![NAT Gateway](../images/nat_gw.png)
 
-When using NAT Gateways for such use cases, _you can minimize the data transfer costs by deploying a NAT Gateway in each AZ_. This way, traffic routed to the Internet will go through the NAT Gateway in the same AZ, avoiding inter-AZ data transfer. However, even though you’ll save on the cost of inter-AZ data transfer, the implication of this setup is that you’ll incur the cost of an additional NAT Gateway in your architecture. 
+When using NAT Gateways for such use cases, _you can minimize the data transfer costs by deploying a NAT Gateway in each AZ_. This way, traffic routed to the Internet will go through the NAT Gateway in the same AZ, avoiding inter-AZ data transfer. However, even though you'll save on the cost of inter-AZ data transfer, the implication of this setup is that you'll incur the cost of an additional NAT Gateway in your architecture. 
 
 This recommended approach is depicted in the diagram below.
 
@@ -320,7 +320,7 @@ In some cases, you may have workloads in distinct VPCs (within the same AWS regi
 
 ### VPC Peering Connections 
 
-To reduce costs for such use cases, you can make use of [VPC Peering](https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html). With a VPC Peering connection, there are no data transfer charges for network traffic that stays within the same AZ. If traffic crosses AZs, there will be a cost incurred. Nonetheless, the VPC Peering approach is recommended for cost-effective communication between workloads in separate VPCs within the same AWS region. However, it’s important to note that VPC peering is primarily effective for 1:1 VPC connectivity because it doesn’t allow for transitive networking. 
+To reduce costs for such use cases, you can make use of [VPC Peering](https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html). With a VPC Peering connection, there are no data transfer charges for network traffic that stays within the same AZ. If traffic crosses AZs, there will be a cost incurred. Nonetheless, the VPC Peering approach is recommended for cost-effective communication between workloads in separate VPCs within the same AWS region. However, it's important to note that VPC peering is primarily effective for 1:1 VPC connectivity because it doesn't allow for transitive networking. 
 
 The diagram below is a high-level representation of workloads communication via a VPC peering connection. 
 
@@ -340,12 +340,12 @@ Service meshes offer powerful networking capabilities that can be used to reduce
 
 ### Restricting Traffic to Availability Zones
 
-**Using Istio’s Locality Weighted Distribution**
+**Using Istio's Locality Weighted Distribution**
 
 Istio enables you to apply network policies to traffic _after_ routing occurs. This is done using [Destination Rules](https://istio.io/latest/docs/reference/config/networking/destination-rule/) such as [locality weighted distribution](https://istio.io/latest/docs/tasks/traffic-management/locality-load-balancing/distribute/). Using this feature, you can control the weight (expressed as a percentage) of traffic that can go to a certain destination based on its origin. The source of this traffic can either be from an external (or public facing) load balancer or a Pod within the cluster itself. When all the Pod endpoints are available, the locality will be selected based on a weighted round-robin load balancing algorithm. In the case that certain endpoints are unhealthy or unavailable, [the locality weight will be automatically adjusted](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/locality_weight.html) to reflect this change in the available endpoints. 
 
 !!! note
-    Before implementing locality weighted distribution, you should start by understanding your network traffic patterns and the implications that the Destination Rule policy may have on your application’s behaviour. As such, it’s important to have distributed tracing mechanisms in place with tools such as [AWS X-Ray](https://aws.amazon.com/xray/) or [Jaeger](https://www.jaegertracing.io/). 
+    Before implementing locality weighted distribution, you should start by understanding your network traffic patterns and the implications that the Destination Rule policy may have on your application's behaviour. As such, it's important to have distributed tracing mechanisms in place with tools such as [AWS X-Ray](https://aws.amazon.com/xray/) or [Jaeger](https://www.jaegertracing.io/). 
 
 The Istio Destination Rules detailed above can also be applied to manage traffic from a load balancer to Pods in your EKS cluster. Locality weighted distribution rules can be applied to a Service that receives traffic from a highly available load balancer (specifically the Ingress Gateway). These rules allow you to control how much traffic goes where based on its zonal origin - the load balancer in this case. If configured correctly, less egress cross-zone traffic will be incurred compared to a load balancer that distributes traffic evenly or randomly to Pod replicas in different AZs. 
 
@@ -398,7 +398,7 @@ The diagram below depicts a scenario in which there is a highly available load b
 
 **Using the Service Internal Traffic Policy with Istio**
 
-To mitigate network costs associated with _external_ incoming traffic and _internal_ traffic between Pods, you can combine Istio’s Destination Rules and the Kubernetes Service _internal traffic policy_.  The way to combine Istio destination rules with the service internal traffic policy will largely depend on 3 things:
+To mitigate network costs associated with _external_ incoming traffic and _internal_ traffic between Pods, you can combine Istio's Destination Rules and the Kubernetes Service _internal traffic policy_.  The way to combine Istio destination rules with the service internal traffic policy will largely depend on 3 things:
 
 * The role of the microservices
 * Network traffic patterns across the microservices
