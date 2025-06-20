@@ -9,7 +9,7 @@ class LinkBotConfig:
             self.repo_url = os.environ['LINKBOT_REPO_URL']
             # Location of repo on local filesystem
             self.repo_root = os.environ['LINKBOT_REPO_ROOT']
-            # Glob pattern for markdown files to check
+            # Glob pattern for files to check
             self.glob = os.environ['LINKBOT_GLOB']
             # Max amount of time within which a project needs to have been updated
             self.max_days_old = int(os.environ['LINKBOT_MAX_DAYS_OLD'])
