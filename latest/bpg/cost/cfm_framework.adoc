@@ -17,7 +17,7 @@ Here is a brief overview of our best practices for the See pillar:
 
 * Define and maintain a tagging strategy for your workloads.
  ** Use https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html#tag-resources-for-billing[Instance Tagging], tagging EKS clusters allows you to see individual cluster costs and allocate them in your Cost & Usage Reports.
-* Establish reporting and monitoring of EKS usage by using technologies like https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring[Kubecost].
+* Establish reporting and monitoring of EKS usage by using technologies like https://www.ibm.com/docs/en/kubecost/self-hosted/2.x?topic=installations-amazon-eks-integration[Kubecost].
  ** https://wellarchitectedlabs.com/cost/200_labs/200_enterprise_dashboards/[Enable Cloud Intelligence Dashboards], by having resources properly tagged and using visualizations, you can measure and estimate costs.
 * Allocate cloud costs to applications, Lines of Business (LoBs), and revenue streams.
 * Define, measure, and circulate efficiency/value KPIs with business stakeholders. For example, create a "`unit metric`" KPI that measures the cost per transaction, e.g. a ride sharing services might have a KPI for "`cost per ride`".
