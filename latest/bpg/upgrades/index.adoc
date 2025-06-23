@@ -83,8 +83,8 @@ https://eksctl.io/[eksctl] to manage your EKS cluster. It provides you
 with the ability to https://eksctl.io/usage/cluster-upgrade/[update the
 control plane&#44; manage add-ons&#44; and handle worker node updates]
 out-of-the-box.
-* *Opt for Managed Node Groups or EKS on Fargate* — Streamline and
-automate worker node upgrades by using
+* *Opt for Auto Mode or Managed Node Groups or EKS on Fargate* — Streamline and
+automate worker node upgrades by using https://docs.aws.amazon.com/eks/latest/userguide/automode.html[Auto Mode] or 
 https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS
 managed node groups] or
 https://docs.aws.amazon.com/eks/latest/userguide/fargate.html[EKS on
