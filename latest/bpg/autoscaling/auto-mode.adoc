@@ -104,7 +104,7 @@ be deploying the workload as a Kubernetes https://kubernetes.io/docs/concepts/wo
 
 === What components are running in my cluster data plane when I provision a new EKS Auto Mode cluster?
 
-If you create a cluster with eksctl or the {aws} console, the only pods running in an EKS Auto Mode cluster are Kubernetes Metrics Server pods.  The other components of EKS Auto Mode
+If you create a cluster with eksctl or the AWS console, the only pods running in an EKS Auto Mode cluster are Kubernetes Metrics Server pods.  The other components of EKS Auto Mode
 like Karpenter, the AWS Load Balancer Controller, and the EBS CSI Driver are all running and managed off-cluster.
 
 === What managed components are running to support my new EKS Auto Mode cluster?
