@@ -86,9 +86,7 @@ out-of-the-box.
 * *Opt for Auto Mode or Managed Node Groups* — Streamline and
 automate worker node upgrades by using https://docs.aws.amazon.com/eks/latest/userguide/automode.html[Auto Mode] or 
 https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS
-managed node groups] or
-https://docs.aws.amazon.com/eks/latest/userguide/fargate.html[EKS on
-Fargate]. These options simplify the process and reduce manual
+managed node groups]. These options simplify the process and reduce manual
 intervention.
 * *Utilize kubectl Convert Plugin* — Leverage the
 https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin[kubectl
