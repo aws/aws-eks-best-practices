@@ -14,7 +14,7 @@ resilience of the application. When deployed in an EKS Cluster the
 https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html[AWS
 Load Balancer controller] will create and manage AWS Elastic Load
 Balancers for that cluster. When a Kubernetes Service of type
-LoadBalancer is created, the AWS Load Balancer controller creates a
+LoadBalancer is created, the AWS Load Balancer Controller creates a
 https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html[Network
 Load Balancer (NLB)] which load balances received traffic at Layer 4 of
 the OSI model. While when a Kubernetes Ingress object is created, the
@@ -25,7 +25,7 @@ model.
 
 == Choosing Load Balancer Type
 
-The AWS Elastic Load Balancing portfolio supports the following load
+The AWS Elastic Load Balancing (ELB) portfolio supports the following load
 balancers: Application Load Balancers (ALB), Network Load Balancers
 (NLB), Gateway Load Balancers (GWLB), and Classic Load Balancers (CLB).
 This best practices section will focus on the ALB and NLB which are the
@@ -78,38 +78,21 @@ customers have a number of options for provisioning a load balancer.
 There are two key methods of provisioning load balancers within an EKS
 Cluster.
 
-* Leveraging the AWS Cloud Provider Load balancer Controller (legacy)
+* Leveraging the Service Controller in the AWS Cloud Provider (legacy)
 * Leveraging the AWS Load Balancer Controller (recommended)
 
-By default, Kubernetes Service resources of type LoadBalancer get
-reconciled by the Kubernetes Service Controller that is built into the
-CloudProvider component of the kube-controller-manager or the
-cloud-controller-manager (also known as the in-tree controller).
+By default, the Kubernetes Service Controller, also known as the in-tree controller, reconciles the Kubernetes Service resource of type LoadBalancer.
+This controller is built into the link:https://github.com/kubernetes/cloud-provider-aws[AWS Cloud Provider] component which functions as the Kubernetes link:https://kubernetes.io/docs/concepts/architecture/cloud-controller/[Cloud Controller Manager]. 
 
-The configuration of the provisioned load balancer is controlled by
-annotations that are added to the manifest for the Service or Ingress
-object and are different when using the AWS Load Balancer Controller
-than they are when using the AWS cloud provider load balancer
-controller.
+The configuration of the provisioned Elastic Load Balancer is controlled by
+annotations that must be added to the Kubernetes Service manifest. The annotations that are used by the link:https://cloud-provider-aws.sigs.k8s.io/service_controller/[Service Controller] and link:https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/service/annotations/[AWS Load Balancer Controller] are different.
 
-The AWS Cloud Provider Load balancer Controller is legacy and is
-currently only receiving critical bug fixes. When you create a
-Kubernetes Service of type LoadBalancer, the AWS cloud provider load
-balancer controller creates AWS Classic Load Balancers by default, but
-can also create AWS Network Load Balancers with the correct annotation.
+The Service Controller is legacy and is currently only receiving critical bug fixes. When you create a Kubernetes Service of type LoadBalancer, the Service Controller creates an AWS CLB by default, but can also create AWS NLB if you use the right annotation. It is worth noting that Service Controller does not support Kubernetes Ingress resources and it also does not support IPv6.
 
-The AWS Load Balancer Controller (LBC) has to be installed in the EKS
-clusters and provisions AWS load balancers that point to cluster Service
-or Ingress resources.
+We recommend using the AWS Load Balancer Controller in your EKS
+clusters to reconcile Kubernetes Service and Ingress resources. You must use the right annotations in your Kubernetes Service or Ingress manifest so that AWS Load Balancer Controller owns the reconciliation process. (instead of Service Controller)
 
-If you are utilizing link: https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode]
-the AWS Load Balancer is provided for you automatically; no installation necessary.
-
-In order for the LBC to manage the reconciliation of Kubernetes Service
-resources of type LoadBalancer, you need to offload the reconciliation
-from the in-tree controller to the LBC, explicitly. With
-LoadBalancerClassWith
-`service.beta.kubernetes.io/aws-load-balancer-type` annotation
+If you are utilizing link:https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode] the the AWS Load Balancer Controller is provided for you automatically; no installation is necessary.
 
 == Choosing Load Balancer Target-Type
 
@@ -171,6 +154,18 @@ Load Balancer)
 * `service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip`
 annotation to your Service's Manifest when configuring your Kubernetes
 Service of type LoadBalancer (Network Load Balancer).
+
+== Configuring Load Balancer Health Checks
+
+While Kubernetes provides its own health check mechanisms (detailed in the next section), we recommend implementing ELB health checks as a complementary safeguard that functions outside the Kubernetes control plane. This independent layer continues monitoring your application even during:
+
+* Kubernetes control plane disruptions
+* Probe execution delays
+* Network partitions between kubelet and pod
+
+For critical workloads requiring maximum availability accelerated recovery during the scenarios mentioned above, ELB health checks provide an essential safety net that works alongside — not in place of — Kubernetes' native mechanisms. 
+
+In order to configure and fine tune health checks on your ELB, you must use annotations in your Kubernetes Service or Ingress manifest that would be reconcilced by Service Controller or AWS Load Balancer Controller. 
 
 == Availability and Pod Lifecycle
 
