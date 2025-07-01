@@ -20,6 +20,8 @@ include::aiml_compute.adoc[leveloffset=+1]
 
 include::aiml_networking.adoc[leveloffset=+1]
 
+include::aiml_security.adoc[leveloffset=+1]
+
 include::aiml_storage.adoc[leveloffset=+1]
 
 include::aiml_observability.adoc[leveloffset=+1]
