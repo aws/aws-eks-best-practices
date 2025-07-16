@@ -1,0 +1,2592 @@
+
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../prefix-mode/index_windows/">
+      
+      
+        <link rel="next" href="../loadbalancing/loadbalancing/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>파드 보안 그룹 할당 - EKS 모범 사례 가이드</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-VQGL8B2FH8"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-VQGL8B2FH8",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-VQGL8B2FH8",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  
+  
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#security-group-for-pod-sgp" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+<h2 style="color:#F2F2F2;text-align: center;"><b> The EKS Best Practices Guide has moved to the <a style="color:#ff9900;text-decoration: underline" href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html">AWS Documentation</a></u>. Check there for the latest updates. </b></h2>
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="상단/헤더">
+    <a href="../../" title="EKS 모범 사례 가이드" class="md-header__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            EKS 모범 사례 가이드
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              파드 보안 그룹 할당
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="언어설정">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../networking/sgpp/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="ko" class="md-select__link">
+              한국어
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="검색" placeholder="검색" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="검색">
+        
+        <button type="reset" class="md-search__icon md-icon" title="지우기" aria-label="지우기" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            검색 초기화
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="네비게이션" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="EKS 모범 사례 가이드" class="md-nav__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    EKS 모범 사례 가이드
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    가이드
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            가이드
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    소개
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    보안
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            보안
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/iam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인증 및 접근 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/pods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/multitenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 테넌시
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/detective/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    탐지 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 암호화 및 시크릿 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    런타임 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴플라이언스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/incidents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    사고 대응 및 포렌식
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    이미지 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/docs/multiaccount/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 어카운트 전략
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    클러스터 오토스케일링
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            클러스터 오토스케일링
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../karpenter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Karpenter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cluster-autoscaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cluster Autoscaler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    신뢰성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            신뢰성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reliability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reliability/docs/application/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    애플리케이션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reliability/docs/controlplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reliability/docs/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            네트워크
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../subnets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    VPC 및 서브넷 고려사항
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vpc-cni/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Amazon VPC CNI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ip-optimization-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IP 주소 사용 최적화
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipv6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPv6 클러스터 운영
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom 네트워킹
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prefix-mode/index_linux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 리눅스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prefix-mode/index_windows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 윈도우
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    파드 보안 그룹 할당
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안 그룹 할당
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="권장 사항">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tcp-early-demux" class="md-nav__link">
+    <span class="md-ellipsis">
+      활성 프로브를 위한 TCP Early Demux 기능 비활성화
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pod용 보안 그룹을 사용하여 기존 AWS 구성을 활용하십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforcing" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드용 보안 그룹 Enforcing 모드 구성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforcing-strict" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enforcing 모드: 파드 및 노드 트래픽을 격리하기 위해 Strict 모드를 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforcing-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enforcing 모드: 다음 상황에서는 Standard 모드를 ​​사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드당 보안 그룹과의 비호환성 식별
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드당 보안 그룹을 사용하여 AWS 서비스에 대한 트래픽을 효율적으로 제어
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws-loadbalancer-controller" class="md-nav__link">
+    <span class="md-ellipsis">
+      AWS Loadbalancer Controller를 사용하도록 단일 보안 그룹에 태그 지정
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nat" class="md-nav__link">
+    <span class="md-ellipsis">
+      아웃바운드 트래픽에 대한 NAT 구성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      보안 그룹이 있는 파드를 프라이빗 서브넷에 배포
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terminationgraceperiodseconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드 스펙에서 terminationGracePeriodSeconds 부분 확인
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fargate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fargate를 이용하는 파드용 보안 그룹 사용
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../loadbalancing/loadbalancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로드 밸런싱
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 성능 문제에 대한 EKS 워크로드 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ipvs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPVS 모드에서 kube-proxy 실행
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    확장성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            확장성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/control-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/data-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/cluster-services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 서비스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/workloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    워크로드
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/scaling_theory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    확장에 대한 이론
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/kcp_monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/node_efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    노드 및 워크로드 효율성
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/kubernetes_slos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    쿠버네티스 SLO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../scalability/docs/quotas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    알려진 제한 및 서비스 할당량
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../upgrades/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 업그레이드
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    비용 최적화
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            비용 최적화
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost_optimization/cost_optimization_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost_optimization/cfm_framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클라우드 재무 관리 프레임워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost_optimization/awareness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Awareness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost_optimization/cost_opt_compute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴퓨팅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost_optimization/cost_opt_networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost_optimization/cost_opt_storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cost_optimization/cost_opt_observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    옵저버빌리티
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            윈도우 컨테이너
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/ami/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AMI 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/gmsa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    gMSA 윈도우 컨테이너
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 서버 하드닝
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 이미지 스캔
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/licensing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 버전 및 라이선스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로깅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/oom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    메모리 및 시스템 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스케줄링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../windows/docs/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지 옵션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="권장 사항">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tcp-early-demux" class="md-nav__link">
+    <span class="md-ellipsis">
+      활성 프로브를 위한 TCP Early Demux 기능 비활성화
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pod용 보안 그룹을 사용하여 기존 AWS 구성을 활용하십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforcing" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드용 보안 그룹 Enforcing 모드 구성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforcing-strict" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enforcing 모드: 파드 및 노드 트래픽을 격리하기 위해 Strict 모드를 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforcing-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enforcing 모드: 다음 상황에서는 Standard 모드를 ​​사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드당 보안 그룹과의 비호환성 식별
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드당 보안 그룹을 사용하여 AWS 서비스에 대한 트래픽을 효율적으로 제어
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws-loadbalancer-controller" class="md-nav__link">
+    <span class="md-ellipsis">
+      AWS Loadbalancer Controller를 사용하도록 단일 보안 그룹에 태그 지정
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nat" class="md-nav__link">
+    <span class="md-ellipsis">
+      아웃바운드 트래픽에 대한 NAT 구성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      보안 그룹이 있는 파드를 프라이빗 서브넷에 배포
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terminationgraceperiodseconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      파드 스펙에서 terminationGracePeriodSeconds 부분 확인
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fargate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fargate를 이용하는 파드용 보안 그룹 사용
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="security-group-for-pod-sgp">파드용 보안 그룹 (Security Group for Pod, SGP)<a class="headerlink" href="#security-group-for-pod-sgp" title="Permanent link">&para;</a></h1>
+<p>AWS 보안 그룹은 인바운드 및 아웃바운드 트래픽을 제어하기 위해 EC2 인스턴스에 대한 가상 방화벽의 역할을 수행합니다. 기본적으로 Amazon VPC CNI는 노드의 ENI와 연결된 보안 그룹을 사용합니다. 따라서 모든 파드는 기본적으로 파드가 동작하는 노드와 동일한 보안 그룹을 공유하여 이용합니다.</p>
+<p>아래 그림에서 볼 수 있듯이, 워커 노드에서 동작하는 모든 애플리케이션 파드는 RDS 데이터베이스 서비스에 액세스할 수 있습니다. (RDS 인바운드가 노드의 보안 그룹을 허용한다는 가정하에). 보안 그룹은 노드에서 실행되는 모든 파드에 적용되기 때문에 큰 그룹 단위로 보안 규칙이 적용됩니다. 파드용 보안 그룹 기능을 이용하면 각 Pod별로 보안 규칙을 설정할 수 있으며, 이는 세세한 보안 전략을 세울수 있도록 도와줍니다.</p>
+<p><img alt="illustration of node with security group connecting to RDS" src="../../../networking/sgpp/image.png" /> 
+파드용 보안 그룹을 사용하면 공유 컴퓨팅 리소스에서 다양한 네트워크 보안 요구 사항을 가진 애플리케이션을 실행하여 컴퓨팅 효율성을 개선할 수 있습니다. EC2 보안 그룹과 함께 파드와 파드 사이 또는 파드에서 외부 AWS 서비스와 같은 여러 유형의 보안 규칙을 한 곳에서 정의하고 Kubernetes 네이티브 API를 사용하여 워크로드에 적용할 수 있습니다. 아래의 그림은 파드 수준에서 적용된 보안 그룹을 나타내고 있으며, 이런 보안 그룹이 애플리케이션 배포 및 노드 아키텍처를 간소화하는 방법을 보여줍니다. 이제 파드에서 Amazon RDS 데이터베이스에 액세스할 수 있습니다.</p>
+<p><img alt="illustration of pod and node with different security groups connecting to RDS" src="../../../networking/sgpp/image-2.png" /></p>
+<p>VPC CNI에 대해 <code>ENABLE_POD_ENI=true</code>로 설정하여 파드에 대한 보안 그룹을 활성화할 수 있습니다. 활성화되면 EKS의 컨트롤 플레인에서 실행되는 "<a href="https://github.com/aws/amazon-vpc-resource-controller-k8s">VPC 리소스 컨트롤러</a>"가 "aws-k8s-trunk-eni"라는 트렁크 인터페이스를 생성하여 노드에 연결합니다. 트렁크 인터페이스는 인스턴스에 연결된 표준 네트워크 인터페이스 역할을 합니다. 트렁크 인터페이스를 관리하려면 Amazon EKS 클러스터와 함께 제공되는 클러스터 역할에 'AmazonEKSVPCResourceController' 관리형 정책을 추가해야 합니다.</p>
+<p>또한 컨트롤러는 "aws-k8s-branch-eni"라는 브랜치 인터페이스를 생성하여 트렁크 인터페이스와 연결합니다. 파드는 <a href="https://github.com/aws/amazon-vpc-resource-controller-k8s/blob/master/config/crd/bases/vpcresources.k8s.aws_securitygrouppolicies.yaml">SecurityGroupPolicy</a> 커스텀 리소스를 사용하여 보안 그룹을 할당받고 브랜치 인터페이스와 연결됩니다. 보안 그룹은 네트워크 인터페이스 단위로 지정되므로, 이제 이런 추가 네트워크 인터페이스에서 특정 보안 그룹을 필요로 하는 파드를 스케줄링할 수 있습니다. 배포 사전 요구 사항을 포함하여 <a href="https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html">파드용 보안 그룹에 대한 EKS 사용자 가이드 섹션</a>에서 좀더 자세한 내용들을 확인할 수 있습니다.</p>
+<p><img alt="illustration of worker subnet with security groups associated with ENIs" src="../../../networking/sgpp/image-3.png" /></p>
+<p>분기 인터페이스 용량은 보조 IP 주소에 대한 기존 인스턴스 유형 제한에 <em>추가</em>됩니다. 보안 그룹을 사용하는 파드는 max-pods 공식에서 고려되지 않으며 파드에 보안 그룹을 사용하는 경우 max-pods 값을 높이는 것을 고려하거나 노드가 실제로 지원할 수 있는 것보다 적은 수의 파드를 실행해도 괜찮습니다.</p>
+<p>m5.large에는 최대 9개의 분기 네트워크 인터페이스가 있을 수 있으며 표준 네트워크 인터페이스에 최대 27개의 보조 IP 주소가 할당될 수 있습니다. 아래 예에 표시된 것처럼 m5.large의 기본 max-pods는 29이며 EKS는 보안 그룹을 사용하는 Pod를 최대 Pod 수로 계산합니다. 노드의 max-pods를 변경하는 방법에 대한 지침은 <a href="https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html">EKS 사용자 가이드</a>를 참조하십시오.</p>
+<p>파드용 보안 그룹을 <a href="https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html">사용자 지정 네트워킹</a>과 함께 사용하는 경우, ENIConfig에 지정된 보안 그룹 대신 파드용 보안 그룹에 정의된 보안 그룹이 사용됩니다. 따라서 사용자 지정 네트워킹이 활성화되면 파드별 보안 그룹을 사용하면서 보안 그룹 순서를 신중하게 살펴봐야 합니다.</p>
+<h2 id="_1">권장 사항<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="tcp-early-demux">활성 프로브를 위한 TCP Early Demux 기능 비활성화<a class="headerlink" href="#tcp-early-demux" title="Permanent link">&para;</a></h3>
+<p>활성 또는 준비 상태 프로브를 사용하는 경우, kubelet이 TCP를 통해 브랜치 네트워크 인터페이스의 파드에 연결할 수 있도록 TCP Early Dmux 기능을 비활성화 해야 합니다. 이는 엄격 모드에서만 필요합니다. 이 작업을 수행하려면 다음 명령을 실행합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl edit daemonset aws-node -n kube-system
+</code></pre></div>
+<p><code>초기화 컨테이너</code> 섹션에서 <code>DISABLE_TCP_EARLY_DEMUX</code>의 값을 <code>true</code>로 변경합니다.</p>
+<h3 id="pod-aws">Pod용 보안 그룹을 사용하여 기존 AWS 구성을 활용하십시오.<a class="headerlink" href="#pod-aws" title="Permanent link">&para;</a></h3>
+<p>보안 그룹을 사용하면 RDS 데이터베이스 또는 EC2 인스턴스와 같은 VPC 리소스에 대한 네트워크 액세스를 더 쉽게 제한할 수 있습니다. 파드용 보안 그룹의 분명한 이점 중 하나는 기존 AWS 보안 그룹 리소스를 재사용할 수 있다는 것입니다.
+보안 그룹을 네트워크 방화벽으로 사용하여 AWS 서비스에 대한 액세스를 제한하는 경우, 브랜치 ENI를 사용하여 파드에 보안 그룹을 적용하는 것이 좋습니다. EC2 인스턴스에서 EKS로 앱을 전송하고 보안 그룹을 통해 다른 AWS 서비스에 대한 액세스를 제한하는 경우 파드용 보안 그룹을 사용하는 것을 고려해 보십시오.</p>
+<h3 id="enforcing">파드용 보안 그룹 Enforcing 모드 구성<a class="headerlink" href="#enforcing" title="Permanent link">&para;</a></h3>
+<p>Amazon VPC CNI 플러그인 버전 1.11에는 <code>POD_SECURITY_GROUP_ENFORCING_MODE</code>("enforcing 모드")라는 새로운 설정이 추가되었습니다. 적용 모드는 파드에 적용되는 보안 그룹과 소스 NAT 활성화 여부를 모두 제어합니다. 적용 모드를 엄격 또는 표준으로 지정할 수 있습니다. 엄격이 기본값이며 <code>ENABLE_POD_ENI</code>가 <code>true</code>로 설정된 VPC CNI의 이전 동작을 반영합니다.</p>
+<p>Strict 모드에서는 분기 ENI 보안 그룹만 적용됩니다. 소스 NAT도 비활성화됩니다.</p>
+<p>Standard 모드에서는 기본 ENI 및 분기 ENI(파드와 연결됨)와 연결된 보안 그룹이 적용됩니다. 네트워크 트래픽은 두 보안 그룹을 모두 준수해야 합니다.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>모든 모드 변경은 새로 출시된 파드에만 영향을 미칩니다. 기존 파드는 파드가 생성될 때 구성된 모드를 사용한다. 고객은 트래픽 동작을 변경하려는 경우 보안 그룹과 함께 기존 파드를 재활용해야 합니다.</p>
+</div>
+<h3 id="enforcing-strict">Enforcing 모드: 파드 및 노드 트래픽을 격리하기 위해 Strict 모드를 사용<a class="headerlink" href="#enforcing-strict" title="Permanent link">&para;</a></h3>
+<p>기본적으로 Pod의 보안 그룹은 “Strict 모드”로 설정됩니다. 파드 트래픽을 나머지 노드 트래픽과 완전히 분리해야 하는 경우 이 설정을 사용한다. Strict 모드에서는 소스 NAT가 꺼져 브랜치 ENI 아웃바운드 보안 그룹을 사용할 수 있습니다. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>모든 모드 변경은 새로 실행된 파드에만 영향을 미칩니다. 기존 파드는 파드가 생성될 때 구성된 모드를 사용합니다. 고객이 트래픽 동작을 변경하려면 보안 그룹이 포함된 기존 파드를 재활용해야 합니다.</p>
+</div>
+<h3 id="enforcing-standard">Enforcing 모드: 다음 상황에서는 Standard 모드를 ​​사용<a class="headerlink" href="#enforcing-standard" title="Permanent link">&para;</a></h3>
+<p><strong>파드의 컨테이너에 표시되는 클라이언트 소스 IP</strong></p>
+<p>클라이언트 소스 IP를 파드의 컨테이너에 표시되도록 유지해야 하는 경우 <code>POD_SECURITY_GROUP_ENFORCING_MODE</code>를 <code>standard</code>으로 설정하는 것이 좋습니다. Kubernetes 서비스는 클라이언트 소스 IP(기본 유형 클러스터) 보존을 지원하기 위해 externalTrafficPolicy=local을 지원합니다. 이제 표준 모드에서 externalTrafficPolicy가 Local로 설정된 인스턴스 대상을 사용하여 NodePort 및 LoadBalancer 유형의 Kubernetes 서비스를 실행할 수 있습니다. <code>Local</code>은 클라이언트 소스 IP를 유지하고 LoadBalancer 및 NodePort 유형 서비스에 대한 두 번째 홉을 방지합니다.</p>
+<p><strong>NodeLocal DNSCache 배포</strong></p>
+<p>파드에 보안 그룹을 사용하는 경우 <a href="https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/">NodeLocal DNSCache</a>를 사용하는 파드를 지원하도록 표준 모드를 ​​구성합니다. NodeLocal DNSCache는 클러스터 노드에서 DNS 캐싱 에이전트를 DaemonSet으로 실행하여 클러스터 DNS 성능을 향상시킵니다. 이렇게 하면 DNS QPS 요구 사항이 가장 높은 파드가 로컬 캐시가 있는 로컬 kube-dns/CoreDNS를 쿼리하는 데 도움이 되어 대기 시간이 향상됩니다.</p>
+<p>NodeLocal DNSCache는 노드에 대한 모든 네트워크 트래픽이 VPC로 진입하므로 strict 모드에서는 지원되지 않습니다.</p>
+<p><strong>Kubernetes 네트워크 정책 지원</strong></p>
+<p>연결된 보안 그룹이 있는 파드에 네트워크 정책을 사용할 때는 표준 시행 모드를 사용하는 것이 좋습니다.</p>
+<p>클러스터에 속하지 않은 AWS 서비스에 대한 네트워크 수준 액세스를 제한하려면 파드용 보안 그룹을 활용하는 것이 좋습니다. 클러스터 내부 파드 간의 네트워크 트래픽(종종 East/West 트래픽이라고도 함)을 제한하려면 네트워크 정책을 고려하세요.</p>
+<h3 id="_2">파드당 보안 그룹과의 비호환성 식별<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>Windows 기반 및 비 Nitro 인스턴스는 파드에 대한 보안 그룹을 지원하지 않습니다. 파드에서 보안 그룹을 활용하려면 인스턴스에 isTrunkingEnabled 태그를 지정해야 합니다. 파드가 VPC 내부 또는 외부의 AWS 서비스에 의존하지 않는 경우 네트워크 정책을 사용하여 보안 그룹이 아닌 파드 간의 액세스를 관리합니다.</p>
+<h3 id="aws">파드당 보안 그룹을 사용하여 AWS 서비스에 대한 트래픽을 효율적으로 제어<a class="headerlink" href="#aws" title="Permanent link">&para;</a></h3>
+<p>EKS 클러스터 내에서 실행되는 애플리케이션이 VPC 내의 다른 리소스와 통신해야 하는 경우. RDS 데이터베이스를 구축한 다음 파드에 SG를 사용하는 것을 권장 드립니다. CIDR 또는 DNS 이름을 지정할 수 있는 정책 엔진이 있지만 VPC 내에 엔드포인트가 있는 AWS 서비스와 통신할 때는 덜 최적의 선택입니다.</p>
+<p>이와 대조적으로 Kubernetes <a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">네트워크 정책</a>은 클러스터 내부 및 외부 모두에서 수신 및 송신 트래픽을 제어하기 위한 메커니즘을 제공합니다. 애플리케이션이 다른 AWS 서비스에 대한 종속성이 제한적인 경우 Kubernetes 네트워크 정책을 고려해야 합니다. SG와 같은 AWS 기본 의미 체계와 반대로 AWS 서비스에 대한 액세스를 제한하기 위해 CIDR 범위를 기반으로 송신 규칙을 지정하는 네트워크 정책을 구성할 수 있습니다. Kubernetes 네트워크 정책을 사용하여 파드 간(종종 East/West 트래픽이라고도 함) 및 파드와 외부 서비스 간의 네트워크 트래픽을 제어할 수 있습니다. Kubernetes 네트워크 정책은 OSI 레벨 3과 4에서 구현됩니다.</p>
+<p>Amazon EKS를 사용하면 <a href="https://projectcalico.docs.tigera.io/getting-started/kubernetes/managed-public-cloud/eks">Calico</a> 및 <a href="https://와 같은 네트워크 정책 엔진을 사용할 수 있습니다. docs.cilium.io/en/stable/intro/">Cilium</a>. 기본적으로 네트워크 정책 엔진은 설치되지 않습니다. 설정 방법에 대한 지침은 해당 설치 가이드를 확인하세요. 네트워크 정책 사용 방법에 대한 자세한 내용은 <a href="https://aws.github.io/aws-eks-best-practices/security/docs/network/#network-policy">EKS 보안 모범 사례</a>를 참조하세요. DNS 호스트 이름 기능은 엔터프라이즈 버전의 네트워크 정책 엔진에서 사용할 수 있으며, 이는 Kubernetes 서비스/파드와 AWS 외부에서 실행되는 리소스 간의 트래픽을 제어하는 ​​데 유용할 수 있습니다. 또한 기본적으로 보안 그룹을 지원하지 않는 AWS 서비스에 대한 DNS 호스트 이름 지원을 고려할 수 있습니다.</p>
+<h3 id="aws-loadbalancer-controller">AWS Loadbalancer Controller를 사용하도록 단일 보안 그룹에 태그 지정<a class="headerlink" href="#aws-loadbalancer-controller" title="Permanent link">&para;</a></h3>
+<p>많은 보안 그룹이 파드에 할당된 경우 Amazon EKS는 공유 또는 소유된 <a href="http://kubernetes.io/cluster/$name"><code>kubernetes.io/cluster/$name</code></a>으로 단일 보안 그룹에 태그를 지정할 것을 권장합니다. 태그를 사용하면 AWS Loadbalancer Controller가 보안 그룹의 규칙을 업데이트하여 트래픽을 파드로 라우팅할 수 있습니다. 파드에 하나의 보안 그룹만 제공되는 경우 태그 할당은 선택 사항입니다. 보안 그룹에 설정된 권한은 추가되므로 로드밸런서 컨트롤러가 규칙을 찾고 조정하려면 단일 보안 그룹에 태그를 지정하는 것으로 충분합니다. 또한 보안 그룹에서 정의한 <a href="https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups">기본 할당량</a>을 준수하는 데 도움이 됩니다.</p>
+<h3 id="nat">아웃바운드 트래픽에 대한 NAT 구성<a class="headerlink" href="#nat" title="Permanent link">&para;</a></h3>
+<p>소스 NAT는 보안 그룹이 할당된 파드의 아웃바운드 트래픽에 대해 비활성화됩니다. 인터넷 액세스가 필요한 보안 그룹을 사용하는 파드의 경우 NAT 게이트웨이 또는 인스턴스로 구성된 프라이빗 서브넷에서 워커 노드를 시작하고 CNI에서 <a href="https://docs.aws.amazon.com/eks/latest/userguide/external-snat.html">외부 SNAT</a>를 활성화합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl set env daemonset -n kube-system aws-node AWS_VPC_K8S_CNI_EXTERNALSNAT=true
+</code></pre></div>
+<h3 id="_3">보안 그룹이 있는 파드를 프라이빗 서브넷에 배포<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>보안 그룹이 할당된 파드는 프라이빗 서브넷에 배포된 노드에서 실행되어야 합니다. 단 퍼블릭 서브넷에 배포된 보안 그룹이 할당된 파드는 인터넷에 액세스할 수 없습니다.</p>
+<h3 id="terminationgraceperiodseconds">파드 스펙에서 <em>terminationGracePeriodSeconds</em> 부분 확인<a class="headerlink" href="#terminationgraceperiodseconds" title="Permanent link">&para;</a></h3>
+<p>파드 사양 파일에서 'terminationGracePeriodSeconds'가 0이 아닌지 확인하세요. (기본값 30초) 이는 Amazon VPC CNI가 워커 노드에서 파드 네트워크를 삭제하는 데 필수적입니다. 0으로 설정하면 CNI 플러그인이 호스트에서 파드 네트워크를 제거하지 않으며 분기 ENI가 효과적으로 정리되지 않습니다.</p>
+<h3 id="fargate">Fargate를 이용하는 파드용 보안 그룹 사용<a class="headerlink" href="#fargate" title="Permanent link">&para;</a></h3>
+<p>Fargate에서 실행되는 파드의 보안 그룹은 EC2 워커 노드에서 실행되는 파드와 매우 유사하게 작동한다. 예를 들어 Fargate 파드에 연결하는 보안 그룹 정책에서 보안 그룹을 참조하기 전에 먼저 보안 그룹을 생성해야 합니다.기본적으로 보안 그룹 정책을 Fargate 파드에 명시적으로 할당하지 않으면 <a href="https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html">클러스터 보안 그룹</a>이 모든 Fargate 파드에 할당됩니다. 단순화를 위해 Fagate Pod의 SecurityGroupPolicy에 클러스터 보안 그룹을 추가할 수도 있습니다. 그렇지 않으면 보안 그룹에 최소 보안 그룹 규칙을 추가해야 합니다. 설명 클러스터 API를 사용하여 클러스터 보안 그룹을 찾을 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="w"> </span>aws<span class="w"> </span>eks<span class="w"> </span>describe-cluster<span class="w"> </span>--name<span class="w"> </span>CLUSTER_NAME<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;cluster.resourcesVpcConfig.clusterSecurityGroupId&#39;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cat<span class="w"> </span>&gt;my-fargate-sg-policy.yaml<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="s">apiVersion: vpcresources.k8s.aws/v1beta1</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s">kind: SecurityGroupPolicy</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="s">metadata:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s">  name: my-fargate-sg-policy</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s">  namespace: my-fargate-namespace</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s">spec:</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="s">  podSelector: </span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="s">    matchLabels:</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s">      role: my-fargate-role</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="s">  securityGroups:</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="s">    groupIds:</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s">      - cluster_security_group_id</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s">      - my_fargate_pod_security_group_id</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="s">EOF</span>
+</code></pre></div>
+<p>최소 보안 그룹 규칙은 <a href="https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html">여기</a>에 나와 있습니다. 이런 규칙을 통해 Fargate 파드는 kube-apiserver, kubelet, CoreDNS와 같은 클러스터 내 서비스와 통신할 수 있다. 또한 Fargate 파드와의 인바운드 및 아웃바운드 연결을 허용하는 규칙을 추가해야 합니다. 이렇게 하면 파드가 VPC의 다른 파드나 리소스와 통신할 수 있게 된다. 또한 Fargate가 Amazon ECR 또는 DockerHub와 같은 다른 컨테이너 레지스트리에서 컨테이너 이미지를 가져오도록 하는 규칙을 포함해야 합니다. 자세한 내용은 <a href="https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html">AWS 일반 참조</a>의 AWS IP 주소 범위를 참조하십시오.</p>
+<p>아래 명령을 사용하여 Fargate Pod에 적용된 보안 그룹을 찾을 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>FARGATE_POD<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.metadata.annotations.vpc\.amazonaws\.com/pod-eni}{&quot;\n&quot;}&#39;</span>
+</code></pre></div>
+<p>위 명령의 ENI ID를 적어 둡니다. </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>aws<span class="w"> </span>ec2<span class="w"> </span>describe-network-interfaces<span class="w"> </span>--network-interface-ids<span class="w"> </span>ENI_ID<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;NetworkInterfaces[*].Groups[*]&#39;</span>
+</code></pre></div>
+<p>새 보안 그룹을 적용하려면 기존 Fargate 파드를 삭제하고 다시 만들어야 합니다. 예를 들어 다음 명령은 example-app 배포를 시작합니다. 특정 파드를 업데이트하려면 아래 명령어에서 네임스페이스와 디플로이먼트 이름을 변경할 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>-n<span class="w"> </span>example-ns<span class="w"> </span>deployment<span class="w"> </span>example-pod
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["tabs", "content.code.copy", "header.autohide"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ub428", "clipboard.copy": "\ud074\ub9bd\ubcf4\ub4dc\ub85c \ubcf5\uc0ac", "search.result.more.one": "\uc774 \ubb38\uc11c\uc5d0\uc11c 1\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.more.other": "\uc774 \ubb38\uc11c\uc5d0\uc11c #\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.none": "\uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 \ubb38\uc11c\uac00 \uc5c6\uc2b5\ub2c8\ub2e4", "search.result.one": "1\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.other": "#\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.placeholder": "\uac80\uc0c9\uc5b4\ub97c \uc785\ub825\ud558\uc138\uc694", "search.result.term.missing": "\ud3ec\ud568\ub418\uc9c0 \uc54a\uc740 \uac80\uc0c9\uc5b4", "select.version": "\ubc84\uc804 \uc120\ud0dd"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

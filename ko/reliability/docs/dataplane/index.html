@@ -1,0 +1,2862 @@
+
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../controlplane/">
+      
+      
+        <link rel="next" href="../../../networking/index/">
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>데이터 플레인 - EKS 모범 사례 가이드</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-VQGL8B2FH8"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-VQGL8B2FH8",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-VQGL8B2FH8",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  
+  
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#eks" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+<h2 style="color:#F2F2F2;text-align: center;"><b> The EKS Best Practices Guide has moved to the <a style="color:#ff9900;text-decoration: underline" href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html">AWS Documentation</a></u>. Check there for the latest updates. </b></h2>
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="상단/헤더">
+    <a href="../../../" title="EKS 모범 사례 가이드" class="md-header__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            EKS 모범 사례 가이드
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              데이터 플레인
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="언어설정">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../../reliability/docs/dataplane/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="ko" class="md-select__link">
+              한국어
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="검색" placeholder="검색" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="검색">
+        
+        <button type="reset" class="md-search__icon md-icon" title="지우기" aria-label="지우기" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            검색 초기화
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="네비게이션" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../" title="EKS 모범 사례 가이드" class="md-nav__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    EKS 모범 사례 가이드
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    가이드
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            가이드
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    소개
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    보안
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            보안
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/iam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인증 및 접근 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/pods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/multitenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 테넌시
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/detective/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    탐지 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 암호화 및 시크릿 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    런타임 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴플라이언스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/incidents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    사고 대응 및 포렌식
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    이미지 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/docs/multiaccount/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 어카운트 전략
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    클러스터 오토스케일링
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            클러스터 오토스케일링
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../karpenter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Karpenter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cluster-autoscaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cluster Autoscaler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    신뢰성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            신뢰성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../application/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    애플리케이션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../controlplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="권장 사항">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec2" class="md-nav__link">
+    <span class="md-ellipsis">
+      EC2 오토 스케일링 그룹을 사용하여 워커 노드 생성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 Cluster Autoscaler를 사용하여 노드를 확장하세요
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cluster Autoscaler를 사용하여 오버 프로비저닝을 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      여러 오토 스케일링 그룹과 함께 Cluster Autoscaler 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      로컬 스토리지와 함께 Cluster Autoscaler 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#az" class="md-nav__link">
+    <span class="md-ellipsis">
+      워커 노드와 워크로드를 여러 AZ에 분산합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ebs-az" class="md-nav__link">
+    <span class="md-ellipsis">
+      EBS 볼륨을 사용할 때 각 AZ의 용량을 확보하십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      노드 문제 감지기 실행
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      시스템 및 쿠버네티스 데몬을 위한 리소스 예약
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qos" class="md-nav__link">
+    <span class="md-ellipsis">
+      QoS 구현
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      모든 워크로드에 대한 리소스 요청/제한 구성 및 크기 조정
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      네임스페이스의 리소스 할당량 구성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      네임스페이스 내에서 컨테이너 리소스 사용을 제한합니다.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coredns" class="md-nav__link">
+    <span class="md-ellipsis">
+      CoreDNS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="권장 사항">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      핵심 DNS 지표 모니터링
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dns_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      노드 로컬 DNS 캐시 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coredns-cluster-proportional-scaler" class="md-nav__link">
+    <span class="md-ellipsis">
+      CoreDNS의 cluster-proportional-scaler를 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ami" class="md-nav__link">
+    <span class="md-ellipsis">
+      노드 그룹이 있는 AMI 선택
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            네트워크
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/subnets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    VPC 및 서브넷 고려사항
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/vpc-cni/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Amazon VPC CNI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/ip-optimization-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IP 주소 사용 최적화
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/ipv6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPv6 클러스터 운영
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/custom-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom 네트워킹
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/prefix-mode/index_linux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 리눅스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/prefix-mode/index_windows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 윈도우
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/sgpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안 그룹 할당
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/loadbalancing/loadbalancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로드 밸런싱
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 성능 문제에 대한 EKS 워크로드 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../networking/ipvs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPVS 모드에서 kube-proxy 실행
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    확장성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            확장성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/control-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/data-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/cluster-services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 서비스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/workloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    워크로드
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/scaling_theory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    확장에 대한 이론
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/kcp_monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/node_efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    노드 및 워크로드 효율성
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/kubernetes_slos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    쿠버네티스 SLO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../scalability/docs/quotas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    알려진 제한 및 서비스 할당량
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../upgrades/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 업그레이드
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    비용 최적화
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            비용 최적화
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cost_optimization/cost_optimization_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cost_optimization/cfm_framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클라우드 재무 관리 프레임워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cost_optimization/awareness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Awareness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cost_optimization/cost_opt_compute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴퓨팅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cost_optimization/cost_opt_networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cost_optimization/cost_opt_storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cost_optimization/cost_opt_observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    옵저버빌리티
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            윈도우 컨테이너
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/ami/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AMI 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/gmsa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    gMSA 윈도우 컨테이너
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 서버 하드닝
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 이미지 스캔
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/licensing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 버전 및 라이선스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로깅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/oom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    메모리 및 시스템 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스케줄링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../windows/docs/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지 옵션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="권장 사항">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec2" class="md-nav__link">
+    <span class="md-ellipsis">
+      EC2 오토 스케일링 그룹을 사용하여 워커 노드 생성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 Cluster Autoscaler를 사용하여 노드를 확장하세요
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cluster Autoscaler를 사용하여 오버 프로비저닝을 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      여러 오토 스케일링 그룹과 함께 Cluster Autoscaler 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cluster-autoscaler_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      로컬 스토리지와 함께 Cluster Autoscaler 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#az" class="md-nav__link">
+    <span class="md-ellipsis">
+      워커 노드와 워크로드를 여러 AZ에 분산합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ebs-az" class="md-nav__link">
+    <span class="md-ellipsis">
+      EBS 볼륨을 사용할 때 각 AZ의 용량을 확보하십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      노드 문제 감지기 실행
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      시스템 및 쿠버네티스 데몬을 위한 리소스 예약
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qos" class="md-nav__link">
+    <span class="md-ellipsis">
+      QoS 구현
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      모든 워크로드에 대한 리소스 요청/제한 구성 및 크기 조정
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      네임스페이스의 리소스 할당량 구성
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      네임스페이스 내에서 컨테이너 리소스 사용을 제한합니다.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coredns" class="md-nav__link">
+    <span class="md-ellipsis">
+      CoreDNS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="권장 사항">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      핵심 DNS 지표 모니터링
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dns_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      노드 로컬 DNS 캐시 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coredns-cluster-proportional-scaler" class="md-nav__link">
+    <span class="md-ellipsis">
+      CoreDNS의 cluster-proportional-scaler를 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ami" class="md-nav__link">
+    <span class="md-ellipsis">
+      노드 그룹이 있는 AMI 선택
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="eks">EKS 데이터 플레인<a class="headerlink" href="#eks" title="Permanent link">&para;</a></h1>
+<p>가용성과 복원력이 뛰어난 애플리케이션을 운영하려면 가용성과 복원력이 뛰어난 데이터 플레인이 필요합니다. 탄력적인 데이터 플레인을 사용하면 쿠버네티스가 애플리케이션을 자동으로 확장하고 복구할 수 있습니다. 복원력이 뛰어난 데이터 플레인은 2개 이상의 워커 노드로 구성되며, 워크로드에 따라 확장 및 축소될 수 있으며 장애 발생 시 자동으로 복구할 수 있습니다.</p>
+<p>EKS를 사용하는 워커 노드에는 <a href="https://docs.aws.amazon.com/eks/latest/userguide/worker.html">EC2 인스턴스</a>와 [Fargate] (https://docs.aws.amazon.com/eks/latest/userguide/fargate.html)라는 두 가지 옵션이 있습니다. EC2 인스턴스를 선택하면 워커 노드를 직접 관리하거나 <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">EKS 관리 노드 그룹</a>을 사용할 수 있습니다. 관리형 워커 노드와 자체 관리형 워커 노드와 Fargate가 혼합된 클러스터를 구성할 수 있습니다. </p>
+<p>Fargate의 EKS는 복원력이 뛰어난 데이터 플레인을 위한 가장 쉬운 방법을 제공합니다. Fargate는 격리된 컴퓨팅 환경에서 각 파드를 실행합니다. Fargate에서 실행되는 각 파드에는 자체 워커 노드가 있습니다. 쿠버네티스가 파드를 확장함에 따라 Fargate는 데이터 플레인을 자동으로 확장합니다. <a href="https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html">horizontal pod autoscaler</a>를 사용하여 데이터 플레인과 워크로드를 모두 확장할 수 있습니다.</p>
+<p>EC2 워커 노드를 확장하는 데 선호되는 방법은 <a href="https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md">쿠버네티스 Cluster Autoscaler</a>, <a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html">EC2 Auto Scaling 그룹</a> 또는 <a href="https://github.com/atlassian/escalator">Atlassian's Esclator</a>와 같은 커뮤니티 프로젝트를 사용하는 것입니다.</p>
+<h2 id="_1">권장 사항<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="ec2">EC2 오토 스케일링 그룹을 사용하여 워커 노드 생성<a class="headerlink" href="#ec2" title="Permanent link">&para;</a></h3>
+<p>개별 EC2 인스턴스를 생성하여 클러스터에 조인하는 대신 EC2 오토 스케일링 그룹을 사용하여 워커 노드를 생성하는 것이 가장 좋습니다. 오토 스케일링 그룹은 종료되거나 장애가 발생한 노드를 자동으로 교체하므로 클러스터가 항상 워크로드를 실행할 수 있는 용량을 확보할 수 있습니다. </p>
+<h3 id="cluster-autoscaler">쿠버네티스 Cluster Autoscaler를 사용하여 노드를 확장하세요<a class="headerlink" href="#cluster-autoscaler" title="Permanent link">&para;</a></h3>
+<p>Cluster Autoscaler는 클러스터의 리소스가 충분하지 않아 실행할 수 없는 파드가 있을 때 데이터 플레인 크기를 조정하며, 다른 워커 노드를 추가하여 도움을 줍니다. Cluster Autoscaler는 반응형 프로세스이긴 하지만 클러스터의 용량이 충분하지 않아 파드가 <em>pending</em> 상태가 될 때까지 기다립니다. 이러한 이벤트가 발생하면 클러스터에 EC2 인스턴스가 추가됩니다. 클러스터의 용량이 부족해지면 워커 노드가 추가될 때까지 새 복제본 또는 새 파드를 사용할 수 없게 됩니다(<em>Pending 상태</em>). 데이터 플레인이 워크로드 수요를 충족할 만큼 충분히 빠르게 확장되지 않는 경우 이러한 지연은 애플리케이션의 신뢰성에 영향을 미칠 수 있습니다. 워커 노드의 사용률이 지속적으로 낮고 해당 노드의 모든 파드를 다른 워커 노드에 스케줄링할 수 있는 경우 Cluster Autoscaler는 해당 워커 노드를 종료합니다.</p>
+<h3 id="cluster-autoscaler_1">Cluster Autoscaler를 사용하여 오버 프로비저닝을 구성합니다.<a class="headerlink" href="#cluster-autoscaler_1" title="Permanent link">&para;</a></h3>
+<p>Cluster Autoscaler는 클러스터의 파드가 이미 <em>pending</em> 상태일 때 데이터 플레인 스케일링을 트리거합니다. 따라서 애플리케이션에 더 많은 복제본이 필요한 시점과 실제로 더 많은 복제본을 가져오는 시점 사이에 지연이 있을 수 있습니다. 이러한 지연을 방지할 수 있는 방법은 필요한 것보다 많은 복제본을 추가하여 애플리케이션의 복제본 수를 늘리는 것입니다. </p>
+<p>Cluster Autoscaler에서 권장하는 또 다른 패턴은 <a href="https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler"><em>pause</em> 파드와 우선순위 선점 기능</a>입니다. <em>pause 파드</em>는 <a href="https://github.com/kubernetes/kubernetes/tree/master/build/pause">pause 컨테이너</a>를 실행하는데, 이름에서 알 수 있듯이 클러스터의 다른 파드에서 사용할 수 있는 컴퓨팅 용량의 placeholder 역할을 하는 것 외에는 아무것도 하지 않습니다. <em>매우 낮은 할당 우선 순위</em>로 실행되기 때문에, 다른 파드를 생성해야 하고 클러스터에 가용 용량이 없을 때 일시 중지 파드가 노드에서 제거됩니다. 쿠버네티스 스케줄러는 pause 파드의 축출을 감지하고 스케줄을 다시 잡으려고 합니다. 하지만 클러스터가 최대 용량으로 실행되고 있기 때문에 일시 중지 파드는 <em>pending</em> 상태로 유지되며, Cluster Autoscaler는 이에 대응하여 노드를 추가합니다. </p>
+<h3 id="cluster-autoscaler_2">여러 오토 스케일링 그룹과 함께 Cluster Autoscaler 사용<a class="headerlink" href="#cluster-autoscaler_2" title="Permanent link">&para;</a></h3>
+<p><code>--node-group-auto-discovery</code> 플래그를 활성화한 상태로 Cluster Autoscaler를 실행합니다.이렇게 하면 Cluster Autoscaler가 정의된 특정 태그가 포함된 모든 오토스케일링 그룹을 찾을 수 있으므로 매니페스트에서 각 오토스케일링 그룹을 정의하고 유지할 필요가 없습니다.</p>
+<h3 id="cluster-autoscaler_3">로컬 스토리지와 함께 Cluster Autoscaler 사용<a class="headerlink" href="#cluster-autoscaler_3" title="Permanent link">&para;</a></h3>
+<p>기본적으로 Cluster Autoscaler는 로컬 스토리지가 연결된 상태로 배포된 파드가 있는 노드를 축소하지 않습니다. <code>--skip-nodes-with-local-storage</code> 플래그를 false로 설정하면 Cluster Autoscaler가 이러한 노드를 축소할 수 있습니다.</p>
+<h3 id="az">워커 노드와 워크로드를 여러 AZ에 분산합니다.<a class="headerlink" href="#az" title="Permanent link">&para;</a></h3>
+<p>여러 AZ에서 워커 노드와 파드를 실행하여 개별 AZ에서 장애가 발생하지 않도록 워크로드를 보호할 수 있습니다. 노드를 생성하는 서브넷을 사용하여 워커 노드가 생성되는 AZ를 제어할 수 있습니다.</p>
+<p>쿠버네티스 1.18+를 사용하는 경우 AZ에 파드를 분산하는 데 권장되는 방법은 <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods">파드에 대한 토폴로지 분산 제약</a>을 사용하는 것입니다.</p>
+<p>아래 디플로이먼트는 가능한 경우 AZ에 파드를 분산시키고, 그렇지 않을 경우 해당 파드는 그냥 실행되도록 합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>apiVersion: apps/v1
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>kind: Deployment
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>metadata:
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  name: web-server
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>spec:
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  replicas: 3
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  selector:
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    matchLabels:
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      app: web-server
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  template:
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    metadata:
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>      labels:
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        app: web-server
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    spec:
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>      topologySpreadConstraints:
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        - maxSkew: 1
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>          whenUnsatisfiable: ScheduleAnyway
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>          topologyKey: topology.kubernetes.io/zone
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>          labelSelector:
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            matchLabels:
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>              app: web-server
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>      containers:
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>      - name: web-app
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        image: nginx
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        resources:
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>          requests:
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>            cpu: 1
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>kube-scheduler</code>는 해당 레이블이 있는 노드를 통한 토폴로지 도메인만 인식합니다. 위의 디플로이먼트를 단일 존에만 노드가 있는 클러스터에 배포하면, <code>kube-scheduler</code>가 다른 존을 인식하지 못하므로 모든 파드가 해당 노드에서 스케줄링됩니다. 이 Topology Spread가 스케줄러와 함께 예상대로 작동하려면 모든 존에 노드가 이미 있어야 합니다. 이 문제는 쿠버네티스 1.24에서 <code>MinDomainsInPodToplogySpread</code> <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api">기능 게이트</a>가 추가되면서 해결될 것입니다. 이 기능을 사용하면 스케줄러에 적격 도메인 수를 알리기 위해 <code>MinDomains</code> 속성을 지정할 수 있습니다.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>whenUnsatisfiable</code>를 <code>Donot Schedule</code>로 설정하면 Topology Spread Constraints을 충족할 수 없는 경우 파드를 스케줄링할 수 없게 됩니다. Topology Spread Constraints을 위반하는 대신 파드를 실행하지 않는 것이 더 좋은 경우에만 설정해야 합니다.</p>
+</div>
+<p>이전 버전의 쿠버네티스에서는 파드 anti-affinity 규칙을 사용하여 여러 AZ에 걸쳐 파드를 스케줄링할 수 있습니다. 아래 매니페스트는 쿠버네티스 스케줄러에게 별개의 AZ에서 파드를 스케줄링하는 것을 <em>선호</em>한다고 알려줍니다. </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>apiVersion: apps/v1
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>kind: Deployment
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>metadata:
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  name: web-server
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  labels:
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    app: web-server
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>spec:
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  replicas: 4
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  selector:
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    matchLabels:
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>      app: web-server
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  template:
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    metadata:
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>      labels:
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        app: web-server
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    spec:
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>      affinity:
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        podAntiAffinity:
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>          preferredDuringSchedulingIgnoredDuringExecution:
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>          - podAffinityTerm:
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>              labelSelector:
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                matchExpressions:
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                - key: app
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>                  operator: In
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                  values:
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                  - web-server
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>              topologyKey: failure-domain.beta.kubernetes.io/zone
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>            weight: 100
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>      containers:
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>      - name: web-app
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        image: nginx
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>파드를 서로 다른 AZ에 스케줄할 필요는 없습니다. 그렇지 않으면 디플로이먼트의 파드 수가 AZ 수를 절대 초과하지 않습니다. </p>
+</div>
+<h3 id="ebs-az">EBS 볼륨을 사용할 때 각 AZ의 용량을 확보하십시오.<a class="headerlink" href="#ebs-az" title="Permanent link">&para;</a></h3>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html">Amazon EBS를 사용하여 영구 볼륨 제공</a>을 사용하는 경우 파드 및 관련 EBS 볼륨이 동일한 AZ에 있는지 확인해야 합니다. 이 글을 쓰는 시점에서 EBS 볼륨은 단일 AZ 내에서만 사용할 수 있습니다. 파드는 다른 AZ에 위치한 EBS 지원 영구 볼륨에 액세스할 수 없습니다. 쿠버네티스 <a href="https://kubernetes.io/docs/reference/kubernetes-api/labels-annotations-taints/#topologykubernetesiozone">스케줄러는 워커 노드가 어느 AZ에 위치하는지 알고 있습니다</a>. 쿠버네티스는 해당 볼륨과 동일한 AZ에 EBS 볼륨이 필요한 파드를 항상 스케줄링합니다. 하지만 볼륨이 위치한 AZ에 사용 가능한 워커 노드가 없는 경우 파드를 스케줄링할 수 없습니다. </p>
+<p>클러스터가 항상 필요한 EBS 볼륨과 동일한 AZ에 파드를 스케줄링할 수 있는 용량을 확보할 수 있도록 충분한 용량을 갖춘 각 AZ에 오토 스케일링 그룹을 생성하십시오. 또한 클러스터 오토스케일러에서 <code>--balance-similar-similar-node groups</code> 기능을 활성화해야 합니다.</p>
+<p>EBS 볼륨을 사용하지만 가용성을 높이기 위한 요구 사항이 없는 애플리케이션을 실행 중인 경우 애플리케이션 배포를 단일 AZ로 제한할 수 있습니다. EKS에서는 워커 노드에 AZ 이름이 포함된 <code>failure-domain.beta.kubernetes.io/zone</code> 레이블이 자동으로 추가됩니다. <code>kubectl get nodes --show-labels</code>를 실행하여 노드에 첨부된 레이블을 확인할 수 있습니다. 빌트인 노드 레이블에 대한 자세한 내용은 [여기] (https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#built-in-node-labels)에서 확인할 수 있습니다. 노드 셀렉터를 사용하여 특정 AZ에서 파드를 스케줄링할 수 있습니다. </p>
+<p>아래 예시에서는 파드가 <code>us-west-2c</code> AZ에서만 스케줄링됩니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>apiVersion: v1
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>kind: Pod
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>metadata:
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  name: single-az-pod
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>spec:
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  affinity:
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    nodeAffinity:
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>      requiredDuringSchedulingIgnoredDuringExecution:
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        nodeSelectorTerms:
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        - matchExpressions:
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>          - key: failure-domain.beta.kubernetes.io/zone
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>            operator: In
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>            values:
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>            - us-west-2c
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>  containers:
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>  - name: single-az-container
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    image: kubernetes/pause
+</code></pre></div>
+<p>퍼시스턴트 볼륨(EBS 지원) 역시 AZ 이름으로 자동 레이블이 지정됩니다. <code>kubectl get pv -L topology.ebs.csi.aws.com/zone</code> 명령을 실행해 퍼시스턴트 볼륨이 어느 AZ에 속하는지 확인할 수 있습니다. 파드가 생성되고 볼륨을 요청하면, 쿠버네티스는 해당 볼륨과 동일한 AZ에 있는 노드에 파드를 스케줄링합니다. </p>
+<p>노드 그룹이 하나인 EKS 클러스터가 있는 시나리오를 생각해 보십시오. 이 노드 그룹에는 3개의 AZ에 분산된 세 개의 워커 노드가 있습니다. EBS 지원 퍼시스턴트 볼륨을 사용하는 애플리케이션이 있습니다. 이 애플리케이션과 해당 볼륨을 생성하면 해당 파드가 세 개의 AZ 중 첫 번째 AZ에 생성됩니다. 그러면 이 파드를 실행하는 워커 노드가 비정상 상태가 되고 이후에는 사용할 수 없게 된다. Cluster Autoscaler는 비정상 노드를 새 워커 노드로 교체합니다. 그러나 자동 확장 그룹이 세 개의 AZ에 걸쳐 있기 때문에 상황에 따라 새 워커 노드가 두 번째 또는 세 번째 AZ에서 시작될 수 있지만 첫 번째 AZ에서는 실행되지 않을 수 있습니다. AZ 제약이 있는 EBS 볼륨은 첫 번째 AZ에만 존재하고 해당 AZ에는 사용 가능한 워커 노드가 없으므로 파드를 스케줄링할 수 없습니다. 따라서 각 AZ에 노드 그룹을 하나씩 생성해야 합니다. 그래야 다른 AZ에서 스케줄링할 수 없는 파드를 실행할 수 있는 충분한 용량이 항상 확보됩니다. </p>
+<p>또는 영구 스토리지가 필요한 애플리케이션을 실행할 때 [EFS] (https://github.com/kubernetes-sigs/aws-efs-csi-driver)를 사용하여 클러스터 자동 크기 조정을 단순화할 수 있습니다. 클라이언트는 리전 내 모든 AZ에서 동시에 EFS 파일 시스템에 액세스할 수 있습니다. EFS 기반 퍼시스턴트 볼륨을 사용하는 파드가 종료되어 다른 AZ에 스케줄되더라도 볼륨을 마운트할 수 있습니다.</p>
+<h3 id="_2">노드 문제 감지기 실행<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>워커 노드의 장애는 애플리케이션의 가용성에 영향을 미칠 수 있습니다. <a href="https://github.com/kubernetes/node-problem-detector">node-problem-detector</a>는 클러스터에 설치하여 워커 노드 문제를 탐지할 수 있는 쿠버네티스 애드온입니다. <a href="https://github.com/kubernetes/node-problem-detector#remedy-systems">npd의 치료 시스템</a>을 사용하여 노드를 자동으로 비우고 종료할 수 있습니다.</p>
+<h3 id="_3">시스템 및 쿠버네티스 데몬을 위한 리소스 예약<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p><a href="https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/">운영 체제 및 쿠버네티스 데몬을 위한 컴퓨팅 용량를 예약</a>하여 워커 노드의 안정성을 개선할 수 있습니다. 파드, 특히 <code>limits</code>이 선언되지 않은 파드는 시스템 리소스를 포화시켜 운영체제 프로세스와 쿠버네티스 데몬 (<code>kubelet</code>, 컨테이너 런타임 등)이 시스템 리소스를 놓고 파드와 경쟁하는 상황에 놓이게 됩니다.<code>kubelet</code> 플래그 <code>--system-reserved</code>와 <code>--kube-reserved</code>를 사용하여 시스템 프로세스 (<code>udev</code>, <code>sshd</code> 등)와 쿠버네티스 데몬을 위한 리소스를 각각 예약할 수 있습니다. </p>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html">EKS에 최적화된 Linux AMI</a>를 사용하는 경우 CPU, 메모리 및 스토리지는 기본적으로 시스템 및 쿠버네티스 데몬용으로 예약됩니다. 이 AMI를 기반으로 하는 워커 노드가 시작되면 <a href="https://github.com/awslabs/amazon-eks-ami/blob/master/files/bootstrap.sh"><code>bootstrap.sh</code> 스크립트</a> 를 트리거하도록 EC2 사용자 데이터가 구성됩니다. 이 스크립트는 EC2 인스턴스에서 사용할 수 있는 CPU 코어 수와 총 메모리를 기반으로 CPU 및 메모리 예약을 계산합니다. 계산된 값은 <code>/etc/kubernetes/kubelet/kubelet-config.json</code>에 있는 <code>KubeletConfiguration</code> 파일에 기록됩니다. </p>
+<p>노드에서 사용자 지정 데몬을 실행하고 기본적으로 예약된 CPU 및 메모리 양이 충분하지 않은 경우 시스템 리소스 예약을 늘려야 할 수 있습니다. </p>
+<p><code>eksctl</code>은 <a href="https://eksctl.io/usage/customizing-the-kubelet/">시스템 및 쿠버네티스 데몬의 리소스 예약</a>을 사용자 지정하는 가장 쉬운 방법을 제공합니다. </p>
+<h3 id="qos">QoS 구현<a class="headerlink" href="#qos" title="Permanent link">&para;</a></h3>
+<p>중요한 애플리케이션의 경우, 파드의 컨테이너에 대해 <code>requests</code>=<code>limits</code> 정의를 고려해보십시오. 이렇게 하면 다른 파드가 리소스를 요청하더라도 컨테이너가 종료되지 않습니다.</p>
+<p>모든 컨테이너에 CPU 및 메모리 제한을 적용하는 것이 가장 좋습니다. 이렇게 하면 컨테이너가 실수로 시스템 리소스를 소비하여 같은 위치에 배치된 다른 프로세스의 가용성에 영향을 미치는 것을 방지할 수 있기 때문입니다.</p>
+<h3 id="_4">모든 워크로드에 대한 리소스 요청/제한 구성 및 크기 조정<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>리소스 요청의 크기 조정 및 워크로드 한도에 대한 몇 가지 일반적인 지침을 적용할 수 있습니다.</p>
+<ul>
+<li>
+<p>CPU에 리소스 제한을 지정하지 마십시오. 제한이 없는 경우 요청은 <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#how-pods-with-resource-limits-are-run">컨테이너의 상대적 CPU 사용 시간</a>에 가중치 역할을 합니다. 이렇게 하면 인위적인 제한이나 과다 현상 없이 워크로드에서 CPU 전체를 사용할 수 있습니다.</p>
+</li>
+<li>
+<p>CPU가 아닌 리소스의 경우, <code>requests</code>=<code>limits</code>를 구성하면 가장 예측 가능한 동작이 제공됩니다. 만약 <code>requests</code>!=<code>limits</code>이면, 컨테이너의 <a href="https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#qos-classes">QOS</a>도 Guaranteed에서 Burstable로 감소하여 <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/">node pressure</a> 이벤트에 축출될 가능성이 높아졌습니다.</p>
+</li>
+<li>
+<p>CPU가 아닌 리소스의 경우 요청보다 훨씬 큰 제한을 지정하지 마십시오. <code>limits</code>이 <code>requests</code>에 비해 크게 구성될수록 노드가 오버 커밋되어 워크로드가 중단될 가능성이 높아집니다.</p>
+</li>
+<li>
+<p><a href="https://aws.github.io/aws-eks-best-practices/karpenter/">Karpenter</a> 또는 <a href="https://aws.github.io/aws-eks-best-practices/cluster-autoscaling/">Cluster AutoScaler</a>와 같은 노드 자동 크기 조정 솔루션을 사용할 때는 요청 크기를 올바르게 지정하는 것이 특히 중요합니다. 이러한 도구는 워크로드 요청을 검토하여 프로비저닝할 노드의 수와 크기를 결정합니다. 요청이 너무 작아 제한이 더 큰 경우, 워크로드가 노드에 꽉 차 있으면 워크로드가 제거되거나 OOM으로 종료될 수 있습니다.</p>
+</li>
+</ul>
+<p>리소스 요청을 결정하는 것은 어려울 수 있지만 <a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler">Vertical Pod Autoscaler</a>와 같은 도구를 사용하면 런타임 시 컨테이너 리소스 사용량을 관찰하여 요청 규모를 '적정'하게 조정할 수 있습니다. 요청 크기를 결정하는 데 유용할 수 있는 다른 도구는 다음과 같습니다.</p>
+<ul>
+<li><a href="https://github.com/FairwindsOps/goldilocks">Goldilocks</a></li>
+<li><a href="https://www.parca.dev/">Parca</a></li>
+<li><a href="https://prodfiler.com/">Prodfiler</a></li>
+<li><a href="https://mhausenblas.info/right-size-guide/">rsg</a></li>
+</ul>
+<h3 id="_5">네임스페이스의 리소스 할당량 구성<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>네임스페이스는 사용자가 여러 팀 또는 프로젝트에 분산되어 있는 환경에서 사용하기 위한 것입니다. 이름 범위를 제공하고 클러스터 리소스를 여러 팀, 프로젝트, 워크로드 간에 나누는 방법입니다. 네임스페이스의 총 리소스 사용량을 제한할 수 있습니다. <a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/"><code>ResourceQuota</code></a> 객체는 유형별로 네임스페이스에 만들 수 있는 개체 수와 해당 프로젝트의 리소스가 소비할 수 있는 총 컴퓨팅 리소스 양을 제한할 수 있습니다. 지정된 네임스페이스에서 요청할 수 있는 스토리지 및/또는 컴퓨팅(CPU 및 메모리) 리소스의 총합을 제한할 수 있습니다.</p>
+<blockquote>
+<p>CPU 및 메모리와 같은 컴퓨팅 리소스의 네임스페이스에 리소스 쿼터가 활성화된 경우 사용자는 해당 네임스페이스의 각 컨테이너에 대한 요청 또는 제한을 지정해야 합니다.</p>
+</blockquote>
+<p>각 네임스페이스에 할당량을 구성하는 것을 고려해 보십시오. 네임스페이스 내의 컨테이너에 사전 구성된 제한을 자동으로 적용하려면 <code>LimitRanges</code>를 사용해 보십시오. </p>
+<h3 id="_6">네임스페이스 내에서 컨테이너 리소스 사용을 제한합니다.<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p>리소스 쿼터는 네임스페이스가 사용할 수 있는 리소스의 양을 제한하는 데 도움이 됩니다. <a href="https://kubernetes.io/docs/concepts/policy/limit-range/"><code>LimitRange</code> 개체</a>는 컨테이너가 요청할 수 있는 최소 및 최대 리소스를 구현하는 데 도움이 될 수 있습니다. <code>LimitRange</code>를 사용하면 컨테이너에 대한 기본 요청 및 제한을 설정할 수 있는데, 이는 컴퓨팅 리소스 제한을 설정하는 것이 조직의 표준 관행이 아닌 경우에 유용합니다. 이름에서 알 수 있듯이, <code>LimitRange</code>는 네임스페이스의 파드 또는 컨테이너당 최소 및 최대 컴퓨팅 리소스 사용량을 적용할 수 있습니다. 또한 네임스페이스에서 퍼시스턴트볼륨클레임당 최소 및 최대 스토리지 요청을 적용할 수 있습니다.</p>
+<p>컨테이너와 네임스페이스 수준에서 제한을 적용하려면 <code>LimitRange</code>와 <code>ResourceQuota</code>를 함께 사용하는 것이 좋습니다. 이러한 제한을 설정하면 컨테이너 또는 네임스페이스가 클러스터의 다른 테넌트가 사용하는 리소스에 영향을 주지 않도록 할 수 있습니다. </p>
+<h2 id="coredns">CoreDNS<a class="headerlink" href="#coredns" title="Permanent link">&para;</a></h2>
+<p>CoreDNS는 쿠버네티스에서 이름 확인 및 서비스 검색 기능을 수행합니다. EKS 클러스터에 기본적으로 설치됩니다. 상호 운용성을 위해 CoreDNS용 쿠버네티스 서비스의 이름은 여전히 <a href="https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/">kube-dns</a>로 지정됩니다. CoreDNS 파드는 디플로이먼트의 일부로 <code>kube-system</code> 네임스페이스에서 실행되며, EKS에서는 기본적으로 요청과 제한이 선언된 두 개의 복제본을 실행합니다. DNS 쿼리는 <code>kube-system</code> 네임스페이스에서 실행되는 <code>kube-dns</code> 서비스로 전송됩니다.</p>
+<h2 id="_7">권장 사항<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h3 id="dns">핵심 DNS 지표 모니터링<a class="headerlink" href="#dns" title="Permanent link">&para;</a></h3>
+<p>CoreDNS는 <a href="https://github.com/coredns/coredns/tree/master/plugin/metrics">프로메테우스</a>에 대한 지원을 내장하고 있습니다. 특히 CoreDNS 지연 시간(<code>coredns_dns_request_duration_seconds_sum</code>, <a href="https://github.com/coredns/coredns/blob/master/notes/coredns-1.7.0.md">1.7.0</a> 버전 이전에는 메트릭이 <code>core_dns_response_rcode_count_total</code>이라고 불렸음), 오류 (<code>coredns_dns_responses_total</code>, NXDOMAIN, SERVFAIL, FormErr) 및 CoreDNS 파드의 메모리 사용량에 대한 모니터링을 고려해야 합니다.</p>
+<p>문제 해결을 위해 kubectl을 사용하여 CoreDNS 로그를 볼 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">for</span><span class="w"> </span>p<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>—namespace<span class="o">=</span>kube-system<span class="w"> </span>-l<span class="w"> </span>k8s-app<span class="o">=</span>kube-dns<span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>kubectl<span class="w"> </span>logs<span class="w"> </span>—namespace<span class="o">=</span>kube-system<span class="w"> </span><span class="nv">$p</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</code></pre></div>
+<h3 id="dns_1">노드 로컬 DNS 캐시 사용<a class="headerlink" href="#dns_1" title="Permanent link">&para;</a></h3>
+<p><a href="https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/">노드 로컬 DNS 캐시</a>를 실행하여 클러스터 DNS 성능을 개선할 수 있습니다. 이 기능은 클러스터 노드에서 DNS 캐싱 에이전트를 데몬셋으로 실행합니다. 모든 파드는 이름 확인을 위해 <code>kube-dns</code> 서비스를 사용하는 대신 노드에서 실행되는 DNS 캐싱 에이전트를 사용합니다.</p>
+<h3 id="coredns-cluster-proportional-scaler">CoreDNS의 cluster-proportional-scaler를 구성합니다.<a class="headerlink" href="#coredns-cluster-proportional-scaler" title="Permanent link">&para;</a></h3>
+<p>클러스터 DNS 성능을 개선하는 또 다른 방법은 클러스터의 노드 및 CPU 코어 수에 따라 <a href="https://kubernetes.io/docs/tasks/administer-cluster/dns-horizontal-autoscaling/#enablng-dns-horizontal-autoscaling">CoreDNS 배포를 자동으로 수평으로 확장</a>하는 것입니다. <a href="https://github.com/kubernetes-sigs/cluster-proportional-autoscaler/blob/master/README.md">수평 클러스터 비례 자동 확장</a>은 스케줄 가능한 데이터 플레인의 크기에 따라 디플로이먼트의 복제본 수를 조정하는 컨테이너입니다.</p>
+<p>노드와 노드의 CPU 코어 집계는 CoreDNS를 확장할 수 있는 두 가지 지표입니다. 두 지표를 동시에 사용할 수 있습니다. 더 큰 노드를 사용하는 경우 CoreDNS 스케일링은 CPU 코어 수를 기반으로 합니다. 반면 더 작은 노드를 사용하는 경우 CoreDNS 복제본의 수는 데이터 플레인의 CPU 코어에 따라 달라집니다. 비례 오토스케일러 구성은 다음과 같습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>linear: &#39;{&quot;coresPerReplica&quot;:256,&quot;min&quot;:1,&quot;nodesPerReplica&quot;:16}&#39;
+</code></pre></div>
+<h3 id="ami">노드 그룹이 있는 AMI 선택<a class="headerlink" href="#ami" title="Permanent link">&para;</a></h3>
+<p>EKS는 고객이 자체 관리형 노드 그룹과 관리형 노드 그룹을 모두 생성하는 데 사용하는 최적화된 EC2 AMI를 제공합니다. 이러한 AMI는 지원되는 모든 쿠버네티스 버전에 대해 모든 리전에 게시됩니다. EKS는 CVE 또는 버그가 발견되면 이러한 AMI를 더 이상 사용되지 않는 것으로 표시합니다. 따라서 노드 그룹에 사용할 AMI를 선택할 때는 더 이상 사용되지 않는 AMI를 사용하지 않는 것이 좋습니다.</p>
+<p>Ec2 describe-images api를 사용하여 아래 명령을 사용하여 더 이상 사용되지 않는 AMI를 필터링할 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>aws ec2 describe-images --image-id ami-0d551c4f633e7679c --no-include-deprecated
+</code></pre></div>
+<p>이미지 설명 출력에 DeprecationTime이 필드로 포함되어 있는지 확인하여 지원 중단된 AMI를 식별할 수도 있습니다. 예를 들면:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>aws ec2 describe-images --image-id ami-xxx --no-include-deprecated
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>{
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    &quot;Images&quot;: [
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>            &quot;Architecture&quot;: &quot;x86_64&quot;,
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>            &quot;CreationDate&quot;: &quot;2022-07-13T15:54:06.000Z&quot;,
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>            &quot;ImageId&quot;: &quot;ami-xxx&quot;,
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            &quot;ImageLocation&quot;: &quot;123456789012/eks_xxx&quot;,
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            &quot;ImageType&quot;: &quot;machine&quot;,
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>            &quot;Public&quot;: false,
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            &quot;OwnerId&quot;: &quot;123456789012&quot;,
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            &quot;PlatformDetails&quot;: &quot;Linux/UNIX&quot;,
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>            &quot;UsageOperation&quot;: &quot;RunInstances&quot;,
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>            &quot;State&quot;: &quot;available&quot;,
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>            &quot;BlockDeviceMappings&quot;: [
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>                {
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>                    &quot;DeviceName&quot;: &quot;/dev/xvda&quot;,
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>                    &quot;Ebs&quot;: {
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>                        &quot;DeleteOnTermination&quot;: true,
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>                        &quot;SnapshotId&quot;: &quot;snap-0993a2fc4bbf4f7f4&quot;,
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>                        &quot;VolumeSize&quot;: 20,
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>                        &quot;VolumeType&quot;: &quot;gp2&quot;,
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>                        &quot;Encrypted&quot;: false
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>                    }
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>                }
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>            ],
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>            &quot;Description&quot;: &quot;EKS Kubernetes Worker AMI with AmazonLinux2 image, (k8s: 1.19.15, docker: 20.10.13-2.amzn2, containerd: 1.4.13-3.amzn2)&quot;,
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>            &quot;EnaSupport&quot;: true,
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>            &quot;Hypervisor&quot;: &quot;xen&quot;,
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>            &quot;Name&quot;: &quot;aws_eks_optimized_xxx&quot;,
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>            &quot;RootDeviceName&quot;: &quot;/dev/xvda&quot;,
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>            &quot;RootDeviceType&quot;: &quot;ebs&quot;,
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>            &quot;SriovNetSupport&quot;: &quot;simple&quot;,
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>            &quot;VirtualizationType&quot;: &quot;hvm&quot;,
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>            &quot;DeprecationTime&quot;: &quot;2023-02-09T19:41:00.000Z&quot;
+<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>        }
+<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a>    ]
+<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a>}
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../../..", "features": ["tabs", "content.code.copy", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ub428", "clipboard.copy": "\ud074\ub9bd\ubcf4\ub4dc\ub85c \ubcf5\uc0ac", "search.result.more.one": "\uc774 \ubb38\uc11c\uc5d0\uc11c 1\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.more.other": "\uc774 \ubb38\uc11c\uc5d0\uc11c #\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.none": "\uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 \ubb38\uc11c\uac00 \uc5c6\uc2b5\ub2c8\ub2e4", "search.result.one": "1\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.other": "#\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.placeholder": "\uac80\uc0c9\uc5b4\ub97c \uc785\ub825\ud558\uc138\uc694", "search.result.term.missing": "\ud3ec\ud568\ub418\uc9c0 \uc54a\uc740 \uac80\uc0c9\uc5b4", "select.version": "\ubc84\uc804 \uc120\ud0dd"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

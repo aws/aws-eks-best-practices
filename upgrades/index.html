@@ -1,0 +1,3376 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html">
+      
+      
+        <link rel="prev" href="../scalability/docs/quotas/">
+      
+      
+        <link rel="next" href="../cost_optimization/cost_optimization_index/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Cluster Upgrades - EKS Best Practices Guides</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-VQGL8B2FH8"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-VQGL8B2FH8",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-VQGL8B2FH8",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  
+    <meta http-equiv="refresh" content="0; URL='https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html'" />
+    <link rel="canonical" href="https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html" />
+  
+  
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#best-practices-for-cluster-upgrades" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+<h2 style="color:#F2F2F2;text-align: center;"><b> The EKS Best Practices Guide has moved to the <a style="color:#ff9900;text-decoration: underline" href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html">AWS Documentation</a></u>. Check there for the latest updates. </b></h2>
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="EKS Best Practices Guides" class="md-header__button md-logo" aria-label="EKS Best Practices Guides" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            EKS Best Practices Guides
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster Upgrades
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../ko/upgrades/" hreflang="ko" class="md-select__link">
+              한국어
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws/aws-eks-best-practices" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="EKS Best Practices Guides" class="md-nav__button md-logo" aria-label="EKS Best Practices Guides" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    EKS Best Practices Guides
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws/aws-eks-best-practices" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Security
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/iam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Identity and Access Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/pods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pod Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/multitenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-tenancy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/detective/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Detective Controls
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Encryption and Secrets Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runtime Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Infrastructure Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Regulatory Compliance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/incidents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Incident Response and Forensics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Image Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/multiaccount/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi Account Strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Cluster Autoscaling
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Cluster Autoscaling
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../karpenter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Karpenter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-autoscaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cluster-Autoscaler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Reliability
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Reliability
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/application/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Applications
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/controlplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Control Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Networking
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Networking
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/subnets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    VPC and Subnet Considerations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/vpc-cni/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Amazon VPC CNI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ip-optimization-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Optimizing IP Address Utilization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ipv6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running IPv6 Clusters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/custom-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom Networking
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/prefix-mode/index_linux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix Mode for Linux
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/prefix-mode/index_windows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix Mode for Windows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/sgpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security Groups per Pod
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/loadbalancing/loadbalancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Load Balancing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Monitoring for Network performance issues
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ipvs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Running kube-proxy in IPVS Mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Scalability
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Scalability
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/control-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Control Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/data-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Plane
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/cluster-services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cluster Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/workloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Workloads
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/scaling_theory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    The theory behind scaling
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/kcp_monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Control plane monitoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/node_efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Node efficiency and scaling
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/kubernetes_slos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Kubernetes SLOs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/quotas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Known limits and service quotas
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Cluster Upgrades
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cluster Upgrades
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before Upgrading
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keep-your-cluster-up-to-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keep your cluster up-to-date
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-the-eks-release-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Review the EKS release calendar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understand-how-the-shared-responsibility-model-applies-to-cluster-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Understand how the shared responsibility model applies to cluster upgrades
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-clusters-in-place" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade clusters in-place
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-your-control-plane-and-data-plane-in-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade your control plane and data plane in sequence
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-the-eks-documentation-to-create-an-upgrade-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use the EKS Documentation to create an upgrade checklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-add-ons-and-components-using-the-kubernetes-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade add-ons and components using the Kubernetes API
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-basic-eks-requirements-before-upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify basic EKS requirements before upgrading
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verify basic EKS requirements before upgrading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verify-available-ip-addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify available IP addresses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-eks-iam-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify EKS IAM role
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migrate-to-eks-add-ons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migrate to EKS Add-ons
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Identify and remediate removed API usage before upgrading the control plane
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identify and remediate removed API usage before upgrading the control plane">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cluster-insights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cluster Insights
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kube-no-trouble" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kube-no-trouble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pluto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pluto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-kubernetes-workloads-use-kubectl-convert-to-update-manifests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update Kubernetes workloads. Use kubectl-convert to update manifests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-poddisruptionbudgets-and-topologyspreadconstraints-to-ensure-availability-of-your-workloads-while-the-data-plane-is-upgraded" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure PodDisruptionBudgets and topologySpreadConstraints to ensure availability of your workloads while the data plane is upgraded
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-managed-node-groups-or-karpenter-to-simplify-data-plane-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Managed Node Groups or Karpenter to simplify data plane upgrades
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confirm-version-compatibility-with-existing-nodes-and-the-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confirm version compatibility with existing nodes and the control plane
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-drift-for-karpenter-managed-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Drift for Karpenter managed nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-expireafter-for-karpenter-managed-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use ExpireAfter for Karpenter managed nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-eksctl-to-automate-upgrades-for-self-managed-node-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use eksctl to automate upgrades for self-managed node groups
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-the-cluster-before-upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup the cluster before upgrading
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restart-fargate-deployments-after-upgrading-the-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restart Fargate deployments after upgrading the control plane
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evaluate-bluegreen-clusters-as-an-alternative-to-in-place-cluster-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluate Blue/Green Clusters as an alternative to in-place cluster upgrades
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#track-planned-major-changes-in-the-kubernetes-project-think-ahead" class="md-nav__link">
+    <span class="md-ellipsis">
+      Track planned major changes in the Kubernetes project — Think ahead
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specific-guidance-on-feature-removals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specific Guidance on Feature Removals
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Specific Guidance on Feature Removals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removal-of-dockershim-in-125-use-detector-for-docker-socket-dds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removal of Dockershim in 1.25 - Use Detector for Docker Socket (DDS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removal-of-podsecuritypolicy-in-125-migrate-to-pod-security-standards-or-a-policy-as-code-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removal of PodSecurityPolicy in 1.25 - Migrate to Pod Security Standards or a policy-as-code solution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deprecation-of-in-tree-storage-driver-in-123-migrate-to-container-storage-interface-csi-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deprecation of In-Tree Storage Driver in 1.23 - Migrate to Container Storage Interface (CSI) Drivers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Additional Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Additional Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clowdhaus-eks-upgrade-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClowdHaus EKS Upgrade Guidance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gonogo" class="md-nav__link">
+    <span class="md-ellipsis">
+      GoNoGo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Cost Optimization
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Cost Optimization
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_optimization_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cfm_framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cloud Financial Management Framework
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/awareness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Awareness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_compute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compute
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Observability
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Windows Containers
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Windows Containers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/ami/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AMI Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/gmsa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    gMSA for Windows Containers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Windows Server Hardening
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scanning Windows Images
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/licensing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Windows Versions and Licensing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Logging
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Monitoring Windows Containers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Windows Networking
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/oom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory and Systems Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Infrastructure Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scheduling
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pod Security for Windows Containers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage Options
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before Upgrading
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keep-your-cluster-up-to-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keep your cluster up-to-date
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review-the-eks-release-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Review the EKS release calendar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understand-how-the-shared-responsibility-model-applies-to-cluster-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Understand how the shared responsibility model applies to cluster upgrades
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-clusters-in-place" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade clusters in-place
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-your-control-plane-and-data-plane-in-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade your control plane and data plane in sequence
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-the-eks-documentation-to-create-an-upgrade-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use the EKS Documentation to create an upgrade checklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-add-ons-and-components-using-the-kubernetes-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade add-ons and components using the Kubernetes API
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-basic-eks-requirements-before-upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify basic EKS requirements before upgrading
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verify basic EKS requirements before upgrading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verify-available-ip-addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify available IP addresses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-eks-iam-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify EKS IAM role
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migrate-to-eks-add-ons" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migrate to EKS Add-ons
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Identify and remediate removed API usage before upgrading the control plane
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identify and remediate removed API usage before upgrading the control plane">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cluster-insights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cluster Insights
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kube-no-trouble" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kube-no-trouble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pluto" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pluto
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-kubernetes-workloads-use-kubectl-convert-to-update-manifests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update Kubernetes workloads. Use kubectl-convert to update manifests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-poddisruptionbudgets-and-topologyspreadconstraints-to-ensure-availability-of-your-workloads-while-the-data-plane-is-upgraded" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure PodDisruptionBudgets and topologySpreadConstraints to ensure availability of your workloads while the data plane is upgraded
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-managed-node-groups-or-karpenter-to-simplify-data-plane-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Managed Node Groups or Karpenter to simplify data plane upgrades
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confirm-version-compatibility-with-existing-nodes-and-the-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confirm version compatibility with existing nodes and the control plane
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-drift-for-karpenter-managed-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Drift for Karpenter managed nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-expireafter-for-karpenter-managed-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use ExpireAfter for Karpenter managed nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-eksctl-to-automate-upgrades-for-self-managed-node-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use eksctl to automate upgrades for self-managed node groups
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-the-cluster-before-upgrading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup the cluster before upgrading
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restart-fargate-deployments-after-upgrading-the-control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restart Fargate deployments after upgrading the control plane
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evaluate-bluegreen-clusters-as-an-alternative-to-in-place-cluster-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluate Blue/Green Clusters as an alternative to in-place cluster upgrades
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#track-planned-major-changes-in-the-kubernetes-project-think-ahead" class="md-nav__link">
+    <span class="md-ellipsis">
+      Track planned major changes in the Kubernetes project — Think ahead
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specific-guidance-on-feature-removals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specific Guidance on Feature Removals
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Specific Guidance on Feature Removals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removal-of-dockershim-in-125-use-detector-for-docker-socket-dds" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removal of Dockershim in 1.25 - Use Detector for Docker Socket (DDS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removal-of-podsecuritypolicy-in-125-migrate-to-pod-security-standards-or-a-policy-as-code-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removal of PodSecurityPolicy in 1.25 - Migrate to Pod Security Standards or a policy-as-code solution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deprecation-of-in-tree-storage-driver-in-123-migrate-to-container-storage-interface-csi-drivers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deprecation of In-Tree Storage Driver in 1.23 - Migrate to Container Storage Interface (CSI) Drivers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Additional Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Additional Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clowdhaus-eks-upgrade-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClowdHaus EKS Upgrade Guidance
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gonogo" class="md-nav__link">
+    <span class="md-ellipsis">
+      GoNoGo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<div class="admonition info">
+<p class="admonition-title">We've Moved to the AWS Docs! 🚀</p>
+<p>This content has been updated and relocated to improve your experience. 
+Please visit our new site for the latest version:
+<a href="https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html">AWS EKS Best Practices Guide</a> on the AWS Docs</p>
+<p>Bookmarks and links will continue to work, but we recommend updating them for faster access in the future.</p>
+</div>
+<hr />
+<h1 id="best-practices-for-cluster-upgrades">Best Practices for Cluster Upgrades<a class="headerlink" href="#best-practices-for-cluster-upgrades" title="Permanent link">&para;</a></h1>
+<p>This guide shows cluster administrators how to plan and execute their Amazon EKS upgrade strategy. It also describes how to upgrade self-managed nodes, managed node groups, Karpenter nodes, and Fargate nodes. It does not include guidance on EKS Anywhere, self-managed Kubernetes, AWS Outposts, or AWS Local Zones. </p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>A Kubernetes version encompasses both the control plane and the data plane. To ensure smooth operation, both the control plane and the data plane should run the same <a href="https://kubernetes.io/releases/version-skew-policy/#supported-versions">Kubernetes minor version, such as 1.24</a>. While AWS manages and upgrades the control plane, updating the worker nodes in the data plane is your responsibility.</p>
+<ul>
+<li><strong>Control plane</strong> — The version of the control plane is determined by the Kubernetes API server. In Amazon EKS clusters, AWS takes care of managing this component. Control plane upgrades can be initiated via the AWS API. </li>
+<li><strong>Data plane</strong> — The data plane version is associated with the Kubelet versions running on your individual nodes. It's possible to have nodes in the same cluster running different versions. You can check the versions of all nodes by running <code>kubectl get nodes</code>.</li>
+</ul>
+<h2 id="before-upgrading">Before Upgrading<a class="headerlink" href="#before-upgrading" title="Permanent link">&para;</a></h2>
+<p>If you're planning to upgrade your Kubernetes version in Amazon EKS, there are a few important policies, tools, and procedures you should put in place before starting an upgrade. </p>
+<ul>
+<li><strong>Understand Deprecation Policies</strong> — Gain a deep understanding of how the  <a href="https://kubernetes.io/docs/reference/using-api/deprecation-policy/">Kubernetes deprecation policy</a> works. Be aware of any upcoming changes that may affect your existing applications. Newer versions of Kubernetes often phase out certain APIs and features, potentially causing issues for running applications.</li>
+<li><strong>Review Kubernetes Change Log</strong> — Thoroughly review the <a href="https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG">Kubernetes change log</a> alongside <a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html">Amazon EKS Kubernetes versions</a> to understand any possible impact to your cluster, such as breaking changes that may affect your workloads.</li>
+<li><strong>Assess Cluster Add-Ons Compatibility</strong> — Amazon EKS doesn't automatically update an add-on when new versions are released or after you update your cluster to a new Kubernetes minor version. Review <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-add-ons.html#updating-an-add-on">Updating an add-on</a> to understand the compatibility of any existing cluster add-ons with the cluster version you intend to upgrade to.</li>
+<li><strong>Enable Control Plane Logging</strong> — Enable <a href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html">control plane logging</a> to capture logs, errors, or issues that can arise during the upgrade process. Consider reviewing these logs for any anomalies. Test cluster upgrades in a non-production environment, or integrate automated tests into your continuous integration workflow to assess version compatibility with your applications, controllers, and custom integrations.</li>
+<li><strong>Explore eksctl for Cluster Management</strong> — Consider using <a href="https://eksctl.io/">eksctl</a> to manage your EKS cluster. It provides you with the ability to <a href="https://eksctl.io/usage/cluster-upgrade/">upgrade the control plane, manage add-ons, and handle worker node upgrades</a> out-of-the-box. </li>
+<li><strong>Opt for Managed Node Groups or EKS on Fargate</strong> — Streamline and automate worker node upgrades by using <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">EKS managed node groups</a> or <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html">EKS on Fargate</a>. These options simplify the process and reduce manual intervention.</li>
+<li><strong>Utilize kubectl Convert Plugin</strong> — Leverage the <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin">kubectl convert plugin</a> to facilitate the <a href="https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/">conversion of Kubernetes manifest files</a> between different API versions. This can help ensure that your configurations remain compatible with the new Kubernetes version.</li>
+</ul>
+<h2 id="keep-your-cluster-up-to-date">Keep your cluster up-to-date<a class="headerlink" href="#keep-your-cluster-up-to-date" title="Permanent link">&para;</a></h2>
+<p>Staying current with Kubernetes updates is paramount for a secure and efficient EKS environment, reflecting the shared responsibility model in Amazon EKS. By integrating these strategies into your operational workflow, you're positioning yourself to maintain up-to-date, secure clusters that take full advantage of the latest features and improvements. Tactics:</p>
+<ul>
+<li><strong>Supported Version Policy</strong> — Aligned with the Kubernetes community, Amazon EKS typically provides three active Kubernetes versions. A Kubernetes minor version is under standard support in Amazon EKS for the first 14 months after it's released. Once a version is past the end of standard support date, it enters extended support for the next 12 months. Deprecation notices are issued at least 60 days before a version reaches its end of standard support date. For more details, refer to the <a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html">EKS Version Lifecycle docs</a>.</li>
+<li><strong>Auto-Upgrade Policy</strong> — We strongly recommend staying in sync with Kubernetes updates in your EKS cluster. Clusters running on a Kubernetes version that has completed its 26-month lifecycle (14 months of standard support plus 12 months of extended support) will be auto-upgraded to the next version. Note that you can <a href="https://docs.aws.amazon.com/eks/latest/userguide/disable-extended-support.html">disable extended support</a>. Failure to proactively upgrade before a version's end-of-life triggers an automatic upgrade, which could disrupt your workloads and systems. For additional information, consult the <a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#version-faqs">EKS Version FAQs</a>.</li>
+<li><strong>Create Upgrade Runbooks</strong> — Establish a well-documented process for managing upgrades. As part of your proactive approach, develop runbooks and specialized tools tailored to your upgrade process. This not only enhances your preparedness but also simplifies complex transitions. Make it a standard practice to upgrade your clusters at least once a year. This practice aligns you with ongoing technological advancements, thereby boosting the efficiency and security of your environment.</li>
+</ul>
+<h2 id="review-the-eks-release-calendar">Review the EKS release calendar<a class="headerlink" href="#review-the-eks-release-calendar" title="Permanent link">&para;</a></h2>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-release-calendar">Review the EKS Kubernetes release calendar</a> to learn when new versions are coming, and when support for specific versions end. Generally, EKS releases three minor versions of Kubernetes annually, and each minor version is supported for about 14 months. </p>
+<p>Additionally, review the upstream <a href="https://kubernetes.io/releases/">Kubernetes release information</a>.</p>
+<h2 id="understand-how-the-shared-responsibility-model-applies-to-cluster-upgrades">Understand how the shared responsibility model applies to cluster upgrades<a class="headerlink" href="#understand-how-the-shared-responsibility-model-applies-to-cluster-upgrades" title="Permanent link">&para;</a></h2>
+<p>You are responsible for initiating upgrade for both cluster control plane as well as the data plane. <a href="https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html">Learn how to initiate an upgrade.</a> When you initiate a cluster upgrade, AWS manages upgrading the cluster control plane. You are responsible for upgrading the data plane, including Fargate pods and <a href="#upgrade-add-ons-and-components-using-the-kubernetes-api">other add-ons.</a> You must validate and plan upgrades for workloads running on your cluster to ensure their availability and operations are not impacted after cluster upgrade</p>
+<h2 id="upgrade-clusters-in-place">Upgrade clusters in-place<a class="headerlink" href="#upgrade-clusters-in-place" title="Permanent link">&para;</a></h2>
+<p>EKS supports an in-place cluster upgrade strategy. This maintains cluster resources, and keeps cluster configuration consistent (e.g., API endpoint, OIDC, ENIs, load balancers). This is less disruptive for cluster users, and it will use the existing workloads and resources in the cluster without requiring you to redeploy workloads or migrate external resources (e.g., DNS, storage).</p>
+<p>When performing an in-place cluster upgrade, it is important to note that only one minor version upgrade can be executed at a time (e.g., from 1.24 to 1.25). </p>
+<p>This means that if you need to update multiple versions, a series of sequential upgrades will be required. Planning sequential upgrades is more complicated, and has a higher risk of downtime. In this situation, <a href="#evaluate-bluegreen-clusters-as-an-alternative-to-in-place-cluster-upgrades">evaluate a blue/green cluster upgrade strategy.</a></p>
+<h2 id="upgrade-your-control-plane-and-data-plane-in-sequence">Upgrade your control plane and data plane in sequence<a class="headerlink" href="#upgrade-your-control-plane-and-data-plane-in-sequence" title="Permanent link">&para;</a></h2>
+<p>To upgrade a cluster you will need to take the following actions:</p>
+<ol>
+<li><a href="#use-the-eks-documentation-to-create-an-upgrade-checklist">Review the Kubernetes and EKS release notes.</a></li>
+<li><a href="#backup-the-cluster-before-upgrading">Take a backup of the cluster. (optional)</a></li>
+<li><a href="#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane">Identify and remediate deprecated and removed API usage in your workloads.</a></li>
+<li><a href="#track-the-version-skew-of-nodes-ensure-managed-node-groups-are-on-the-same-version-as-the-control-plane-before-upgrading">Ensure Managed Node Groups, if used, are on the same Kubernetes version as the control plane.</a> EKS managed node groups and nodes created by EKS Fargate Profiles support 2 minor version skew between the control plane and data plane for Kubernetes version 1.27 and below. Starting 1.28 and above, EKS managed node groups and nodes created by EKS Fargate Profiles support 3 minor version skew betweeen control plane and data plane. For example, if your EKS control plane version is 1.28, you can safely use kubelet versions as old as 1.25. If your EKS version is 1.27, the oldest kubelet version you can use is 1.25.</li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html">Upgrade the cluster control plane using the AWS console or cli.</a></li>
+<li><a href="#upgrade-add-ons-and-components-using-the-kubernetes-api">Review add-on compatibility.</a> Upgrade your Kubernetes add-ons and custom controllers, as required. </li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html">Update kubectl.</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html">Upgrade the cluster data plane.</a>  Upgrade your nodes to the same Kubernetes minor version as your upgraded cluster. </li>
+</ol>
+<h2 id="use-the-eks-documentation-to-create-an-upgrade-checklist">Use the EKS Documentation to create an upgrade checklist<a class="headerlink" href="#use-the-eks-documentation-to-create-an-upgrade-checklist" title="Permanent link">&para;</a></h2>
+<p>The EKS Kubernetes <a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html">version documentation</a> includes a detailed list of changes for each version. Build a checklist for each upgrade. </p>
+<p>For specific EKS version upgrade guidance, review the documentation for notable changes and considerations for each version.</p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.27">EKS 1.27</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.26">EKS 1.26</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.25">EKS 1.25</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.24">EKS 1.24</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.23">EKS 1.23</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.22">EKS 1.22</a></li>
+</ul>
+<h2 id="upgrade-add-ons-and-components-using-the-kubernetes-api">Upgrade add-ons and components using the Kubernetes API<a class="headerlink" href="#upgrade-add-ons-and-components-using-the-kubernetes-api" title="Permanent link">&para;</a></h2>
+<p>Before you upgrade a cluster, you should understand what versions of Kubernetes components you are using. Inventory cluster components, and identify components that use the Kubernetes API directly. This includes critical cluster components such as monitoring and logging agents, cluster autoscalers, container storage drivers (e.g. <a href="https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html">EBS CSI</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html">EFS CSI</a>), ingress controllers, and any other workloads or add-ons that rely on the Kubernetes API directly. </p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Critical cluster components are often installed in a <code>*-system</code> namespace</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl get ns | grep &#39;-system&#39;
+</code></pre></div>
+</div>
+<p>Once you have identified components that rely the Kubernetes API, check their documentation for version compatibility and upgrade requirements. For example, see the <a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/installation/">AWS Load Balancer Controller</a> documentation for version compatibility. Some components may need to be upgraded or configuration changed before proceeding with a cluster upgrade. Some critical components to check include <a href="https://github.com/coredns/coredns">CoreDNS</a>, <a href="https://kubernetes.io/docs/concepts/overview/components/#kube-proxy">kube-proxy</a>, <a href="https://github.com/aws/amazon-vpc-cni-k8s">VPC CNI</a>, and storage drivers. </p>
+<p>Clusters often contain many workloads that use the Kubernetes API and are required for workload functionality such as ingress controllers, continuous delivery systems, and monitoring tools. When you upgrade an EKS cluster, you must also upgrade your add-ons and third-party tools to make sure they are compatible.</p>
+<p>See the following examples of common add-ons and their relevant upgrade documentation:</p>
+<ul>
+<li><strong>Amazon VPC CNI:</strong> For the recommended version of the Amazon VPC CNI add-on for each cluster version, see <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html">Updating the Amazon VPC CNI plugin for Kubernetes self-managed add-on</a>. <strong>When installed as an Amazon EKS Add-on, it can only be upgraded one minor version at a time.</strong></li>
+<li><strong>kube-proxy:</strong> See <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-kube-proxy.html">Updating the Kubernetes kube-proxy self-managed add-on</a>.</li>
+<li><strong>CoreDNS:</strong> See <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html">Updating the CoreDNS self-managed add-on</a>.</li>
+<li><strong>AWS Load Balancer Controller:</strong> The AWS Load Balancer Controller needs to be compatible with the EKS version you have deployed. See the <a href="https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html">installation guide</a> for more information. </li>
+<li><strong>Amazon Elastic Block Store (Amazon EBS) Container Storage Interface (CSI) driver:</strong> For installation and upgrade information, see <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html">Managing the Amazon EBS CSI driver as an Amazon EKS add-on</a>.</li>
+<li><strong>Amazon Elastic File System (Amazon EFS) Container Storage Interface (CSI) driver:</strong> For installation and upgrade information, see <a href="https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html">Amazon EFS CSI driver</a>.</li>
+<li><strong>Kubernetes Metrics Server:</strong> For more information, see <a href="https://kubernetes-sigs.github.io/metrics-server/">metrics-server</a> on GitHub.</li>
+<li><strong>Kubernetes Cluster Autoscaler</strong><strong>:</strong> To upgrade the version of Kubernetes Cluster Autoscaler, change the version of the image in the deployment. The Cluster Autoscaler is tightly coupled with the Kubernetes scheduler. You will always need to upgrade it when you upgrade the cluster. Review the <a href="https://github.com/kubernetes/autoscaler/releases">GitHub releases</a> to find the address of the latest release corresponding to your Kubernetes minor version.</li>
+<li><strong>Karpenter:</strong> For installation and upgrade information, see the <a href="https://karpenter.sh/docs/upgrading/">Karpenter documentation.</a></li>
+</ul>
+<h2 id="verify-basic-eks-requirements-before-upgrading">Verify basic EKS requirements before upgrading<a class="headerlink" href="#verify-basic-eks-requirements-before-upgrading" title="Permanent link">&para;</a></h2>
+<p>AWS requires certain resources in your account to complete the upgrade process. If these resources aren't present, the cluster cannot be upgraded. A control plane upgrade requires the following resources:</p>
+<ol>
+<li>Available IP addresses: Amazon EKS requires up to five available IP addresses from the subnets you specified when you created the cluster in order to update the cluster. If not, update your cluster configuration to include new cluster subnets prior to performing the version update.</li>
+<li>EKS IAM role: The control plane IAM role is still present in the account with the necessary permissions.</li>
+<li>If your cluster has secret encryption enabled, then make sure that the cluster IAM role has permission to use the AWS Key Management Service (AWS KMS) key.</li>
+</ol>
+<h3 id="verify-available-ip-addresses">Verify available IP addresses<a class="headerlink" href="#verify-available-ip-addresses" title="Permanent link">&para;</a></h3>
+<p>To update the cluster, Amazon EKS requires up to five available IP addresses from the subnets that you specified when you created your cluster.</p>
+<p>To verify that your subnets have enough IP addresses to upgrade the cluster you can run the following command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>CLUSTER=&lt;cluster name&gt;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>aws ec2 describe-subnets --subnet-ids \
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  $(aws eks describe-cluster --name ${CLUSTER} \
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  --query &#39;cluster.resourcesVpcConfig.subnetIds&#39; \
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  --output text) \
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  --query &#39;Subnets[*].[SubnetId,AvailabilityZone,AvailableIpAddressCount]&#39; \
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  --output table
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>----------------------------------------------------
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>|                  DescribeSubnets                 |
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>+---------------------------+--------------+-------+
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>|  subnet-067fa8ee8476abbd6 |  us-east-1a  |  8184 |
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>|  subnet-0056f7403b17d2b43 |  us-east-1b  |  8153 |
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>|  subnet-09586f8fb3addbc8c |  us-east-1a  |  8120 |
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>|  subnet-047f3d276a22c6bce |  us-east-1b  |  8184 |
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>+---------------------------+--------------+-------+
+</code></pre></div>
+<p>The <a href="https://github.com/aws/amazon-vpc-cni-k8s/blob/master/cmd/cni-metrics-helper/README.md">VPC CNI Metrics Helper</a> may be used to create a CloudWatch dashboard for VPC metrics. 
+Amazon EKS recommends updating the cluster subnets using the "UpdateClusterConfiguration" API prior to beginning a Kubernetes version upgrade if you are running out of IP addresses in the subnets initially specified during cluster creation. Please verify that the new subnets you will be provided:</p>
+<ul>
+<li>belong to same set of AZs that are selected during cluster creation. </li>
+<li>belong to the same VPC provided during cluster creation</li>
+</ul>
+<p>Please consider associating additional CIDR blocks if the IP addresses in the existing VPC CIDR block run out. AWS enables the association of additional CIDR blocks with your existing cluster VPC, effectively expanding your IP address pool. This expansion can be accomplished by introducing additional private IP ranges (RFC 1918) or, if necessary, public IP ranges (non-RFC 1918). You must add new VPC CIDR blocks and allow VPC refresh to complete before Amazon EKS can use the new CIDR. After that, you can update the subnets based on the newly set up CIDR blocks to the VPC.</p>
+<h3 id="verify-eks-iam-role">Verify EKS IAM role<a class="headerlink" href="#verify-eks-iam-role" title="Permanent link">&para;</a></h3>
+<p>To verify that the IAM role is available and has the correct assume role policy in your account you can run the following commands:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>CLUSTER=&lt;cluster name&gt;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ROLE_ARN=$(aws eks describe-cluster --name ${CLUSTER} \
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  --query &#39;cluster.roleArn&#39; --output text)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>aws iam get-role --role-name ${ROLE_ARN##*/} \
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  --query &#39;Role.AssumeRolePolicyDocument&#39;
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>{
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    &quot;Version&quot;: &quot;2012-10-17&quot;,
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    &quot;Statement&quot;: [
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        {
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>            &quot;Effect&quot;: &quot;Allow&quot;,
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>            &quot;Principal&quot;: {
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>                &quot;Service&quot;: &quot;eks.amazonaws.com&quot;
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>            },
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>            &quot;Action&quot;: &quot;sts:AssumeRole&quot;
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        }
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    ]
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>}
+</code></pre></div>
+<h2 id="migrate-to-eks-add-ons">Migrate to EKS Add-ons<a class="headerlink" href="#migrate-to-eks-add-ons" title="Permanent link">&para;</a></h2>
+<p>Amazon EKS automatically installs add-ons such as the Amazon VPC CNI plugin for Kubernetes, <code>kube-proxy</code>, and CoreDNS for every cluster. Add-ons may be self-managed, or installed as Amazon EKS Add-ons. Amazon EKS Add-ons is an alternate way to manage add-ons using the EKS API. </p>
+<p>You can use Amazon EKS Add-ons to update versions with a single command. For Example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>aws eks update-addon —cluster-name my-cluster —addon-name vpc-cni —addon-version version-number \
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>--service-account-role-arn arn:aws:iam::111122223333:role/role-name —configuration-values &#39;{}&#39; —resolve-conflicts PRESERVE
+</code></pre></div>
+<p>Check if you have any EKS Add-ons with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>aws eks list-addons --cluster-name &lt;cluster name&gt;
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>EKS Add-ons are not automatically upgraded during a control plane upgrade. You must initiate EKS add-on updates, and select the desired version. </p>
+<ul>
+<li>You are responsible for selecting a compatible version from all available versions. <a href="#upgrade-add-ons-and-components-using-the-kubernetes-api">Review the guidance on add-on version compatibility.</a></li>
+<li>Amazon EKS Add-ons may only be upgraded one minor version at a time. </li>
+</ul>
+</div>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html">Learn more about what components are available as EKS Add-ons, and how to get started.</a></p>
+<p><a href="https://aws.amazon.com/blogs/containers/amazon-eks-add-ons-advanced-configuration/">Learn how to supply a custom configuration to an EKS Add-on.</a></p>
+<h2 id="identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane">Identify and remediate removed API usage before upgrading the control plane<a class="headerlink" href="#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane" title="Permanent link">&para;</a></h2>
+<p>You should identify API usage of removed APIs before upgrading your EKS control plane. To do that we recommend using tools that can check a running cluster or static, rendered Kubernetes manifest files. </p>
+<p>Running the check against static manifest files is generally more accurate. If run against live clusters, these tools may return false positives. </p>
+<p>A deprecated Kubernetes API does not mean the API has been removed. You should check the <a href="https://kubernetes.io/docs/reference/using-api/deprecation-policy/">Kubernetes Deprecation Policy</a> to understand how API removal affects your workloads.</p>
+<h3 id="cluster-insights">Cluster Insights<a class="headerlink" href="#cluster-insights" title="Permanent link">&para;</a></h3>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html">Cluster Insights</a> is a feature that provides findings on issues that may impact the ability to upgrade an EKS cluster to newer versions of Kubernetes. These findings are curated and managed by Amazon EKS and offer recommendations on how to remediate them. By leveraging Cluster Insights, you can minimize the effort spent to upgrade to newer Kubernetes versions.</p>
+<p>To view insights of an EKS cluster, you can run the command:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>aws eks list-insights --region &lt;region-code&gt; --cluster-name &lt;my-cluster&gt;
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>{
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    &quot;insights&quot;: [
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>            &quot;category&quot;: &quot;UPGRADE_READINESS&quot;, 
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>            &quot;name&quot;: &quot;Deprecated APIs removed in Kubernetes v1.29&quot;, 
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>            &quot;insightStatus&quot;: {
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>                &quot;status&quot;: &quot;PASSING&quot;, 
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>                &quot;reason&quot;: &quot;No deprecated API usage detected within the last 30 days.&quot;
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>            }, 
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>            &quot;kubernetesVersion&quot;: &quot;1.29&quot;, 
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>            &quot;lastTransitionTime&quot;: 1698774710.0, 
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>            &quot;lastRefreshTime&quot;: 1700157422.0, 
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>            &quot;id&quot;: &quot;123e4567-e89b-42d3-a456-579642341238&quot;, 
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>            &quot;description&quot;: &quot;Checks for usage of deprecated APIs that are scheduled for removal in Kubernetes v1.29. Upgrading your cluster before migrating to the updated APIs supported by v1.29 could cause application impact.&quot;
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        }
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>    ]
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>}
+</code></pre></div></p>
+<p>For a more descriptive output about the insight received, you can run the command:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>aws eks describe-insight --region &lt;region-code&gt; --id &lt;insight-id&gt; --cluster-name &lt;my-cluster&gt;
+</code></pre></div></p>
+<p>You also have the option to view insights in the <a href="https://console.aws.amazon.com/eks/home#/clusters">Amazon EKS Console</a>. After selecting your cluster from the cluster list, insight findings are located under the <code>Upgrade Insights</code> tab.</p>
+<p>If you find a cluster insight with <code>"status": ERROR</code>, you must address the issue prior to performing the cluster upgrade. Run the <code>aws eks describe-insight</code> command which will share the following remediation advice: </p>
+<p>Resources affected:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>&quot;resources&quot;: [
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>      {
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        &quot;insightStatus&quot;: {
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>          &quot;status&quot;: &quot;ERROR&quot;
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        },
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        &quot;kubernetesResourceUri&quot;: &quot;/apis/policy/v1beta1/podsecuritypolicies/null&quot;
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>      }
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>]
+</code></pre></div></p>
+<p>APIs deprecated:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>&quot;deprecationDetails&quot;: [
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>      {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        &quot;usage&quot;: &quot;/apis/flowcontrol.apiserver.k8s.io/v1beta2/flowschemas&quot;, 
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        &quot;replacedWith&quot;: &quot;/apis/flowcontrol.apiserver.k8s.io/v1beta3/flowschemas&quot;, 
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        &quot;stopServingVersion&quot;: &quot;1.29&quot;, 
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        &quot;clientStats&quot;: [], 
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        &quot;startServingReplacementVersion&quot;: &quot;1.26&quot;
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>      }
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>]
+</code></pre></div></p>
+<p>Recommended action to take:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>&quot;recommendation&quot;: &quot;Update manifests and API clients to use newer Kubernetes APIs if applicable before upgrading to Kubernetes v1.26.&quot;
+</code></pre></div></p>
+<p>Utilizing cluster insights through the EKS Console or CLI help speed the process of successfully upgrading EKS cluster versions. Learn more with the following resources:
+* <a href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html">Official EKS Docs</a>
+* <a href="https://aws.amazon.com/blogs/containers/accelerate-the-testing-and-verification-of-amazon-eks-upgrades-with-upgrade-insights/">Cluster Insights launch blog</a>.</p>
+<h3 id="kube-no-trouble">Kube-no-trouble<a class="headerlink" href="#kube-no-trouble" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/doitintl/kube-no-trouble">Kube-no-trouble</a> is an open source command line utility with the command <code>kubent</code>. When you run <code>kubent</code> without any arguments it will use your current KubeConfig context and scan the cluster and print a report with what APIs will be deprecated and removed. </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubent
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>4:17PM INF &gt;&gt;&gt; Kube No Trouble `kubent` &lt;&lt;&lt;
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>4:17PM INF version 0.7.0 (git sha d1bb4e5fd6550b533b2013671aa8419d923ee042)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>4:17PM INF Initializing collectors and retrieving data
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>4:17PM INF Target K8s version is 1.24.8-eks-ffeb93d
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>4:l INF Retrieved 93 resources from collector name=Cluster
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>4:17PM INF Retrieved 16 resources from collector name=&quot;Helm v3&quot;
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>4:17PM INF Loaded ruleset name=custom.rego.tmpl
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>4:17PM INF Loaded ruleset name=deprecated-1-16.rego
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>4:17PM INF Loaded ruleset name=deprecated-1-22.rego
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>4:17PM INF Loaded ruleset name=deprecated-1-25.rego
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>4:17PM INF Loaded ruleset name=deprecated-1-26.rego
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>4:17PM INF Loaded ruleset name=deprecated-future.rego
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>__________________________________________________________________________________________
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>&gt;&gt;&gt; Deprecated APIs removed in 1.25 &lt;&lt;&lt;
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>------------------------------------------------------------------------------------------
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>KIND                NAMESPACE     NAME             API_VERSION      REPLACE_WITH (SINCE)
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>PodSecurityPolicy   &lt;undefined&gt;   eks.privileged   policy/v1beta1   &lt;removed&gt; (1.21.0)
+</code></pre></div>
+<p>It can also be used to scan static manifest files and helm packages. It is recommended to run <code>kubent</code> as part of a continuous integration (CI) process to identify issues before manifests are deployed. Scanning manifests is also more accurate than scanning live clusters. </p>
+<p>Kube-no-trouble provides a sample <a href="https://github.com/doitintl/kube-no-trouble/blob/master/docs/k8s-sa-and-role-example.yaml">Service Account and Role</a> with the appropriate permissions for scanning the cluster. </p>
+<h3 id="pluto">Pluto<a class="headerlink" href="#pluto" title="Permanent link">&para;</a></h3>
+<p>Another option is <a href="https://pluto.docs.fairwinds.com/">pluto</a> which is similar to <code>kubent</code> because it supports scanning a live cluster, manifest files, helm charts and has a GitHub Action you can include in your CI process.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pluto detect-all-in-cluster
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>NAME             KIND                VERSION          REPLACEMENT   REMOVED   DEPRECATED   REPL AVAIL  
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>eks.privileged   PodSecurityPolicy   policy/v1beta1                 false     true         true
+</code></pre></div>
+<h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
+<p>To verify that your cluster don't use deprecated APIs before the upgrade, you should monitor:</p>
+<ul>
+<li>metric <code>apiserver_requested_deprecated_apis</code> since Kubernetes v1.19:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>kubectl get --raw /metrics | grep apiserver_requested_deprecated_apis
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>apiserver_requested_deprecated_apis{group=&quot;policy&quot;,removed_release=&quot;1.25&quot;,resource=&quot;podsecuritypolicies&quot;,subresource=&quot;&quot;,version=&quot;v1beta1&quot;} 1
+</code></pre></div>
+<ul>
+<li>events in the <a href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html">audit logs</a> with <code>k8s.io/deprecated</code> set to <code>true</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>CLUSTER=&quot;&lt;cluster_name&gt;&quot;
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>QUERY_ID=$(aws logs start-query \
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a> --log-group-name /aws/eks/${CLUSTER}/cluster \
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a> --start-time $(date -u --date=&quot;-30 minutes&quot; &quot;+%s&quot;) # or date -v-30M &quot;+%s&quot; on MacOS \
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a> --end-time $(date &quot;+%s&quot;) \
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a> --query-string &#39;fields @message | filter `annotations.k8s.io/deprecated`=&quot;true&quot;&#39; \
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a> --query queryId --output text)
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>echo &quot;Query started (query id: $QUERY_ID), please hold ...&quot; &amp;&amp; sleep 5 # give it some time to query
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>aws logs get-query-results --query-id $QUERY_ID
+</code></pre></div>
+<p>Which will output lines if deprecated APIs are in use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>{
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    &quot;results&quot;: [
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>        [
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>            {
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>                &quot;field&quot;: &quot;@message&quot;,
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>                &quot;value&quot;: &quot;{\&quot;kind\&quot;:\&quot;Event\&quot;,\&quot;apiVersion\&quot;:\&quot;audit.k8s.io/v1\&quot;,\&quot;level\&quot;:\&quot;Request\&quot;,\&quot;auditID\&quot;:\&quot;8f7883c6-b3d5-42d7-967a-1121c6f22f01\&quot;,\&quot;stage\&quot;:\&quot;ResponseComplete\&quot;,\&quot;requestURI\&quot;:\&quot;/apis/policy/v1beta1/podsecuritypolicies?allowWatchBookmarks=true\\u0026resourceVersion=4131\\u0026timeout=9m19s\\u0026timeoutSeconds=559\\u0026watch=true\&quot;,\&quot;verb\&quot;:\&quot;watch\&quot;,\&quot;user\&quot;:{\&quot;username\&quot;:\&quot;system:apiserver\&quot;,\&quot;uid\&quot;:\&quot;8aabfade-da52-47da-83b4-46b16cab30fa\&quot;,\&quot;groups\&quot;:[\&quot;system:masters\&quot;]},\&quot;sourceIPs\&quot;:[\&quot;::1\&quot;],\&quot;userAgent\&quot;:\&quot;kube-apiserver/v1.24.16 (linux/amd64) kubernetes/af930c1\&quot;,\&quot;objectRef\&quot;:{\&quot;resource\&quot;:\&quot;podsecuritypolicies\&quot;,\&quot;apiGroup\&quot;:\&quot;policy\&quot;,\&quot;apiVersion\&quot;:\&quot;v1beta1\&quot;},\&quot;responseStatus\&quot;:{\&quot;metadata\&quot;:{},\&quot;code\&quot;:200},\&quot;requestReceivedTimestamp\&quot;:\&quot;2023-10-04T12:36:11.849075Z\&quot;,\&quot;stageTimestamp\&quot;:\&quot;2023-10-04T12:45:30.850483Z\&quot;,\&quot;annotations\&quot;:{\&quot;authorization.k8s.io/decision\&quot;:\&quot;allow\&quot;,\&quot;authorization.k8s.io/reason\&quot;:\&quot;\&quot;,\&quot;k8s.io/deprecated\&quot;:\&quot;true\&quot;,\&quot;k8s.io/removed-release\&quot;:\&quot;1.25\&quot;}}&quot;
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>            },
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>[...]
+</code></pre></div>
+<h2 id="update-kubernetes-workloads-use-kubectl-convert-to-update-manifests">Update Kubernetes workloads. Use kubectl-convert to update manifests<a class="headerlink" href="#update-kubernetes-workloads-use-kubectl-convert-to-update-manifests" title="Permanent link">&para;</a></h2>
+<p>After you have identified what workloads and manifests need to be updated, you may need to change the resource type in your manifest files (e.g. PodSecurityPolicies to PodSecurityStandards). This will require updating the resource specification and additional research depending on what resource is being replaced.</p>
+<p>If the resource type is staying the same but API version needs to be updated you can use the <code>kubectl-convert</code> command to automatically convert your manifest files.  For example, to convert an older Deployment to <code>apps/v1</code>. For more information, see <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin">Install kubectl convert plugin</a>on the Kubernetes website.</p>
+<p><code>kubectl-convert -f &lt;file&gt; --output-version &lt;group&gt;/&lt;version&gt;</code></p>
+<h2 id="configure-poddisruptionbudgets-and-topologyspreadconstraints-to-ensure-availability-of-your-workloads-while-the-data-plane-is-upgraded">Configure PodDisruptionBudgets and topologySpreadConstraints to ensure availability of your workloads while the data plane is upgraded<a class="headerlink" href="#configure-poddisruptionbudgets-and-topologyspreadconstraints-to-ensure-availability-of-your-workloads-while-the-data-plane-is-upgraded" title="Permanent link">&para;</a></h2>
+<p>Ensure your workloads have the proper <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets">PodDisruptionBudgets</a> and <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints">topologySpreadConstraints</a> to ensure availability of your workloads while the data plane is upgraded. Not every workload requires the same level of availability so you need to validate the scale and requirements of your workload.</p>
+<p>Make sure workloads are spread in multiple Availability Zones and on multiple hosts with topology spreads will give a higher level of confidence that workloads will migrate to the new data plane automatically without incident. </p>
+<p>Here is an example workload that will always have 80% of replicas available and spread replicas across zones and hosts</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>apiVersion: policy/v1
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>kind: PodDisruptionBudget
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>metadata:
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>  name: myapp
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>spec:
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>  minAvailable: &quot;80%&quot;
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>  selector:
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    matchLabels:
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>      app: myapp
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>---
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>apiVersion: apps/v1
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>kind: Deployment
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>metadata:
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>  name: myapp
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>spec:
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>  replicas: 10
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>  selector:
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    matchLabels:
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>      app: myapp
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>  template:
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    metadata:
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>      labels:
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>        app: myapp
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>    spec:
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>      containers:
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>      - image: public.ecr.aws/eks-distro/kubernetes/pause:3.2
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>        name: myapp
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>        resources:
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>          requests:
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>            cpu: &quot;1&quot;
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>            memory: 256M
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>      topologySpreadConstraints:
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>      - labelSelector:
+<a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a>          matchLabels:
+<a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a>            app: host-zone-spread
+<a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a>        maxSkew: 2
+<a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a>        topologyKey: kubernetes.io/hostname
+<a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a>        whenUnsatisfiable: DoNotSchedule
+<a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a>      - labelSelector:
+<a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a>          matchLabels:
+<a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a>            app: host-zone-spread
+<a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a>        maxSkew: 2
+<a id="__codelineno-15-43" name="__codelineno-15-43" href="#__codelineno-15-43"></a>        topologyKey: topology.kubernetes.io/zone
+<a id="__codelineno-15-44" name="__codelineno-15-44" href="#__codelineno-15-44"></a>        whenUnsatisfiable: DoNotSchedule
+</code></pre></div>
+<p><a href="https://aws.amazon.com/resilience-hub/">AWS Resilience Hub</a> has added Amazon Elastic Kubernetes Service (Amazon EKS) as a supported resource. Resilience Hub provides a single place to define, validate, and track the resilience of your applications so that you can avoid unnecessary downtime caused by software, infrastructure, or operational disruptions.</p>
+<h2 id="use-managed-node-groups-or-karpenter-to-simplify-data-plane-upgrades">Use Managed Node Groups or Karpenter to simplify data plane upgrades<a class="headerlink" href="#use-managed-node-groups-or-karpenter-to-simplify-data-plane-upgrades" title="Permanent link">&para;</a></h2>
+<p>Managed Node Groups and Karpenter both simplify node upgrades, but they take different approaches.</p>
+<p>Managed node groups automate the provisioning and lifecycle management of nodes. This means that you can create, automatically update, or terminate nodes with a single operation.</p>
+<p>For Karpenter data plane upgrades, refer to below sections:
+* <a href="#use-drift-for-karpenter-managed-nodes">Use Drift for Karpenter managed nodes</a>
+* <a href="#use-expire-after-for-karpenter-managed-nodes">Use ExpireAfter for Karpenter managed nodes</a></p>
+<h2 id="confirm-version-compatibility-with-existing-nodes-and-the-control-plane">Confirm version compatibility with existing nodes and the control plane<a class="headerlink" href="#confirm-version-compatibility-with-existing-nodes-and-the-control-plane" title="Permanent link">&para;</a></h2>
+<p>Before proceeding with a Kubernetes upgrade in Amazon EKS, it's vital to ensure compatibility between your managed node groups, self-managed nodes, and the control plane. Compatibility is determined by the Kubernetes version you are using, and it varies based on different scenarios. Tactics:</p>
+<ul>
+<li><strong>Kubernetes v1.28+</strong> — **** Starting from Kubernetes version 1.28 and onwards, there's a more lenient version policy for core components. Specifically, the supported skew between the Kubernetes API server and the kubelet has been extended by one minor version, going from n-2 to n-3. For example, if your EKS control plane version is 1.28, you can safely use kubelet versions as old as 1.25. This version skew is supported across <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html">AWS Fargate</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">managed node groups</a>, and <a href="https://docs.aws.amazon.com/eks/latest/userguide/worker.html">self-managed nodes</a>. We highly recommend keeping your <a href="https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html">Amazon Machine Image (AMI)</a> versions up-to-date for security reasons. Older kubelet versions might pose security risks due to potential Common Vulnerabilities and Exposures (CVEs), which could outweigh the benefits of using older kubelet versions.</li>
+<li><strong>Kubernetes &lt; v1.28</strong> — If you are using a version older than v1.28, the supported skew between the API server and the kubelet is n-2. For example, if your EKS version is 1.27, the oldest kubelet version you can use is 1.25. This version skew is applicable across <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html">AWS Fargate</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">managed node groups</a>, and <a href="https://docs.aws.amazon.com/eks/latest/userguide/worker.html">self-managed nodes</a>.</li>
+</ul>
+<h2 id="use-drift-for-karpenter-managed-nodes">Use Drift for Karpenter managed nodes<a class="headerlink" href="#use-drift-for-karpenter-managed-nodes" title="Permanent link">&para;</a></h2>
+<p>Karpenter's <a href="https://karpenter.sh/docs/concepts/disruption/#drift">Drift</a> can automatically upgrade the Karpenter-provisioned nodes to stay in-sync with the EKS control plane. Refer to <a href="https://karpenter.sh/docs/faq/#how-do-i-upgrade-an-eks-cluster-with-karpenter">How to upgrade an EKS Cluster with Karpenter</a> for more details.</p>
+<p>This means that if the AMI ID specified in the Karpenter EC2 Nodeclass is updated, Karpenter will detect the drift and start replacing the nodes with the new AMI. 
+To understand how Karpenter manages AMIs and the different options available to Karpenter users to control the AMI upgrade process see the documentation on <a href="https://karpenter.sh/docs/tasks/managing-amis/">how to manage AMIs in Karpenter</a>.</p>
+<h2 id="use-expireafter-for-karpenter-managed-nodes">Use ExpireAfter for Karpenter managed nodes<a class="headerlink" href="#use-expireafter-for-karpenter-managed-nodes" title="Permanent link">&para;</a></h2>
+<p>Karpenter will mark nodes as expired and disrupt them after they have lived the duration specified in `spec.disruption.expireAfter. This node expiry helps to reduce security vulnerabilities and issues that can arise from long-running nodes, such as file fragmentation or memory leaks. When you set a value for expireAfter in your NodePool, this activates node expiry. For more information, see <a href="https://karpenter.sh/docs/concepts/disruption/#methods">Disruption</a> on the Karpenter website.</p>
+<p>If you're using automatic AMI upgrades, ExpireAfter can periodically refresh and upgrade your nodes.</p>
+<p>If it's happened that the node is drifted, but hasn't been cleaned up, node expiration will also replace the instance with the new AMI in EC2NodeClass.</p>
+<h2 id="use-eksctl-to-automate-upgrades-for-self-managed-node-groups">Use eksctl to automate upgrades for self-managed node groups<a class="headerlink" href="#use-eksctl-to-automate-upgrades-for-self-managed-node-groups" title="Permanent link">&para;</a></h2>
+<p>Self managed node groups are EC2 instances that were deployed in your account and attached to the cluster outside of the EKS service. These are usually deployed and managed by some form of automation tooling. To upgrade self-managed node groups you should refer to your tools documentation.</p>
+<p>For example, eksctl supports <a href="https://eksctl.io/usage/managing-nodegroups/#deleting-and-draining">deleting and draining self-managed nodes.</a> </p>
+<p>Some common tools include:</p>
+<ul>
+<li><a href="https://eksctl.io/usage/nodegroup-upgrade/">eksctl</a></li>
+<li><a href="https://kops.sigs.k8s.io/operations/updates_and_upgrades/">kOps</a></li>
+<li><a href="https://aws-ia.github.io/terraform-aws-eks-blueprints/node-groups/#self-managed-node-groups">EKS Blueprints</a></li>
+</ul>
+<h2 id="backup-the-cluster-before-upgrading">Backup the cluster before upgrading<a class="headerlink" href="#backup-the-cluster-before-upgrading" title="Permanent link">&para;</a></h2>
+<p>New versions of Kubernetes introduce significant changes to your Amazon EKS cluster. After you upgrade a cluster, you can't downgrade it.</p>
+<p><a href="https://velero.io/">Velero</a> is an community supported open-source tool that can be used to take backups of existing clusters and apply the backups to a new cluster.</p>
+<p>Note that you can only create new clusters for Kubernetes versions currently supported by EKS. If the version your cluster is currently running is still supported and an upgrade fails, you can create a new cluster with the original version and restore the data plane. Note that AWS resources, including IAM, are not included in the backup by Velero. These resources would need to be recreated. </p>
+<h2 id="restart-fargate-deployments-after-upgrading-the-control-plane">Restart Fargate deployments after upgrading the control plane<a class="headerlink" href="#restart-fargate-deployments-after-upgrading-the-control-plane" title="Permanent link">&para;</a></h2>
+<p>To upgrade Fargate data plane nodes you need to redeploy the workloads. You can identify which workloads are running on fargate nodes by listing all pods with the <code>-o wide</code> option. Any node name that begins with <code>fargate-</code> will need to be redeployed in the cluster.</p>
+<h2 id="evaluate-bluegreen-clusters-as-an-alternative-to-in-place-cluster-upgrades">Evaluate Blue/Green Clusters as an alternative to in-place cluster upgrades<a class="headerlink" href="#evaluate-bluegreen-clusters-as-an-alternative-to-in-place-cluster-upgrades" title="Permanent link">&para;</a></h2>
+<p>Some customers prefer to do a blue/green upgrade strategy. This can have benefits, but also includes downsides that should be considered.</p>
+<p>Benefits include:</p>
+<ul>
+<li>Possible to change multiple EKS versions at once (e.g. 1.23 to 1.25)</li>
+<li>Able to switch back to the old cluster</li>
+<li>Creates a new cluster which may be managed with newer systems (e.g. terraform)</li>
+<li>Workloads can be migrated individually</li>
+</ul>
+<p>Some downsides include:</p>
+<ul>
+<li>API endpoint and OIDC change which requires updating consumers (e.g. kubectl and CI/CD)</li>
+<li>Requires 2 clusters to be run in parallel during the migration, which can be expensive and limit region capacity</li>
+<li>More coordination is needed if workloads depend on each other to be migrated together</li>
+<li>Load balancers and external DNS cannot easily span multiple clusters</li>
+</ul>
+<p>While this strategy is possible to do, it is more expensive than an in-place upgrade and requires more time for coordination and workload migrations. It may be required in some situations and should be planned carefully.</p>
+<p>With high degrees of automation and declarative systems like GitOps, this may be easier to do. You will need to take additional precautions for stateful workloads so data is backed up and migrated to new clusters.</p>
+<p>Review these blogs posts for more information:</p>
+<ul>
+<li><a href="https://aws.amazon.com/blogs/containers/kubernetes-cluster-upgrade-the-blue-green-deployment-strategy/">Kubernetes cluster upgrade: the blue-green deployment strategy</a></li>
+<li><a href="https://aws.amazon.com/blogs/containers/blue-green-or-canary-amazon-eks-clusters-migration-for-stateless-argocd-workloads/">Blue/Green or Canary Amazon EKS clusters migration for stateless ArgoCD workloads</a></li>
+</ul>
+<h2 id="track-planned-major-changes-in-the-kubernetes-project-think-ahead">Track planned major changes in the Kubernetes project — Think ahead<a class="headerlink" href="#track-planned-major-changes-in-the-kubernetes-project-think-ahead" title="Permanent link">&para;</a></h2>
+<p>Don't look only at the next version. Review new versions of Kubernetes as they are released, and identify major changes. For example, some applications directly used the docker API, and support for Container Runtime Interface (CRI) for Docker (also known as Dockershim) was removed in Kubernetes <code>1.24</code>. This kind of change requires more time to prepare for. </p>
+<p>Review all documented changes for the version that you're upgrading to, and note any required upgrade steps. Also, note any requirements or procedures that are specific to Amazon EKS managed clusters.</p>
+<ul>
+<li><a href="https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG">Kubernetes changelog</a></li>
+</ul>
+<h2 id="specific-guidance-on-feature-removals">Specific Guidance on Feature Removals<a class="headerlink" href="#specific-guidance-on-feature-removals" title="Permanent link">&para;</a></h2>
+<h3 id="removal-of-dockershim-in-125-use-detector-for-docker-socket-dds">Removal of Dockershim in 1.25 - Use Detector for Docker Socket (DDS)<a class="headerlink" href="#removal-of-dockershim-in-125-use-detector-for-docker-socket-dds" title="Permanent link">&para;</a></h3>
+<p>The EKS Optimized AMI for 1.25 no longer includes support for Dockershim. If you have a dependency on Dockershim, e.g. you are mounting the Docker socket, you will need to remove those dependencies before upgrading your worker nodes to 1.25. </p>
+<p>Find instances where you have a dependency on the Docker socket before upgrading to 1.25. We recommend using <a href="https://github.com/aws-containers/kubectl-detector-for-docker-socket">Detector for Docker Socket (DDS), a kubectl plugin.</a>. </p>
+<h3 id="removal-of-podsecuritypolicy-in-125-migrate-to-pod-security-standards-or-a-policy-as-code-solution">Removal of PodSecurityPolicy in 1.25 - Migrate to Pod Security Standards or a policy-as-code solution<a class="headerlink" href="#removal-of-podsecuritypolicy-in-125-migrate-to-pod-security-standards-or-a-policy-as-code-solution" title="Permanent link">&para;</a></h3>
+<p><code>PodSecurityPolicy</code> was <a href="https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/">deprecated in Kubernetes 1.21</a>, and has been removed in Kubernetes 1.25. If you are using PodSecurityPolicy in your cluster, then you must migrate to the built-in Kubernetes Pod Security Standards (PSS) or to a policy-as-code solution before upgrading your cluster to version 1.25 to avoid interruptions to your workloads. </p>
+<p>AWS published a <a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-security-policy-removal-faq.html">detailed FAQ in the EKS documentation.</a></p>
+<p>Review the <a href="https://aws.github.io/aws-eks-best-practices/security/docs/pods/#pod-security-standards-pss-and-pod-security-admission-psa">Pod Security Standards (PSS) and Pod Security Admission (PSA)</a> best practices. </p>
+<p>Review the <a href="https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/">PodSecurityPolicy Deprecation blog post</a> on the Kubernetes website.</p>
+<h3 id="deprecation-of-in-tree-storage-driver-in-123-migrate-to-container-storage-interface-csi-drivers">Deprecation of In-Tree Storage Driver in 1.23 - Migrate to Container Storage Interface (CSI) Drivers<a class="headerlink" href="#deprecation-of-in-tree-storage-driver-in-123-migrate-to-container-storage-interface-csi-drivers" title="Permanent link">&para;</a></h3>
+<p>The Container Storage Interface (CSI) was designed to help Kubernetes replace its existing, in-tree storage driver mechanisms. The Amazon EBS container storage interface (CSI) migration feature is enabled by default in Amazon EKS <code>1.23</code> and later clusters. If you have pods running on a version <code>1.22</code> or earlier cluster, then you must install the <a href="https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html">Amazon EBS CSI driver</a> before updating your cluster to version <code>1.23</code> to avoid service interruption. </p>
+<p>Review the <a href="https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi-migration-faq.html">Amazon EBS CSI migration frequently asked questions</a>.</p>
+<h2 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h2>
+<h3 id="clowdhaus-eks-upgrade-guidance">ClowdHaus EKS Upgrade Guidance<a class="headerlink" href="#clowdhaus-eks-upgrade-guidance" title="Permanent link">&para;</a></h3>
+<p><a href="https://clowdhaus.github.io/eksup/">ClowdHaus EKS Upgrade Guidance</a> is a CLI to aid in upgrading Amazon EKS clusters. It can analyze a cluster for any potential issues to remediate prior to upgrade. </p>
+<h3 id="gonogo">GoNoGo<a class="headerlink" href="#gonogo" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/FairwindsOps/GoNoGo">GoNoGo</a> is an alpha-stage tool to determine the upgrade confidence of your cluster add-ons. </p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["tabs", "content.code.copy", "header.autohide"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

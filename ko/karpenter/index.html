@@ -1,0 +1,2945 @@
+
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../security/docs/multiaccount/">
+      
+      
+        <link rel="next" href="../cluster-autoscaling/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Karpenter - EKS 모범 사례 가이드</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-VQGL8B2FH8"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-VQGL8B2FH8",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-VQGL8B2FH8",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  
+  
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#karpenter" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+<h2 style="color:#F2F2F2;text-align: center;"><b> The EKS Best Practices Guide has moved to the <a style="color:#ff9900;text-decoration: underline" href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html">AWS Documentation</a></u>. Check there for the latest updates. </b></h2>
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="상단/헤더">
+    <a href="../" title="EKS 모범 사례 가이드" class="md-header__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            EKS 모범 사례 가이드
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Karpenter
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="언어설정">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../karpenter/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="ko" class="md-select__link">
+              한국어
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="검색" placeholder="검색" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="검색">
+        
+        <button type="reset" class="md-search__icon md-icon" title="지우기" aria-label="지우기" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            검색 초기화
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="네비게이션" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../" title="EKS 모범 사례 가이드" class="md-nav__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    EKS 모범 사례 가이드
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    가이드
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            가이드
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    소개
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    보안
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            보안
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/iam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인증 및 접근 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/pods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/multitenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 테넌시
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/detective/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    탐지 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 암호화 및 시크릿 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    런타임 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴플라이언스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/incidents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    사고 대응 및 포렌식
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    이미지 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/multiaccount/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 어카운트 전략
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    클러스터 오토스케일링
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            클러스터 오토스케일링
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Karpenter
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Karpenter
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter 모범 사례
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Karpenter 모범 사례">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#karpenter_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      변화하는 용량 요구가 있는 워크로드에는 Karpenter를 사용하세요
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      다음과 같은 경우에는 다른 Auto Scaling 프로젝트를 고려합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eks-fargate-karpenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS Fargate 또는 노드 그룹에 속한 워커 노드에서 Karpenter 컨트롤러를 실행합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#karpenter-launch-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter에서 사용자 지정 시작 템플릿(launch template)을 사용하지 마십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      워크로드에 맞지 않는 인스턴스 유형은 제외합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      스팟 사용 시 인터럽트 핸들링 활성화
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amazon-eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      아웃바운드 인터넷 액세스가 없는 Amazon EKS 프라이빗 클러스터
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      프로비져너 생성
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="프로비져너 생성">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      다음과 같은 경우 프로비져너를 여러 개 만들 수 있습니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      상호 배타적이거나 가중치가 부여되는 프로비저닝 도구 만들기
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      타이머(TTL)를 사용하여 클러스터에서 노드를 자동으로 삭제합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#karpenter_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      특히 스팟을 사용할 때는 Karpenter가 프로비저닝할 수 있는 인스턴스 유형을 지나치게 제한하지 마십시오.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      스케줄링 파드
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="스케줄링 파드">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      고가용성을 위한 EKS 모범 사례를 따르십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      계층화된 제약 조건을 사용하여 클라우드 공급자가 제공하는 컴퓨팅 기능을 제한하십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      결제 경보를 생성하여 컴퓨팅 지출을 모니터링하세요
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#do-not-evict-karpenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      제거 금지(do-not-evict) 어노테이션 사용하여 Karpenter가 노드 프로비저닝을 취소하지 못하도록 하세요.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consolidation-cpu-requestslimits" class="md-nav__link">
+    <span class="md-ellipsis">
+      통합(Consolidation)을 사용할 때 CPU가 아닌 모든 리소스에 대해 요청=제한(requests=limits)을 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      LimitRanges 를 사용하여 리소스 요청 및 제한에 대한 기본값을 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      정확한 리소스 요청을 모든 워크로드에 적용
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      추가 리소스
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-autoscaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cluster Autoscaler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    신뢰성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            신뢰성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/application/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    애플리케이션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/controlplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            네트워크
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/subnets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    VPC 및 서브넷 고려사항
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/vpc-cni/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Amazon VPC CNI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ip-optimization-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IP 주소 사용 최적화
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ipv6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPv6 클러스터 운영
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/custom-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom 네트워킹
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/prefix-mode/index_linux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 리눅스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/prefix-mode/index_windows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 윈도우
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/sgpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안 그룹 할당
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/loadbalancing/loadbalancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로드 밸런싱
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 성능 문제에 대한 EKS 워크로드 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ipvs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPVS 모드에서 kube-proxy 실행
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    확장성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            확장성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/control-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/data-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/cluster-services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 서비스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/workloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    워크로드
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/scaling_theory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    확장에 대한 이론
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/kcp_monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/node_efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    노드 및 워크로드 효율성
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/kubernetes_slos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    쿠버네티스 SLO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/quotas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    알려진 제한 및 서비스 할당량
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrades/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 업그레이드
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    비용 최적화
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            비용 최적화
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_optimization_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cfm_framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클라우드 재무 관리 프레임워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/awareness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Awareness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_compute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴퓨팅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    옵저버빌리티
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            윈도우 컨테이너
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/ami/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AMI 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/gmsa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    gMSA 윈도우 컨테이너
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 서버 하드닝
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 이미지 스캔
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/licensing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 버전 및 라이선스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로깅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/oom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    메모리 및 시스템 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스케줄링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지 옵션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      권장 사항
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter 모범 사례
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Karpenter 모범 사례">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#karpenter_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      변화하는 용량 요구가 있는 워크로드에는 Karpenter를 사용하세요
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      다음과 같은 경우에는 다른 Auto Scaling 프로젝트를 고려합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eks-fargate-karpenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS Fargate 또는 노드 그룹에 속한 워커 노드에서 Karpenter 컨트롤러를 실행합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#karpenter-launch-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter에서 사용자 지정 시작 템플릿(launch template)을 사용하지 마십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      워크로드에 맞지 않는 인스턴스 유형은 제외합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      스팟 사용 시 인터럽트 핸들링 활성화
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amazon-eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      아웃바운드 인터넷 액세스가 없는 Amazon EKS 프라이빗 클러스터
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      프로비져너 생성
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="프로비져너 생성">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      다음과 같은 경우 프로비져너를 여러 개 만들 수 있습니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      상호 배타적이거나 가중치가 부여되는 프로비저닝 도구 만들기
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      타이머(TTL)를 사용하여 클러스터에서 노드를 자동으로 삭제합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#karpenter_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      특히 스팟을 사용할 때는 Karpenter가 프로비저닝할 수 있는 인스턴스 유형을 지나치게 제한하지 마십시오.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      스케줄링 파드
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="스케줄링 파드">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      고가용성을 위한 EKS 모범 사례를 따르십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      계층화된 제약 조건을 사용하여 클라우드 공급자가 제공하는 컴퓨팅 기능을 제한하십시오.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      결제 경보를 생성하여 컴퓨팅 지출을 모니터링하세요
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#do-not-evict-karpenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      제거 금지(do-not-evict) 어노테이션 사용하여 Karpenter가 노드 프로비저닝을 취소하지 못하도록 하세요.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consolidation-cpu-requestslimits" class="md-nav__link">
+    <span class="md-ellipsis">
+      통합(Consolidation)을 사용할 때 CPU가 아닌 모든 리소스에 대해 요청=제한(requests=limits)을 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      LimitRanges 를 사용하여 리소스 요청 및 제한에 대한 기본값을 구성합니다.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      정확한 리소스 요청을 모든 워크로드에 적용
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      추가 리소스
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="karpenter">Karpenter 모범 사례<a class="headerlink" href="#karpenter" title="Permanent link">&para;</a></h1>
+<h2 id="karpenter_1">Karpenter<a class="headerlink" href="#karpenter_1" title="Permanent link">&para;</a></h2>
+<p>Karpenter는 unschedulable 파드에 대응하여 새 노드를 자동으로 프로비저닝하는 오픈 소스 클러스터 오토스케일러입니다. Karpenter는 pending 상태의 파드의 전체 리소스 요구 사항을 평가하고 이를 실행하기 위한 최적의 인스턴스 유형을 선택합니다. 데몬셋이 아닌 파드가 없는 인스턴스를 자동으로 확장하거나 종료하여 낭비를 줄입니다. 또한 파드를 능동적으로 이동하고 노드를 삭제하거나 더 저렴한 인스턴스 유형으로 교체하여 클러스터 비용을 절감하는 통합 기능도 지원합니다.</p>
+<p><strong>Karpenter를 사용해야 하는 이유</strong></p>
+<p>Karpenter가 출시되기 전에 쿠버네티스 사용자는 주로 <a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html">Amazon EC2 Auto Scaling 그룹</a>과 <a href="https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler">쿠버네티스 Cluster Autoscaler</a>(CA)를 사용하여 클러스터의 컴퓨팅 용량을 동적으로 조정했습니다. Karpenter를 사용하면 유연성과 다양성을 달성하기 위해 수십 개의 노드 그룹을 만들 필요가 없습니다. 게다가 Karpenter는 (CA처럼) 쿠버네티스 버전과 밀접하게 연결되어 있지 않기 때문에 AWS와 쿠버네티스 API 사이를 오갈 필요가 없습니다.</p>
+<p>Karpenter는 단일 시스템 내 인스턴스 오케스트레이션 기능을 통합적으로 수행하며 더 간단하고 안정적이며 보다 클러스터를 잘 파악합니다. Karpenter는 다음과 같은 간소화된 방법을 제공하여 클러스터 오토스케일러가 제시하는 몇 가지 문제를 해결하도록 설계되었습니다.</p>
+<ul>
+<li>워크로드 요구 사항에 따라 노드를 프로비저닝합니다.</li>
+<li>유연한 워크로드 프로비저너 옵션을 사용하여 인스턴스 유형별로 다양한 노드 구성을 생성합니다. Karpenter를 사용하면 많은 특정 사용자 지정 노드 그룹을 관리하는 대신 유연한 단일 프로비저너로 다양한 워크로드 용량을 관리할 수 있습니다.</li>
+<li>노드를 빠르게 시작하고 파드를 스케줄링하여 대규모 파드 스케줄링을 개선합니다.</li>
+</ul>
+<p>Karpenter 사용에 대한 정보 및 설명서를 보려면 <a href="https://karpenter.sh/">karpenter.sh</a> 사이트를 방문하세요.</p>
+<h2 id="_1">권장 사항<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>모범 사례는 Karpenter, 프로비저너(provisioner), 파드 스케줄링 섹션으로 구분됩니다.</p>
+<h2 id="karpenter_2">Karpenter 모범 사례<a class="headerlink" href="#karpenter_2" title="Permanent link">&para;</a></h2>
+<p>다음 모범 사례는 Karpenter 자체와 관련된 주제를 다룹니다.</p>
+<h3 id="karpenter_3">변화하는 용량 요구가 있는 워크로드에는 Karpenter를 사용하세요<a class="headerlink" href="#karpenter_3" title="Permanent link">&para;</a></h3>
+<p>Karpenter는 <a href="https://aws.amazon.com/blogs/containers/amazon-eks-cluster-multi-zone-auto-scaling-groups/">Auto Scaling 그룹</a>(ASG) 및 <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">관리형 노드 그룹</a>(MNG)보다 쿠버네티스 네이티브 API에 더 가까운 스케일링 관리를 제공합니다. ASG 및 MNG는 EC2 CPU 부하와 같은 AWS 레벨 메트릭을 기반으로 스케일링이 트리거되는 AWS 네이티브 추상화입니다. <a href="https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html#cluster-autoscaler">Cluster Autoscaler</a>는 쿠버네티스 추상화를 AWS 추상화로 연결하지만, 이로 인해 특정 가용영역에 대한 스케줄링과 같은 유연성이 다소 떨어집니다.</p>
+<p>Karpenter는 일부 유연성을 쿠버네티스에 직접 적용하기 위해 AWS 추상화 계층을 제거합니다. Karpenter는 수요가 급증하는 시기에 직면하거나 다양한 컴퓨팅 요구 사항이 있는 워크로드가 있는 클러스터에 가장 적합합니다.MNG와 ASG는 정적이고 일관성이 높은 워크로드를 실행하는 클러스터에 적합합니다. 요구 사항에 따라 동적으로 관리되는 노드와 정적으로 관리되는 노드를 혼합하여 사용할 수 있습니다.</p>
+<h3 id="auto-scaling">다음과 같은 경우에는 다른 Auto Scaling 프로젝트를 고려합니다.<a class="headerlink" href="#auto-scaling" title="Permanent link">&para;</a></h3>
+<p>Karpenter에서 아직 개발 중인 기능이 필요합니다. Karpenter는 비교적 새로운 프로젝트이므로 아직 Karpenter에 포함되지 않은 기능이 필요한 경우 당분간 다른 오토스케일링 프로젝트를 고려해 보세요.</p>
+<h3 id="eks-fargate-karpenter">EKS Fargate 또는 노드 그룹에 속한 워커 노드에서 Karpenter 컨트롤러를 실행합니다.<a class="headerlink" href="#eks-fargate-karpenter" title="Permanent link">&para;</a></h3>
+<p>Karpenter는 <a href="https://karpenter.sh/docs/getting-started/">헬름 차트</a>를 사용하여 설치됩니다. 이 헬름 차트는 Karpenter 컨트롤러와 웹훅 파드를 디플로이먼트로 설치하는데, 이 디플로이먼트를 실행해야 컨트롤러를 사용하여 클러스터를 확장할 수 있습니다. 최소 하나 이상의 워커 노드가 있는 소규모 노드 그룹을 하나 이상 사용하는 것이 좋습니다. 대안으로, 'karpenter' 네임스페이스에 대한 Fargate 프로파일을 생성하여 EKS Fargate에서 이런 파드를 실행할 수 있습니다. 이렇게 하면 이 네임스페이스에 배포된 모든 파드가 EKS Fargate에서 실행됩니다. Karpenter가 관리하는 노드에서는 Karpenter를 실행하지 마십시오.</p>
+<h3 id="karpenter-launch-template">Karpenter에서 사용자 지정 시작 템플릿(launch template)을 사용하지 마십시오.<a class="headerlink" href="#karpenter-launch-template" title="Permanent link">&para;</a></h3>
+<p>Karpenter는 사용자 지정 시작 템플릿을 사용하지 말 것을 강력히 권장합니다. 사용자 지정 시작 템플릿을 사용하면 멀티 아키텍처 지원, 노드 자동 업그레이드 기능 및 보안그룹 검색이 불가능합니다. 시작 템플릿을 사용하면 Karpenter 프로비저너 내에서 특정 필드가 중복되고 Karpenter는 다른 필드(예: 서브넷 및 인스턴스 유형)를 무시하기 때문에 혼동이 발생할 수도 있습니다.</p>
+<p>사용자 지정 사용자 데이터(EC2 User Data)를 사용하거나 AWS 노드 템플릿에서 사용자 지정 AMI를 직접 지정하면 시작 템플릿 사용을 피할 수 있는 경우가 많습니다. 이 작업을 수행하는 방법에 대한 자세한 내용은 <a href="https://karpenter.sh/docs/concepts/node-templates">노드 템플릿</a>에서 확인할 수 있습니다.</p>
+<h3 id="_2">워크로드에 맞지 않는 인스턴스 유형은 제외합니다.<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>특정 인스턴스 유형이 클러스터에서 실행되는 워크로드에 필요하지 않은 경우, <a href="http://node.kubernetes.io/instance-type">node.kubernetes.io/instance-type</a> 키에서 해당 인스턴스 유형을 제외하는 것이 좋습니다.</p>
+<p>다음 예제는 큰 Graviton 인스턴스의 프로비저닝을 방지하는 방법을 보여줍니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node.kubernetes.io/instance-type</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">operator</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NotIn</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">values</span><span class="p p-Indicator">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="s">&#39;m6g.16xlarge&#39;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="s">&#39;m6gd.16xlarge&#39;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="s">&#39;r6g.16xlarge&#39;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="s">&#39;r6gd.16xlarge&#39;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">      </span><span class="s">&#39;c6g.16xlarge&#39;</span>
+</code></pre></div>
+<h3 id="_3">스팟 사용 시 인터럽트 핸들링 활성화<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>Karpenter는 <a href="https://karpenter.sh/docs/concepts/settings/#configmap">설정</a>에서 <code>aws.interruptionQueue</code> 값을 통해 <a href="https://karpenter.sh/docs/concepts/deprovisioning/#interruption">네이티브 인터럽트 처리</a>를 지원합니다. 인터럽트 핸들링은 다음과 같이 워크로드에 장애를 일으킬 수 있는 향후 비자발적 인터럽트 이벤트를 감시합니다.</p>
+<ul>
+<li>스팟 인터럽트 경고</li>
+<li>예정된 변경 상태 이벤트 (유지 관리 이벤트)</li>
+<li>인스턴스 종료 이벤트</li>
+<li>인스턴스 중지 이벤트</li>
+</ul>
+<p>Karpenter는 노드에서 이런 이벤트 중 하나가 발생할 것을 감지하면 중단 이벤트가 발생하기 전에 노드를 자동으로 차단(cordon), 드레인 및 종료하여 중단 전에 워크로드를 정리할 수 있는 최대 시간을 제공합니다. <a href="https://karpenter.sh/docs/faq/#interruption-handling">해당 글</a>에서 설명한 것처럼 AWS Node Termination Handler를 Karpenter와 함께 사용하는 것은 권장되지 않습니다.</p>
+<p>종료 전 2분이 소요되는 체크포인트 또는 기타 형태의 정상적인 드레인이 필요한 파드는 해당 클러스터에서 Karpenter 중단 처리가 가능해야 합니다.</p>
+<h3 id="amazon-eks"><strong>아웃바운드 인터넷 액세스가 없는 Amazon EKS 프라이빗 클러스터</strong><a class="headerlink" href="#amazon-eks" title="Permanent link">&para;</a></h3>
+<p>인터넷 연결 경로 없이 VPC에 EKS 클러스터를 프로비저닝할 때는 EKS 설명서에 나와 있는 프라이빗 클러스터 <a href="https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements">요구 사항</a>에 따라 환경을 구성했는지 확인해야 합니다. 또한 VPC에 STS VPC 지역 엔드포인트를 생성했는지 확인해야 합니다. 그렇지 않은 경우 아래와 비슷한 오류가 표시됩니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="go">ERROR controller.controller.metrics Reconciler error {&quot;commit&quot;: &quot;5047f3c&quot;, &quot;reconciler group&quot;: &quot;karpenter.sh&quot;, &quot;reconciler kind&quot;: &quot;Provisioner&quot;, &quot;name&quot;: &quot;default&quot;, &quot;namespace&quot;: &quot;&quot;, &quot;error&quot;: &quot;fetching instance types using ec2.DescribeInstanceTypes, WebIdentityErr: failed to retrieve credentials\ncaused by: RequestError: send request failed\ncaused by: Post \&quot;https://sts.&lt;region&gt;.amazonaws.com/\&quot;: dial tcp x.x.x.x:443: i/o timeout&quot;}</span>
+</code></pre></div>
+<p>Karpenter 컨트롤러는 서비스 어카운트용 IAM 역할(IRSA)을 사용하기 때문에 프라이빗 클러스터에서는 이런 변경이 필요합니다. IRSA로 구성된 파드는 AWS 보안 토큰 서비스 (AWS STS) API를 호출하여 자격 증명을 획득합니다. 아웃바운드 인터넷 액세스가 없는 경우 <strong><em>VPC안에서 AWS STS VPC 엔드포인트</em></strong>를 생성하여 사용해야 합니다.</p>
+<p>또한 프라이빗 클러스터를 사용하려면 <strong><em>SSM용VPC 엔드포인트</em></strong>를 생성해야 합니다. Karpenter는 새 노드를 프로비저닝하려고 할 때 시작 템플릿 구성과 SSM 파라미터를 쿼리합니다. VPC에 SSM VPC 엔드포인트가 없는 경우 다음과 같은 오류가 발생합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">INFO    controller.provisioning Waiting for unschedulable pods  {&quot;commit&quot;: &quot;5047f3c&quot;, &quot;provisioner&quot;: &quot;default&quot;}</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">INFO    controller.provisioning Batched 3 pods in 1.000572709s  {&quot;commit&quot;: &quot;5047f3c&quot;, &quot;provisioner&quot;: &quot;default&quot;}</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="go">INFO    controller.provisioning Computed packing of 1 node(s) for 3 pod(s) with instance type option(s) [c4.xlarge c6i.xlarge c5.xlarge c5d.xlarge c5a.xlarge c5n.xlarge m6i.xlarge m4.xlarge m6a.xlarge m5ad.xlarge m5d.xlarge t3.xlarge m5a.xlarge t3a.xlarge m5.xlarge r4.xlarge r3.xlarge r5ad.xlarge r6i.xlarge r5a.xlarge]        {&quot;commit&quot;: &quot;5047f3c&quot;, &quot;provisioner&quot;: &quot;default&quot;}</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="go">ERROR   controller.provisioning Could not launch node, launching instances, getting launch template configs, getting launch templates, getting ssm parameter, RequestError: send request failed</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="go">caused by: Post &quot;https://ssm.&lt;region&gt;.amazonaws.com/&quot;: dial tcp x.x.x.x:443: i/o timeout  {&quot;commit&quot;: &quot;5047f3c&quot;, &quot;provisioner&quot;: &quot;default&quot;}</span>
+</code></pre></div>
+<p><strong><em><a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-pelong.html">가격 목록 쿼리 API</a>를 위한 VPC 엔드포인트</em></strong> 는 없습니다.
+결과적으로 가격 데이터는 시간이 지남에 따라 부실해질 것입니다. 
+Karpenter는 바이너리에 온디맨드 가격 책정 데이터를 포함하여 이 문제를 해결하지만 Karpenter가 업그레이드될 때만 해당 데이터를 업데이트합니다.
+가격 데이터 요청이 실패하면 다음과 같은 오류 메시지가 표시됩니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">ERROR   controller.aws.pricing  updating on-demand pricing, RequestError: send request failed</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">caused by: Post &quot;https://api.pricing.us-east-1.amazonaws.com/&quot;: dial tcp 52.94.231.236:443: i/o timeout; RequestError: send request failed</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">caused by: Post &quot;https://api.pricing.us-east-1.amazonaws.com/&quot;: dial tcp 52.94.231.236:443: i/o timeout, using existing pricing data from 2022-08-17T00:19:52Z  {&quot;commit&quot;: &quot;4b5f953&quot;}</span>
+</code></pre></div>
+<p>요약하자면 완전한 프라이빗 EKS 클러스터에서 Karpenter를 사용하려면 다음과 같은 VPC 엔드포인트를 생성해야 합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">com.amazonaws.&lt;region&gt;.ec2</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">com.amazonaws.&lt;region&gt;.ecr.api</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="go">com.amazonaws.&lt;region&gt;.ecr.dkr</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="go">com.amazonaws.&lt;region&gt;.s3 – For pulling container images</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="go">com.amazonaws.&lt;region&gt;.sts – For IAM roles for service accounts</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="go">com.amazonaws.&lt;region&gt;.ssm - If using Karpenter</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Karpenter (컨트롤러 및 웹훅 배포) 컨테이너 이미지는 Amazon ECR 전용 또는 VPC 내부에서 액세스할 수 있는 다른 사설 레지스트리에 있거나 복사되어야 합니다.그 이유는 Karpenter 컨트롤러와 웹훅 파드가 현재 퍼블릭 ECR 이미지를 사용하고 있기 때문입니다. VPC 내에서 또는 VPC와 피어링된 네트워크에서 이런 이미지를 사용할 수 없는 경우, 쿠버네티스가 ECR Public에서 이런 이미지를 가져오려고 할 때 이미지 가져오기 오류가 발생합니다.</p>
+</div>
+<p>자세한 내용은 <a href="https://github.com/aws/karpenter/issues/988">이슈 988</a> 및 <a href="https://github.com/aws/karpenter/issues/1157">이슈 1157</a> 을 참조하십시오.</p>
+<h2 id="_4">프로비져너 생성<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>다음 모범 사례는 프로비져너 생성과 관련된 주제를 다룹니다.</p>
+<h3 id="_5">다음과 같은 경우 프로비져너를 여러 개 만들 수 있습니다.<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>여러 팀이 클러스터를 공유하고 서로 다른 워커 노드에서 워크로드를 실행해야 하거나 OS 또는 인스턴스 유형 요구 사항이 다른 경우 여러 프로비저너를 생성하세요. 예를 들어 한 팀은 Bottlerocket을 사용하고 다른 팀은 Amazon Linux를 사용하려고 할 수 있습니다. 마찬가지로 한 팀은 다른 팀에는 필요하지 않은 값비싼 GPU 하드웨어를 사용할 수 있습니다. 프로비저닝 도구를 여러 개 사용하면 각 팀에서 가장 적합한 자산을 사용할 수 있습니다.</p>
+<h3 id="_6">상호 배타적이거나 가중치가 부여되는 프로비저닝 도구 만들기<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p>일관된 스케줄링 동작을 제공하려면 상호 배타적이거나 가중치가 부여되는 프로비저너를 만드는 것이 좋습니다. 일치하지 않고 여러 프로비져너가 일치하는 경우 Karpenter는 사용할 프로비져너를 임의로 선택하여 예상치 못한 결과를 초래합니다. 여러 프로비져너를 만들 때 유용한 예는 다음과 같습니다.</p>
+<p>GPU를 사용하여 프로비저닝 도구를 만들고 이런 (비용이 많이 드는) 노드에서만 특수 워크로드를 실행하도록 허용:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Provisioner for GPU Instances with Taints</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">karpenter.sh/v1alpha5</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Provisioner</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpu</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">requirements</span><span class="p">:</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node.kubernetes.io/instance-type</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">In</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nt">values</span><span class="p">:</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">p3.8xlarge</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">p3.16xlarge</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="nt">taints</span><span class="p">:</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia.com/gpu</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="nt">ttlSecondsAfterEmpty</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+</code></pre></div>
+<p>태인트(Taint)를 위한 톨러레이션(Toleration)을 갖고 있는 디플로이먼트: </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Deployment of GPU Workload will have tolerations defined</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inflate-gpu</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nvidia.com/gpu&quot;</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Exists&quot;</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">        </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NoSchedule&quot;</span>
+</code></pre></div>
+<p>다른 팀을 위한 일반 디플로이먼트의 경우 프로비저너 사양에 NodeAffinify가 포함될 수 있습니다. 그러면 디플로이먼트는 노드 셀렉터 용어를 사용하여 <code>billing-team</code> 과 일치시킬 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Provisioner for regular EC2 instances</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">karpenter.sh/v1alpha5</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Provisioner</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generalcompute</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nt">billing-team</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-team</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="nt">requirements</span><span class="p">:</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node.kubernetes.io/instance-type</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">In</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nt">values</span><span class="p">:</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">m5.large</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">m5.xlarge</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">m5.2xlarge</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5.large</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5.xlarge</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5a.large</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5a.xlarge</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">r5.large</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">r5.xlarge</span>
+</code></pre></div>
+<p>노드 어피니티를 사용하는 디플로이먼트:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Deployment will have spec.affinity.nodeAffinity defined</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">workload-my-team</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">      </span><span class="nt">affinity</span><span class="p">:</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="nt">nodeAffinity</span><span class="p">:</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">          </span><span class="nt">requiredDuringSchedulingIgnoredDuringExecution</span><span class="p">:</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">            </span><span class="nt">nodeSelectorTerms</span><span class="p">:</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">matchExpressions</span><span class="p">:</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;billing-team&quot;</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">                  </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;In&quot;</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">                  </span><span class="nt">values</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;my-team&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h3 id="ttl">타이머(TTL)를 사용하여 클러스터에서 노드를 자동으로 삭제합니다.<a class="headerlink" href="#ttl" title="Permanent link">&para;</a></h3>
+<p>프로비저닝된 노드의 타이머를 사용하여 워크로드 파드가 없거나 만료 시간에 도달한 노드를 삭제할 시기를 설정할 수 있습니다. 노드 만료를 업그레이드 수단으로 사용하여 노드를 폐기하고 업데이트된 버전으로 교체할 수 있습니다. <strong><code>ttlSecondsUntilExpired</code></strong> 및 <strong><code>ttlSecondsAfterEmpty</code></strong>를 사용하여 노드를 프로비저닝 해제하는 방법에 대한 자세한 내용은 Karpenter 설명서의 <a href="https://karpenter.sh/docs/concepts/deprovisioning">Karpenter 노드 디프로비저닝 방법</a>을 참조하십시오.</p>
+<h3 id="karpenter_4">특히 스팟을 사용할 때는 Karpenter가 프로비저닝할 수 있는 인스턴스 유형을 지나치게 제한하지 마십시오.<a class="headerlink" href="#karpenter_4" title="Permanent link">&para;</a></h3>
+<p>스팟을 사용할 때 Karpenter는 <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html">가격 및 용량 최적화</a> 할당 전략을 사용하여 EC2 인스턴스를 프로비저닝합니다. 이 전략은 EC2가 시작 중인 인스턴스 수만큼 가장 깊은 풀의 인스턴스를 프로비저닝하고 중단 위험이 가장 적은 인스턴스 수에 맞게 인스턴스를 프로비저닝하도록 지시합니다. 그런 다음 EC2 플릿은 이런 풀 중 가장 저렴한 가격의 스팟 인스턴스를 요청합니다. Karpenter에 사용할 수 있는 인스턴스 유형이 많을수록 EC2는 스팟 인스턴스의 런타임을 더 잘 최적화할 수 있습니다. 기본적으로 Karpenter는 클러스터가 배포된 지역 및 가용영역에서 EC2가 제공하는 모든 인스턴스 유형을 사용합니다. Karpenter는 보류 중인 파드를 기반으로 모든 인스턴스 유형 세트 중에서 지능적으로 선택하여 파드가 적절한 크기와 장비를 갖춘 인스턴스로 스케줄링되도록 합니다. 예를 들어, 파드에 GPU가 필요하지 않은 경우 Karpenter는 GPU를 지원하는 EC2 인스턴스 유형으로 파드를 예약하지 않습니다. 어떤 인스턴스 유형을 사용해야 할지 확실하지 않은 경우 Amazon <a href="https://github.com/aws/amazon-ec2-instance-selector">ec2-instance-selector</a>를 실행하여 컴퓨팅 요구 사항에 맞는 인스턴스 유형 목록을 생성할 수 있습니다. 예를 들어 CLI는 메모리 vCPU,아키텍처 및 지역을 입력 파라미터로 사용하고 이런 제약 조건을 충족하는 EC2 인스턴스 목록을 제공합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="gp">$ </span>ec2-instance-selector<span class="w"> </span>--memory<span class="w"> </span><span class="m">4</span><span class="w"> </span>--vcpus<span class="w"> </span><span class="m">2</span><span class="w"> </span>--cpu-architecture<span class="w"> </span>x86_64<span class="w"> </span>-r<span class="w"> </span>ap-southeast-1
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="go">c5.large</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="go">c5a.large</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="go">c5ad.large</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="go">c5d.large</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="go">c6i.large</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="go">t2.medium</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="go">t3.medium</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="go">t3a.medium</span>
+</code></pre></div>
+<p>스팟 인스턴스를 사용할 때 Karpenter에 너무 많은 제약을 두어서는 안 됩니다. 그렇게 하면 애플리케이션의 가용성에 영향을 미칠 수 있기 때문입니다. 예를 들어 특정 유형의 모든 인스턴스가 회수되고 이를 대체할 적절한 대안이 없다고 가정해 보겠습니다. 구성된 인스턴스 유형의 스팟 용량이 보충될 때까지 파드는 보류 상태로 유지됩니다. 스팟 풀은 AZ마다 다르기 때문에 여러 가용영역에 인스턴스를 분산하여 용량 부족 오류가 발생할 위험을 줄일 수 있습니다. 하지만 일반적인 모범 사례는 Karpenter가 스팟을 사용할 때 다양한 인스턴스 유형 세트를 사용할 수 있도록 하는 것입니다.</p>
+<h2 id="_7">스케줄링 파드<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<p>다음 모범 사례는 노드 프로비저닝을 위해 Karpenter를 사용하여 클러스터에 파드를 배포하는 것과 관련이 있습니다.</p>
+<h3 id="eks">고가용성을 위한 EKS 모범 사례를 따르십시오.<a class="headerlink" href="#eks" title="Permanent link">&para;</a></h3>
+<p>고가용성 애플리케이션을 실행해야 하는 경우 일반적인 EKS 모범 사례 <a href="https://aws.github.io/aws-eks-best-practices/reliability/docs/application/#recommendations">권장 사항</a>을 따르십시오. 여러 노드와 영역에 파드를 분산하는 방법에 대한 자세한 내용은 Karpenter 설명서의 <a href="https://karpenter.sh/docs/concepts/scheduling/#topology-spread">토폴로지 확산</a>을 참조하십시오. 파드를 제거하거나 삭제하려는 시도가 있는 경우 <a href="https://karpenter.sh/docs/troubleshooting/#disruption-budgets">중단 예산(Disruption Budgets)</a>을 사용하여 유지 관리가 필요한 최소 가용 파드를 설정하세요.</p>
+<h3 id="_8">계층화된 제약 조건을 사용하여 클라우드 공급자가 제공하는 컴퓨팅 기능을 제한하십시오.<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p>Karpenter의 계층형 제약 조건 모델을 사용하면 복잡한 프로비저너 및 파드 배포 제약 조건 세트를 생성하여 파드 스케줄링에 가장 적합한 조건을 얻을 수 있습니다. 파드 사양이 요청할 수 있는 제약 조건의 예는 다음과 같습니다.</p>
+<ul>
+<li>특정 애플리케이션만 사용할 수 있는 가용영역에서 실행해야 합니다. 예를 들어 특정 가용영역에 있는 EC2 인스턴스에서 실행되는 다른 애플리케이션과 통신해야 하는 파드가 있다고 가정해 보겠습니다. VPC의 AZ 간 트래픽을 줄이는 것이 목표라면 EC2 인스턴스가 위치한 AZ에 파드를 같은 위치에 배치하는 것이 좋습니다. 이런 종류의 타겟팅은 대개 노드 셀렉터를 사용하여 수행됩니다. <a href="https://karpenter.sh/docs/concepts/scheduling/#selecting-nodes">노드 셀렉터</a>에 대한 추가 정보는 쿠버네티스 설명서를 참조하십시오.</li>
+<li>특정 종류의 프로세서 또는 기타 하드웨어가 필요합니다. GPU에서 파드를 실행해야 하는 팟스펙 예제는 Karpenter 문서의 <a href="https://karpenter.sh/docs/concepts/scheduling/#acceleratorsgpu-resources">액셀러레이터</a>섹션을 참조하십시오.</li>
+</ul>
+<h3 id="_9">결제 경보를 생성하여 컴퓨팅 지출을 모니터링하세요<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p>클러스터를 자동으로 확장하도록 구성할 때는 지출이 임계값을 초과했을 때 경고하는 청구 알람를 생성하고 Karpenter 구성에 리소스 제한을 추가해야 합니다. Karpenter로 리소스 제한을 설정하는 것은 Karpenter 프로비저너가 인스턴스화할 수 있는 컴퓨팅 리소스의 최대량을 나타낸다는 점에서 AWS Autoscaling 그룹의 최대 용량을 설정하는 것과 비슷합니다.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>전체 클러스터에 대해 글로벌 제한을 설정할 수는 없습니다. 한도는 특정 프로비저너에 적용됩니다.</p>
+</div>
+<p>아래 스니펫은 Karpenter에게 최대 1000개의 CPU 코어와 1000Gi의 메모리만 프로비저닝하도록 지시합니다. Karpenter는 한도에 도달하거나 초과할 때만 용량 추가를 중단합니다. 한도를 초과하면 Karpenter 컨트롤러는 '1001의 메모리 리소스 사용량이 한도 1000을 초과합니다' 또는 이와 비슷한 모양의 메시지를 컨트롤러 로그에 기록합니다. 컨테이너 로그를 CloudWatch 로그로 라우팅하는 경우 <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html">지표 필터</a>를 생성하여 로그에서 특정 패턴이나 용어를 찾은 다음 <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html">CloudWatch 알람</a>을 생성하여 구성된 지표 임계값을 위반했을 때 경고를 보낼 수 있습니다.</p>
+<p>Karpenter에서 제한을 사용하는 자세한 내용은 Karpenter 설명서의 <a href="https://karpenter.sh/docs/concepts/provisioners/#speclimitsresources">리소스 제한 설정</a>을 참조하십시오.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">limits</span><span class="p">:</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000Gi</span>
+</code></pre></div>
+<p>Karpenter가 프로비저닝할 수 있는 인스턴스 유형을 제한하거나 제한하지 않는 경우 Karpenter는 필요에 따라 클러스터에 컴퓨팅 파워를 계속 추가합니다. Karpenter를 이런 방식으로 구성하면 클러스터를 자유롭게 확장할 수 있지만 비용에도 상당한 영향을 미칠 수 있습니다. 이런 이유로 결제 경보를 구성하는 것이 좋습니다. 청구 경보를 사용하면 계정에서 계산된 예상 요금이 정의된 임계값을 초과할 경우 알림을 받고 사전에 알림을 받을 수 있습니다. 자세한 내용은 <a href="https://aws.amazon.com/blogs/mt/setting-up-an-amazon-cloudwatch-billing-alarm-to-proactively-monitor-estimated-charges/">예상 요금을 사전에 모니터링하기 위한 Amazon CloudWatch 청구 경보 설정</a>을 참조하십시오.</p>
+<p>기계 학습을 사용하여 비용과 사용량을 지속적으로 모니터링하여 비정상적인 지출을 감지하는 AWS 비용 관리 기능인 비용 예외 탐지를 활성화할 수도 있습니다. 자세한 내용은 <a href="https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html">AWS 비용 이상 탐지 시작</a> 가이드에서 확인할 수 있습니다. AWS Budgets에서 예산을 편성한 경우, 특정 임계값 위반 시 알림을 받도록 조치를 구성할 수도 있습니다. 예산 활동을 통해 이메일을 보내거나, SNS 주제에 메시지를 게시하거나, Slack과 같은 챗봇에 메시지를 보낼 수 있습니다. 자세한 내용은 <a href="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html">AWS 예산 작업 구성</a>을 참조하십시오.</p>
+<h3 id="do-not-evict-karpenter">제거 금지(do-not-evict) 어노테이션 사용하여 Karpenter가 노드 프로비저닝을 취소하지 못하도록 하세요.<a class="headerlink" href="#do-not-evict-karpenter" title="Permanent link">&para;</a></h3>
+<p>Karpenter가 프로비저닝한 노드에서 중요한 애플리케이션(예: <em>장기 실행</em> 배치 작업 또는 스테이트풀 애플리케이션)을 실행 중이고 노드의 TTL이 만료되었으면* 인스턴스가 종료되면 애플리케이션이 중단됩니다. 파드에 <code>karpenter.sh/do-not-evict</code> 어노테이션을 추가하면 파드가 종료되거나 <code>do-not-evict</code> 어노테이션이 제거될 때까지 Karpenter가 노드를 보존하도록 지시하는 것입니다. 자세한 내용은 <a href="https://karpenter.sh/docs/concepts/deprovisioning/#disabling-deprovisioning">디프로비저닝</a> 설명서를 참조하십시오.</p>
+<p>노드에 데몬셋이 아닌 파드가 작업과 관련된 파드만 남아 있는 경우, Karpenter는 작업 상태가 성공 또는 실패인 한 해당 노드를 대상으로 지정하고 종료할 수 있습니다.</p>
+<h3 id="consolidation-cpu-requestslimits">통합(Consolidation)을 사용할 때 CPU가 아닌 모든 리소스에 대해 요청=제한(requests=limits)을 구성합니다.<a class="headerlink" href="#consolidation-cpu-requestslimits" title="Permanent link">&para;</a></h3>
+<p>일반적으로 파드 리소스 요청과 노드의 할당 가능한 리소스 양을 비교하여 통합 및 스케줄링을 수행합니다. 리소스 제한은 고려되지 않습니다. 예를 들어 메모리 한도가 메모리 요청량보다 큰 파드는 요청을 초과할 수 있습니다. 동일한 노드의 여러 파드가 동시에 버스트되면 메모리 부족(OOM) 상태로 인해 일부 파드가 종료될 수 있습니다.통합은 요청만 고려하여 파드를 노드에 패킹하는 방식으로 작동하기 때문에 이런 일이 발생할 가능성을 높일 수 있다.</p>
+<h3 id="limitranges">LimitRanges 를 사용하여 리소스 요청 및 제한에 대한 기본값을 구성합니다.<a class="headerlink" href="#limitranges" title="Permanent link">&para;</a></h3>
+<p>쿠버네티스는 기본 요청이나 제한을 설정하지 않기 때문에 컨테이너는 기본 호스트, CPU 및 메모리의 리소스 사용량을 제한하지 않습니다. 쿠버네티스 스케줄러는 파드의 총 요청(파드 컨테이너의 총 요청 또는 파드 Init 컨테이너의 총 리소스 중 더 높은 요청)을 검토하여 파드를 스케줄링할 워커 노드를 결정합니다. 마찬가지로 Karpenter는 파드의 요청을 고려하여 프로비저닝하는 인스턴스 유형을 결정합니다. 일부 파드에서 리소스 요청을 지정하지 않는 경우 제한 범위를 사용하여 네임스페이스에 적절한 기본값을 적용할 수 있습니다.</p>
+<p><a href="https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/">네임스페이스에 대한 기본 메모리 요청 및 제한 구성</a>을 참조하십시오.</p>
+<h3 id="_10">정확한 리소스 요청을 모든 워크로드에 적용<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p>Karpenter는 워크로드 요구 사항에 대한 정보가 정확할 때 워크로드에 가장 적합한 노드를 시작할 수 있습니다.이는 Karpenter의 통합 기능을 사용하는 경우 특히 중요합니다.</p>
+<p><a href="https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads">모든 워크로드에 대한 리소스 요청/제한 구성 및 크기 조정</a>을 참조하십시오.</p>
+<h2 id="_11">추가 리소스<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://ec2spotworkshops.com/karpenter.html">Karpenter/Spot Workshop</a></li>
+<li><a href="https://youtu.be/_FXRIKWJWUk">Karpenter Node Provisioner</a></li>
+<li><a href="https://youtu.be/zXqrNJaTCrU">TGIK Karpenter</a></li>
+<li><a href="https://youtu.be/3QsVRHVdOnM">Karpenter vs. Cluster Autoscaler</a></li>
+<li><a href="https://www.youtube.com/watch?v=43g8uPohTgc">Groupless Autoscaling with Karpenter</a></li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "content.code.copy", "header.autohide"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ub428", "clipboard.copy": "\ud074\ub9bd\ubcf4\ub4dc\ub85c \ubcf5\uc0ac", "search.result.more.one": "\uc774 \ubb38\uc11c\uc5d0\uc11c 1\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.more.other": "\uc774 \ubb38\uc11c\uc5d0\uc11c #\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.none": "\uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 \ubb38\uc11c\uac00 \uc5c6\uc2b5\ub2c8\ub2e4", "search.result.one": "1\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.other": "#\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.placeholder": "\uac80\uc0c9\uc5b4\ub97c \uc785\ub825\ud558\uc138\uc694", "search.result.term.missing": "\ud3ec\ud568\ub418\uc9c0 \uc54a\uc740 \uac80\uc0c9\uc5b4", "select.version": "\ubc84\uc804 \uc120\ud0dd"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

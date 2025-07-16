@@ -1,0 +1,3361 @@
+
+<!doctype html>
+<html lang="ko" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../scalability/docs/quotas/">
+      
+      
+        <link rel="next" href="../cost_optimization/cost_optimization_index/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>클러스터 업그레이드 - EKS 모범 사례 가이드</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-VQGL8B2FH8"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-VQGL8B2FH8",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-VQGL8B2FH8",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  
+  
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+<h2 style="color:#F2F2F2;text-align: center;"><b> The EKS Best Practices Guide has moved to the <a style="color:#ff9900;text-decoration: underline" href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html">AWS Documentation</a></u>. Check there for the latest updates. </b></h2>
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="상단/헤더">
+    <a href="../" title="EKS 모범 사례 가이드" class="md-header__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            EKS 모범 사례 가이드
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              클러스터 업그레이드
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="언어설정">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../upgrades/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="ko" class="md-select__link">
+              한국어
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="검색" placeholder="검색" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="검색">
+        
+        <button type="reset" class="md-search__icon md-icon" title="지우기" aria-label="지우기" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            검색 초기화
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="네비게이션" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../" title="EKS 모범 사례 가이드" class="md-nav__button md-logo" aria-label="EKS 모범 사례 가이드" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    EKS 모범 사례 가이드
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aws/aws-eks-best-practices" title="저장소로 이동" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    aws/aws-eks-best-practices
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    가이드
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            가이드
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    소개
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    보안
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            보안
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/iam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인증 및 접근 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/pods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/multitenancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 테넌시
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/detective/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    탐지 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 암호화 및 시크릿 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    런타임 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴플라이언스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/incidents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    사고 대응 및 포렌식
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    이미지 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/docs/multiaccount/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    멀티 어카운트 전략
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    클러스터 오토스케일링
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            클러스터 오토스케일링
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../karpenter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Karpenter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-autoscaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cluster Autoscaler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    신뢰성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            신뢰성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/application/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    애플리케이션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/controlplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reliability/docs/dataplane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            네트워크
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/subnets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    VPC 및 서브넷 고려사항
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/vpc-cni/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Amazon VPC CNI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ip-optimization-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IP 주소 사용 최적화
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ipv6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPv6 클러스터 운영
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/custom-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom 네트워킹
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/prefix-mode/index_linux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 리눅스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/prefix-mode/index_windows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prefix 모드 - 윈도우
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/sgpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    파드 보안 그룹 할당
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/loadbalancing/loadbalancing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로드 밸런싱
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크 성능 문제에 대한 EKS 워크로드 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networking/ipvs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IPVS 모드에서 kube-proxy 실행
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    확장성
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            확장성
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/control-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/data-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    데이터 플레인
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/cluster-services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 서비스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/workloads/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    워크로드
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/scaling_theory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    확장에 대한 이론
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/kcp_monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컨트롤 플레인 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/node_efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    노드 및 워크로드 효율성
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/kubernetes_slos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    쿠버네티스 SLO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scalability/docs/quotas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    알려진 제한 및 서비스 할당량
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    클러스터 업그레이드
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    클러스터 업그레이드
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      개요
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      업그레이드 전
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      클러스터를 최신 상태로 유지
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS 출시 일정 검토
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      공동 책임 모델이 클러스터 업그레이드에 어떻게 적용되는지 이해
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      클러스터를 인플레이스 업그레이드
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      컨트롤 플레인과 데이터 플레인을 순서대로 업그레이드
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS 문서를 활용하여 업그레이드 체크리스트 생성
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 API를 사용하여 애드온 및 컴포넌트 업그레이드
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      업그레이드 전에 기본 EKS 요구 사항 확인
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="업그레이드 전에 기본 EKS 요구 사항 확인">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      사용 가능한 IP 주소 확인
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eks-iam" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS IAM 역할 확인
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS 애드온으로 마이그레이션
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      컨트롤 플레인을 업그레이드하기 전에 제거된 API 사용을 식별하고 수정하기
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="컨트롤 플레인을 업그레이드하기 전에 제거된 API 사용을 식별하고 수정하기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      클러스터 인사이트
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kube-no-trouble" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kube-no-Trouble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pluto" class="md-nav__link">
+    <span class="md-ellipsis">
+      풀루토(pluto)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      리소스
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubectl-convert" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 워크로드 업데이트. kubectl-convert를 사용하여 매니페스트를 업데이트
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#poddisruptionbudget-topologyspreadconstraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      데이터 플레인이 업그레이드되는 동안 워크로드의 가용성을 보장하도록 PodDisruptionBudget 및 topologySpreadConstraints 조건을 구성.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      관리형 노드 그룹 또는 Karpenter를 사용하여 데이터 플레인 업그레이드를 간소화.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      기존 노드 및 컨트롤 플레인과의 버전 호환성 확인
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter 관리형 노드의 노드 만료 활성화
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter 관리 노드에 드리프트 기능 사용
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eksctl" class="md-nav__link">
+    <span class="md-ellipsis">
+      eksctl을 사용하여 자체 관리형 노드 그룹의 업그레이드를 자동화
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      업그레이드 전 클러스터 백업
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fargate" class="md-nav__link">
+    <span class="md-ellipsis">
+      컨트롤 플레인을 업그레이드한 후 Fargate 배포를 다시 시작.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      인플레이스 클러스터 업그레이드의 대안으로 블루/그린 클러스터 평가
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 프로젝트에서 계획된 주요 변경 사항 추적 — 미리 생각해 보세요
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      기능 제거에 대한 구체적인 지침
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="기능 제거에 대한 구체적인 지침">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#125-dockershim-docker-socketdds" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.25에서 Dockershim 제거 - Docker Socket(DDS) 용 검출기 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#125-psp-pss-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.25에서 파드 시큐리티 폴리시(PSP) 제거 - 파드 시큐리티 스탠다드(PSS) 또는 코드형 정책(PaC) 솔루션으로 마이그레이션
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-in-tree-csi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.23에서 In-tree 스토리지 드라이버 지원 중단 - 컨테이너 스토리지 인터페이스 (CSI) 드라이버로 마이그레이션
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      추가 리소스
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="추가 리소스">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clowdhaus-eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClowdHaus EKS 업그레이드 지침
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gonogo" class="md-nav__link">
+    <span class="md-ellipsis">
+      GoNoGo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    비용 최적화
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            비용 최적화
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_optimization_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    홈
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cfm_framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    클라우드 재무 관리 프레임워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/awareness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Awareness
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_compute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    컴퓨팅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_optimization/cost_opt_observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    옵저버빌리티
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            윈도우 컨테이너
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/ami/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AMI 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/gmsa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    gMSA 윈도우 컨테이너
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 서버 하드닝
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 이미지 스캔
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/licensing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 버전 및 라이선스
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    로깅
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 모니터링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 네트워크
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/oom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    메모리 및 시스템 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/patching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    인프라 관리
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스케줄링
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    윈도우 컨테이너 파드 보안
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/docs/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    스토리지 옵션
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      개요
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      업그레이드 전
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      클러스터를 최신 상태로 유지
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS 출시 일정 검토
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      공동 책임 모델이 클러스터 업그레이드에 어떻게 적용되는지 이해
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      클러스터를 인플레이스 업그레이드
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      컨트롤 플레인과 데이터 플레인을 순서대로 업그레이드
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS 문서를 활용하여 업그레이드 체크리스트 생성
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 API를 사용하여 애드온 및 컴포넌트 업그레이드
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      업그레이드 전에 기본 EKS 요구 사항 확인
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="업그레이드 전에 기본 EKS 요구 사항 확인">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      사용 가능한 IP 주소 확인
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eks-iam" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS IAM 역할 확인
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eks_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      EKS 애드온으로 마이그레이션
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      컨트롤 플레인을 업그레이드하기 전에 제거된 API 사용을 식별하고 수정하기
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="컨트롤 플레인을 업그레이드하기 전에 제거된 API 사용을 식별하고 수정하기">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      클러스터 인사이트
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kube-no-trouble" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kube-no-Trouble
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pluto" class="md-nav__link">
+    <span class="md-ellipsis">
+      풀루토(pluto)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      리소스
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubectl-convert" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 워크로드 업데이트. kubectl-convert를 사용하여 매니페스트를 업데이트
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#poddisruptionbudget-topologyspreadconstraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      데이터 플레인이 업그레이드되는 동안 워크로드의 가용성을 보장하도록 PodDisruptionBudget 및 topologySpreadConstraints 조건을 구성.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      관리형 노드 그룹 또는 Karpenter를 사용하여 데이터 플레인 업그레이드를 간소화.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      기존 노드 및 컨트롤 플레인과의 버전 호환성 확인
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter 관리형 노드의 노드 만료 활성화
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#karpenter_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karpenter 관리 노드에 드리프트 기능 사용
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eksctl" class="md-nav__link">
+    <span class="md-ellipsis">
+      eksctl을 사용하여 자체 관리형 노드 그룹의 업그레이드를 자동화
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      업그레이드 전 클러스터 백업
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fargate" class="md-nav__link">
+    <span class="md-ellipsis">
+      컨트롤 플레인을 업그레이드한 후 Fargate 배포를 다시 시작.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      인플레이스 클러스터 업그레이드의 대안으로 블루/그린 클러스터 평가
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      쿠버네티스 프로젝트에서 계획된 주요 변경 사항 추적 — 미리 생각해 보세요
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      기능 제거에 대한 구체적인 지침
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="기능 제거에 대한 구체적인 지침">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#125-dockershim-docker-socketdds" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.25에서 Dockershim 제거 - Docker Socket(DDS) 용 검출기 사용
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#125-psp-pss-pac" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.25에서 파드 시큐리티 폴리시(PSP) 제거 - 파드 시큐리티 스탠다드(PSS) 또는 코드형 정책(PaC) 솔루션으로 마이그레이션
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-in-tree-csi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.23에서 In-tree 스토리지 드라이버 지원 중단 - 컨테이너 스토리지 인터페이스 (CSI) 드라이버로 마이그레이션
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      추가 리소스
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="추가 리소스">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clowdhaus-eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClowdHaus EKS 업그레이드 지침
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gonogo" class="md-nav__link">
+    <span class="md-ellipsis">
+      GoNoGo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="_1">클러스터 업그레이드 모범 사례<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>이 안내서는 클러스터 관리자에게 Amazon EKS 업그레이드 전략을 계획하고 실행하는 방법을 보여줍니다. 또한 자체 관리형 노드, 관리형 노드 그룹, Karpenter 노드 및 Fargate 노드를 업그레이드하는 방법도 설명합니다. EKS Anywhere, 자체 관리형 쿠버네티스, AWS Outposts 또는 AWS Local Zone에 대한 지침은 포함되지 않습니다. </p>
+<h2 id="_2">개요<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>쿠버네티스 버전은 컨트롤 플레인과 데이터 플레인을 모두 포함합니다.원활한 작동을 위해 컨트롤 플레인과 데이터 플레인 모두 동일한 <a href="https://kubernetes.io/releases/version-skew-policy/#supported-versions">쿠버네티스 마이너 버전, 예: 1.24</a> 를 실행해야 합니다. AWS가 컨트롤 플레인을 관리하고 업그레이드하는 동안 데이터 플레인에서 워커 노드를 업데이트하는 것은 사용자의 책임입니다.</p>
+<ul>
+<li><strong>컨트롤 플레인</strong> — 컨트롤 플레인 버전은 쿠버네티스 API 서버에서 정의합니다.EKS 클러스터에서는 AWS에서 이를 관리합니다.컨트롤 플레인 버전으로의 업그레이드는 AWS API를 사용하여 시작됩니다. </li>
+<li><strong>데이터 플레인</strong> — 데이터 플레인 버전은 노드에서 실행되는 Kubelet 버전을 참조합니다.동일한 클러스터의 여러 노드라도 버전이 다를 수 있습니다. <code>kubectl get nodes</code> 명령어로 있는 모든 노드의 버전을 확인하세요. </li>
+</ul>
+<h2 id="_3">업그레이드 전<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>Amazon EKS에서 쿠버네티스 버전을 업그레이드하려는 경우 업그레이드를 시작하기 전에 몇 가지 중요한 정책, 도구 및 절차를 마련해야 합니다. </p>
+<ul>
+<li><strong>지원 중단 정책 이해</strong> — <a href="https://kubernetes.io/docs/reference/using-api/deprecation-policy/">쿠버네티스 지원 중단 정책</a>이 어떻게 작동하는지 자세히 알아보세요. 기존 애플리케이션에 영향을 미칠 수 있는 향후 변경 사항을 숙지하세요. 최신 버전의 Kubernetes는 특정 API 및 기능을 단계적으로 중단하는 경우가 많으며, 이로 인해 애플리케이션 실행에 문제가 발생할 수 있습니다.</li>
+<li><strong>쿠버네티스 변경 로그 검토</strong> — <a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html">Amazon EKS Kubernetes 버전</a> 과 함께 <a href="https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG">Kubernetes 변경 로그</a> 를 철저히 검토하여 워크로드에 영향을 미칠 수 있는 주요 변경 사항 등 클러스터에 미칠 수 있는 영향을 파악하십시오.</li>
+<li><strong>클러스터 추가 기능 호환성 평가</strong> — Amazon EKS는 새 버전이 출시되거나 클러스터를 새 Kubernetes 마이너 버전으로 업데이트한 후에 추가 기능을 자동으로 업데이트하지 않습니다.업그레이드하려는 클러스터 버전과 기존 클러스터 애드온의 호환성을 이해하려면 <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-add-ons.html#updating-an-add-on">애드온 업데이트</a> 를 검토하십시오.</li>
+<li><strong>컨트롤 플레인 로깅 활성화</strong> — 업그레이드 프로세스 중에 발생할 수 있는 로그, 오류 또는 문제를 캡처하려면 <a href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html">컨트롤 플레인 로깅</a>을 활성화합니다. 이러한 로그에 이상이 있는지 검토해 보십시오. 비프로덕션 환경에서 클러스터 업그레이드를 테스트하거나 자동화된 테스트를 지속적 통합 워크플로에 통합하여 애플리케이션, 컨트롤러 및 사용자 지정 통합과의 버전 호환성을 평가하세요.</li>
+<li><strong>클러스터 관리를 위한 eksctl 살펴보기</strong> — <a href="https://eksctl.io/">eksctl</a>을 사용하여 EKS 클러스터를 관리하는 것을 고려해 보십시오. 기본적으로 <a href="https://eksctl.io/usage/cluster-upgrade/">컨트롤 플레인 업데이트, 애드온 관리, 워커 노드 업데이트 처리</a> 기능을 제공합니다. </li>
+<li><strong>EKS에서 관리형 노드 그룹 또는 Fargate를 선택하세요</strong> — <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">EKS 관리형 노드 그룹</a> 또는 <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html">EKS Fargate</a>를 사용하여 워커 노드 업그레이드를 간소화하고 자동화합니다. 이러한 옵션을 사용하면 프로세스를 간소화하고 수동 개입을 줄일 수 있습니다.</li>
+<li><strong>kubectl Convert 플러그인 활용</strong> — <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin">kubectl convert 플러그인</a>을 활용하여 서로 다른 API 버전 간에 <a href="https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/">쿠버네티스 매니페스트 파일 변환</a>을 용이하게 합니다. 이를 통해 구성이 새로운 쿠버네티스 버전과의 호환성을 유지할 수 있습니다.</li>
+</ul>
+<h2 id="_4">클러스터를 최신 상태로 유지<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>Amazon EKS의 공동 책임 모델을 반영하면 안전하고 효율적인 EKS 환경을 위해서는 쿠버네티스 업데이트를 최신 상태로 유지하는 것이 무엇보다 중요합니다.이러한 전략을 운영 워크플로에 통합하면 최신 기능 및 개선 사항을 최대한 활용하는 안전한 최신 클러스터를 유지할 수 있는 입지를 다질 수 있습니다. 전략:</p>
+<ul>
+<li><strong>지원되는 버전 정책</strong> — 쿠버네티스 커뮤니티에 따라 Amazon EKS는 일반적으로 세 가지 활성 쿠버네티스 버전을 제공하고 매년 네 번째 버전은 지원 중단합니다. 지원 중단 통지는 버전이 지원 종료일에 도달하기 최소 60일 전에 발행됩니다. 자세한 내용은 <a href="https://aws.amazon.com/eks/eks-version-faq/">EKS 버전 FAQ</a>를 참조하십시오.</li>
+<li><strong>자동 업그레이드 정책</strong> — EKS 클러스터에서 쿠버네티스 업데이트를 계속 동기화하는 것이 좋습니다. 버그 수정 및 보안 패치를 포함한 쿠버네티스 커뮤니티 지원은 일반적으로 1년 이상 된 버전의 경우 중단됩니다. 또한 지원 중단된 버전에는 취약성 보고가 부족하여 잠재적 위험이 발생할 수 있습니다. 버전의 수명이 끝나기 전에 사전 업그레이드를 하지 못하면 자동 업그레이드가 트리거되어 워크로드와 시스템이 중단될 수 있습니다. 자세한 내용은 <a href="https://aws.amazon.com/eks/eks-version-support-policy/">EKS 버전 지원 정책</a>을 참조하십시오.</li>
+<li><strong>업그레이드 런북 생성</strong> — 업그레이드 관리를 위한 문서화된 프로세스를 수립하십시오. 사전 예방적 접근 방식의 일환으로 업그레이드 프로세스에 맞는 런북 및 특수 도구를 개발하십시오. 이를 통해 대비 능력이 향상될 뿐만 아니라 복잡한 전환도 간소화됩니다. 적어도 1년에 한 번 클러스터를 업그레이드하는 것을 표준 관행으로 삼으세요. 이 방법을 통해 지속적인 기술 발전에 발맞추어 환경의 효율성과 보안을 강화할 수 있습니다.</li>
+</ul>
+<h2 id="eks">EKS 출시 일정 검토<a class="headerlink" href="#eks" title="Permanent link">&para;</a></h2>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-release-calendar">EKS 쿠버네티스 릴리스 캘린더 검토</a>를 통해 새 버전이 출시되는 시기와 특정 버전에 대한 지원이 종료되는 시기를 알아보십시오. 일반적으로 EKS는 매년 세 개의 마이너 버전의 쿠버네티스를 릴리스하며 각 마이너 버전은 약 14개월 동안 지원됩니다. </p>
+<p>또한 업스트림 <a href="https://kubernetes.io/releases/">쿠버네티스 릴리스 정보</a> 도 검토하십시오.</p>
+<h2 id="_5">공동 책임 모델이 클러스터 업그레이드에 어떻게 적용되는지 이해<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>클러스터 컨트롤 플레인과 데이터 플레인 모두에 대한 업그레이드를 시작하는 것은 사용자의 책임입니다. <a href="https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html">업그레이드 시작 방법에 대해 알아보십시오.</a> 클러스터 업그레이드를 시작하면 AWS가 클러스터 컨트롤 플레인 업그레이드를 관리합니다. Fargate 파드 및 [기타 애드온] 을 포함한 데이터 플레인 업그레이드는 사용자의 책임입니다.(#upgrade -애드온 및 구성 요소 - kubernetes-api 사용) 클러스터 업그레이드 후 가용성과 운영에 영향을 미치지 않도록 클러스터에서 실행되는 워크로드의 업그레이드를 검증하고 계획해야 합니다.</p>
+<h2 id="_6">클러스터를 인플레이스 업그레이드<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>EKS는 인플레이스 클러스터 업그레이드 전략을 지원합니다.이렇게 하면 클러스터 리소스가 유지되고 클러스터 구성 (예: API 엔드포인트, OIDC, ENIS, 로드밸런서) 이 일관되게 유지됩니다.이렇게 하면 클러스터 사용자의 업무 중단이 줄어들고, 워크로드를 재배포하거나 외부 리소스 (예: DNS, 스토리지) 를 마이그레이션할 필요 없이 클러스터의 기존 워크로드와 리소스를 사용할 수 있습니다.</p>
+<p>전체 클러스터 업그레이드를 수행할 때는 한 번에 하나의 마이너 버전 업그레이드만 실행할 수 있다는 점에 유의해야 합니다 (예: 1.24에서 1.25까지). </p>
+<p>즉, 여러 버전을 업데이트해야 하는 경우 일련의 순차적 업그레이드가 필요합니다.순차적 업그레이드를 계획하는 것은 더 복잡하며 다운타임이 발생할 위험이 더 높습니다.이 상황에서는 <a href="#인플레이스-클러스터-업그레이드의-대안으로-블루/그린-클러스터-평가">블루/그린 클러스터 업그레이드 전략을 평가하십시오.</a></p>
+<h2 id="_7">컨트롤 플레인과 데이터 플레인을 순서대로 업그레이드<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<p>클러스터를 업그레이드하려면 다음 조치를 취해야 합니다.</p>
+<ol>
+<li><a href="#use-the-eks-documentation-to-create-an-upgrade-checklist">쿠버네티스 및 EKS 릴리스 노트를 검토하십시오.</a></li>
+<li><a href="#backup-the-cluster-before-upgrading">클러스터를 백업하십시오.(선택 사항)</a></li>
+<li><a href="#identify-and-remediate-removed-api-usage-before-upgrading-the-control-plane">워크로드에서 더 이상 사용되지 않거나 제거된 API 사용을 식별하고 수정하십시오.</a></li>
+<li><a href="#track-the-version-skew-of-nodes-ensure-managed-node-groups-are-on-the-same-version-as-the-control-plane-before-upgrading">관리형 노드 그룹을 사용하는 경우 컨트롤 플레인과 동일한 Kubernetes 버전에 있는지 확인하십시오.</a> EKS Fargate 프로파일에서 생성한 EKS 관리형 노드 그룹 및 노드는 컨트롤 플레인과 데이터 플레인 간의 마이너 버전 스큐를 1개만 지원합니다.</li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html">AWS 콘솔 또는 CLI를 사용하여 클러스터 컨트롤 플레인을 업그레이드하십시오.</a></li>
+<li><a href="#upgrade-add-ons-and-components-using-the-kubernetes-api">애드온 호환성을 검토하세요.</a> 필요에 따라 쿠버네티스 애드온과 커스텀 컨트롤러를 업그레이드하십시오. </li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html">kubectl 업데이트하기.</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html">클러스터 데이터 플레인을 업그레이드합니다.</a> 업그레이드된 클러스터와 동일한 쿠버네티스 마이너 버전으로 노드를 업그레이드하십시오. </li>
+</ol>
+<h2 id="eks_1">EKS 문서를 활용하여 업그레이드 체크리스트 생성<a class="headerlink" href="#eks_1" title="Permanent link">&para;</a></h2>
+<p>EKS 쿠버네티스 <a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html">버전 문서</a>에는 각 버전에 대한 자세한 변경 목록이 포함되어 있습니다.각 업그레이드에 대한 체크리스트를 작성하십시오. </p>
+<p>특정 EKS 버전 업그레이드 지침은 문서에서 각 버전의 주요 변경 사항 및 고려 사항을 검토하십시오.</p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.27">EKS 1.27</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.26">EKS 1.26</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.25">EKS 1.25</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.24">EKS 1.24</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.23">EKS 1.23</a></li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html#kubernetes-1.22">EKS 1.22</a></li>
+</ul>
+<h2 id="api">쿠버네티스 API를 사용하여 애드온 및 컴포넌트 업그레이드<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<p>클러스터를 업그레이드하기 전에 사용 중인 Kubernetes 구성 요소의 버전을 이해해야 합니다. 클러스터 구성 요소의 인벤토리를 작성하고 Kubernetes API를 직접 사용하는 구성 요소를 식별하십시오.여기에는 모니터링 및 로깅 에이전트, 클러스터 오토스케일러, 컨테이너 스토리지 드라이버 (예: <a href="https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html">EBS CSI</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html">EFS CSI</a>), 인그레스 컨트롤러, 쿠버네티스 API를 직접 사용하는 기타 워크로드 또는 애드온과 같은 중요한 클러스터 구성 요소가 포함됩니다. </p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>중요한 클러스터 구성 요소는 대개 <code>*-system</code> 네임스페이스에 설치됩니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl get ns | grep &#39;-system&#39;
+</code></pre></div>
+</div>
+<p>Kubernetes API를 사용하는 구성 요소를 식별한 후에는 해당 설명서에서 버전 호환성 및 업그레이드 요구 사항을 확인하십시오. 예를 들어 버전 호환성에 대해서는 <a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/installation/">AWS 로드밸런서 컨트롤러</a> 설명서를 참조하십시오.클러스터 업그레이드를 진행하기 전에 일부 구성 요소를 업그레이드하거나 구성을 변경해야 할 수 있습니다. 확인해야 할 몇 가지 중요한 구성 요소로는 <a href="https://github.com/coredns/coredns">CoreDNS</a>, <a href="https://kubernetes.io/docs/concepts/overview/components/#kube-proxy">kube-proxy</a>, <a href="https://github.com/aws/amazon-vpc-cni-k8s">VPC CNI</a>, 스토리지 드라이버 등이 있습니다. </p>
+<p>클러스터에는 Kubernetes API를 사용하는 많은 워크로드가 포함되는 경우가 많으며 인그레스 컨트롤러, 지속적 전달 시스템, 모니터링 도구와 같은 워크로드 기능에 필요합니다.EKS 클러스터를 업그레이드할 때는 애드온과 타사 도구도 업그레이드하여 호환되는지 확인해야 합니다.</p>
+<p>일반적인 애드온의 다음 예와 관련 업그레이드 설명서를 참조하십시오.</p>
+<ul>
+<li><strong>Amazon VPC CNI:</strong> 각 클러스터 버전에 대한 Amazon VPC CNI 애드온의 권장 버전은 <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html">쿠버네티스 자체 관리형 애드온용 Amazon VPC CNI 플러그인 업데이트</a>를 참조하십시오. <strong>Amazon EKS 애드온으로 설치한 경우 한 번에 하나의 마이너 버전만 업그레이드할 수 있습니다.</strong></li>
+<li><strong>kube-proxy:</strong> <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-kube-proxy.html">쿠버네티스 kube-proxy 자체 관리형 애드온 업데이트</a>를 참조하십시오.</li>
+<li><strong>CoreDNS:</strong> <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html">CoreDNS 자체 관리형 애드온 업데이트</a>를 참조하십시오.</li>
+<li><strong>AWS Load Balancer Controller:</strong> AWS Load Balancer Controller는 배포한 EKS 버전과 호환되어야 합니다. 자세한 내용은 <a href="https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html">설치 가이드</a>를 참조하십시오. </li>
+<li><strong>Amazon Elastic Block Store (아마존 EBS) 컨테이너 스토리지 인터페이스 (CSI) 드라이버:</strong> 설치 및 업그레이드 정보는 <a href="https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html">Amazon EKS 애드온으로 Amazon EBS CSI 드라이버 관리</a>를 참조하십시오.</li>
+<li><strong>Amazon Elastic File System (Amazon EFS) 컨테이너 스토리지 인터페이스 (CSI) 드라이버:</strong> 설치 및 업그레이드 정보는 <a href="https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html">Amazon EFS CSI 드라이버</a> 를 참조하십시오.</li>
+<li><strong>쿠버네티스 메트릭 서버:</strong> 자세한 내용은 GitHub의 <a href="https://kubernetes-sigs.github.io/metrics-server/">metrics-server</a>를 참조하십시오.</li>
+<li><strong>쿠버네티스 Cluster Autoscaler:</strong> 쿠버네티스 Cluster Autoscaler 버전을 업그레이드하려면 배포 시 이미지 버전을 변경하십시오. Cluster Autoscaler는 쿠버네티스 스케줄러와 밀접하게 연결되어 있습니다. 클러스터를 업그레이드할 때는 항상 업그레이드해야 합니다. <a href="https://github.com/kubernetes/autoscaler/releases">GitHub 릴리스</a>를 검토하여 쿠버네티스 마이너 버전에 해당하는 최신 릴리스의 주소를 찾으십시오.</li>
+<li><strong>Karpenter:</strong> 설치 및 업그레이드 정보는 <a href="https://karpenter.sh/v0.27.3/faq/#which-versions-of-kubernetes-does-karpenter-support">Karpenter 설명서</a>를 참조하십시오.</li>
+</ul>
+<h2 id="eks_2">업그레이드 전에 기본 EKS 요구 사항 확인<a class="headerlink" href="#eks_2" title="Permanent link">&para;</a></h2>
+<p>AWS에서 업그레이드 프로세스를 완료하려면 계정에 특정 리소스가 필요합니다.이런 리소스가 없는 경우 클러스터를 업그레이드할 수 없습니다.컨트롤 플레인 업그레이드에는 다음 리소스가 필요합니다.</p>
+<ol>
+<li>사용 가능한 IP 주소: 클러스터를 업데이트하려면 Amazon EKS에서 클러스터를 생성할 때 지정한 서브넷의 사용 가능한 IP 주소가 최대 5개까지 필요합니다.</li>
+<li>EKS IAM 역할: 컨트롤 플레인 IAM 역할은 필요한 권한으로 계정에 계속 존재합니다.</li>
+<li>클러스터에 시크릿 암호화가 활성화되어 있는 경우 클러스터 IAM 역할에 AWS KMS키를 사용할 권한이 있는지 확인하십시오.</li>
+</ol>
+<h3 id="ip">사용 가능한 IP 주소 확인<a class="headerlink" href="#ip" title="Permanent link">&para;</a></h3>
+<p>클러스터를 업데이트하려면 Amazon EKS에서 클러스터를 생성할 때 지정한 서브넷의 사용 가능한 IP 주소가 최대 5개까지 필요합니다.</p>
+<p>다음 명령을 실행하여 서브넷에 클러스터를 업그레이드할 수 있는 충분한 IP 주소가 있는지 확인할 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>CLUSTER=&lt;cluster name&gt;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>aws ec2 describe-subnets --subnet-ids \
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  $(aws eks describe-cluster --name ${CLUSTER} \
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  --query &#39;cluster.resourcesVpcConfig.subnetIds&#39; \
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  --output text) \
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  --query &#39;Subnets[*].[SubnetId,AvailabilityZone,AvailableIpAddressCount]&#39; \
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  --output table
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>----------------------------------------------------
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>|                  DescribeSubnets                 |
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>+---------------------------+--------------+-------+
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>|  subnet-067fa8ee8476abbd6 |  us-east-1a  |  8184 |
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>|  subnet-0056f7403b17d2b43 |  us-east-1b  |  8153 |
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>|  subnet-09586f8fb3addbc8c |  us-east-1a  |  8120 |
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>|  subnet-047f3d276a22c6bce |  us-east-1b  |  8184 |
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>+---------------------------+--------------+-------+
+</code></pre></div>
+<p><a href="https://github.com/aws/amazon-vpc-cni-k8s/blob/master/cmd/cni-metrics-helper/README.md">VPC CNI Metrics Helper</a> 를 사용하여 VPC 지표에 대한 CloudWatch 대시보드를 만들 수 있습니다. 
+클러스터 생성 시 처음 지정한 서브넷의 IP 주소가 부족한 경우, Amazon EKS는 쿠버네티스 버전 업그레이드를 시작하기 전에 “UpdateClusterConfiguration” API를 사용하여 클러스터 서브넷을 업데이트할 것을 권장합니다. 신규 서브넷이 아래 항목을 만족하는지 확인하십시오:</p>
+<ul>
+<li>신규 서브넷은 클러스터 생성 중에 선택한 동일 가용영역에 속합니다. </li>
+<li>신규 서브넷은 클러스터 생성 시 제공된 동일 VPC에 속합니다.</li>
+</ul>
+<p>기존 VPC CIDR 블록의 IP 주소가 부족한 경우 추가 CIDR 블록을 연결하는 것을 고려해 보십시오. AWS를 사용하면 추가 CIDR 블록을 기존 클러스터 VPC와 연결하여 IP 주소 풀을 효과적으로 확장할 수 있습니다. 이러한 확장은 추가 프라이빗 IP 범위 (RFC 1918) 를 도입하거나, 필요한 경우 퍼블릭 IP 범위 (비 RFC 1918) 를 도입하여 수행할 수 있습니다. Amazon EKS에서 새 CIDR을 사용하려면 먼저 새 VPC CIDR 블록을 추가하고 VPC 새로 고침이 완료될 때까지 기다려야 합니다. 그런 다음 새로 설정된 CIDR 블록을 기반으로 서브넷을 VPC로 업데이트할 수 있습니다.</p>
+<h3 id="eks-iam">EKS IAM 역할 확인<a class="headerlink" href="#eks-iam" title="Permanent link">&para;</a></h3>
+<p>다음 명령을 실행하여 IAM 역할을 사용할 수 있고 계정에 올바른 역할 수임 정책이 적용되었는지 확인할 수 있습니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>CLUSTER=&lt;cluster name&gt;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ROLE_ARN=$(aws eks describe-cluster --name ${CLUSTER} \
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  --query &#39;cluster.roleArn&#39; --output text)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>aws iam get-role --role-name ${ROLE_ARN##*/} \
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  --query &#39;Role.AssumeRolePolicyDocument&#39;
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>{
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    &quot;Version&quot;: &quot;2012-10-17&quot;,
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    &quot;Statement&quot;: [
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        {
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>            &quot;Effect&quot;: &quot;Allow&quot;,
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>            &quot;Principal&quot;: {
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>                &quot;Service&quot;: &quot;eks.amazonaws.com&quot;
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>            },
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>            &quot;Action&quot;: &quot;sts:AssumeRole&quot;
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>        }
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    ]
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>}
+</code></pre></div>
+<h2 id="eks_3">EKS 애드온으로 마이그레이션<a class="headerlink" href="#eks_3" title="Permanent link">&para;</a></h2>
+<p>Amazon EKS는 모든 클러스터에 쿠버네티스 용 Amazon VPC CNI 플러그인, <code>kube-proxy</code>, CoreDNS와 같은 애드온을 자동으로 설치합니다. 애드온은 자체 관리하거나 Amazon EKS 애드온으로 설치할 수 있습니다. Amazon EKS 애드온은 EKS API를 사용하여 애드온을 관리하는 또 다른 방법입니다. </p>
+<p>Amazon EKS 애드온을 사용하여 단일 명령으로 버전을 업데이트할 수 있습니다. 예:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>aws eks update-addon —cluster-name my-cluster —addon-name vpc-cni —addon-version version-number \
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>--service-account-role-arn arn:aws:iam::111122223333:role/role-name —configuration-values &#39;{}&#39; —resolve-conflicts PRESERVE
+</code></pre></div>
+<p>다음과 같은 EKS 애드온이 있는지 확인:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>aws eks list-addons --cluster-name &lt;cluster name&gt;
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>EKS 애드온은 컨트롤 플레인 업그레이드 중에 자동으로 업그레이드되지 않습니다. EKS 애드온 업데이트를 시작하고 원하는 버전을 선택해야 합니다. </p>
+<ul>
+<li>사용 가능한 모든 버전 중에서 호환되는 버전을 선택하는 것은 사용자의 책임입니다. <a href="#upgrade-add-ons-and-components-using-the-kubernetes-api">애드온 버전 호환성에 대한 지침을 검토하세요.</a></li>
+<li>Amazon EKS 애드온은 한 번에 하나의 마이너 버전만 업그레이드할 수 있습니다. </li>
+</ul>
+</div>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html">EKS 애드온으로 사용할 수 있는 구성 요소와 시작 방법에 대해 자세히 알아보세요.</a></p>
+<p><a href="https://aws.amazon.com/blogs/containers/amazon-eks-add-ons-advanced-configuration/">EKS 애드온에 사용자 지정 구성을 제공하는 방법을 알아봅니다.</a></p>
+<h2 id="api_1">컨트롤 플레인을 업그레이드하기 전에 제거된 API 사용을 식별하고 수정하기<a class="headerlink" href="#api_1" title="Permanent link">&para;</a></h2>
+<p>EKS 컨트롤 플레인을 업그레이드하기 전에 제거된 API의 API 사용을 확인해야 합니다. 이를 위해서는 실행 중인 클러스터 또는 정적으로 렌더링된 Kubernetes 매니페스트 파일을 확인할 수 있는 도구를 사용하는 것이 좋습니다. </p>
+<p>일반적으로 정적 매니페스트 파일을 대상으로 검사를 실행하는 것이 더 정확합니다. 라이브 클러스터를 대상으로 실행하면 이런 도구가 오탐을 반환할 수 있습니다. </p>
+<p>쿠버네티스 API가 더 이상 사용되지 않는다고 해서 API가 제거된 것은 아닙니다. <a href="https://kubernetes.io/docs/reference/using-api/deprecation-policy/">쿠버네티스 지원 중단 정책</a>을 확인하여 API 제거가 워크로드에 미치는 영향을 이해해야 합니다.</p>
+<h3 id="_8">클러스터 인사이트<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html">클러스터 인사이트</a>는 EKS 클러스터를 최신 버전의 쿠버네티스로 업그레이드하는 기능에 영향을 미칠 수 있는 문제에 대한 결과를 제공하는 기능입니다. 이러한 결과는 Amazon EKS에서 선별 및 관리하며 문제 해결 방법에 대한 권장 사항을 제공합니다. 클러스터 인사이트를 활용하면 최신 쿠버네티스 버전으로 업그레이드하는 데 드는 노력을 최소화할 수 있습니다.</p>
+<p>EKS 클러스터의 인사이트를 보려면 다음 명령을 실행할 수 있습니다.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>aws eks list-insights --region &lt;region-code&gt; --cluster-name &lt;my-cluster&gt;
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>{
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    &quot;insights&quot;: [
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        {
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>            &quot;category&quot;: &quot;UPGRADE_READINESS&quot;, 
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>            &quot;name&quot;: &quot;Deprecated APIs removed in Kubernetes v1.29&quot;, 
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>            &quot;insightStatus&quot;: {
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>                &quot;status&quot;: &quot;PASSING&quot;, 
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>                &quot;reason&quot;: &quot;No deprecated API usage detected within the last 30 days.&quot;
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>            }, 
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>            &quot;kubernetesVersion&quot;: &quot;1.29&quot;, 
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>            &quot;lastTransitionTime&quot;: 1698774710.0, 
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>            &quot;lastRefreshTime&quot;: 1700157422.0, 
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>            &quot;id&quot;: &quot;123e4567-e89b-42d3-a456-579642341238&quot;, 
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>            &quot;description&quot;: &quot;Checks for usage of deprecated APIs that are scheduled for removal in Kubernetes v1.29. Upgrading your cluster before migrating to the updated APIs supported by v1.29 could cause application impact.&quot;
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        }
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>    ]
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>}
+</code></pre></div></p>
+<p>인사이트에 대해 더 자세한 내용을 출력하려면 다음 명령을 실행할 수 있습니다:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>aws eks describe-insight --region &lt;region-code&gt; --id &lt;insight-id&gt; --cluster-name &lt;my-cluster&gt;
+</code></pre></div></p>
+<p><a href="https://console.aws.amazon.com/eks/home#/clusters">Amazon EKS 콘솔</a>에서 인사이트를 볼 수도 있습니다.클러스터 목록에서 클러스터를 선택하면 인사이트 결과가 <code>업그레이드 인사이트</code> 탭 아래에 표시됩니다.</p>
+<p><code>"status": ERROR</code>인 클러스터 인사이트를 찾은 경우 클러스터 업그레이드를 수행하기 전에 문제를 해결해야 합니다. <code>aws eks describe-insight</code> 명령을 실행하면 다음과 같은 개선 권고 사항을 공유할 수 있습니다:</p>
+<p>영향을 받는 리소스:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>&quot;resources&quot;: [
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>      {
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>        &quot;insightStatus&quot;: {
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>          &quot;status&quot;: &quot;ERROR&quot;
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        },
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        &quot;kubernetesResourceUri&quot;: &quot;/apis/policy/v1beta1/podsecuritypolicies/null&quot;
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>      }
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>]
+</code></pre></div></p>
+<p>APIs deprecated:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>&quot;deprecationDetails&quot;: [
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>      {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        &quot;usage&quot;: &quot;/apis/flowcontrol.apiserver.k8s.io/v1beta2/flowschemas&quot;, 
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        &quot;replacedWith&quot;: &quot;/apis/flowcontrol.apiserver.k8s.io/v1beta3/flowschemas&quot;, 
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        &quot;stopServingVersion&quot;: &quot;1.29&quot;, 
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        &quot;clientStats&quot;: [], 
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        &quot;startServingReplacementVersion&quot;: &quot;1.26&quot;
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>      }
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>]
+</code></pre></div></p>
+<p>취해야 할 권장 조치:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>&quot;recommendation&quot;: &quot;Update manifests and API clients to use newer Kubernetes APIs if applicable before upgrading to Kubernetes v1.26.&quot;
+</code></pre></div></p>
+<p>EKS 콘솔 또는 CLI를 통해 클러스터 통찰력을 활용하면 EKS 클러스터 버전을 성공적으로 업그레이드하는 프로세스를 가속화할 수 있습니다. 다음 리소스를 통해 자세히 알아보십시오:
+* <a href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html">공식 EKS 문서</a>
+* <a href="https://aws.amazon.com/blogs/containers/accelerate-the-testing-and-verification-of-amazon-eks-upgrades-with-upgrade-insights/">클러스터 인사이트 출시 블로그</a>.</p>
+<h3 id="kube-no-trouble">Kube-no-Trouble<a class="headerlink" href="#kube-no-trouble" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/doitintl/kube-no-trouble">Kube-no-Trouble</a> 은 <code>kubent</code> 명령을 사용하는 오픈소스 커맨드라인 유틸리티입니다. 인수 없이 <code>kubent</code>를 실행하면 현재 KubeConfig 컨텍스트를 사용하여 클러스터를 스캔하고 더 이상 사용되지 않고 제거될 API가 포함된 보고서를 생성합니다</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubent
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>4:17PM INF &gt;&gt;&gt; Kube No Trouble `kubent` &lt;&lt;&lt;
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>4:17PM INF version 0.7.0 (git sha d1bb4e5fd6550b533b2013671aa8419d923ee042)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>4:17PM INF Initializing collectors and retrieving data
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>4:17PM INF Target K8s version is 1.24.8-eks-ffeb93d
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>4:l INF Retrieved 93 resources from collector name=Cluster
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>4:17PM INF Retrieved 16 resources from collector name=&quot;Helm v3&quot;
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>4:17PM INF Loaded ruleset name=custom.rego.tmpl
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>4:17PM INF Loaded ruleset name=deprecated-1-16.rego
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>4:17PM INF Loaded ruleset name=deprecated-1-22.rego
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>4:17PM INF Loaded ruleset name=deprecated-1-25.rego
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>4:17PM INF Loaded ruleset name=deprecated-1-26.rego
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>4:17PM INF Loaded ruleset name=deprecated-future.rego
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>__________________________________________________________________________________________
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>&gt;&gt;&gt; Deprecated APIs removed in 1.25 &lt;&lt;&lt;
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>------------------------------------------------------------------------------------------
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>KIND                NAMESPACE     NAME             API_VERSION      REPLACE_WITH (SINCE)
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>PodSecurityPolicy   &lt;undefined&gt;   eks.privileged   policy/v1beta1   &lt;removed&gt; (1.21.0)
+</code></pre></div>
+<p>정적 매니페스트 파일 및 헬름 패키지를 스캔하는 데에도 사용할 수 있습니다.매니페스트를 배포하기 전에 문제를 식별하려면 지속적 통합 (CI) 프로세스의 일부로 <code>kubent</code> 를 실행하는 것이 좋습니다.또한 매니페스트를 스캔하는 것이 라이브 클러스터를 스캔하는 것보다 더 정확합니다. </p>
+<p>Kube-no-Trouble은 클러스터를 스캔하기 위한 적절한 권한이 있는 샘플 <a href="https://github.com/doitintl/kube-no-trouble/blob/master/docs/k8s-sa-and-role-example.yaml">서비스 어카운트 및 역할</a>을 제공합니다. </p>
+<h3 id="pluto">풀루토(pluto)<a class="headerlink" href="#pluto" title="Permanent link">&para;</a></h3>
+<p>또 다른 옵션은 <a href="https://pluto.docs.fairwinds.com/">pluto</a>인데, 이는 라이브 클러스터, 매니페스트 파일, 헬름 차트 스캔을 지원하고 CI 프로세스에 포함할 수 있는 GitHub Action이 있다는 점에서 <code>kubent</code>와 비슷합니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pluto detect-all-in-cluster
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>NAME             KIND                VERSION          REPLACEMENT   REMOVED   DEPRECATED   REPL AVAIL  
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>eks.privileged   PodSecurityPolicy   policy/v1beta1                 false     true         true
+</code></pre></div>
+<h3 id="_9">리소스<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p>업그레이드 전에 클러스터가 지원 중단된 API를 사용하지 않는지 확인하려면 다음을 모니터링해야 합니다:</p>
+<ul>
+<li>쿠버네티스 v1.19 <code>apiserver_requested_deprecated_apis</code> 메트릭:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>kubectl get --raw /metrics | grep apiserver_requested_deprecated_apis
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>apiserver_requested_deprecated_apis{group=&quot;policy&quot;,removed_release=&quot;1.25&quot;,resource=&quot;podsecuritypolicies&quot;,subresource=&quot;&quot;,version=&quot;v1beta1&quot;} 1
+</code></pre></div>
+<ul>
+<li><code>k8s.io/deprecated</code>가 <code>true</code>로 표시된 <a href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html">감사 로그</a>  내 이벤트:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>CLUSTER=&quot;&lt;cluster_name&gt;&quot;
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>QUERY_ID=$(aws logs start-query \
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a> --log-group-name /aws/eks/${CLUSTER}/cluster \
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a> --start-time $(date -u --date=&quot;-30 minutes&quot; &quot;+%s&quot;) # or date -v-30M &quot;+%s&quot; on MacOS \
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a> --end-time $(date &quot;+%s&quot;) \
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a> --query-string &#39;fields @message | filter `annotations.k8s.io/deprecated`=&quot;true&quot;&#39; \
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a> --query queryId --output text)
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>echo &quot;Query started (query id: $QUERY_ID), please hold ...&quot; &amp;&amp; sleep 5 # give it some time to query
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>aws logs get-query-results --query-id $QUERY_ID
+</code></pre></div>
+<p>더 이상 사용되지 않는 API를 사용하는 경우 다음 행이 출력됩니다:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>{
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    &quot;results&quot;: [
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>        [
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>            {
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>                &quot;field&quot;: &quot;@message&quot;,
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>                &quot;value&quot;: &quot;{\&quot;kind\&quot;:\&quot;Event\&quot;,\&quot;apiVersion\&quot;:\&quot;audit.k8s.io/v1\&quot;,\&quot;level\&quot;:\&quot;Request\&quot;,\&quot;auditID\&quot;:\&quot;8f7883c6-b3d5-42d7-967a-1121c6f22f01\&quot;,\&quot;stage\&quot;:\&quot;ResponseComplete\&quot;,\&quot;requestURI\&quot;:\&quot;/apis/policy/v1beta1/podsecuritypolicies?allowWatchBookmarks=true\\u0026resourceVersion=4131\\u0026timeout=9m19s\\u0026timeoutSeconds=559\\u0026watch=true\&quot;,\&quot;verb\&quot;:\&quot;watch\&quot;,\&quot;user\&quot;:{\&quot;username\&quot;:\&quot;system:apiserver\&quot;,\&quot;uid\&quot;:\&quot;8aabfade-da52-47da-83b4-46b16cab30fa\&quot;,\&quot;groups\&quot;:[\&quot;system:masters\&quot;]},\&quot;sourceIPs\&quot;:[\&quot;::1\&quot;],\&quot;userAgent\&quot;:\&quot;kube-apiserver/v1.24.16 (linux/amd64) kubernetes/af930c1\&quot;,\&quot;objectRef\&quot;:{\&quot;resource\&quot;:\&quot;podsecuritypolicies\&quot;,\&quot;apiGroup\&quot;:\&quot;policy\&quot;,\&quot;apiVersion\&quot;:\&quot;v1beta1\&quot;},\&quot;responseStatus\&quot;:{\&quot;metadata\&quot;:{},\&quot;code\&quot;:200},\&quot;requestReceivedTimestamp\&quot;:\&quot;2023-10-04T12:36:11.849075Z\&quot;,\&quot;stageTimestamp\&quot;:\&quot;2023-10-04T12:45:30.850483Z\&quot;,\&quot;annotations\&quot;:{\&quot;authorization.k8s.io/decision\&quot;:\&quot;allow\&quot;,\&quot;authorization.k8s.io/reason\&quot;:\&quot;\&quot;,\&quot;k8s.io/deprecated\&quot;:\&quot;true\&quot;,\&quot;k8s.io/removed-release\&quot;:\&quot;1.25\&quot;}}&quot;
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>            },
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>[...]
+</code></pre></div>
+<h2 id="kubectl-convert">쿠버네티스 워크로드 업데이트. kubectl-convert를 사용하여 매니페스트를 업데이트<a class="headerlink" href="#kubectl-convert" title="Permanent link">&para;</a></h2>
+<p>업데이트가 필요한 워크로드와 매니페스트를 식별한 후에는 매니페스트 파일의 리소스 유형을 변경해야 할 수 있습니다 (예: 파드시큐리티폴리시를 파드시큐리티스탠다드로).이를 위해서는 리소스 사양을 업데이트하고 교체할 리소스에 따른 추가 조사가 필요합니다.</p>
+<p>리소스 유형은 동일하게 유지되지만 API 버전을 업데이트해야 하는 경우, <code>kubectl-convert</code> 명령을 사용하여 매니페스트 파일을 자동으로 변환할 수 있습니다. 예전 디플로이먼트를 <code>apps/v1</code>으로 변환하는 경우를 예로 들 수 있다. 자세한 내용은 쿠버네티스 웹 사이트의 <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin">kubectl convert 플러그인 설치</a> 를 참조하십시오.</p>
+<p><code>kubectl-convert -f &lt;file&gt; --output-version &lt;group&gt;/&lt;version&gt;</code></p>
+<h2 id="poddisruptionbudget-topologyspreadconstraints">데이터 플레인이 업그레이드되는 동안 워크로드의 가용성을 보장하도록 PodDisruptionBudget 및 topologySpreadConstraints 조건을 구성.<a class="headerlink" href="#poddisruptionbudget-topologyspreadconstraints" title="Permanent link">&para;</a></h2>
+<p>데이터 플레인이 업그레이드되는 동안 워크로드의 가용성을 보장하려면 워크로드에 적절한 <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#pod-disruption-budgets">PodDisruptionBudget(파드디스럽션 예산)</a> 및 <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints">토폴로지 스프레드 제약 조건</a> 이 있는지 확인하십시오.모든 워크로드에 동일한 수준의 가용성이 필요한 것은 아니므로 워크로드의 규모와 요구 사항을 검증해야 합니다.</p>
+<p>워크로드가 여러 가용영역에 분산되어 있고 토폴로지가 분산된 여러 호스트에 분산되어 있는지 확인하면 워크로드가 문제 없이 새 데이터 플레인으로 자동 마이그레이션될 것이라는 신뢰도가 높아집니다. </p>
+<p>다음은 항상 80% 의 복제본을 사용할 수 있고 여러 영역과 호스트에 걸쳐 복제본을 분산시키는 워크로드의 예입니다.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>apiVersion: policy/v1
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>kind: PodDisruptionBudget
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>metadata:
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>  name: myapp
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>spec:
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>  minAvailable: &quot;80%&quot;
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>  selector:
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    matchLabels:
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>      app: myapp
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>---
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>apiVersion: apps/v1
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>kind: Deployment
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>metadata:
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>  name: myapp
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>spec:
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>  replicas: 10
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>  selector:
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    matchLabels:
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>      app: myapp
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>  template:
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    metadata:
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>      labels:
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>        app: myapp
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>    spec:
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>      containers:
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>      - image: public.ecr.aws/eks-distro/kubernetes/pause:3.2
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>        name: myapp
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>        resources:
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>          requests:
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>            cpu: &quot;1&quot;
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>            memory: 256M
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>      topologySpreadConstraints:
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>      - labelSelector:
+<a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a>          matchLabels:
+<a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a>            app: host-zone-spread
+<a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a>        maxSkew: 2
+<a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a>        topologyKey: kubernetes.io/hostname
+<a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a>        whenUnsatisfiable: DoNotSchedule
+<a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a>      - labelSelector:
+<a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a>          matchLabels:
+<a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a>            app: host-zone-spread
+<a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a>        maxSkew: 2
+<a id="__codelineno-15-43" name="__codelineno-15-43" href="#__codelineno-15-43"></a>        topologyKey: topology.kubernetes.io/zone
+<a id="__codelineno-15-44" name="__codelineno-15-44" href="#__codelineno-15-44"></a>        whenUnsatisfiable: DoNotSchedule
+</code></pre></div>
+<p><a href="https://aws.amazon.com/resilience-hub/">AWS Resilience Hub</a> 는 아마존 엘라스틱 쿠버네티스 서비스 (Amazon EKS) 를 지원 리소스로 추가했습니다. Resilience Hub는 애플리케이션 복원력을 정의, 검증 및 추적할 수 있는 단일 장소를 제공하므로 소프트웨어, 인프라 또는 운영 중단으로 인한 불필요한 다운타임을 피할 수 있습니다.</p>
+<h2 id="karpenter">관리형 노드 그룹 또는 Karpenter를 사용하여 데이터 플레인 업그레이드를 간소화.<a class="headerlink" href="#karpenter" title="Permanent link">&para;</a></h2>
+<p>관리형 노드 그룹과 Karpenter는 모두 노드 업그레이드를 단순화하지만 접근 방식은 다릅니다.</p>
+<p>관리형 노드 그룹은 노드의 프로비저닝 및 라이프사이클 관리를 자동화합니다.즉, 한 번의 작업으로 노드를 생성, 자동 업데이트 또는 종료할 수 있습니다.</p>
+<p>기본 구성에서 Karpenter는 호환되는 최신 EKS 최적화 AMI를 사용하여 새 노드를 자동으로 생성합니다. EKS가 업데이트된 EKS 최적화 AMI를 출시하거나 클러스터가 업그레이드되면 Karpenter는 자동으로 이런 이미지를 사용하기 시작합니다.<a href="#enable-node-expiry-for-karpenter-managed-nodes">Karpenter는 노드 업데이트를 위한 노드 만료도 구현합니다.</a></p>
+<p><a href="https://karpenter.sh/docs/concepts/node-templates/">Karpenter는 사용자 지정 AMI를 사용하도록 구성할 수 있습니다.</a> Karpenter에서 사용자 지정 AMI를 사용하는 경우 kubelet 버전에 대한 책임은 사용자에게 있습니다. </p>
+<h2 id="_10">기존 노드 및 컨트롤 플레인과의 버전 호환성 확인<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<p>Amazon EKS에서 쿠버네티스 업그레이드를 진행하기 전에 관리형 노드 그룹, 자체 관리형 노드 및 컨트롤 플레인 간의 호환성을 보장하는 것이 중요합니다. 호환성은 사용 중인 쿠버네티스 버전에 따라 결정되며 다양한 시나리오에 따라 달라집니다. 전략:</p>
+<ul>
+<li><strong>쿠버네티스 v1.28+</strong> — **** 쿠버네티스 버전 1.28 이상부터는 핵심 구성 요소에 대한 보다 관대한 버전 정책이 있습니다. 특히, 쿠버네티스 API 서버와 kubelet 간에 지원되는 스큐(skew)가 하나의 마이너 버전 (n-2에서 n-3으로) 으로 확장되었습니다. 예를 들어, 사용 중인 EKS 컨트롤 플레인 버전이 1.28인 경우, 1.25까지의 kubelet 버전을 안전하게 사용할 수 있다. 이 버전 스큐는 <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html">AWS Fargate</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">관리형 노드 그룹</a> 및 <a href="https://docs.aws.amazon.com/eks/latest/userguide/worker.html">자체 관리형 노드</a> 에서 지원됩니다. 보안상의 이유로 <a href="https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html">Amazon 머신 이미지 (AMI)</a> 버전을 최신 상태로 유지하는 것이 좋습니다. 이전 kubelet 버전은 잠재적인 공통 취약성 및 노출 (CVE) 으로 인해 보안 위험을 초래할 수 있으며, 이는 이전 kubelet 버전 사용의 이점보다 클 수 있습니다.</li>
+<li><strong>쿠버네티스 &lt; v1.28</strong> — v1.28 이전 버전을 사용하는 경우, API 서버와 kubelet 간에 지원되는 스큐는 n-2이다. 예를 들어, 사용 중인 EKS 버전이 1.27인 경우, 사용할 수 있는 가장 오래된 kubelet 버전은 1.25이다. 이 버전 차이는 <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html">AWS Fargate</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">관리형 노드 그룹</a> 및 <a href="https://docs.aws.amazon.com/eks/latest/userguide/worker.html">자체 관리형 노드</a>에 적용됩니다.</li>
+</ul>
+<h2 id="karpenter_1">Karpenter 관리형 노드의 노드 만료 활성화<a class="headerlink" href="#karpenter_1" title="Permanent link">&para;</a></h2>
+<p>Karpenter가 노드 업그레이드를 구현하는 한 가지 방법은 노드 만료라는 개념을 사용하는 것입니다. 이렇게 하면 노드 업그레이드에 필요한 계획이 줄어듭니다. 프로비저너에서 <strong>ttlSecondsUntilExpired</strong> 의 값을 설정하면 노드 만료가 활성화됩니다. 노드가 몇 초 만에 정의된 연령에 도달하면 노드가 안전하게 비워지고 삭제됩니다. 이는 사용 중인 경우에도 마찬가지이므로 노드를 새로 프로비저닝된 업그레이드된 인스턴스로 교체할 수 있습니다. 노드가 교체되면 Karpenter는 EKS에 최적화된 최신 AMI를 사용합니다. 자세한 내용은 Karpenter 웹 사이트의 <a href="https://karpenter.sh/docs/concepts/deprovisioning/#methods">디프로비저닝(Deprovisioning)</a>를 참조하십시오.</p>
+<p>Karpenter는 이 값에 지터를 자동으로 추가하지 않습니다. 과도한 워크로드 중단을 방지하려면 Kubernetes 설명서에 나와 있는 대로 <a href="https://kubernetes.io/docs/tasks/run-application/configure-pdb/">Pod Disruption Budget (PDB)</a> 을 정의하십시오.</p>
+<p>프로비저너에서 <strong>ttlSecondsUntilExpired</strong> 값을 설정하는 경우 이는 프로비저너와 연결된 기존 노드에 적용됩니다.</p>
+<h2 id="karpenter_2">Karpenter 관리 노드에 드리프트 기능 사용<a class="headerlink" href="#karpenter_2" title="Permanent link">&para;</a></h2>
+<p><a href="https://karpenter.sh/docs/concepts/deprovisioning/#drift">Karpenter's Drift 기능</a>은 Karpenter가 프로비저닝한 노드를 자동으로 업그레이드하여 EKS 컨트롤 플레인과 동기화 상태를 유지할 수 있습니다. Karpenter 드리프트는 현재 <a href="https://karpenter.sh/docs/concepts/settings/#feature-gates">기능 게이트</a>를 사용하여 활성화해야 합니다. Karpenter의 기본 구성은 EKS 클러스터의 컨트롤 플레인과 동일한 메이저 및 마이너 버전에 대해 EKS에 최적화된 최신 AMI를 사용합니다.</p>
+<p>EKS 클러스터 업그레이드가 완료되면 Karpenter의 Drift 기능은 Karpenter가 프로비저닝한 노드가 이전 클러스터 버전용 EKS 최적화 AMI를 사용하고 있음을 감지하고 해당 노드를 자동으로 연결, 드레인 및 교체합니다. 새 노드로 이동하는 파드를 지원하려면 적절한 파드 <a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/">리소스 할당량</a>을 설정하고 <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/">Pod Disruption Budgets</a>(PDB) 을 사용하여 쿠버네티스 모범 사례를 따르세요. Karpenter의 디프로비저닝은 파드 리소스 요청을 기반으로 대체 노드를 미리 가동하고 노드 디프로비저닝을 할 때 PDB를 존중합니다.</p>
+<h2 id="eksctl">eksctl을 사용하여 자체 관리형 노드 그룹의 업그레이드를 자동화<a class="headerlink" href="#eksctl" title="Permanent link">&para;</a></h2>
+<p>자체 관리형 노드 그룹은 사용자 계정에 배포되고 EKS 서비스 외부의 클러스터에 연결된 EC2 인스턴스입니다. 이들은 일반적으로 일종의 자동화 도구를 통해 배포되고 관리됩니다. 자체 관리형 노드 그룹을 업그레이드하려면 도구 설명서를 참조해야 합니다.</p>
+<p>예를 들어 eksctl은 <a href="https://eksctl.io/usage/managing-nodegroups/#deleting-and-draining">자체 관리형 노드 삭제 및 드레인</a>을 지원합니다.</p>
+<p>몇 가지 일반적인 도구는 다음과 같습니다.</p>
+<ul>
+<li><a href="https://eksctl.io/usage/nodegroup-upgrade/">eksctl</a></li>
+<li><a href="https://kops.sigs.k8s.io/operations/updates_and_upgrades/">kOps</a></li>
+<li><a href="https://aws-ia.github.io/terraform-aws-eks-blueprints/node-groups/#self-managed-node-groups">EKS Blueprints</a></li>
+</ul>
+<h2 id="_11">업그레이드 전 클러스터 백업<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<p>새 버전의 쿠버네티스는 Amazon EKS 클러스터를 크게 변경합니다. 클러스터를 업그레이드한 후에는 다운그레이드할 수 없습니다.</p>
+<p><a href="https://velero.io/">Velero</a> 는 커뮤니티에서 지원하는 오픈 소스 도구로, 기존 클러스터를 백업하고 새 클러스터에 백업을 적용하는 데 사용할 수 있습니다.</p>
+<p>현재 EKS에서 지원하는 쿠버네티스 버전에서만 새 클러스터를 생성할 수 있다는 점에 유의하십시오. 클러스터가 현재 실행 중인 버전이 계속 지원되고 업그레이드가 실패할 경우 원래 버전으로 새 클러스터를 생성하고 데이터 플레인을 복원할 수 있습니다. 참고로 IAM을 포함한 AWS 리소스는 Velero의 백업에 포함되지 않습니다. 이런 리소스는 다시 생성해야 합니다. </p>
+<h2 id="fargate">컨트롤 플레인을 업그레이드한 후 Fargate 배포를 다시 시작.<a class="headerlink" href="#fargate" title="Permanent link">&para;</a></h2>
+<p>Fargate 데이터 플레인 노드를 업그레이드하려면 워크로드를 재배포해야 합니다. 모든 파드를 <code>-o wide</code> 옵션으로 나열하여 파게이트 노드에서 실행 중인 워크로드를 식별할 수 있습니다.'fargate-'로 시작하는 모든 노드 이름은 클러스터에 재배포해야 합니다.</p>
+<h2 id="_12">인플레이스 클러스터 업그레이드의 대안으로 블루/그린 클러스터 평가<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<p>일부 고객은 블루/그린 업그레이드 전략을 선호합니다. 여기에는 이점이 있을 수 있지만 고려해야 할 단점도 있습니다.</p>
+<p>혜택은 다음과 같습니다:</p>
+<ul>
+<li>여러 EKS 버전을 한 번에 변경할 수 있습니다 (예: 1.23에서 1.25).</li>
+<li>이전 클러스터로 다시 전환 가능</li>
+<li>최신 시스템 (예: terraform) 으로 관리할 수 있는 새 클러스터를 생성합니다.</li>
+<li>워크로드를 개별적으로 마이그레이션할 수 있습니다.</li>
+</ul>
+<p>몇 가지 단점은 다음과 같습니다.</p>
+<ul>
+<li>소비자 업데이트가 필요한 API 엔드포인트 및 OIDC 변경 (예: kubectl 및 CI/CD)</li>
+<li>마이그레이션 중에 2개의 클러스터를 병렬로 실행해야 하므로 비용이 많이 들고 지역 용량이 제한될 수 있습니다.</li>
+<li>워크로드가 서로 종속되어 함께 마이그레이션되는 경우 더 많은 조정이 필요합니다.</li>
+<li>로드밸런서와 외부 DNS는 여러 클러스터에 쉽게 분산될 수 없습니다.</li>
+</ul>
+<p>이 전략은 가능하지만 인플레이스 업그레이드보다 비용이 많이 들고 조정 및 워크로드 마이그레이션에 더 많은 시간이 필요합니다.상황에 따라 필요할 수 있으므로 신중하게 계획해야 합니다.</p>
+<p>높은 수준의 자동화와 GitOps와 같은 선언형 시스템을 사용하면 이 작업을 더 쉽게 수행할 수 있습니다.데이터를 백업하고 새 클러스터로 마이그레이션하려면 상태 저장 워크로드에 대한 추가 예방 조치를 취해야 합니다.</p>
+<p>자세한 내용은 다음 블로그 게시물을 검토하세요.</p>
+<ul>
+<li><a href="https://aws.amazon.com/blogs/containers/kubernetes-cluster-upgrade-the-blue-green-deployment-strategy/">쿠버네티스 클러스터 업그레이드: 블루-그린 배포 전략</a></li>
+<li><a href="https://aws.amazon.com/blogs/containers/blue-green-or-canary-amazon-eks-clusters-migration-for-stateless-argocd-workloads/">스테이트리스 ArgoCD 워크로드를 위한 블루/그린 또는 카나리 Amazon EKS 클러스터 마이그레이션</a></li>
+</ul>
+<h2 id="_13">쿠버네티스 프로젝트에서 계획된 주요 변경 사항 추적 — 미리 생각해 보세요<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<p>쿠버네티스 다음 버전만 고려하지 마세요. 쿠버네티스의 새 버전이 출시되면 이를 검토하고 주요 변경 사항을 확인하십시오. 예를 들어, 일부 애플리케이션은 도커 API를 직접 사용했고, 도커용 컨테이너 런타임 인터페이스 (CRI) (Dockershim이라고도 함) 에 대한 지원은 쿠버네티스 <code>1.24</code>에서 제거되었습니다. 이런 종류의 변화에는 대비하는 데 더 많은 시간이 필요합니다. </p>
+<p>업그레이드하려는 버전에 대해 문서화된 모든 변경 사항을 검토하고 필요한 업그레이드 단계를 기록해 두십시오.또한 Amazon EKS 관리형 클러스터와 관련된 모든 요구 사항 또는 절차를 기록해 두십시오.</p>
+<ul>
+<li><a href="https://github.com/kubernetes/kubernetes/tree/master/CHANGELOG">쿠버네티스 변경 로그</a></li>
+</ul>
+<h2 id="_14">기능 제거에 대한 구체적인 지침<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
+<h3 id="125-dockershim-docker-socketdds">1.25에서 Dockershim 제거 - Docker Socket(DDS) 용 검출기 사용<a class="headerlink" href="#125-dockershim-docker-socketdds" title="Permanent link">&para;</a></h3>
+<p>1.25용 EKS 최적화 AMI에는 더 이상 Dockershim에 대한 지원이 포함되지 않습니다. Dockershim에 대한 종속성이 있는 경우 (예: Docker 소켓을 마운트하는 경우) 워커 노드를 1.25로 업그레이드하기 전에 이런 종속성을 제거해야 합니다. </p>
+<p>1.25로 업그레이드하기 전에 도커 소켓에 종속 관계가 있는 인스턴스를 찾아보세요. kubectl 플러그인인 <a href="https://github.com/aws-containers/kubectl-detector-for-docker-socket">Detector for Docker Socket (DDS)</a> 를 사용하는 것이 좋습니다. </p>
+<h3 id="125-psp-pss-pac">1.25에서 파드 시큐리티 폴리시(PSP) 제거 - 파드 시큐리티 스탠다드(PSS) 또는 코드형 정책(PaC) 솔루션으로 마이그레이션<a class="headerlink" href="#125-psp-pss-pac" title="Permanent link">&para;</a></h3>
+<p><code>PodSecurityPolicy</code> 는 <a href="https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/">쿠버네티스 1.21에서 지원 중단이 발표</a>이 되었고, 쿠버네티스 1.25에서는 제거되었습니다. 클러스터에서 PSP를 사용하는 경우, 워크로드 중단을 방지하기 위해 클러스터를 버전 1.25로 업그레이드하기 전에 내장된 쿠버네티스 파드 시큐리티 스탠다드 (PSS) 또는 코드형 정책(PaC) 솔루션으로 마이그레이션해야 합니다. </p>
+<p>AWS는 <a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-security-policy-removal-faq.html">EKS 설명서에 자세한 FAQ</a>를 게시했습니다.</p>
+<p><a href="https://aws.github.io/aws-eks-best-practices/security/docs/pods/#pod-security-standards-pss-and-pod-security-admission-psa">파드 시큐리티 스탠다드(PSS) 및 파드 시큐리티 어드미션(PSA)</a> 모범 사례를 검토하십시오. </p>
+<p>쿠버네티스 웹사이트에서 <a href="https://kubernetes.io/blog/2021/04/06/podsecuritypolicy-deprecation-past-present-and-future/">파드 시큐리티 폴리시(PSP) 지원 중단 블로그 게시물</a>을 검토하십시오.</p>
+<h3 id="123-in-tree-csi">1.23에서 In-tree 스토리지 드라이버 지원 중단 - 컨테이너 스토리지 인터페이스 (CSI) 드라이버로 마이그레이션<a class="headerlink" href="#123-in-tree-csi" title="Permanent link">&para;</a></h3>
+<p>컨테이너 스토리지 인터페이스(CSI)는 쿠버네티스가 기존의 In-tree 스토리지 드라이버 메커니즘을 대체할 수 있도록 설계되었습니다. Amazon EBS 컨테이너 스토리지 인터페이스 (CSI) 마이그레이션 기능은 Amazon EKS <code>1.23</code> 이상 클러스터에서 기본적으로 활성화됩니다. 파드가 버전 <code>1.22</code> 또는 이전 클러스터에서 실행되는 경우, 서비스 중단을 방지하려면 클러스터를 버전 <code>1.23</code>으로 업데이트하기 전에 <a href="https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html">Amazon EBS CSI 드라이버</a>를 설치해야 합니다. </p>
+<p><a href="https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi-migration-faq.html">Amazon EBS CSI 마이그레이션 자주 묻는 질문</a>을 검토하십시오.</p>
+<h2 id="_15">추가 리소스<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h2>
+<h3 id="clowdhaus-eks">ClowdHaus EKS 업그레이드 지침<a class="headerlink" href="#clowdhaus-eks" title="Permanent link">&para;</a></h3>
+<p><a href="https://clowdhaus.github.io/eksup/">ClowdHaus EKS 업그레이드 지침</a> 은 Amazon EKS 클러스터를 업그레이드하는 데 도움이 되는 CLI입니다.클러스터를 분석하여 업그레이드 전에 해결해야 할 잠재적 문제를 찾아낼 수 있습니다. </p>
+<h3 id="gonogo">GoNoGo<a class="headerlink" href="#gonogo" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/FairwindsOps/GoNoGo">GoNoGo</a> 는 클러스터 애드온의 업그레이드 신뢰도를 결정하는 알파 단계 도구입니다. </p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["tabs", "content.code.copy", "header.autohide"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac\ub428", "clipboard.copy": "\ud074\ub9bd\ubcf4\ub4dc\ub85c \ubcf5\uc0ac", "search.result.more.one": "\uc774 \ubb38\uc11c\uc5d0\uc11c 1\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.more.other": "\uc774 \ubb38\uc11c\uc5d0\uc11c #\uac1c\uc758 \uac80\uc0c9 \uacb0\uacfc \ub354 \ubcf4\uae30", "search.result.none": "\uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 \ubb38\uc11c\uac00 \uc5c6\uc2b5\ub2c8\ub2e4", "search.result.one": "1\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.other": "#\uac1c\uc758 \uc77c\uce58\ud558\ub294 \ubb38\uc11c", "search.result.placeholder": "\uac80\uc0c9\uc5b4\ub97c \uc785\ub825\ud558\uc138\uc694", "search.result.term.missing": "\ud3ec\ud568\ub418\uc9c0 \uc54a\uc740 \uac80\uc0c9\uc5b4", "select.version": "\ubc84\uc804 \uc120\ud0dd"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,913 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cas.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cas.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cluster-autoscaling/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-awareness.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-awareness.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/awareness/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-framework.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-framework.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cfm_framework/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-compute.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-compute.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_compute/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-networking.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-networking.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_networking/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-observability.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-observability.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_observability/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-storage.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-storage.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_storage/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_optimization_index/"/>
+    </url>
+    <url>
+        <loc>Nonecost_optimization/optimizing_WIP/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/optimizing_WIP/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/optimizing_WIP/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/karpenter/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/custom-networking.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/custom-networking.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/custom-networking/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/networking.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/networking.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/index/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/ip-opt.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/ip-opt.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/ip-optimization-strategies/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/ipv6.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/ipv6.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/ipv6/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/ipvs.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/ipvs.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/ipvs/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/load-balancing.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/load-balancing.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/loadbalancing/loadbalancing/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/monitoring_eks_workloads_for_network_performance_issues.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/monitoring_eks_workloads_for_network_performance_issues.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/monitoring/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/prefix-mode-linux.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/prefix-mode-linux.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/prefix-mode/index_linux/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/prefix-mode-win.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/prefix-mode-win.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/prefix-mode/index_windows/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/sgpp.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/sgpp.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/sgpp/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/subnets.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/subnets.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/subnets/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/vpc-cni.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/vpc-cni.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/vpc-cni/"/>
+    </url>
+    <url>
+        <loc>Noneperformance/performance_WIP/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneperformance/performance_WIP/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/performance/performance_WIP/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/reliability.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/reliability.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/application.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/application.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/application/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/control-plane.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/control-plane.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/controlplane/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/data-plane.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/data-plane.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/dataplane/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/scalability.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/scalability.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/cluster-services/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/scale-control-plane.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/scale-control-plane.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/control-plane/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/scale-data-plane.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/scale-data-plane.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/data-plane/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/control_plane_monitoring.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/control_plane_monitoring.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/kcp_monitoring/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/kubernetes_upstream_slos.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/kubernetes_upstream_slos.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/kubernetes_slos/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/node_and_workload_efficiency.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/node_and_workload_efficiency.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/node_efficiency/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/known_limits_and_service_quotas.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/known_limits_and_service_quotas.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/quotas/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/kubernetes_scaling_theory.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/kubernetes_scaling_theory.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/scaling_theory/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/scale-workloads.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/scale-workloads.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/workloads/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/security.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/security.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/compliance.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/compliance.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/compliance/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/data-encryption-and-secrets-management.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/data-encryption-and-secrets-management.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/data/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/auditing-and-logging.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/auditing-and-logging.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/detective/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/protecting-the-infrastructure.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/protecting-the-infrastructure.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/hosts/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/iam/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/image-security.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/image-security.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/image/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/incident-response-and-forensics.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/incident-response-and-forensics.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/incidents/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/multi-account-strategy.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/multi-account-strategy.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/multiaccount/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/tenant-isolation.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/tenant-isolation.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/multitenancy/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/network-security.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/network-security.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/network/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/pod-security.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/pod-security.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/pods/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/runtime-security.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/runtime-security.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/runtime/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/upgrades/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-ami.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-ami.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/ami/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-gmsa.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-gmsa.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/gmsa/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-hardening.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-hardening.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/hardening/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-images.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-images.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/images/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-licensing.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-licensing.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/licensing/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-logging.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-logging.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/logging/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-monitoring.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-monitoring.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/monitoring/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-networking.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-networking.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/networking/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-oom.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-oom.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/oom/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-patching.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-patching.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/patching/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-scheduling.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-scheduling.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/scheduling/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-security.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-security.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/security/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/windows-storage.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://docs.aws.amazon.com/eks/latest/best-practices/windows-storage.html"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/storage/"/>
+    </url>
+    <url>
+        <loc>Noneko/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="None"/>
+    </url>
+    <url>
+        <loc>Noneko/cluster-autoscaling/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cluster-autoscaling/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecluster-autoscaling/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-awareness.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-awareness.html"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/awareness/"/>
+    </url>
+    <url>
+        <loc>Noneko/cost_optimization/cfm_framework/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cfm_framework/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/cfm_framework/"/>
+    </url>
+    <url>
+        <loc>Noneko/cost_optimization/cost_opt_compute/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_compute/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/cost_opt_compute/"/>
+    </url>
+    <url>
+        <loc>Noneko/cost_optimization/cost_opt_networking/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_networking/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/cost_opt_networking/"/>
+    </url>
+    <url>
+        <loc>Noneko/cost_optimization/cost_opt_observability/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_observability/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/cost_opt_observability/"/>
+    </url>
+    <url>
+        <loc>Noneko/cost_optimization/cost_opt_storage/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/cost_opt_storage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/cost_opt_storage/"/>
+    </url>
+    <url>
+        <loc>https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt.html</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt.html"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/cost_optimization_index/"/>
+    </url>
+    <url>
+        <loc>Noneko/cost_optimization/optimizing_WIP/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/cost_optimization/optimizing_WIP/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecost_optimization/optimizing_WIP/"/>
+    </url>
+    <url>
+        <loc>Noneko/karpenter/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/karpenter/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonekarpenter/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/custom-networking/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/custom-networking/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/custom-networking/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/index/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/index/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/index/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/ip-optimization-strategies/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/ip-optimization-strategies/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/ip-optimization-strategies/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/ipv6/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/ipv6/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/ipv6/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/ipvs/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/ipvs/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/ipvs/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/loadbalancing/loadbalancing/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/loadbalancing/loadbalancing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/loadbalancing/loadbalancing/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/monitoring/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/monitoring/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/monitoring/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/prefix-mode/index_linux/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/prefix-mode/index_linux/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/prefix-mode/index_linux/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/prefix-mode/index_windows/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/prefix-mode/index_windows/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/prefix-mode/index_windows/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/sgpp/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/sgpp/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/sgpp/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/subnets/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/subnets/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/subnets/"/>
+    </url>
+    <url>
+        <loc>Noneko/networking/vpc-cni/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/networking/vpc-cni/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonenetworking/vpc-cni/"/>
+    </url>
+    <url>
+        <loc>Noneko/performance/performance_WIP/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/performance/performance_WIP/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneperformance/performance_WIP/"/>
+    </url>
+    <url>
+        <loc>Noneko/reliability/docs/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereliability/docs/"/>
+    </url>
+    <url>
+        <loc>Noneko/reliability/docs/application/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/application/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereliability/docs/application/"/>
+    </url>
+    <url>
+        <loc>Noneko/reliability/docs/controlplane/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/controlplane/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereliability/docs/controlplane/"/>
+    </url>
+    <url>
+        <loc>Noneko/reliability/docs/dataplane/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/reliability/docs/dataplane/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereliability/docs/dataplane/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/cluster-services/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/cluster-services/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/cluster-services/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/control-plane/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/control-plane/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/control-plane/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/data-plane/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/data-plane/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/data-plane/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/kcp_monitoring/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/kcp_monitoring/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/kcp_monitoring/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/kubernetes_slos/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/kubernetes_slos/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/kubernetes_slos/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/node_efficiency/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/node_efficiency/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/node_efficiency/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/quotas/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/quotas/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/quotas/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/scaling_theory/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/scaling_theory/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/scaling_theory/"/>
+    </url>
+    <url>
+        <loc>Noneko/scalability/docs/workloads/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/scalability/docs/workloads/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonescalability/docs/workloads/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/compliance/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/compliance/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/compliance/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/data/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/data/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/data/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/detective/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/detective/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/detective/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/hosts/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/hosts/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/hosts/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/iam/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/iam/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/iam/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/image/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/image/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/image/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/incidents/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/incidents/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/incidents/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/multiaccount/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/multiaccount/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/multiaccount/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/multitenancy/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/multitenancy/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/multitenancy/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/network/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/network/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/network/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/pods/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/pods/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/pods/"/>
+    </url>
+    <url>
+        <loc>Noneko/security/docs/runtime/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/security/docs/runtime/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonesecurity/docs/runtime/"/>
+    </url>
+    <url>
+        <loc>Noneko/upgrades/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/upgrades/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneupgrades/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/ami/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/ami/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/ami/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/gmsa/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/gmsa/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/gmsa/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/hardening/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/hardening/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/hardening/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/images/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/images/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/images/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/licensing/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/licensing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/licensing/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/logging/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/logging/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/logging/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/monitoring/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/monitoring/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/monitoring/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/networking/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/networking/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/networking/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/oom/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/oom/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/oom/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/patching/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/patching/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/patching/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/scheduling/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/scheduling/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/scheduling/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/security/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/security/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/security/"/>
+    </url>
+    <url>
+        <loc>Noneko/windows/docs/storage/</loc>
+        <lastmod>2025-07-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ko" href="Noneko/windows/docs/storage/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonewindows/docs/storage/"/>
+    </url>
+</urlset>
