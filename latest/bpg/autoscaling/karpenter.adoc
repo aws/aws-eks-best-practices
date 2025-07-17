@@ -113,7 +113,8 @@ yet part of Karpenter.
 
 === Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
-Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter). 
+Karpenter is installed using a 
+https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter[Helm chart]. 
 The Helm chart installs the Karpenter controller and a webhook pod as a Deployment 
 that needs to run before the controller can be used for scaling your cluster.
 We recommend a minimum of one small node group with at least one worker
