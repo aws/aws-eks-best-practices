@@ -183,8 +183,8 @@ Kube Controller Manager, like all other controllers, has limits on how many oper
     concurrentServiceSyncs: 5
     concurrentResourceQuotaSyncs: 5
     concurrentGcSyncs: 20
-    kubeAPIBurst: 20
-    kubeAPIQPS: "30"
+    kubeAPIBurst: 30
+    kubeAPIQPS: "20"
 ----
 
 These controllers have queues that fill up during times of high churn on a cluster. In this case we see the replicaset set controller has a large backlog in its queue.
