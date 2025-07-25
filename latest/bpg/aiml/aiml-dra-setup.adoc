@@ -51,7 +51,7 @@ managedNodeGroups:
  
   labels:
     node-type: "gpu-dra"
-    nvidia.com/gpu.present: "true" # Pending PR https://github.com/awslabs/amazon-eks-ami/pull/2272
+    nvidia.com/gpu.present: "true"
   
   taints:
   - key: nvidia.com/gpu
