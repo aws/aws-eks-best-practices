@@ -1,0 +1,242 @@
+[.topic]
+[#aiml-dra-setup]
+= Setup dynamic resource allocation for advanced GPU management
+:info_titleabbrev: Setup
+
+The following topic shows you how to setup dynamic resource allocation (DRA) for advanced GPU management.
+
+[#aiml-dra-prereqs]
+== Prerequisites
+
+Before implementing DRA on Amazon EKS, ensure your environment meets the
+following requirements.
+
+[#aiml-dra-configuration]
+=== Cluster configuration
+
+* Amazon EKS cluster running version `1.33` or later
+* Amazon EKS managed node groups (DRA is currently supported only by
+managed node groups with AL2023 and Bottlerocket NVIDIA optimized AMIs, [not with Karpenter](https://github.com/kubernetes-sigs/karpenter/issues/1231))
+* NVIDIA GPU-enabled worker nodes with appropriate instance types
+
+[#aiml-dra-components]
+=== Required components
+
+* NVIDIA device plugin version `0.17.1` or later
+* NVIDIA DRA driver version `25.3.0` or later
+
+[#aiml-dra-create-cluster]
+== Step 1: Create cluster with DRA-enabled node group using eksctl
+
+. Create a cluster configuration file named `dra-eks-cluster.yaml`:
++
+[source,yaml,subs="verbatim,attributes"]
+----
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: dra-eks-cluster
+  region: us-west-2
+  version: '1.33'
+
+managedNodeGroups:
+- name: gpu-dra-nodes
+  amiFamily: AmazonLinux2023
+  instanceType: g6.12xlarge
+  desiredCapacity: 2
+  minSize: 1
+  maxSize: 3
+ 
+  labels:
+    node-type: "gpu-dra"
+    nvidia.com/gpu.present: "true" # Pending PR https://github.com/awslabs/amazon-eks-ami/pull/2272
+  
+  taints:
+  - key: nvidia.com/gpu
+    value: "true"
+    effect: NoSchedule
+----
+
+. Create the cluster:
++
+[source,bash,subs="verbatim,attributes"]
+----
+eksctl create cluster -f dra-eks-cluster.yaml
+----
+
+[#aiml-dra-nvidia-plugin]
+== Step 2: Deploy the NVIDIA device plugin
+
+Deploy the NVIDIA device plugin to enable basic GPU discovery:
+
+. Add the NVIDIA device plugin Helm repository:
++
+[source,bash,subs="verbatim,attributes"]
+----
+helm repo add nvidia https://nvidia.github.io/k8s-device-plugin
+helm repo update
+----
+
+. Create custom values for the device plugin:
++
+[source,bash,subs="verbatim,attributes"]
+----
+cat <<EOF > nvidia-device-plugin-values.yaml
+gfd:
+  enabled: true
+nfd:
+  enabled: true
+tolerations:
+  - key: [nvidia.com/gpu](http://nvidia.com/gpu)
+    operator: Exists
+    effect: NoSchedule
+EOF
+----
+
+. Install the NVIDIA device plug-in:
++
+[source,bash,subs="verbatim,attributes"]
+----
+helm install nvidia-device-plugin nvidia/nvidia-device-plugin \
+ --namespace nvidia-device-plugin \
+ --create-namespace \
+ --version v0.17.1 \
+ --values nvidia-device-plugin-values.yaml
+----
+
+[#aiml-dra-helm-chart]
+== Step 3: Deploy NVIDIA DRA driver Helm chart
+
+. Create a `dra-driver-values.yaml` values file for the DRA driver:
++
+[source,yaml,subs="verbatim,attributes"]
+----
+---
+nvidiaDriverRoot: /
+
+gpuResourcesEnabledOverride: true
+
+resources:
+  gpus:
+    enabled: true
+  computeDomains:
+    enabled: true  # Enable for GB200 IMEX support
+
+controller:
+  tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+
+kubeletPlugin:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: "nvidia.com/gpu.present"
+            operator: In
+            values: ["true"]
+  tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+----
+
+. Add the NVIDIA NGC Helm repository:
++
+[source,bash,subs="verbatim,attributes"]
+----
+helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+helm repo update
+----
+
+. Install the NVIDIA DRA driver:
++
+[source,bash,subs="verbatim,attributes"]
+----
+helm install nvidia-dra-driver nvidia/nvidia-dra-driver-gpu \
+ --version="25.3.0-rc.2" \
+ --namespace nvidia-dra-driver \
+ --create-namespace \
+ --values dra-driver-values.yaml
+----
+
+[#aiml-dra-verify]
+== Step 4: Verify the DRA installation
+
+. Verify that the DRA API resources are available:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl api-resources | grep [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1)
+----
++
+The following is the expected output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+deviceclasses [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) false DeviceClass
+resourceclaims [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) true ResourceClaim
+resourceclaimtemplates [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) true ResourceClaimTemplate
+resourceslices [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) false ResourceSlice
+----
+
+. Check the available device classes:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl get deviceclasses 
+----
++
+The following is an example of expected output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+NAME                                        AGE
+compute-domain-daemon.nvidia.com            4h39m
+compute-domain-default-channel.nvidia.com   4h39m
+gpu.nvidia.com                              4h39m
+mig.nvidia.com                              4h39m
+----
++
+When a newly created G6 GPU instance joins your Amazon EKS cluster with
+DRA enabled, the following actions occur:
++
+* The NVIDIA DRA driver automatically discovers the A10G GPU and creates
+two `resourceslices` on that node.
+* The `gpu.nvidia.com` slice registers the physical A10G GPU device with
+its specifications (memory, compute capability, and more).
+* Since A10G doesn't support MIG partitioning, the
+`compute-domain.nvidia.com` slice creates a single compute domain
+representing the entire compute context of the GPU.
+* These `resourceslices` are then published to the Kubernetes API
+server, making the GPU resources available for scheduling through
+`resourceclaims`.
++
+The DRA scheduler can now intelligently allocate this GPU to Pods that
+request GPU resources through `resourceclaimtemplates`, providing more
+flexible resource management compared to traditional device plugin
+approaches. This happens automatically without manual intervention. The
+node simply becomes available for GPU workloads once the DRA driver
+completes the resource discovery and registration process.
++
+When you run the following command:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl get resourceslices
+----
++
+The following is an example of expected output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+NAME                                                          NODE                             DRIVER                       POOL                             AGE
+ip-100-64-129-47.ec2.internal-compute-domain.nvidia.com-rwsts ip-100-64-129-47.ec2.internal    compute-domain.nvidia.com    ip-100-64-129-47.ec2.internal    35m
+ip-100-64-129-47.ec2.internal-gpu.nvidia.com-6kndg            ip-100-64-129-47.ec2.internal    gpu.nvidia.com               ip-100-64-129-47.ec2.internal    35m
+----
+
+Continue to <<aiml-dra-workload>>.

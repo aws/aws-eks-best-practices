@@ -18,6 +18,8 @@ This guide is being released on GitHub so as to collect direct feedback and sugg
 
 include::aiml_compute.adoc[leveloffset=+1]
 
+include::aiml-dra.adoc[leveloffset=+1]
+
 include::aiml_networking.adoc[leveloffset=+1]
 
 include::aiml_security.adoc[leveloffset=+1]

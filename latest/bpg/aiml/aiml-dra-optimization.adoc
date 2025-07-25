@@ -1,0 +1,36 @@
+[.topic]
+[#aiml-dra-optimization]
+= GPU optimization techniques with dynamic resource allocation
+:info_titleabbrev: Optimization techniques
+
+Modern GPU workloads require sophisticated resource management to
+achieve optimal utilization and cost efficiency. DRA enables several
+advanced optimization techniques that address different use cases and
+hardware capabilities:
+
+* *Time-slicing* allows multiple workloads to share GPU compute
+resources over time, making it ideal for inference workloads with
+sporadic GPU usage. For an example, see <<aiml-dra-timeslicing>>.
+* *Multi-Process service (MPS)* enables concurrent execution of multiple
+CUDA processes on a single GPU with better isolation than time-slicing.
+For an example, see <<aiml-dra-mps>>.
+* *Multi-Instance GPU (MIG)* provides hardware-level partitioning,
+creating isolated GPU instances with dedicated compute and memory
+resources. For an example, see <<aiml-dra-mig>>.
+* *Internode Memory Exchange (IMEX)* enables memory-coherent
+communication across nodes for distributed training on NVIDIA GB200
+systems. For an example, see <<aiml-dra-imex>>.
+
+These techniques can significantly improve resource utilization.
+Organizations report GPU utilization increases from 30-40% with
+traditional allocation to 80-90% with optimized sharing strategies. The
+choice of technique depends on workload characteristics, isolation
+requirements, and hardware capabilities.
+
+include::aiml-dra-timeslicing.adoc[leveloffset=+1]
+
+include::aiml-dra-mps.adoc[leveloffset=+1]
+
+include::aiml-dra-mig.adoc[leveloffset=+1]
+
+include::aiml-dra-imex.adoc[leveloffset=+1]

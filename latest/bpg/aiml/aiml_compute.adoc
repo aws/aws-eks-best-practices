@@ -97,6 +97,8 @@ Static resource limits in Kubernetes (e.g., CPU, memory, GPU counts) can lead to
 To enable these features in EKS, you can deploy the NVIDIA Device Plugin, which exposes GPUs as schedulable resources and supports time-slicing and MIG. To learn more, see 
 https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html[Time-Slicing GPUs in Kubernetes] and https://aws.amazon.com/blogs/containers/gpu-sharing-on-amazon-eks-with-nvidia-time-slicing-and-accelerated-ec2-instances/[GPU sharing on Amazon EKS with NVIDIA time-slicing and accelerated EC2 instances].
 
+For advanced GPU management with dynamic resource allocation (DRA), see <<aiml-dra>>.
+
 **Example**
 
 For example, to enable time-slicing with the NVIDIA Device Plugin:

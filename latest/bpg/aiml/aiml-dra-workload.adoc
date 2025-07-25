@@ -1,0 +1,141 @@
+[.topic]
+[#aiml-dra-workload]
+= Schedule a simple GPU workload using dynamic resource allocation
+:info_titleabbrev: Schedule workload
+
+To schedule a simple GPU workload using dynamic resource allocation (DRA), do the following steps.
+Before proceeding, make sure you have followed <<aiml-dra-setup>>.
+
+. Create a basic `ResourceClaimTemplate` for GPU allocation with a file
+named `basic-gpu-claim-template.yaml`:
++
+[source,yaml,subs="verbatim,attributes"]
+----
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gpu-test1
+
+---
+apiVersion: resource.k8s.io/v1beta1
+kind: ResourceClaimTemplate
+metadata:
+  namespace: gpu-test1
+  name: single-gpu
+spec:
+  spec:
+    devices:
+      requests:
+      - name: gpu
+        deviceClassName: gpu.nvidia.com
+----
+
+. Apply the template:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl apply -f basic-gpu-claim-template.yaml
+----
+
+. Verify the status:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl get resourceclaimtemplates -n gpu-test1
+----
++
+The following is example output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+NAME         AGE
+single-gpu   9m16s
+----
+
+. Create a Pod that uses the `ResourceClaimTemplate` with a file named
+`basic-gpu-pod.yaml`:
++
+[source,yaml,subs="verbatim,attributes"]
+----
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: gpu-test1
+  name: gpu-pod
+  labels:
+    app: pod
+spec:
+  containers:
+  - name: ctr0
+    image: ubuntu:22.04
+    command: ["bash", "-c"]
+    args: ["nvidia-smi -L; trap 'exit 0' TERM; sleep 9999 & wait"]
+    resources:
+      claims:
+      - name: gpu0
+  resourceClaims:
+  - name: gpu0
+    resourceClaimTemplateName: single-gpu
+  nodeSelector:
+    NodeGroupType: gpu-dra      
+    nvidia.com/gpu.present: "true"
+  tolerations:
+  - key: "nvidia.com/gpu"
+    operator: "Exists"
+    effect: "NoSchedule"
+----
+
+. Apply and monitor the Pod:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl apply -f basic-gpu-pod.yaml
+----
+
+. Check the Pod status:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl get pod -n gpu-test1
+----
++
+The following is example expected output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+NAME      READY   STATUS    RESTARTS   AGE
+gpu-pod   1/1     Running   0          13m
+----
+
+. Check the `ResourceClaim` status:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl get resourceclaims -n gpu-test1
+----
++
+The following is example expected output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+NAME                 STATE                AGE
+gpu-pod-gpu0-l76cg   allocated,reserved   9m6s
+----
+
+. View Pod logs to see GPU information:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl logs gpu-pod -n gpu-test1
+----
++
+The following is example expected output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+GPU 0: NVIDIA L4 (UUID: GPU-da7c24d7-c7e3-ed3b-418c-bcecc32af7c5)
+----
+
+Continue to <<aiml-dra-optimization>> for more advanced GPU optimization techniques using DRA.
