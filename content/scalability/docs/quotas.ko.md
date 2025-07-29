@@ -51,7 +51,7 @@ EKS 고객이 다른 AWS 서비스에 대해 아래 나열된 할당량의 영�
 | EBS            | Storage for General Purpose SSD (gp3) volumes, in TiB                                      | EKS 워커 노드 또는 퍼시스턴트볼륨 스토리지의 수를 제한할 수 있습니다.                                              | L-7A658B76       | 50      |
 | EBS            | Storage for General Purpose SSD (gp2) volumes, in TiB                                      | EKS 워커 노드 또는 퍼시스턴트볼륨 스토리지의 수를 제한할 수 있습니다.                                             | L-D18FCD1D       | 50      |
 | ECR            | Registered repositories                                                                    | 클러스터의 워크로드 수를 제한할 수 있습니다.                                                                 | L-CFEB8E8D       | 100,000  |
-| ECR            | Images per repository                                                                      | 클러스터의 워크로드 수를 제한할 수 있습니다.                                                                 | L-03A36CE1       | 10,000  |
+| ECR            | Images per repository                                                                      | 클러스터의 워크로드 수를 제한할 수 있습니다.                                                                 | L-03A36CE1       | 20,000  |
 | SecretsManager | Secrets per Region                                                                         | 클러스터의 워크로드 수를 제한할 수 있습니다.                                                                 | L-2F66C23C       | 500,000 |
 
 
