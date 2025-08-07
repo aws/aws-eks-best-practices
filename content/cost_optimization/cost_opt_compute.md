@@ -20,7 +20,7 @@ authors:
 ---
 # Cost Optimization - Compute and Autoscaling
 
-As a developer, you'll make estimates about your application’s resource requirements, e.g. CPU and memory, but if you’re not continually adjusting them they may become outdated which could increase your costs and worsen performance and reliability. Continually adjusting an application's resource requirements is more important than getting them right the first time.
+As a developer, you'll make estimates about your application's resource requirements, e.g. CPU and memory, but if you're not continually adjusting them they may become outdated which could increase your costs and worsen performance and reliability. Continually adjusting an application's resource requirements is more important than getting them right the first time.
 
 The best practices mentioned below will help you build and operate cost-aware workloads that achieve business outcomes while minimizing costs and allowing your organization to maximize its return on investment. A high level order of importance for optimizing your cluster compute costs are:
 
@@ -38,7 +38,7 @@ Utilize tools such as [Goldilocks](https://www.youtube.com/watch?v=DfmQWYiwFDk),
 
 We recommend using the Horizontal Pod Autoscaler (HPA) to control how many replicas of your application should be running, the Vertical Pod Autoscaler (VPA) to adjust how many requests and limits your application needs per replica, and a node autoscaler like [Karpenter](http://karpenter.sh/) or [Cluster Autoscaler](https://github.com/kubernetes/autoscaler) to continually adjust the total number of nodes in your cluster. Cost optimization techniques using Karpenter and Cluster Autoscaler are documented in a later section of this document.
 
-The Vertical Pod Autoscaler can adjust the requests and limits assigned to containers so workloads run optimally. You should run the VPA in auditing mode so it does not automatically make changes and restart your pods. It will suggest changes based on observed metrics. With any changes that affect production workloads you should review and test those changes first in a non-production environment because these can have impact on your application’s reliability and performance.
+The Vertical Pod Autoscaler can adjust the requests and limits assigned to containers so workloads run optimally. You should run the VPA in auditing mode so it does not automatically make changes and restart your pods. It will suggest changes based on observed metrics. With any changes that affect production workloads you should review and test those changes first in a non-production environment because these can have impact on your application's reliability and performance.
 
 ## Reduce consumption
 
@@ -59,7 +59,7 @@ After you have determined the correct size for applications, reducing excess req
 
 Both Karpenter and the Kubernetes Cluster Autoscaler will scale the number of nodes in your cluster as pods are created or removed and compute requirements change. The primary goal of both is the same, but Karpenter takes a different approach for node management provisioning and de-provisioning which can help reduce costs and optimize cluster wide usage.
 
-As clusters grow in size and the variety of workloads increases it becomes more difficult to pre-configure node groups and instances. Just like with workload requests it’s important to set an initial baseline and continually adjust as needed.
+As clusters grow in size and the variety of workloads increases it becomes more difficult to pre-configure node groups and instances. Just like with workload requests it's important to set an initial baseline and continually adjust as needed.
 
 If you are using Cluster Autoscaler, it will respect the "minimum" and "maximum" values of each Auto Scaling group (ASG) and only adjust the "desired" value. It's important to pay attention while setting these values for the underlying ASG since Cluster Autoscaler will not be able to scale down an ASG beyond its "minimum" count. Set the "desired" count as the number of nodes you need during normal business hours and "minimum" as the number of nodes you need during off-business hours. Please refer to [Cluster Autoscaler FAQ](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md#auto-discovery-setup) doc.
 
@@ -101,7 +101,7 @@ data:
       - .*reserved.*
 ```
 
-Using node groups can help the underlying compute resources do the expected thing by default, e.g. spread nodes across AZs, but not all workloads have the same requirements or expectations and it’s better to let applications declare their requirements explicitly. For more information about Cluster Autoscaler, please see the [best practices section](https://aws.github.io/aws-eks-best-practices/cluster-autoscaling/).
+Using node groups can help the underlying compute resources do the expected thing by default, e.g. spread nodes across AZs, but not all workloads have the same requirements or expectations and it's better to let applications declare their requirements explicitly. For more information about Cluster Autoscaler, please see the [best practices section](https://aws.github.io/aws-eks-best-practices/cluster-autoscaling/).
 
 ### Descheduler
 
@@ -115,9 +115,9 @@ With the descheduler it can look at cluster capacity and utilization after pods 
 
 Karpenter takes a “groupless” approach to node management. This approach is more flexible for different workload types and requires less up front configuration for cluster administrators. Instead of pre-defining groups and scaling each group as workloads need, Karpenter uses provisioners and node templates to define broadly what type of EC2 instances can be created and settings about the instances as they are created.
 
-Bin packing is the practice of utilizing more of the instance’s resources by packing more workloads onto fewer, optimally sized, instances. While this helps to reduce your compute costs by only provisioning resources your workloads use, it has a trade-off. It can take longer to start new workloads because capacity has to be added to the cluster, especially during large scaling events. Consider the balance between cost optimization, performance, and availability when setting up bin packing. 
+Bin packing is the practice of utilizing more of the instance's resources by packing more workloads onto fewer, optimally sized, instances. While this helps to reduce your compute costs by only provisioning resources your workloads use, it has a trade-off. It can take longer to start new workloads because capacity has to be added to the cluster, especially during large scaling events. Consider the balance between cost optimization, performance, and availability when setting up bin packing. 
 
-Karpenter can continuously monitor and binpack to improve instance resource utilization and lower your compute costs. Karpenter can also select a more cost efficient worker node for your workload. This can be achieved by turning on “consolidation” flag to true in the provisioner (sample code snippet below).  The example below shows an example provisioner that enables consolidation. At the time of writing this guide, Karpenter won’t replace a running Spot instance with a cheaper Spot instance. For further details on Karpenter consolidation, refer to [this blog](https://aws.amazon.com/blogs/containers/optimizing-your-kubernetes-compute-costs-with-karpenter-consolidation/).  
+Karpenter can continuously monitor and binpack to improve instance resource utilization and lower your compute costs. Karpenter can also select a more cost efficient worker node for your workload. This can be achieved by turning on “consolidation” flag to true in the provisioner (sample code snippet below).  The example below shows an example provisioner that enables consolidation. At the time of writing this guide, Karpenter won't replace a running Spot instance with a cheaper Spot instance. For further details on Karpenter consolidation, refer to [this blog](https://aws.amazon.com/blogs/containers/optimizing-your-kubernetes-compute-costs-with-karpenter-consolidation/).  
 
 ```yaml
 apiVersion: karpenter.sh/v1alpha5
@@ -150,7 +150,7 @@ spec:
 
 ### Remove under-utilized nodes by adjusting Cluster Autoscaler parameters
 
-Node utilization is defined as the sum of requested resources divided by capacity. By default `scale-down-utilization-threshold` is set to 50%. This parameter can be used along with and `scale-down-unneeded-time`, which determines how long a node should be unneeded before it is eligible for scale down — the default is 10 minutes. Pods still running on a node that was scaled down will get scheduled on other nodes by kube-scheduler.  Adjusting these settings can help remove nodes that are underutilized, but it’s important you test these values first so you don’t force the cluster to scale down prematurely.
+Node utilization is defined as the sum of requested resources divided by capacity. By default `scale-down-utilization-threshold` is set to 50%. This parameter can be used along with and `scale-down-unneeded-time`, which determines how long a node should be unneeded before it is eligible for scale down — the default is 10 minutes. Pods still running on a node that was scaled down will get scheduled on other nodes by kube-scheduler.  Adjusting these settings can help remove nodes that are underutilized, but it's important you test these values first so you don't force the cluster to scale down prematurely.
 
 You can prevent scale down from happening by ensuring that pods that are expensive to evict are protected by a label recognized by the Cluster Autoscaler. To do this, ensure that pods that are expensive to evict have the annotation `cluster-autoscaler.kubernetes.io/safe-to-evict=false`. Below is an example yaml to set the annotation:
 
@@ -173,7 +173,7 @@ spec:
 
 ### Tag nodes with Cluster Autoscaler and Karpenter
 
-AWS resource [tags](https://docs.aws.amazon.com/tag-editor/latest/userguide/tagging.html) are used to organize your resources, and to track your AWS costs on a detailed level. They do not directly correlate with Kubernetes labels for cost tracking. It’s recommended to start with Kubernetes resource labeling and utilize tools like [Kubecost](https://aws.amazon.com/blogs/containers/aws-and-kubecost-collaborate-to-deliver-cost-monitoring-for-eks-customers/) to get infrastructure cost reporting based on Kubernetes labels on pods, namespaces etc.
+AWS resource [tags](https://docs.aws.amazon.com/tag-editor/latest/userguide/tagging.html) are used to organize your resources, and to track your AWS costs on a detailed level. They do not directly correlate with Kubernetes labels for cost tracking. It's recommended to start with Kubernetes resource labeling and utilize tools like [Kubecost](https://aws.amazon.com/blogs/containers/aws-and-kubecost-collaborate-to-deliver-cost-monitoring-for-eks-customers/) to get infrastructure cost reporting based on Kubernetes labels on pods, namespaces etc.
 
 Worker nodes need to have tags to show billing information in AWS Cost Explorer. With Cluster Autoscaler, tag your worker nodes inside a managed node group using [launch template](https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html). For self managed node groups, tag your instances using [EC2 auto scaling group](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-tagging.html). For instances provisioned by Karpenter, tag them using [spec.tags in the node template](https://karpenter.sh/docs/concepts/nodeclasses/#spectags).
 
@@ -185,9 +185,9 @@ Isolating workloads at a node level can be more expensive, but it may be possibl
 
 Shared clusters may also have cluster level resource constraints such as IP exhaustion, Kubernetes service limits, or API scaling requests. You should review the [scalability best practices guide](https://aws.github.io/aws-eks-best-practices/scalability/docs/control-plane/) to make sure your clusters avoid these limits.
 
-You can isolate resources at a namespace or Karpenter provisioner level. [Resource Quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/) provide a way to set limits on how many resources workloads in a namespace can consume. This can be a good initial guard rail but it should be continually evaluated to make sure it doesn’t artificially restrict workloads from scaling.
+You can isolate resources at a namespace or Karpenter provisioner level. [Resource Quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/) provide a way to set limits on how many resources workloads in a namespace can consume. This can be a good initial guard rail but it should be continually evaluated to make sure it doesn't artificially restrict workloads from scaling.
 
-Karpenter provisioners can [set limits on some of the consumable resources](https://karpenter.sh/docs/concepts/nodepools/#speclimitsresources) in a cluster (e.g. CPU, GPU), but you will need to configure tenant applications to use the appropriate provisioner. This can prevent a single provisioner from creating too many nodes in a cluster, but it should be continually evaluated to make sure the limit isn’t set too low and in turn, prevent workloads from scaling.
+Karpenter provisioners can [set limits on some of the consumable resources](https://karpenter.sh/docs/concepts/nodepools/#speclimitsresources) in a cluster (e.g. CPU, GPU), but you will need to configure tenant applications to use the appropriate provisioner. This can prevent a single provisioner from creating too many nodes in a cluster, but it should be continually evaluated to make sure the limit isn't set too low and in turn, prevent workloads from scaling.
 
 ### Scheduled Autoscaling
 
@@ -242,7 +242,7 @@ Customers also have the option to enroll in an Enterprise Agreement with AWS. En
 
 On-Demand EC2 instances have the benefit of availability without interruptions — compared to spot — and no long term commitments — compared to savings plans. If you are looking to reduce costs in a cluster you should reduce your usage of on-demand EC2 instances.
 
-After optimizing your workload requirements you should be able to calculate a minimum and maximum capacity for your clusters. This number may change over time but rarely goes down. Consider using a Savings Plan for everything under the minimum, and spot for capacity that will not affect your application’s availability. Anything else that may not be continuously used or is required for availability can use on-demand.
+After optimizing your workload requirements you should be able to calculate a minimum and maximum capacity for your clusters. This number may change over time but rarely goes down. Consider using a Savings Plan for everything under the minimum, and spot for capacity that will not affect your application's availability. Anything else that may not be continuously used or is required for availability can use on-demand.
 
 As mentioned in this section, the best way to reduce your usage is to consume fewer resources and utilize the resources you provision to the fullest extent possible. With the Cluster Autoscaler you can remove underutilized nodes with the `scale-down-utilization-threshold` setting. With Karpenter it is recommended to enable consolidation.
 
@@ -312,4 +312,4 @@ spec:
 Some GPU hardware can be shared across multiple workloads so a single GPU can be provisioned and used. To see how to configure workload GPU sharing see the [virtual GPU device plugin](https://aws.amazon.com/blogs/opensource/virtual-gpu-device-plugin-for-inference-workload-in-kubernetes/) for more information. You can also refer to the following blogs: 
 
 * [GPU sharing on Amazon EKS with NVIDIA time-slicing and accelerated EC2 instances](https://aws.amazon.com/blogs/containers/gpu-sharing-on-amazon-eks-with-nvidia-time-slicing-and-accelerated-ec2-instances/)
-* [Maximizing GPU utilization with NVIDIA’s Multi-Instance GPU (MIG) on Amazon EKS: Running more pods per GPU for enhanced performance](https://aws.amazon.com/blogs/containers/maximizing-gpu-utilization-with-nvidias-multi-instance-gpu-mig-on-amazon-eks-running-more-pods-per-gpu-for-enhanced-performance/)
+* [Maximizing GPU utilization with NVIDIA's Multi-Instance GPU (MIG) on Amazon EKS: Running more pods per GPU for enhanced performance](https://aws.amazon.com/blogs/containers/maximizing-gpu-utilization-with-nvidias-multi-instance-gpu-mig-on-amazon-eks-running-more-pods-per-gpu-for-enhanced-performance/)

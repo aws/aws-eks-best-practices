@@ -102,7 +102,7 @@ image::cni_image-5.png[illustration of multiple ENIs attached to a node]
 
 === Deploy EKS cluster with Auto Mode
 
-When you use EKS Auto Mode to create a cluster, AWS manages the VPC Container Network Interface (CNI) configuration for your cluster. With Amazon EKS Auto Mode, you don’t need to install or upgrade networking add-ons. However, ensure your workloads are compatible with the managed VPC CNI configuration.
+When you use EKS Auto Mode to create a cluster, AWS manages the VPC Container Network Interface (CNI) configuration for your cluster. With Amazon EKS Auto Mode, you don't need to install or upgrade networking add-ons. However, ensure your workloads are compatible with the managed VPC CNI configuration.
 
 === Deploy VPC CNI Managed Add-On
 

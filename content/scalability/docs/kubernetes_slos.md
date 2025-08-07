@@ -30,7 +30,7 @@ Kubernetes has a number of features that allow users to extend the system with c
 >     - all the SLOs are satisfied.   
 
 ## Kubernetes SLOs
-The Kubernetes SLOs don’t account for all of the plugins and external limitations that could impact a cluster, such as worker node scaling or admission webhooks. These SLOs focus on [Kubernetes components](https://kubernetes.io/docs/concepts/overview/components/) and ensure that Kubernetes actions and resources are operating within expectations. The SLOs help Kubernetes developers ensure that changes to Kubernetes code do not degrade performance for the entire system.
+The Kubernetes SLOs don't account for all of the plugins and external limitations that could impact a cluster, such as worker node scaling or admission webhooks. These SLOs focus on [Kubernetes components](https://kubernetes.io/docs/concepts/overview/components/) and ensure that Kubernetes actions and resources are operating within expectations. The SLOs help Kubernetes developers ensure that changes to Kubernetes code do not degrade performance for the entire system.
 
 The [Kuberntes Scalability SIG defines the following official SLO/SLIs](https://github.com/kubernetes/community/blob/master/sig-scalability/slos/slos.md). The Amazon EKS team regularly runs scalability tests on EKS clusters for these SLOs/SLIs to monitor for performance degradation as changes are made and new versions are released.
 
@@ -65,7 +65,7 @@ The SLO has different target values for different request scopes because request
 
 This SLO is primarily concerned with the time it takes from Pod creation to when the containers in that Pod actually begin execution. To measure this the difference from the creation timestamp recorded on the Pod, and when [a WATCH on that Pod](https://kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes) reports the containers have started is calculated (excluding time for container image pulls and init container execution). To satisfy the SLO the 99th percentile per cluster-day of this Pod Startup Latency must remain <=5 seconds. 
 
-Note that this SLO assumes that the worker nodes already exist in this cluster in a ready state for the Pod to be scheduled on. This SLO does not account for image pulls or init container executions, and also limits the test to “stateless pods” which don’t leverage persistent storage plugins. 
+Note that this SLO assumes that the worker nodes already exist in this cluster in a ready state for the Pod to be scheduled on. This SLO does not account for image pulls or init container executions, and also limits the test to “stateless pods” which don't leverage persistent storage plugins. 
 
 ## Kubernetes SLI Metrics 
 
@@ -90,7 +90,7 @@ You can use these metrics to investigate the API Server response times and if th
 
 In these queries we are excluding the streaming API requests which do not return immediately, such as `kubectl port-forward` or `kubectl exec` requests (`subresource!~"proxy|attach|log|exec|portforward"`), and we are filtering for only the Kubernetes verbs that modify objects (`verb=~"CREATE|DELETE|PATCH|POST|PUT"`). We are then calculating the 99th percentile of that latency over the last 5 minutes.
 
-We can use a similar query for the read only API requests, we simply modify the verbs we’re filtering for to include the Read only actions `LIST` and `GET`. There are also different SLO thresholds depending on the scope of the request, i.e. getting a single resource or listing a number of resources.
+We can use a similar query for the read only API requests, we simply modify the verbs we're filtering for to include the Read only actions `LIST` and `GET`. There are also different SLO thresholds depending on the scope of the request, i.e. getting a single resource or listing a number of resources.
 
 **API Request latency SLI  (read-only)** - this time does *not* include webhook execution or time waiting in queue.
 For a single resource (scope=resource, threshold=1s)  

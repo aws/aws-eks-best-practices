@@ -57,7 +57,7 @@ plane. EKS runs Kubernetes control plane across three availability zones
 in an AWS Region. It automatically manages the availability and
 scalability of the Kubernetes API servers and the etcd cluster.
 
-The responsibility for the data plane’s reliability is shared between
+The responsibility for the data plane's reliability is shared between
 you, the customer, and AWS. EKS offers four worker node options for deploying the Kubernetes data
 plane. 
 

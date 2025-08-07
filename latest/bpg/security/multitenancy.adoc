@@ -35,7 +35,7 @@ Kubernetes.
 With soft multi-tenancy, you use native Kubernetes constructs,
 e.g. namespaces, roles and role bindings, and network policies, to
 create logical separation between tenants. RBAC, for example, can
-prevent tenants from accessing or manipulate each other’s resources.
+prevent tenants from accessing or manipulate each other's resources.
 Quotas and limit ranges control the amount of cluster resources each
 tenant can consume while network policies can help prevent applications
 deployed into different namespaces from communicating with each other.
@@ -124,7 +124,7 @@ sandboxed pods with EKS Fargate.
 
 The final use case for soft multi-tenancy is in a Software-as-a-Service
 (SaaS) setting. In this environment, each tenant is associated with a
-particular _instance_ of an application that’s running within the
+particular _instance_ of an application that's running within the
 cluster. Each instance often has its own data and uses separate access
 controls that are usually independent of Kubernetes RBAC.
 
@@ -189,7 +189,7 @@ minimum, maximum, and default values for each limit.
 Overcommitting resources in a shared cluster is often beneficial because
 it allows you maximize your resources. However, unbounded access to a
 cluster can cause resource starvation, which can lead to performance
-degradation and loss of application availability. If a pod’s requests
+degradation and loss of application availability. If a pod's requests
 are set too low and the actual resource utilization exceeds the capacity
 of the node, the node will begin to experience CPU or memory pressure.
 When this happens, pods may be restarted and/or evicted from the node.
@@ -200,15 +200,15 @@ requests and limits when scheduling their pods on the cluster. It will
 also mitigate a potential denial of service by constraining the amount
 of resources a pod can consume.
 
-You can also use quotas to apportion the cluster’s resources to align
-with a tenant’s spend. This is particularly useful in the KaaS scenario.
+You can also use quotas to apportion the cluster's resources to align
+with a tenant's spend. This is particularly useful in the KaaS scenario.
 
 === Pod priority and preemption
 
 Pod priority and preemption can be useful when you want to provide more
 importance to a Pod relative to other Pods. For example, with pod
 priority you can configure pods from customer A to run at a higher
-priority than customer B. When there’s insufficient capacity available,
+priority than customer B. When there's insufficient capacity available,
 the scheduler will evict the lower-priority pods from customer B to
 accommodate the higher-priority pods from customer A. This can be
 especially handy in a SaaS environment where customers willing to pay a
@@ -229,7 +229,7 @@ following controls should be considered to mitigate this risk:
 
 Sandboxing is a technique by which each container is run in its own
 isolated virtual machine. Technologies that perform pod sandboxing
-include https://firecracker-microvm.github.io/[Firecracker] and Weave’s
+include https://firecracker-microvm.github.io/[Firecracker] and Weave's
 https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite[Firekube].
 
 For additional information about the effort to make Firecracker a
@@ -306,13 +306,13 @@ spec:
 ----
 
 With this node affinity, the label is required during scheduling, but
-not during execution; if the underlying nodes’ labels change, the pods
+not during execution; if the underlying nodes' labels change, the pods
 will not be evicted due solely to that label change. However, future
 scheduling could be impacted.
 
 [WARNING]
 ====
-The label prefix of `node-restriction.kubernetes.io/` has special meaning in Kubernetes. https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction[NodeRestriction] which is enabled for EKS clusters prevents `kubelet` from adding/removing/updating labels with this prefix. Attackers aren’t able to use the `kubelet`’s credentials to update the node object or modify the system setup to pass these labels into `kubelet` as `kubelet` isn’t allowed to modify these labels. If this prefix is used for all pod to node scheduling, it prevents scenarios where an attacker may want to attract a different set of workloads to a node by modifying the node labels.
+The label prefix of `node-restriction.kubernetes.io/` has special meaning in Kubernetes. https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction[NodeRestriction] which is enabled for EKS clusters prevents `kubelet` from adding/removing/updating labels with this prefix. Attackers aren't able to use the `kubelet`'s credentials to update the node object or modify the system setup to pass these labels into `kubelet` as `kubelet` isn't allowed to modify these labels. If this prefix is used for all pod to node scheduling, it prevents scenarios where an attacker may want to attract a different set of workloads to a node by modifying the node labels.
 ====
 
 [INFO]
@@ -453,7 +453,7 @@ spec:
 ----
 
 The above policies are specific to pods; this is due to the paths to the
-mutated elements in the policies’ `location` elements. Additional
+mutated elements in the policies' `location` elements. Additional
 policies could be written to handle resources that create pods, like
 Deployment and Job resources. The listed policies and other examples can
 been seen in the companion
@@ -519,7 +519,7 @@ spec:
 
 [IMPORTANT]
 ====
-Policy-management tools that are integrated to the Kubernetes API server request flow, using mutating and validating admission webhooks, are designed to respond to the API server’s request within a specified timeframe. This is usually 3 seconds or less. If the webhook call fails to return a response within the configured time, the mutation and/or validation of the inbound API sever request may or may not occur. This behavior is based on whether the admission webhook configurations are set to https://open-policy-agent.github.io/gatekeeper/website/docs/#admission-webhook-fail-open-by-default[Fail Open or Fail Close].
+Policy-management tools that are integrated to the Kubernetes API server request flow, using mutating and validating admission webhooks, are designed to respond to the API server's request within a specified timeframe. This is usually 3 seconds or less. If the webhook call fails to return a response within the configured time, the mutation and/or validation of the inbound API sever request may or may not occur. This behavior is based on whether the admission webhook configurations are set to https://open-policy-agent.github.io/gatekeeper/website/docs/#admission-webhook-fail-open-by-default[Fail Open or Fail Close].
 ====
 
 In the above examples, we used policies written for OPA/Gatekeeper.

@@ -38,7 +38,7 @@ Ephemeral volumes are for applications that require transient local volumes but 
 
 [Amazon EC2 instance stores](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html) provide temporary block-level storage for your EC2 instances. The storage provided by EC2 instance stores is accessible through disks that are physically attached to the hosts. Unlike Amazon EBS, you can only attach instance store volumes when the instance is launched, and these volumes only exist during the lifetime of the instance. They cannot be detached and re-attached to other instances. You can learn more about Amazon EC2 instance stores [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html). *There are no additional fees associated with an instance store volume.* This makes them (instance store volumes) _more cost efficient_ than the general EC2 instances with large EBS volumes. 
 
-To use local store volumes in Kubernetes, you should partition, configure, and format the disks [using the Amazon EC2 user-data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-add-user-data.html) so that volumes can be mounted as a [HostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) in the pod spec. Alternatively, you can leverage the [Local Persistent Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) to simplify local storage management. The Local Persistent Volume static provisioner allows you to access local instance store volumes through the standard Kubernetes PersistentVolumeClaim (PVC) interface. Furthermore, it will provision PersistentVolumes (PVs) that contains node affinity information to schedule Pods to the correct nodes. Although it uses Kubernetes PersistentVolumes, EC2 instance store volumes are ephemeral in nature. Data written to ephemeral disks is only available during the instance’s lifetime. When the instance is terminated, so is the data. Please refer to this [blog](https://aws.amazon.com/blogs/containers/eks-persistent-volumes-for-instance-store/) for more details.
+To use local store volumes in Kubernetes, you should partition, configure, and format the disks [using the Amazon EC2 user-data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-add-user-data.html) so that volumes can be mounted as a [HostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) in the pod spec. Alternatively, you can leverage the [Local Persistent Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) to simplify local storage management. The Local Persistent Volume static provisioner allows you to access local instance store volumes through the standard Kubernetes PersistentVolumeClaim (PVC) interface. Furthermore, it will provision PersistentVolumes (PVs) that contains node affinity information to schedule Pods to the correct nodes. Although it uses Kubernetes PersistentVolumes, EC2 instance store volumes are ephemeral in nature. Data written to ephemeral disks is only available during the instance's lifetime. When the instance is terminated, so is the data. Please refer to this [blog](https://aws.amazon.com/blogs/containers/eks-persistent-volumes-for-instance-store/) for more details.
 
 Keep in mind that when using Amazon EC2 instance store volumes, the total IOPS limit is shared with the host and it binds Pods to a specific host. You should thoroughly review your workload requirements before adopting Amazon EC2 instance store volumes.
 
@@ -52,12 +52,12 @@ There are different types of storage options that support Kubernetes PVs on Amaz
 
 ### Amazon Elastic Block Store (EBS) Volumes
 
-Amazon EBS volumes can be consumed as Kubernetes PVs to provide block-level storage volumes. These are well suited for databases that rely on random reads & writes and throughput-intensive applications that perform long, continuous reads and writes. [The Amazon Elastic Block Store Container Storage Interface (CSI) driver](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) allows Amazon EKS clusters to manage the lifecycle of Amazon EBS volumes for persistent volumes. The Container Storage Interface enables and facilitates interaction between Kubernetes and a storage system. When a CSI driver is deployed to your EKS cluster, you can access it’s capabilities through the native Kubernetes storage resources such as Persistent Volumes (PVs), Persistent Volume Claims (PVCs) and Storage Classes (SCs). This [link](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/tree/master/examples/kubernetes) provides practical examples of how to interact with Amazon EBS volumes with Amazon EBS CSI driver.
+Amazon EBS volumes can be consumed as Kubernetes PVs to provide block-level storage volumes. These are well suited for databases that rely on random reads & writes and throughput-intensive applications that perform long, continuous reads and writes. [The Amazon Elastic Block Store Container Storage Interface (CSI) driver](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) allows Amazon EKS clusters to manage the lifecycle of Amazon EBS volumes for persistent volumes. The Container Storage Interface enables and facilitates interaction between Kubernetes and a storage system. When a CSI driver is deployed to your EKS cluster, you can access it's capabilities through the native Kubernetes storage resources such as Persistent Volumes (PVs), Persistent Volume Claims (PVCs) and Storage Classes (SCs). This [link](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/tree/master/examples/kubernetes) provides practical examples of how to interact with Amazon EBS volumes with Amazon EBS CSI driver.
 
 
 #### Choosing the right volume
 
-*We recommend using the latest generation of block storage (gp3) as it provides the right balance between price and performance*. It also allows you to scale volume IOPS and throughput independently of volume size without needing to provision additional block storage capacity. If you’re currently using gp2 volumes, we highly recommend migrating to gp3 volumes. The blog post [Migrating Amazon EKS clusters from gp2 to gp3 EBS volumes](https://aws.amazon.com/blogs/containers/migrating-amazon-eks-clusters-from-gp2-to-gp3-ebs-volumes/) explains how to migrate from *gp2* on *gp3* on Amazon EKS clusters with backup and restore by using CSI [Volume Snapshots](https://kubernetes.io/docs/concepts/storage/volume-snapshots/) feature, which requires application downtime.
+*We recommend using the latest generation of block storage (gp3) as it provides the right balance between price and performance*. It also allows you to scale volume IOPS and throughput independently of volume size without needing to provision additional block storage capacity. If you're currently using gp2 volumes, we highly recommend migrating to gp3 volumes. The blog post [Migrating Amazon EKS clusters from gp2 to gp3 EBS volumes](https://aws.amazon.com/blogs/containers/migrating-amazon-eks-clusters-from-gp2-to-gp3-ebs-volumes/) explains how to migrate from *gp2* on *gp3* on Amazon EKS clusters with backup and restore by using CSI [Volume Snapshots](https://kubernetes.io/docs/concepts/storage/volume-snapshots/) feature, which requires application downtime.
 
 Amazon EBS allows changing volume characteristics like volume size, IOPS and throughput online. Utilizing this feature one can migrate from *gp2* on *gp3* without application downtime using either PVC annotations as described in this [blog](https://aws.amazon.com/blogs/storage/simplifying-amazon-ebs-volume-migration-and-modification-using-the-ebs-csi-driver/), which requires EBS CSI driver v1.19.0+,  or starting with Amazon EKS v1.31 and EBS CSI driver 1.35 by using the [VolumeAttributesClass API](https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/) as describe [here](https://aws.amazon.com/blogs/containers/modify-amazon-ebs-volumes-on-kubernetes-with-volume-attributes-classes/).
 
@@ -74,7 +74,7 @@ It's important to understand your application's baseline performance and monitor
 
 Instead of allocating a large volume from the beginning, you can gradually increase the size of the volume as you accumulate data. You can dynamically re-size volumes using the [volume resizing](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/tree/master/examples/kubernetes/resizing) feature in the Amazon Elastic Block Store CSI driver (aws-ebs-csi-driver). *Keep in mind that you can only increase the EBS volume size.*
 
-To identify and remove any dangling EBS volumes, you can use [AWS trusted advisor’s cost optimization category](https://docs.aws.amazon.com/awssupport/latest/user/cost-optimization-checks.html). This feature helps you identify unattached volumes or volumes with very low write activity for a period of time. There is a cloud-native open-source, read-only tool called [Popeye](https://github.com/derailed/popeye) that scans live Kubernetes clusters and reports potential issues with deployed resources and configurations. For example, it can scan for unused PVs and PVCs and check whether they are bound or whether there is any volume mount error.
+To identify and remove any dangling EBS volumes, you can use [AWS trusted advisor's cost optimization category](https://docs.aws.amazon.com/awssupport/latest/user/cost-optimization-checks.html). This feature helps you identify unattached volumes or volumes with very low write activity for a period of time. There is a cloud-native open-source, read-only tool called [Popeye](https://github.com/derailed/popeye) that scans live Kubernetes clusters and reports potential issues with deployed resources and configurations. For example, it can scan for unused PVs and PVCs and check whether they are bound or whether there is any volume mount error.
 
 For a deep dive on monitoring, please refer to the [EKS cost optimization observability guide](https://aws.github.io/aws-eks-best-practices/cost_optimization/cost_opt_observability/).  
 
@@ -85,7 +85,7 @@ One other option you can consider is the [AWS Compute Optimizer Amazon EBS volum
 
 You can back up the data on your Amazon EBS volumes by taking point-in-time snapshots. The Amazon EBS CSI driver supports volume snapshots. You can learn how to create a snapshot and restore an EBS PV using the steps outlined [here](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/examples/kubernetes/snapshot/README.md). 
 
-Subsequent snapshots are incremental backups, meaning that only the blocks on the device that have changed after your most recent snapshot are saved. This minimizes the time required to create the snapshot and saves on storage costs by not duplicating data. However, growing the number of old EBS snapshots without a proper retention policy can cause unexpected costs when operating at scale. If you’re directly backing up Amazon EBS volumes through AWS API, you can leverage [Amazon Data Lifecycle Manager](https://aws.amazon.com/ebs/data-lifecycle-manager/) (DLM) that provides an automated, policy-based lifecycle management solution for Amazon Elastic Block Store (EBS) Snapshots and EBS-backed Amazon Machine Images (AMIs). The console makes it easier to automate the creation, retention, and deletion of EBS Snapshots and AMIs. 
+Subsequent snapshots are incremental backups, meaning that only the blocks on the device that have changed after your most recent snapshot are saved. This minimizes the time required to create the snapshot and saves on storage costs by not duplicating data. However, growing the number of old EBS snapshots without a proper retention policy can cause unexpected costs when operating at scale. If you're directly backing up Amazon EBS volumes through AWS API, you can leverage [Amazon Data Lifecycle Manager](https://aws.amazon.com/ebs/data-lifecycle-manager/) (DLM) that provides an automated, policy-based lifecycle management solution for Amazon Elastic Block Store (EBS) Snapshots and EBS-backed Amazon Machine Images (AMIs). The console makes it easier to automate the creation, retention, and deletion of EBS Snapshots and AMIs. 
 
 !!! note 
     There is currently no way to make use of Amazon DLM via the Amazon EBS CSI driver.
@@ -123,10 +123,10 @@ The Infrequent Access (IA) storage classes are cost-optimized for files that are
 With EFS Intelligent-Tiering, lifecycle management monitors the access patterns of your file system and automatically move files to the most optimal storage class. 
 
 !!! note 
-    aws-efs-csi-driver currently doesn’t have a control on changing storage classes, lifecycle management or Intelligent-Tiering. Those should be setup manually in the AWS console or through the EFS APIs.
+    aws-efs-csi-driver currently doesn't have a control on changing storage classes, lifecycle management or Intelligent-Tiering. Those should be setup manually in the AWS console or through the EFS APIs.
 
 !!! note
-    aws-efs-csi-driver isn’t compatible with Window-based container images.
+    aws-efs-csi-driver isn't compatible with Window-based container images.
 
 !!! note
     There is a known memory issue when *vol-metrics-opt-in* (to emit volume metrics) is enabled due to the [DiskUsage](https://github.com/kubernetes/kubernetes/blob/ee265c92fec40cd69d1de010b477717e4c142492/pkg/volume/util/fs/fs.go#L66) function that consumes an amount of memory that is proportional to the size of your filesystem. *Currently, we recommend to disable the* *`--vol-metrics-opt-in` option on large filesystems to avoid consuming too much memory. Here is a github issue [link](https://github.com/kubernetes-sigs/aws-efs-csi-driver/issues/1104) for more details.*
@@ -134,7 +134,7 @@ With EFS Intelligent-Tiering, lifecycle management monitors the access patterns 
 
 ### Amazon FSx for Lustre
 
-Lustre is a high-performance parallel file system commonly used in workloads requiring throughput up to hundreds of GB/s and sub-millisecond per-operation latencies. It’s used for scenarios such as machine learning training, financial modeling, HPC, and video processing. [Amazon FSx for Lustre](https://aws.amazon.com/fsx/lustre/) provides a fully managed shared storage with the scalability and performance, seamlessly integrated with Amazon S3. 
+Lustre is a high-performance parallel file system commonly used in workloads requiring throughput up to hundreds of GB/s and sub-millisecond per-operation latencies. It's used for scenarios such as machine learning training, financial modeling, HPC, and video processing. [Amazon FSx for Lustre](https://aws.amazon.com/fsx/lustre/) provides a fully managed shared storage with the scalability and performance, seamlessly integrated with Amazon S3. 
 
 You can use Kubernetes persistent storage volumes backed by FSx for Lustre using the [FSx for Lustre CSI driver](https://github.com/kubernetes-sigs/aws-fsx-csi-driver) from Amazon EKS or your self-managed Kubernetes cluster on AWS. See the [Amazon EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/fsx-csi.html) for more details and examples. 
 
@@ -145,33 +145,33 @@ It's recommended to link a highly durable long-term data repository residing on 
 
 #### Choosing the right deployment and storage options
 
-FSx for Lustre provides different deployment options. The first option is called *scratch* and it doesn’t replicate data, while the second option is called *persistent* which, as the name implies, persists data. 
+FSx for Lustre provides different deployment options. The first option is called *scratch* and it doesn't replicate data, while the second option is called *persistent* which, as the name implies, persists data. 
 
 The first option (*scratch*) can be used *to reduce the cost of temporary shorter-term data processing.* The persistent deployment option _is designed for longer-term storage_ that automatically replicates data within an AWS Availability Zone. It also supports both SSD and HDD storage. 
 
-You can configure the desired deployment type under parameters in the FSx for lustre filesystem’s Kubernetes StorageClass. Here is an [link](https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes/dynamic_provisioning#edit-storageclass) that provides sample templates.
+You can configure the desired deployment type under parameters in the FSx for lustre filesystem's Kubernetes StorageClass. Here is an [link](https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes/dynamic_provisioning#edit-storageclass) that provides sample templates.
 
 !!! note
-    For latency-sensitive workloads or workloads requiring the highest levels of IOPS/throughput, you should choose SSD storage. For throughput-focused workloads that aren’t latency-sensitive, you should choose HDD storage.
+    For latency-sensitive workloads or workloads requiring the highest levels of IOPS/throughput, you should choose SSD storage. For throughput-focused workloads that aren't latency-sensitive, you should choose HDD storage.
 
 
 #### Enable data compression
 
-You can also enable data compression on your file system by specifying “LZ4” as the Data Compression Type. Once it’s enabled, all newly-written files will be automatically compressed on FSx for Lustre before they are written to disk and uncompressed when they are read. LZ4 data compression algorithm is lossless so the original data can be fully reconstructed from the compressed data. 
+You can also enable data compression on your file system by specifying “LZ4” as the Data Compression Type. Once it's enabled, all newly-written files will be automatically compressed on FSx for Lustre before they are written to disk and uncompressed when they are read. LZ4 data compression algorithm is lossless so the original data can be fully reconstructed from the compressed data. 
 
-You can configure the data compression type as LZ4 under parameters in the FSx for lustre filesystem’s Kubernetes StorageClass. Compression is disabled when the value is set to NONE, which is default. This [link](https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes/dynamic_provisioning#edit-storageclass) provides sample templates.
+You can configure the data compression type as LZ4 under parameters in the FSx for lustre filesystem's Kubernetes StorageClass. Compression is disabled when the value is set to NONE, which is default. This [link](https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes/dynamic_provisioning#edit-storageclass) provides sample templates.
 
 !!! note
-    Amazon FSx for Lustre isn’t compatible with Window-based container images.
+    Amazon FSx for Lustre isn't compatible with Window-based container images.
 
 
 ### Amazon FSx for NetApp ONTAP
 
-[Amazon FSx for NetApp ONTAP](https://aws.amazon.com/fsx/netapp-ontap/) is a fully managed shared storage built on NetApp’s ONTAP file system. FSx for ONTAP provides feature-rich, fast, and flexible shared file storage that’s broadly accessible from Linux, Windows, and macOS compute instances running in AWS or on premises. 
+[Amazon FSx for NetApp ONTAP](https://aws.amazon.com/fsx/netapp-ontap/) is a fully managed shared storage built on NetApp's ONTAP file system. FSx for ONTAP provides feature-rich, fast, and flexible shared file storage that's broadly accessible from Linux, Windows, and macOS compute instances running in AWS or on premises. 
 
 Amazon FSx for NetApp ONTAP supports two tiers of storage: *1/primary tier* and *2/capacity pool tier.* 
 
-The *primary tier* is a provisioned, high-performance SSD-based tier for active, latency-sensitive data. The fully elastic *capacity pool tier* is cost-optimized for infrequently accessed data, automatically scales as data is tiered to it, and offers virtually unlimited petabytes of capacity. You can enable data compression and deduplication on capacity pool storage and further reduce the amount of storage capacity your data consumes. NetApp’s native, policy-based FabricPool feature continually monitors data access patterns, automatically transferring data bidirectionally between storage tiers to optimize performance and cost.
+The *primary tier* is a provisioned, high-performance SSD-based tier for active, latency-sensitive data. The fully elastic *capacity pool tier* is cost-optimized for infrequently accessed data, automatically scales as data is tiered to it, and offers virtually unlimited petabytes of capacity. You can enable data compression and deduplication on capacity pool storage and further reduce the amount of storage capacity your data consumes. NetApp's native, policy-based FabricPool feature continually monitors data access patterns, automatically transferring data bidirectionally between storage tiers to optimize performance and cost.
 
 NetApp's Astra Trident provides dynamic storage orchestration using a CSI driver which allows Amazon EKS clusters to manage the lifecycle of persistent volumes PVs backed by Amazon FSx for NetApp ONTAP file systems. To get started, see [Use Astra Trident with Amazon FSx for NetApp ONTAP](https://docs.netapp.com/us-en/trident/trident-use/trident-fsx.html) in the Astra Trident documentation.
 
@@ -186,9 +186,9 @@ By using slimmed-down base images such as [scratch](https://hub.docker.com/_/scr
 
 You should also consider using open source tools, such as [Slim.ai](https://www.slim.ai/docs/quickstart) that provides an easy, secure way to create minimal images.
 
-Multiple layers of packages, tools, application dependencies, libraries can easily bloat the container image size. By using multi-stage builds, you can selectively copy artifacts from one stage to another, excluding everything that isn’t necessary from the final image. You can check more image-building best practices [here](https://docs.docker.com/get-started/09_image_best/). 
+Multiple layers of packages, tools, application dependencies, libraries can easily bloat the container image size. By using multi-stage builds, you can selectively copy artifacts from one stage to another, excluding everything that isn't necessary from the final image. You can check more image-building best practices [here](https://docs.docker.com/get-started/09_image_best/). 
 
-Another thing to consider is how long to persist cached images. You may want to clean up the stale images from the image cache when a certain amount of disk is utilized. Doing so will help make sure you have enough space for the host’s operation. By default, the [kubelet](https://kubernetes.io/docs/reference/generated/kubelet) performs garbage collection on unused images every five minutes and on unused containers every minute. 
+Another thing to consider is how long to persist cached images. You may want to clean up the stale images from the image cache when a certain amount of disk is utilized. Doing so will help make sure you have enough space for the host's operation. By default, the [kubelet](https://kubernetes.io/docs/reference/generated/kubelet) performs garbage collection on unused images every five minutes and on unused containers every minute. 
 
 *To configure options for unused container and image garbage collection, tune the kubelet using a [configuration file](https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/) and change the parameters related to garbage collection using the [`KubeletConfiguration`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/) resource type.* 
 

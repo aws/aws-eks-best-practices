@@ -20,7 +20,7 @@ You should consider the container image as your first line of defense against an
 
 ### Create minimal images
 
-Start by removing all extraneous binaries from the container image. If you’re using an unfamiliar image from Dockerhub, inspect the image using an application like [Dive](https://github.com/wagoodman/dive) which can show you the contents of each of the container’s layers. Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
+Start by removing all extraneous binaries from the container image. If you're using an unfamiliar image from Dockerhub, inspect the image using an application like [Dive](https://github.com/wagoodman/dive) which can show you the contents of each of the container's layers. Remove all binaries with the SETUID and SETGID bits as they can be used to escalate privilege and consider removing all shells and utilities like nc and curl that can be used for nefarious purposes. You can find the files with SETUID and SETGID bits with the following command:
 
 ```bash
 find / -perm /6000 -type f -exec ls -ld {} \;
@@ -46,7 +46,7 @@ SBOM is a key building block in software security and software supply chain risk
 - **Visibility**: understand what components make up your container image. Storing in a central repository allows SBOMs to be audited and scanned anytime, even post deployment to detect and respond to new vulnerabilities such as zero day vulnerabilities.
 - **Provenance Verification**: assurance that existing assumptions of where and how an artifact originates from are true and that the artifact or its accompanying metadata have not been tampered with during the build or delivery processes.
 - **Trustworthiness**: assurance that a given artifact and its contents can be trusted to do what it is purported to do, i.e. is suitable for a purpose. This involves judgement on whether the code is safe to execute and making informed decisions about the risks associated with executing the code. Trustworthiness is assured by creating an attested pipeline execution report along with attested SBOM and attested CVE scan report to assure the consumers of the image that this image is in-fact created through secure means (pipeline) with secure components.
-- **Dependency Trust Verification**: recursive checking of an artifact’s dependency tree for trustworthiness and provenance of the artifacts it uses. Drift in SBOMs can help detect malicious activity including unauthorized, untrusted dependencies, infiltration attempts.
+- **Dependency Trust Verification**: recursive checking of an artifact's dependency tree for trustworthiness and provenance of the artifacts it uses. Drift in SBOMs can help detect malicious activity including unauthorized, untrusted dependencies, infiltration attempts.
 
 The following tools can be used to generate SBOM:
 
@@ -74,7 +74,7 @@ A Kubernetes validation webhook could also be used to validate that images are f
 
 An attestation is a cryptographically signed “statement” that claims something - a “predicate” e.g. a pipeline run or the SBOM or the vulnerability scan report is true about another thing - a “subject” i.e. the container image.
 
-Attestations help users to validate that an artifact comes from a trusted source in the software supply chain. As an example, we may use a container image without knowing all the software components or dependencies that are included in that image. However, if we trust whatever the producer of the container image says about what software is present, we can use the producer’s attestation to rely on that artifact. This means that we can proceed to use the artifact safely in our workflow in place of having done the analysis ourself.
+Attestations help users to validate that an artifact comes from a trusted source in the software supply chain. As an example, we may use a container image without knowing all the software components or dependencies that are included in that image. However, if we trust whatever the producer of the container image says about what software is present, we can use the producer's attestation to rely on that artifact. This means that we can proceed to use the artifact safely in our workflow in place of having done the analysis ourself.
 
 - Attestations can be created using [AWS Signer](https://docs.aws.amazon.com/signer/latest/developerguide/Welcome.html) or [Sigstore cosign](https://github.com/sigstore/cosign/blob/main/doc/cosign_attest.md).
 - Kubernetes admission controllers such as [Kyverno](https://kyverno.io/) can be used to [verify attestations](https://kyverno.io/docs/writing-policies/verify-images/sigstore/).
@@ -200,7 +200,7 @@ This creates a container image that consists of your application and nothing els
 
 ### Sign your images, SBOMs, pipeline runs and vulnerability reports
 
-When Docker was first introduced, there was no cryptographic model for verifying container images. With v2, Docker added digests to the image manifest. This allowed an image’s configuration to be hashed and for the hash to be used to generate an ID for the image. When image signing is enabled, the Docker engine verifies the manifest’s signature, ensuring that the content was produced from a trusted source and no tampering has occurred. After each layer is downloaded, the engine verifies the digest of the layer, ensuring that the content matches the content specified in the manifest. Image signing effectively allows you to create a secure supply chain, through the verification of digital signatures associated with the image.
+When Docker was first introduced, there was no cryptographic model for verifying container images. With v2, Docker added digests to the image manifest. This allowed an image's configuration to be hashed and for the hash to be used to generate an ID for the image. When image signing is enabled, the Docker engine verifies the manifest's signature, ensuring that the content was produced from a trusted source and no tampering has occurred. After each layer is downloaded, the engine verifies the digest of the layer, ensuring that the content matches the content specified in the manifest. Image signing effectively allows you to create a secure supply chain, through the verification of digital signatures associated with the image.
 
 We can use [AWS Signer](https://docs.aws.amazon.com/signer/latest/developerguide/Welcome.html) or [Sigstore Cosign](https://github.com/sigstore/cosign), to sign container images, create attestations for SBOMs, vulnerability scan reports and pipeline run reports. These attestations assure the trustworthiness and integrity of the image, that it is in fact created by the trusted pipeline without any interference or tampering, and that it contains only the software components that are documented (in the SBOM) that is verified and trusted by the image publisher. These attestations can be attached to the container image and pushed to the repository.
 

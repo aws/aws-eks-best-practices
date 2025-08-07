@@ -58,8 +58,8 @@ We have seen EKS customers impacted by the quotas listed below for other AWS ser
 | EBS            | Snapshots per Region                                                                       | Can limit the backup strategy for stateful workloads                                                               | L-309BACF6       | 100,000 |
 | EBS            | Storage for General Purpose SSD (gp3) volumes, in TiB                                      | Can limit the number of EKS Worker Nodes, or PersistentVolume storage                                              | L-7A658B76       | 50      |
 | EBS            | Storage for General Purpose SSD (gp2) volumes, in TiB                                      | Can limit the number of EKS Worker Nodes,  or PersistentVolume storage                                             | L-D18FCD1D       | 50      |
-| ECR            | Registered repositories                                                                    | Can limit the number of workloads in your clusters                                                                 | L-CFEB8E8D       | 10,000  |
-| ECR            | Images per repository                                                                      | Can limit the number of workloads in your clusters                                                                 | L-03A36CE1       | 10,000  |
+| ECR            | Registered repositories                                                                    | Can limit the number of workloads in your clusters                                                                 | L-CFEB8E8D       | 100,000  |
+| ECR            | Images per repository                                                                      | Can limit the number of workloads in your clusters                                                                 | L-03A36CE1       | 20,000  |
 | SecretsManager | Secrets per Region                                                                         | Can limit the number of workloads in your clusters                                                                 | L-2F66C23C       | 500,000 |
 
 

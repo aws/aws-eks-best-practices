@@ -16,7 +16,7 @@ redirect: https://docs.aws.amazon.com/eks/latest/best-practices/scale-workloads.
 
 Workloads have an impact on how large your cluster can scale. Workloads that use the Kubernetes APIs heavily will limit the total amount of workloads you can have in a single cluster, but there are some defaults you can change to help reduce the load.
 
-Workloads in a Kubernetes cluster have access to features that integrate with the Kubernetes API (e.g. Secrets and ServiceAccounts), but these features are not always required and should be disabled if they’re not being used. Limiting workload access and dependence on the Kubernetes control plane will increase the number of workloads you can run in the cluster and improve the security of your clusters by removing unnecessary access to workloads and implementing least privilege practices. Please read the [security best practices](https://aws.github.io/aws-eks-best-practices/security/docs/) for more information.
+Workloads in a Kubernetes cluster have access to features that integrate with the Kubernetes API (e.g. Secrets and ServiceAccounts), but these features are not always required and should be disabled if they're not being used. Limiting workload access and dependence on the Kubernetes control plane will increase the number of workloads you can run in the cluster and improve the security of your clusters by removing unnecessary access to workloads and implementing least privilege practices. Please read the [security best practices](https://aws.github.io/aws-eks-best-practices/security/docs/) for more information.
 
 ## Use IPv6 for pod networking
 
@@ -62,8 +62,8 @@ The kubelet keeps a cache of the current keys and values for the Secrets that ar
 
 There are two strategies to reduce the number of watches on Secrets:
 
-* For applications that don’t need access to Kubernetes resources, you can disable auto-mounting service account secrets by setting automountServiceAccountToken: false
-* If your application’s secrets are static and will not be modified in the future, mark the [secret as immutable](https://kubernetes.io/docs/concepts/configuration/secret/#secret-immutable). The kubelet does not maintain an API watch for immutable secrets.
+* For applications that don't need access to Kubernetes resources, you can disable auto-mounting service account secrets by setting automountServiceAccountToken: false
+* If your application's secrets are static and will not be modified in the future, mark the [secret as immutable](https://kubernetes.io/docs/concepts/configuration/secret/#secret-immutable). The kubelet does not maintain an API watch for immutable secrets.
 
 To disable automatically mounting a service account to pods you can use the following setting in your workload. You can override these settings if specific workloads need a service account.
 

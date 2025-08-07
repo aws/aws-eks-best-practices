@@ -20,7 +20,7 @@ You have two choices for worker nodes with EKS: [EC2 instances](https://docs.aws
 
 EKS on Fargate offers the easiest path to a resilient data plane. Fargate runs each Pod in an isolated compute environment. Each Pod running on Fargate gets its own worker node. Fargate automatically scales the data plane as Kubernetes scales pods. You can scale both the data plane and your workload by using the [horizontal pod autoscaler](https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html).
 
-The preferred way to scale EC2 worker nodes is by using [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md), [EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) or community projects like [Atlassian’s Escalator](https://github.com/atlassian/escalator).
+The preferred way to scale EC2 worker nodes is by using [Kubernetes Cluster Autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md), [EC2 Auto Scaling groups](https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html) or community projects like [Atlassian's Escalator](https://github.com/atlassian/escalator).
 
 ## Recommendations 
 
@@ -36,7 +36,7 @@ Cluster Autoscaler adjusts the size of the data plane when there are pods that c
 
 Cluster Autoscaler triggers a scale-up of the data-plane when Pods in the cluster are already *Pending*. Hence, there may be a delay between the time your application needs more replicas, and when it, in fact, gets more replicas. An option to account for this possible delay is through adding more than required replicas, inflating the number of replicas for the application. 
 
-Another pattern that Cluster Autoscaler recommends uses [*pause* Pods and the Priority Preemption feature](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler). The *pause Pod* runs a [pause container](https://github.com/kubernetes/kubernetes/tree/master/build/pause), which as the name suggests, does nothing but acts as a placeholder for compute capacity that can be used by other Pods in your cluster. Because it runs with a *very low assigned priority*, the pause Pod gets evicted from the node when another Pod needs to be created, and the cluster doesn’t have available capacity. The Kubernetes Scheduler notices the eviction of the pause Pod and tries to reschedule it. But since the cluster is running at capacity, the pause Pod remains *Pending*, to which the Cluster Autoscaler reacts by adding nodes. 
+Another pattern that Cluster Autoscaler recommends uses [*pause* Pods and the Priority Preemption feature](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#how-can-i-configure-overprovisioning-with-cluster-autoscaler). The *pause Pod* runs a [pause container](https://github.com/kubernetes/kubernetes/tree/master/build/pause), which as the name suggests, does nothing but acts as a placeholder for compute capacity that can be used by other Pods in your cluster. Because it runs with a *very low assigned priority*, the pause Pod gets evicted from the node when another Pod needs to be created, and the cluster doesn't have available capacity. The Kubernetes Scheduler notices the eviction of the pause Pod and tries to reschedule it. But since the cluster is running at capacity, the pause Pod remains *Pending*, to which the Cluster Autoscaler reacts by adding nodes. 
 
 ### Using Cluster Autoscaler with multiple Auto Scaling Groups
 
@@ -169,7 +169,7 @@ Alternatively, [EFS](https://github.com/kubernetes-sigs/aws-efs-csi-driver) can 
 
 ### Run node-problem-detector
 
-Failures in worker nodes can impact the availability of your applications. [node-problem-detector](https://github.com/kubernetes/node-problem-detector) is a Kubernetes add-on that you can install in your cluster to detect worker node issues. You can use a [npd’s remedy system](https://github.com/kubernetes/node-problem-detector#remedy-systems) to drain and terminate the node automatically.
+Failures in worker nodes can impact the availability of your applications. [node-problem-detector](https://github.com/kubernetes/node-problem-detector) is a Kubernetes add-on that you can install in your cluster to detect worker node issues. You can use a [npd's remedy system](https://github.com/kubernetes/node-problem-detector#remedy-systems) to drain and terminate the node automatically.
 
 ### Reserving resources for system and Kubernetes daemons
 
@@ -227,7 +227,7 @@ CoreDNS fulfills name resolution and service discovery functions in Kubernetes. 
 
 ## Recommendations
 ### Monitor CoreDNS metrics
-CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`, before [1.7.0](https://github.com/coredns/coredns/blob/master/notes/coredns-1.7.0.md) version the metric was called `core_dns_response_rcode_count_total`), errors (`coredns_dns_responses_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod’s memory consumption.
+CoreDNS has built in support for [Prometheus](https://github.com/coredns/coredns/tree/master/plugin/metrics). You should especially consider monitoring CoreDNS latency (`coredns_dns_request_duration_seconds_sum`, before [1.7.0](https://github.com/coredns/coredns/blob/master/notes/coredns-1.7.0.md) version the metric was called `core_dns_response_rcode_count_total`), errors (`coredns_dns_responses_total`, NXDOMAIN, SERVFAIL, FormErr) and CoreDNS Pod's memory consumption.
 
 For troubleshooting purposes, you can use kubectl to view CoreDNS logs:
 

@@ -11,7 +11,7 @@ docker run -it \
   -v "${TEMPDIR}:/opt/repo" \
   -e LINKBOT_REPO_ROOT=/opt/repo \
   -e LINKBOT_REPO_URL="$REPO_URL" \
-  -e LINKBOT_GLOB="content/security/docs/*.md" \
+  -e LINKBOT_GLOB="latest/**/*.adoc" \
   -e LINKBOT_MAX_DAYS_OLD=730 \
   -e LINKBOT_GH_USER \
   -e LINKBOT_GH_TOKEN \

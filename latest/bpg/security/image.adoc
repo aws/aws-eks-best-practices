@@ -21,9 +21,9 @@ happening.
 === Create minimal images
 
 Start by removing all extraneous binaries from the container image. If
-you’re using an unfamiliar image from Dockerhub, inspect the image using
+you're using an unfamiliar image from Dockerhub, inspect the image using
 an application like https://github.com/wagoodman/dive[Dive] which can
-show you the contents of each of the container’s layers. Remove all
+show you the contents of each of the container's layers. Remove all
 binaries with the SETUID and SETGID bits as they can be used to escalate
 privilege and consider removing all shells and utilities like nc and
 curl that can be used for nefarious purposes. You can find the files
@@ -57,7 +57,7 @@ of the final image pushed to your container registry. Container images
 devoid of build tools and other extraneous binaries improves your
 security posture by reducing the attack surface of the image. For
 additional information about multi-stage builds, see
-https://docs.docker.com/develop/develop-images/multistage-build/[Docker’s
+https://docs.docker.com/develop/develop-images/multistage-build/[Docker's
 multi-stage builds documentation].
 
 === Create Software Bill of Materials (SBOMs) for your container image
@@ -85,7 +85,7 @@ the code. Trustworthiness is assured by creating an attested pipeline
 execution report along with attested SBOM and attested CVE scan report
 to assure the consumers of the image that this image is in-fact created
 through secure means (pipeline) with secure components.
-* *Dependency Trust Verification*: recursive checking of an artifact’s
+* *Dependency Trust Verification*: recursive checking of an artifact's
 dependency tree for trustworthiness and provenance of the artifacts it
 uses. Drift in SBOMs can help detect malicious activity including
 unauthorized, untrusted dependencies, infiltration attempts.
@@ -145,7 +145,7 @@ Alto - Prisma Cloud (twistcli)]
 A Kubernetes validation webhook could also be used to validate that
 images are free of critical vulnerabilities. Validation webhooks are
 invoked prior to the Kubernetes API. They are typically used to reject
-requests that don’t comply with the validation criteria defined in the
+requests that don't comply with the validation criteria defined in the
 webhook.
 https://aws.amazon.com/blogs/containers/building-serverless-admission-webhooks-for-kubernetes-with-aws-sam/[This]
 is an example of a serverless webhook that calls the ECR
@@ -165,7 +165,7 @@ trusted source in the software supply chain. As an example, we may use a
 container image without knowing all the software components or
 dependencies that are included in that image. However, if we trust
 whatever the producer of the container image says about what software is
-present, we can use the producer’s attestation to rely on that artifact.
+present, we can use the producer's attestation to rely on that artifact.
 This means that we can proceed to use the artifact safely in our
 workflow in place of having done the analysis ourself.
 
@@ -188,7 +188,7 @@ attestations to a container image.
 
 Nowadays, it is not uncommon for an organization to have multiple
 development teams operating independently within a shared AWS account.
-If these teams don’t need to share assets, you may want to create a set
+If these teams don't need to share assets, you may want to create a set
 of IAM policies that restrict access to the repositories each team can
 interact with. A good way to implement this is by using ECR
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/Repositories.html#repository-concepts[namespaces].
@@ -329,7 +329,7 @@ asset, store it in an artifact repository and copy the artifact into the
 appropriate image before pushing it to a Docker registry like ECR. At
 the very least you should create a set of base images from which
 developers to create their own Dockerfiles. Ideally, you want to avoid
-pulling images from Dockerhub because 1/ you don’t always know what is
+pulling images from Dockerhub because 1/ you don't always know what is
 in the image and 2/ about
 https://www.kennasecurity.com/blog/one-fifth-of-the-most-used-docker-containers-have-at-least-one-critical-vulnerability/[a
 fifth] of the top 1000 images have vulnerabilities. A list of those
@@ -395,16 +395,16 @@ nothing else, making it extremely secure.
 https://aws.amazon.com/about-aws/whats-new/2019/07/amazon-ecr-now-supports-immutable-image-tags/[Immutable
 tags] force you to update the image tag on each push to the image
 repository. This can thwart an attacker from overwriting an image with a
-malicious version without changing the image’s tags. Additionally, it
+malicious version without changing the image's tags. Additionally, it
 gives you a way to easily and uniquely identify an image.
 
 === Sign your images, SBOMs, pipeline runs and vulnerability reports
 
 When Docker was first introduced, there was no cryptographic model for
 verifying container images. With v2, Docker added digests to the image
-manifest. This allowed an image’s configuration to be hashed and for the
+manifest. This allowed an image's configuration to be hashed and for the
 hash to be used to generate an ID for the image. When image signing is
-enabled, the Docker engine verifies the manifest’s signature, ensuring
+enabled, the Docker engine verifies the manifest's signature, ensuring
 that the content was produced from a trusted source and no tampering has
 occurred. After each layer is downloaded, the engine verifies the digest
 of the layer, ensuring that the content matches the content specified in
@@ -458,9 +458,9 @@ Examples of admission controller include:
 You should include RUN `apt-get update && apt-get upgrade` in your
 Dockerfiles to upgrade the packages in your images. Although upgrading
 requires you to run as root, this occurs during image build phase. The
-application doesn’t need to run as root. You can install the updates and
+application doesn't need to run as root. You can install the updates and
 then switch to a different user with the USER directive. If your base
-image runs as a non-root user, switch to root and back; don’t solely
+image runs as a non-root user, switch to root and back; don't solely
 rely on the maintainers of the base image to install the latest security
 updates.
 

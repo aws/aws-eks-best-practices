@@ -136,7 +136,7 @@ spec:
 - **Monitoring metrics**
   - Configure your observability agents to scrape the prometheus metrics from the VPC CNI node agents, that allows to monitor the agent health, and sdk errors.
 - **Audit Network Policies regularly**
-  - Periodically audit your Network Policies to make sure that they meet your current application requirements. As your application evolves, an audit gives you the opportunity to remove redundant ingress, egress rules and make sure that your applications don’t have excessive permissions.
+  - Periodically audit your Network Policies to make sure that they meet your current application requirements. As your application evolves, an audit gives you the opportunity to remove redundant ingress, egress rules and make sure that your applications don't have excessive permissions.
 - **Ensure Network Policies exists using Open Policy Agent (OPA)**
   - Use OPA Policy like shown below to ensure Network Policy always exists before onboarding application pods. This policy denies onboarding k8s pods with a label `k8s-app: sample-app` if corresponding network policy does not exist.
 
@@ -374,7 +374,7 @@ spec:
 
 Following are additional examples for SSL/TLS termination.
 
-- [Securing EKS Ingress With Contour And Let’s Encrypt The GitOps Way](https://aws.amazon.com/blogs/containers/securing-eks-ingress-contour-lets-encrypt-gitops/)
+- [Securing EKS Ingress With Contour And Let's Encrypt The GitOps Way](https://aws.amazon.com/blogs/containers/securing-eks-ingress-contour-lets-encrypt-gitops/)
 - [How do I terminate HTTPS traffic on Amazon EKS workloads with ACM?](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/)
 
 !!! attention
@@ -392,7 +392,7 @@ When using ACM Private CA for mTLS in EKS, it is recommended that you use short 
 
 Start by creating a Private CA by following procedures provided in the [ACM Private CA tech docs](https://docs.aws.amazon.com/acm-pca/latest/userguide/create-CA.html). Once you have a Private CA, install cert-manager using [regular installation instructions](https://cert-manager.io/docs/installation/). After installing cert-manager, install the Private CA Kubernetes cert-manager plugin by following the [setup instructions in GitHub](https://github.com/cert-manager/aws-privateca-issuer#setup). The plugin lets cert-manager request private certificates from ACM Private CA.
 
-Now that you have a Private CA and an EKS cluster with cert-manager and the plugin installed, it’s time to set permissions and create the issuer. Update IAM permissions of the EKS node role to allow access to ACM Private CA. Replace the `<CA_ARN>` with the value from your Private CA:
+Now that you have a Private CA and an EKS cluster with cert-manager and the plugin installed, it's time to set permissions and create the issuer. Update IAM permissions of the EKS node role to allow access to ACM Private CA. Replace the `<CA_ARN>` with the value from your Private CA:
 
 ```json
 {

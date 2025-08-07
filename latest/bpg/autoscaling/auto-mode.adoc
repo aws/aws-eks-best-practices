@@ -7,6 +7,7 @@
 :info_titleabbrev: EKS Auto Mode
 :imagesdir: images/autoscaling
 
+TIP: Interested in gaining hands-on experience with Amazon EKS Auto Mode? Join an upcoming virtual Kubernetes workshop led by AWS experts by signing up on https://aws-experience.com/emea/smb/events/series/simplifying-kubernetes-operations-with-amazon-eks-auto-mode?trk=e3d0398c-e0e9-4665-af82-a2e8124a6db8[AWS Connected Community].
 
 Amazon EKS Auto Mode represents a significant evolution in Kubernetes infrastructure management, combining secure and scalable cluster infrastructure with integrated Kubernetes capabilities managed by AWS . The service provides fully-managed worker node operations, eliminating the need for customers to set up Managed Node Groups or AutoScaling groups . 
 
@@ -86,7 +87,7 @@ image:system_nodepool.png[System NodePool]
 This NodePool is similar to “general-purpose” except for the following differences:
 
 1. It allows for nodes with the ARM architecture as well as AMD architecture
-2. It taints these nodes with a NoSchedule unless there’s a toleration for “CriticalAddonsOnly”.  This is for internal use by EKS add-ons
+2. It taints these nodes with a NoSchedule unless there's a toleration for “CriticalAddonsOnly”.  This is for internal use by EKS add-ons
 
 ==== custom
 
@@ -104,7 +105,7 @@ be deploying the workload as a Kubernetes https://kubernetes.io/docs/concepts/wo
 
 === What components are running in my cluster data plane when I provision a new EKS Auto Mode cluster?
 
-If you create a cluster with eksctl or the {aws} console, the only pods running in an EKS Auto Mode cluster are Kubernetes Metrics Server pods.  The other components of EKS Auto Mode
+If you create a cluster with eksctl or the AWS console, the only pods running in an EKS Auto Mode cluster are Kubernetes Metrics Server pods.  The other components of EKS Auto Mode
 like Karpenter, the AWS Load Balancer Controller, and the EBS CSI Driver are all running and managed off-cluster.
 
 === What managed components are running to support my new EKS Auto Mode cluster?
