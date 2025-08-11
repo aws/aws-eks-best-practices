@@ -59,25 +59,29 @@ Consider monitoring these control plane metrics:
 | Metric | Description  |
 |:--|:--|
 | `apiserver_request_total` | Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, and HTTP response code. |
-| `apiserver_request_duration_seconds*`  | Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope, and component. |
-| `apiserver_admission_controller_admission_duration_seconds` | Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). |
+| `apiserver_request_duration_seconds*`  | Response latency histogram in seconds for each verb, dry run value, group, version, resource, subresource, scope, and component. |
+| `apiserver_admission_controller_admission_duration_seconds*` | Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). |
 | `apiserver_admission_webhook_rejection_count` | Count of admission webhook rejections. Identified by name, operation, rejection_code, type (validating or admit), error_type (calling_webhook_error, apiserver_internal_error, no_error) |
-| `rest_client_request_duration_seconds` | Request latency in seconds. Broken down by verb and URL. |
+| `rest_client_request_duration_seconds*` | Request latency histogramin seconds. Broken down by verb and URL. |
 | `rest_client_requests_total`  | Number of HTTP requests, partitioned by status code, method, and host. |
+
+* Histogram metrics include _bucket, _sum, and _count suffixes.
 
 ### etcd
 
 | Metric                                                                                                                                                                                    | Description
 |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--|
-| `etcd_request_duration_seconds`                                                                                                                                                           | Etcd request latency in seconds for each operation and object type. |
-| `etcd_db_total_size_in_bytes` or <br />`apiserver_storage_db_total_size_in_bytes` (starting with EKS v1.26) or <br />`apiserver_storage_size_bytes` (starting with EKS v1.28) | Etcd database size. |
+| `etcd_request_duration_seconds*`                                                                                                                                                           | Etcd request latency histogram in seconds for each operation and object type. |
+| `apiserver_storage_size_bytes` | Etcd database size. |
+
+* Histogram metrics include _bucket, _sum, and _count suffixes.
 
 Consider using the [Kubernetes Monitoring Overview Dashboard](https://grafana.com/grafana/dashboards/14623) to visualize and monitor Kubernetes API server requests and latency and etcd latency metrics.
 
-The following Prometheus query can be used to monitor the current size of etcd. The query assumes there is job called `kube-apiserver` for scraping metrics from API metrics endpoint and the EKS version is below v1.26.
+The following Prometheus query can be used to monitor the current size of etcd. The query assumes there is job called `kube-apiserver` for scraping metrics from API metrics endpoint.
 
 ```text
-max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
+max(apiserver_storage_size_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
 ```
 
 !!! attention
@@ -150,7 +154,7 @@ users:
 #- name: arn:aws:eks:us-west-2:<account number>:cluster/<cluster name>
 #  user:
 #    exec:
-#      apiVersion: client.authentication.k8s.io/v1alpha1
+#      apiVersion: client.authentication.k8s.io/v1beta1
 #      args:
 #      - --region
 #      - us-west-2
