@@ -464,7 +464,7 @@ following requirements.
 
 * Amazon EKS cluster running version `1.33` or later
 * Amazon EKS managed node groups (DRA is currently supported only by
-managed node groups with AL2023 and Bottlerocket NVIDIA optimized AMIs, [not with Karpenter](https://github.com/kubernetes-sigs/karpenter/issues/1231))
+managed node groups with AL2023 and Bottlerocket NVIDIA optimized AMIs, https://github.com/kubernetes-sigs/karpenter/issues/1231[not with Karpenter])
 * NVIDIA GPU-enabled worker nodes with appropriate instance types
 
 [#aiml-dra-components]
@@ -537,7 +537,7 @@ gfd:
 nfd:
   enabled: true
 tolerations:
-  - key: [nvidia.com/gpu](http://nvidia.com/gpu)
+  - key: nvidia.com/gpu
     operator: Exists
     effect: NoSchedule
 EOF
@@ -619,17 +619,17 @@ helm install nvidia-dra-driver nvidia/nvidia-dra-driver-gpu \
 +
 [source,bash,subs="verbatim,attributes"]
 ----
-kubectl api-resources | grep [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1)
+kubectl api-resources | grep resource.k8s.io/v1beta1
 ----
 +
 The following is the expected output:
 +
 [source,bash,subs="verbatim,attributes",role="nocopy"]
 ----
-deviceclasses [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) false DeviceClass
-resourceclaims [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) true ResourceClaim
-resourceclaimtemplates [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) true ResourceClaimTemplate
-resourceslices [resource.k8s.io/v1beta1](http://resource.k8s.io/v1beta1) false ResourceSlice
+deviceclasses resource.k8s.io/v1beta1 false DeviceClass
+resourceclaims resource.k8s.io/v1beta1 true ResourceClaim
+resourceclaimtemplates resource.k8s.io/v1beta1 true ResourceClaimTemplate
+resourceslices resource.k8s.io/v1beta1 false ResourceSlice
 ----
 
 . Check the available device classes:
@@ -2333,7 +2333,7 @@ kubectl get computedomain distributed-training-domain
 +
 [source,bash,subs="verbatim,attributes"]
 ----
-kubectl get pods -n nvidia-dra-driver -l [resource.nvidia.com/computeDomain](http://resource.nvidia.com/computeDomain)
+kubectl get pods -n nvidia-dra-driver -l resource.nvidia.com/computeDomain
 ----
 
 . Check the IMEX channels in the Pod:
