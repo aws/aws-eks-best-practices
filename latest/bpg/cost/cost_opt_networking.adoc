@@ -50,8 +50,8 @@ kind: Service
 metadata:
   name: orders-service
   namespace: ecommerce
-    annotations:
-      service.kubernetes.io/topology-mode: Auto
+  annotations:
+    service.kubernetes.io/topology-mode: Auto
 spec:
   selector:
     app: orders
