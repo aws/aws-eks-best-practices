@@ -53,12 +53,19 @@ Let's now capture the metrics discussed above, store them in Amazon Managed Serv
 * An AMP workspace configured in your AWS account. For instructions, see https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-onboard-create-workspace.html[Create a workspace] in the AMP User Guide.
 * Amazon Managed Grafana Workspace
 
-=== Deploying Prometheus ethtool exporter
+=== Deploying Prometheus Node Exporter
 
-The deployment contains a python script that pulls information from ethtool and publishes it in prometheus format.
+In order to collect the ethtool metrics for worker nodes, we need to deploy a collector which gathers the metrics and exposes them in Prometheus format. The following commands will add the `prometheus-community` Helm repository and install the `prometheus-node-exporter` chart with the `ethtool` collector enabled.
 
 ----
-kubectl apply -f https://raw.githubusercontent.com/Showmax/prometheus-ethtool-exporter/master/deploy/k8s-daemonset.yaml
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+helm upgrade -i prometheus-node-exporter prometheus-community/prometheus-node-exporter \
+  --set extraArgs[0]="--collector.ethtool" \
+  --set extraArgs[1]="--collector.ethtool.device-include=^eth.*" \
+  --set extraArgs[2]="--collector.ethtool.metrics-include=.*" \
+  --set podAnnotations."prometheus\.io/scrape='true'" \
+  --set podAnnotations."prometheus\.io/port='9100'"
 ----
 
 === Deploy the ADOT collector to scrape the ethtool metrics and store in Amazon Managed Service for Prometheus workspace
