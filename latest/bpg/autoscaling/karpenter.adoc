@@ -444,7 +444,7 @@ Karpenter for node provisioning.
 
 If you need to run highly available applications, follow general EKS
 best practice
-https://aws.github.io/aws-eks-best-practices/reliability/docs/application/#recommendations[recommendations].
+https://docs.aws.amazon.com/eks/latest/best-practices/application.html#_recommendations[recommendations].
 See
 https://karpenter.sh/docs/concepts/scheduling/#topology-spread[Topology
 Spread] in Karpenter documentation for details on how to spread pods
@@ -590,7 +590,7 @@ information about your workloads requirements is accurate. This is
 particularly important if using Karpenter's consolidation feature.
 
 See
-https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads[Configure
+https://docs.aws.amazon.com/eks/latest/best-practices/data-plane.html#_recommendations[Configure
 and Size Resource Requests/Limits for all Workloads]
 
 == CoreDNS recommendations
@@ -602,10 +602,10 @@ Karpenter's dynamic nature in rapidly terminating/creating new nodes to
 align with demand, it is advisable to adhere to the following best
 practices:
 
-https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-lameduck-duration[CoreDNS
+https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html#_coredns_lameduck_duration[CoreDNS
 lameduck duration]
 
-https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-readiness-probe[CoreDNS
+https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html#_coredns_readiness_probe[CoreDNS
 readiness probe]
 
 This will ensure that DNS queries are not directed to a CoreDNS Pod that
