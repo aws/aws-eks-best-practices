@@ -27,7 +27,7 @@ Scaling in Kubernetes is multi-dimensional and there are no specific settings or
 
 *Kubernetes Data Plane* scaling deals with AWS resources that are required for your cluster and workloads, but they are outside of the EKS Control Plane. Resources including EC2 instances, kubelet, and storage all need to be scaled as your cluster scales.
 
-*Cluster services* are Kubernetes controllers and applications that run inside the cluster and provide functionality for your cluster and workloads. These can be https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html[EKS Add-ons] and also other services or Helm charts you install for compliance and integrations. These services are often depended on by workloads and as your workloads scale your cluster services will need to scale with them.
+*Cluster services* are Kubernetes controllers and applications that run inside the cluster and provide functionality for your cluster and workloads. These can be link:eks/latest/userguide/eks-add-ons.html[EKS Add-ons,type="documentation"] and also other services or Helm charts you install for compliance and integrations. These services are often depended on by workloads and as your workloads scale your cluster services will need to scale with them.
 
 *Workloads* are the reason you have a cluster and should scale horizontally with the cluster. There are integrations and settings that workloads have in Kubernetes that can help the cluster scale. There are also architectural considerations with Kubernetes abstractions such as namespaces and services.
 

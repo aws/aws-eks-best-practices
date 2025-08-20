@@ -25,13 +25,13 @@ Amazon EKS IPv6 support leverages the native VPC IPv6 capabilities. Each VPC is 
 
 image::ipv6_eks-ipv6-foundation.png[Dual Stack VPC, mandatory foundation for EKS cluster in IPv6 mode]
 
-In the IPv6 world, every address is internet routable. By default, VPC allocates IPv6 CIDR from the public GUA range. However since https://aws.amazon.com/about-aws/whats-new/2024/08/aws-private-ipv6-addressing-vpcs-subnets/[August 2024] you can also use private IPv6 addressing for VPCs and subnets with Amazon VPC IP Address Manager (IPAM). Please see the https://aws.amazon.com/blogs/networking-and-content-delivery/understanding-ipv6-addressing-on-aws-and-designing-a-scalable-addressing-plan[this AWS Networking blog post] and https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html#vpc-ipv6-addresses[VPC documentation] for more information.
+In the IPv6 world, every address is internet routable. By default, VPC allocates IPv6 CIDR from the public GUA range. However since https://aws.amazon.com/about-aws/whats-new/2024/08/aws-private-ipv6-addressing-vpcs-subnets/[August 2024] you can also use private IPv6 addressing for VPCs and subnets with Amazon VPC IP Address Manager (IPAM). Please see the https://aws.amazon.com/blogs/networking-and-content-delivery/understanding-ipv6-addressing-on-aws-and-designing-a-scalable-addressing-plan[this AWS Networking blog post] and link:vpc/latest/userguide/vpc-ip-addressing.html#vpc-ipv6-addresses[VPC documentation,type="documentation"] for more information.
 
 The following diagram depict a Pod IPv6 Internet egress flow inside an EKS/IPv6 cluster:
 
 image::ipv6_eks-egress-ipv6.png[Dual Stack VPC, EKS Cluster in IPv6 Mode, Pods in private subnets egressing to Internet IPv6 endpoints]
 
-Best practices for implementing IPv6 subnets can be found in the https://docs.aws.amazon.com/whitepapers/latest/ipv6-on-aws/IPv6-on-AWS.html[VPC user guide].
+Best practices for implementing IPv6 subnets can be found in the link:whitepapers/latest/ipv6-on-aws/IPv6-on-AWS.html[VPC user guide,type="documentation"].
 
 In an IPv6 EKS cluster, nodes and Pods receive public IPv6 addresses. EKS assigns IPv6 addresses to services based on Unique Local IPv6 Unicast Addresses (ULA). The ULA Service CIDR for an IPv6 cluster is automatically assigned during the cluster creation stage and cannot be specified, unlike IPv4. The following diagram depict an EKS/IPv6 based cluster control-plane & data-plan foundation pattern:
 
@@ -110,7 +110,7 @@ Managed node groups automatically calculate the maximum number of Pods for you. 
 
 === Evaluate Purpose of Existing Custom Networking
 
-If https://docs.aws.amazon.com/eks/latest/best-practices/custom-networking.html[custom networking] is currently enabled, Amazon EKS recommends re-evaluating your need for it with IPv6. If you chose to use custom networking to address the IPv4 exhaustion issue, it is no longer necessary with IPv6. If you are utilizing custom networking to satisfy a security requirement, such as a separate network for nodes and Pods, you are encouraged to submit an https://github.com/aws/containers-roadmap/issues[EKS roadmap request].
+If link:eks/latest/best-practices/custom-networking.html[custom networking,type="documentation"] is currently enabled, Amazon EKS recommends re-evaluating your need for it with IPv6. If you chose to use custom networking to address the IPv4 exhaustion issue, it is no longer necessary with IPv6. If you are utilizing custom networking to satisfy a security requirement, such as a separate network for nodes and Pods, you are encouraged to submit an https://github.com/aws/containers-roadmap/issues[EKS roadmap request].
 
 === Fargate Pods in EKS/IPv6 Cluster
 

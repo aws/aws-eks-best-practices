@@ -9,7 +9,7 @@ The Kubernetes control plane consists of the Kubernetes API Server, Kubernetes C
 
 == Use EKS 1.24 or above
 
-EKS 1.24 introduced a number of changes and switches the container runtime to https://containerd.io/[containerd] instead of docker. Containerd helps clusters scale by increasing individual node performance by limiting container runtime features to closely align with Kubernetes`' needs. Containerd is available in every supported version of EKS and if you would like to switch to containerd in versions prior to 1.24 please use the https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html#containerd-bootstrap[`--container-runtime` bootstrap flag].
+EKS 1.24 introduced a number of changes and switches the container runtime to https://containerd.io/[containerd] instead of docker. Containerd helps clusters scale by increasing individual node performance by limiting container runtime features to closely align with Kubernetes`' needs. Containerd is available in every supported version of EKS and if you would like to switch to containerd in versions prior to 1.24 please use the link:eks/latest/userguide/eks-optimized-ami.html#containerd-bootstrap[`--container-runtime` bootstrap flag,type="documentation"].
 
 == Limit workload and node bursting
 
@@ -30,7 +30,7 @@ To use a custom metric see the examples in the https://kubernetes.io/docs/tasks/
 
 Replacing nodes regularly keeps your cluster healthy by avoiding configuration drift and issues that only happen after extended uptime (e.g. slow memory leaks). Automated replacement will give you good process and practices for node upgrades and security patching. If every node in your cluster is replaced regularly then there is less toil required to maintain separate processes for ongoing maintenance.
 
-Use Karpenter's https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html#_creating_nodepools[time to live (TTL)] settings to replace instances after they've been running for a specified amount of time. Self managed node groups can use the `max-instance-lifetime` setting to cycle nodes automatically. Managed node groups do not currently have this feature but you can track the request https://github.com/aws/containers-roadmap/issues/1190[here on GitHub].
+Use Karpenter's link:eks/latest/best-practices/karpenter.html#_creating_nodepools[time to live (TTL),type="documentation"] settings to replace instances after they've been running for a specified amount of time. Self managed node groups can use the `max-instance-lifetime` setting to cycle nodes automatically. Managed node groups do not currently have this feature but you can track the request https://github.com/aws/containers-roadmap/issues/1190[here on GitHub].
 
 === Remove underutilized nodes
 

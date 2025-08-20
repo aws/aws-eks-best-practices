@@ -48,7 +48,7 @@ Using the formula above, we can calculate max pods for an Windows worker noded b
 (10 secondary IPv4 addresses per ENI - 1) * 16 = 144 available IPv4 addresses
 ----
 
-For more information on how many IP addresses an instance type can support, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI[IP addresses per network interface per instance type].
+For more information on how many IP addresses an instance type can support, see link:AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI[IP addresses per network interface per instance type,type="documentation"].
 
 '''
 
@@ -72,7 +72,7 @@ nodeGroups:
     allow: false
 ----
 
-In order to utilize DSR in Windows Server 2019 and above, you will need to specify the following https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#load-balancing-and-services[*kube-proxy*] flags during instance startup.  You can do this by adjusting the userdata script associated with the https://docs.aws.amazon.com/eks/latest/userguide/launch-windows-workers.html[self-managed node groups Launch Template].
+In order to utilize DSR in Windows Server 2019 and above, you will need to specify the following https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#load-balancing-and-services[*kube-proxy*] flags during instance startup.  You can do this by adjusting the userdata script associated with the link:eks/latest/userguide/launch-windows-workers.html[self-managed node groups Launch Template,type="documentation"].
 
 [,powershell]
 ----
@@ -91,7 +91,7 @@ image::dsr.png[]
 
 If preserving your available IPv4 addresses and minimizing wastage is crucial for your subnet, it is generally recommended to avoid using prefix delegation mode as mentioned in xref:windows-prefix-avoid[Prefix Mode for Windows - When to avoid]. If using prefix delegation is still desired, you can take steps to optimize IPv4 address utilization in your subnet. See xref:windows-network-conserve[Configuring Parameters for Prefix Delegation] for detailed instructions on how to fine-tune the IPv4 address request and allocation process. Adjusting these configurations can help you strike a balance between conserving IPv4 addresses and pod density benefits of prefix delegation.
 
-When using the default setting of assigning secondary IPv4 addresses, there are currently no supported configurations to manipulate how the VPC Resource Controller requests and allocates IPv4 addresses. More specifically, `minimum-ip-target` and `warm-ip-target` are only supported for prefix delegation mode. Also take note that in secondary IP mode, depending on the available IP addresses on the interface, the VPC Resource Controller will typically allocate 3 unused IPv4 addresses on the node on your behalf to maintain warm IPs for faster pod startup times. If you would like to minimize IP wastage of unused warm IP addresses, you could aim to schedule more pods on a given Windows node such that you use as much IP address capacity of the ENI as possible. More explicitly, you could avoid having warm unused IPs if all IP addresses on the ENI are already in use by the node and running pods. Another workaround to help you resolve constraints with IP address availability in your subnet(s) could be to explore https://docs.aws.amazon.com/vpc/latest/userguide/modify-subnets.html[increasing your subnet size] or separating your Windows nodes into their own dedicated subnets.
+When using the default setting of assigning secondary IPv4 addresses, there are currently no supported configurations to manipulate how the VPC Resource Controller requests and allocates IPv4 addresses. More specifically, `minimum-ip-target` and `warm-ip-target` are only supported for prefix delegation mode. Also take note that in secondary IP mode, depending on the available IP addresses on the interface, the VPC Resource Controller will typically allocate 3 unused IPv4 addresses on the node on your behalf to maintain warm IPs for faster pod startup times. If you would like to minimize IP wastage of unused warm IP addresses, you could aim to schedule more pods on a given Windows node such that you use as much IP address capacity of the ENI as possible. More explicitly, you could avoid having warm unused IPs if all IP addresses on the ENI are already in use by the node and running pods. Another workaround to help you resolve constraints with IP address availability in your subnet(s) could be to explore link:vpc/latest/userguide/modify-subnets.html[increasing your subnet size,type="documentation"] or separating your Windows nodes into their own dedicated subnets.
 
 Additionally, it's important to note that IPv6 is not supported on Windows nodes at the moment.
 
@@ -104,8 +104,8 @@ The AWSVPC CNI is the de facto CNI plugin for Windows and Linux worker nodes. Wh
 
 It is considered a best practice to change from the default mode of open communication between pods on your Kubernetes cluster to limiting access based on network polices. The open source https://www.tigera.io/tigera-products/calico/[Project Calico] has strong support for network polices that work with both Linux and Windows nodes. This feature is separate and not dependent on using the Calico CNI. We therefore recommend installing Calico and using it for network policy management.
 
-Instructions for installing Calico in EKS can be found on the https://docs.aws.amazon.com/eks/latest/userguide/calico.html[Installing Calico on Amazon EKS] page.
+Instructions for installing Calico in EKS can be found on the link:eks/latest/userguide/calico.html[Installing Calico on Amazon EKS,type="documentation"] page.
 
-In addition, the advice provided in the https://docs.aws.amazon.com/eks/latest/best-practices/network-security.html[Amazon EKS Best Practices Guide for Security - Network Section] applies equally to EKS clusters with Windows worker nodes, however, some features like "Security Groups for Pods" are not supported by Windows at this time.
+In addition, the advice provided in the link:eks/latest/best-practices/network-security.html[Amazon EKS Best Practices Guide for Security - Network Section,type="documentation"] applies equally to EKS clusters with Windows worker nodes, however, some features like "Security Groups for Pods" are not supported by Windows at this time.
 
 

@@ -187,16 +187,16 @@ that are managed by EKS. Instructions for enabling/disabling the control
 plane logs, which includes the logs for the Kubernetes API server, the
 controller manager, and the scheduler, along with the audit log, can be
 found here,
-https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export.
+link:eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export.
 
-[NOTE]
+[NOTE,type="documentation"]
 ====
 When you enable control plane logging, you will incur https://aws.amazon.com/cloudwatch/pricing/[costs] for storing the logs in CloudWatch. This raises a broader issue about the ongoing cost of security. Ultimately you will have to weigh those costs against the cost of a security breach, e.g. financial loss, damage to your reputation, etc. You may find that you can adequately secure your environment by implementing only some of the recommendations in this guide.
 ====
 
 [WARNING]
 ====
-The maximum size for a CloudWatch Logs entry is https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html[256KB] whereas the maximum Kubernetes API request size is 1.5MiB. Log entries greater than 256KB will either be truncated or only include the request metadata.
+The maximum size for a CloudWatch Logs entry is link:AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html[256KB,type="documentation"] whereas the maximum Kubernetes API request size is 1.5MiB. Log entries greater than 256KB will either be truncated or only include the request metadata.
 ====
 
 === Utilize audit metadata
@@ -338,8 +338,8 @@ audit rules] along with the ability to add your own.
 
 Yet another option might be to store the audit logs in S3 and use the
 SageMaker
-https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html[Random
-Cut Forest] algorithm to anomalous behaviors that warrant further
+link:sagemaker/latest/dg/randomcutforest.html[Random
+Cut Forest,type="documentation"] algorithm to anomalous behaviors that warrant further
 investigation.
 
 == Tools and resources

@@ -8,21 +8,21 @@
 :info_titleabbrev: Identity and Access Management
 :imagesdir: images/
 
-https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html[Identity
-and Access Management] (IAM) is an AWS service that performs two
+link:IAM/latest/UserGuide/introduction.html[Identity
+and Access Management,type="documentation"] (IAM) is an AWS service that performs two
 essential functions: Authentication and Authorization. Authentication
 involves the verification of a identity whereas authorization governs
 the actions that can be performed by AWS resources. Within AWS, a
 resource can be another AWS service, e.g. EC2, or an AWS
-https://docs.aws.amazon.com/IAM/latest/UserGuide/intro-structure.html#intro-structure-principal[principal]
+link:IAM/latest/UserGuide/intro-structure.html#intro-structure-principal[principal,type="documentation"]
 such as an
-https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html#id_iam-users[IAM
-User] or
-https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html#id_iam-roles[Role].
+link:IAM/latest/UserGuide/id.html#id_iam-users[IAM
+User,type="documentation"] or
+link:IAM/latest/UserGuide/id.html#id_iam-roles[Role,type="documentation"].
 The rules governing the actions that a resource is allowed to perform
 are expressed as
-https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html[IAM
-policies].
+link:IAM/latest/UserGuide/access_policies.html[IAM
+policies,type="documentation"].
 
 == Controlling Access to EKS Clusters
 
@@ -101,7 +101,7 @@ https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15&X-Amz-Alg
 
 The token consists of a pre-signed URL that includes an Amazon
 credential and signature. For additional details see
-https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html.
+link:STS/latest/APIReference/API_GetCallerIdentity.html.
 
 The token has a time to live (TTL) of 15 minutes after which a new token
 will need to be generated. This is handled automatically when you use a
@@ -153,7 +153,7 @@ determine the outcome of a request evaluation.
 
 With this feature, Amazon EKS supports three modes of authentication:
 
-[arabic]
+[arabic,type="documentation"]
 . `CONFIG_MAP` to continue using `aws-auth` configMap exclusively.
 . `API_AND_CONFIG_MAP` to source authenticated IAM principals from
 both EKS Access Entry APIs and the `aws-auth` configMap, prioritizing
@@ -309,8 +309,8 @@ edit the `aws-auth` ConfigMap manually, it's recommended using tools
 like `eksctl`, since this is a very senstitive configuration, and an
 inaccurate configuration can lock you outside your Amazon EKS Cluster.
 Check the subsection
-https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html#_cluster_access_recommendations[Use
-tools to make changes to the aws-auth ConfigMap] below for more details.
+link:eks/latest/best-practices/identity-and-access-management.html#_cluster_access_recommendations[Use
+tools to make changes to the aws-auth ConfigMap,type="documentation"] below for more details.
 
 == Cluster Access Recommendations
 
@@ -326,8 +326,8 @@ Internet or prevents you from routing traffic outside the cluster VPC,
 you can:
 
 * Configure the EKS cluster endpoint to be private. See
-https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[Modifying
-Cluster Endpoint Access] for further information on this topic.
+link:eks/latest/userguide/cluster-endpoint.html[Modifying
+Cluster Endpoint Access,type="documentation"] for further information on this topic.
 * Leave the cluster endpoint public and specify which CIDR blocks can
 communicate with the cluster endpoint. The blocks are effectively a
 whitelisted set of public IP addresses that are allowed to access the
@@ -605,8 +605,8 @@ EKS natively supports OIDC authentication without using a proxy. For further inf
 ====
 
 You can also use
-https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html[AWS
-SSO] to federate AWS with an external identity provider, e.g. Azure AD.
+link:singlesignon/latest/userguide/what-is.html[AWS
+SSO,type="documentation"] to federate AWS with an external identity provider, e.g. Azure AD.
 If you decide to use this, the AWS CLI v2.0 includes an option to create
 a named profile that makes it easy to associate an SSO session with your
 current CLI session and assume an IAM role. Know that you must assume a
@@ -783,20 +783,20 @@ The kubelet will automatically rotate the projected token when it is
 older than 80% of its total TTL, or after 24 hours. The AWS SDKs are
 responsible for reloading the token when it rotates. For further
 information about IRSA, see
-https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html.
+link:eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html.
 
 === EKS Pod Identities
 
 https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html[EKS
-Pod Identities] is a feature launched at re:Invent 2023 that allows you
+Pod Identities,type="documentation"] is a feature launched at re:Invent 2023 that allows you
 to assign an IAM role to a kubernetes service account, without the need
 to configure an Open Id Connect (OIDC) identity provider(IDP) for each
 cluster in your AWS account. To use EKS Pod Identity, you must deploy an
 agent which runs as a DaemonSet pod on every eligible worker node. This
 agent is made available to you as an EKS Add-on and is a pre-requisite
 to use EKS Pod Identity feature. Your applications must use a
-https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html[supported
-version of the AWS SDK] to use this feature.
+link:eks/latest/userguide/pod-id-minimum-sdk.html[supported
+version of the AWS SDK,type="documentation"] to use this feature.
 
 When EKS Pod Identities are configured for a Pod, EKS will mount and
 refresh a pod identity token at
@@ -804,8 +804,8 @@ refresh a pod identity token at
 This token will be used by the AWS SDK to communicate with the EKS Pod
 Identity Agent, which uses the pod identity token and the agent's IAM
 role to create temporary credentials for your pods by calling the
-https://docs.aws.amazon.com/eks/latest/APIReference/API_auth_AssumeRoleForPodIdentity.html[AssumeRoleForPodIdentity
-API]. The pod identity token delivered to your pods is a JWT issued from
+link:eks/latest/APIReference/API_auth_AssumeRoleForPodIdentity.html[AssumeRoleForPodIdentity
+API,type="documentation"]. The pod identity token delivered to your pods is a JWT issued from
 your EKS cluster and cryptographically signed, with appropriate JWT
 claims for use with EKS Pod Identities.
 
@@ -816,8 +816,8 @@ blog].
 You do not have to make any modifications to your application code to
 use EKS Pod Identities. Supported AWS SDK versions will automatically
 discover credentials made available with EKS Pod Identities by using the
-https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html[credential
-provider chain]. Like IRSA, EKS pod identities sets variables within
+link:sdkref/latest/guide/standardized-credentials.html[credential
+provider chain,type="documentation"]. Like IRSA, EKS pod identities sets variables within
 your pods to direct them how to find AWS credentials.
 
 ==== Working with IAM roles for EKS Pod Identities
@@ -825,10 +825,10 @@ your pods to direct them how to find AWS credentials.
 * EKS Pod Identities can only directly assume an IAM role that belongs
 to the same AWS account as the EKS cluster. To access an IAM role in
 another AWS account, you must assume that role by
-https://docs.aws.amazon.com/sdkref/latest/guide/feature-assume-role-credentials.html[configuring
-a profile in your SDK configuration], or in your
-https://docs.aws.amazon.com/IAM/latest/UserGuide/sts_example_sts_AssumeRole_section.html[application's
-code].
+link:sdkref/latest/guide/feature-assume-role-credentials.html[configuring
+a profile in your SDK configuration,type="documentation"], or in your
+link:IAM/latest/UserGuide/sts_example_sts_AssumeRole_section.html[application's
+code,type="documentation"].
 * When EKS Pod Identities are being configured for Service Accounts, the
 person or process configuring the Pod Identity Association must have the
 `iam:PassRole` entitlement for that role.
@@ -866,8 +866,8 @@ EKS Pod Identities to use an IAM role:
 
 AWS recommends using condition keys like `aws:SourceOrgId` to help
 protect against the
-https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html#cross-service-confused-deputy-prevention[cross-service
-confused deputy problem]. In the above example role trust policy, the
+link:IAM/latest/UserGuide/confused-deputy.html#cross-service-confused-deputy-prevention[cross-service
+confused deputy problem,type="documentation"]. In the above example role trust policy, the
 `ResourceOrgId` is a variable equal to the AWS Organizations
 Organization ID of the AWS Organization that the AWS account belongs to.
 EKS will pass in a value for `aws:SourceOrgId` equal to that when
@@ -903,8 +903,8 @@ other AWS accounts.
 |===
 
 These session tags allow you to use
-https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_attribute-based-access-control.html[Attribute
-Based Access Control(ABAC)] to grant access to your AWS resources to
+link:IAM/latest/UserGuide/introduction_attribute-based-access-control.html[Attribute
+Based Access Control(ABAC),type="documentation"] to grant access to your AWS resources to
 only specific kubernetes service accounts. When doing so, it is _very
 important_ to understand that kubernetes service accounts are only
 unique within a namespace, and kubernetes namespaces are only unique
@@ -1005,8 +1005,8 @@ When you use IRSA or EKS Pod Identities, it updates the credential chain
 of the pod to use IRSA or EKS Pod Identities first, however, the pod
 _can still inherit the rights of the instance profile assigned to the
 worker node_. For pods that do not need these permissions, you can block access to the
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html[instance
-metadata] to help ensure that your applications only have the
+link:AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html[instance
+metadata,type="documentation"] to help ensure that your applications only have the
 permissions they require, and not their nodes.
 
 [WARNING]
@@ -1035,8 +1035,8 @@ as seen in this code snippet:
 
 You can also block a pod's access to EC2 metadata by manipulating
 iptables on the node. For further information about this method, see
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access[Limiting
-access to the instance metadata service].
+link:AWSEC2/latest/UserGuide/instancedata-data-retrieval.html#instance-metadata-limiting-access[Limiting
+access to the instance metadata service,type="documentation"].
 
 If you have an application that is using an older version of the AWS SDK
 that doesn't support IRSA or EKS Pod Identities, you should update the
@@ -1086,7 +1086,7 @@ as ABAC allows you to operate with fewer IAM roles.
 
 === When your application needs access to IMDS, use IMDSv2 and increase the hop limit on EC2 instances to 2
 
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html[IMDSv2]
+link:AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html[IMDSv2,type="documentation"]
 requires you use a PUT request to get a session token. The initial PUT
 request has to include a TTL for the session token. Newer versions of
 the AWS SDKs will handle this and the renewal of said token
@@ -1172,15 +1172,15 @@ https://github.com/princespaghetti/actionhero[Action Hero] is a utility
 that you can run alongside your application to identify the AWS API
 calls and corresponding IAM permissions your application needs to
 function properly. It is similar to
-https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html[IAM
-Access Advisor] in that it helps you gradually limit the scope of IAM
+link:IAM/latest/UserGuide/access_policies_access-advisor.html[IAM
+Access Advisor,type="documentation"] in that it helps you gradually limit the scope of IAM
 roles assigned to applications. Consult the documentation on granting
-https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege[least
-privileged access] to AWS resources for further information.
+link:IAM/latest/UserGuide/best-practices.html#grant-least-privilege[least
+privileged access,type="documentation"] to AWS resources for further information.
 
 Consider setting a
-https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html[permissions
-boundary] on IAM roles used with IRSA and Pod Identities. You can use
+link:IAM/latest/UserGuide/access_policies_boundaries.html[permissions
+boundary,type="documentation"] on IAM roles used with IRSA and Pod Identities. You can use
 the permissions boundary to ensure that the roles used by IRSA or Pod
 Identities can not exceed a maximum level of permissions. For an example
 guide on getting started with permissions boundaries with an example
@@ -1379,13 +1379,13 @@ While IRSA and EKS Pod Identities are the _preferred ways_ to assign an
 AWS identity to a pod, they require that you include recent version of
 the AWS SDKs in your application. For a complete listing of the SDKs
 that currently support IRSA, see
-https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html,
+link:eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html,
 for EKS Pod Identities, see
 https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html.
 If you have an application that you can't immediately update with a
 compatible SDK, there are several community-built solutions available
 for assigning IAM roles to Kubernetes pods, including
-https://github.com/jtblin/kube2iam[kube2iam] and
+https://github.com/jtblin/kube2iam[kube2iam,type="documentation"] and
 https://github.com/uswitch/kiam[kiam]. Although AWS doesn't endorse,
 condone, nor support the use of these solutions, they are frequently
 used by the community at large to achieve similar results as IRSA and

@@ -51,7 +51,7 @@ The size column shows the overall size of image, 6.96GB. Breaking it down:
 * Windows Server Core 2019 LTSC Base image = 5.74GB
 * Fluentd Uncompressed Base Image = 6.96GB
 * Difference on disk = 1.2GB
-* Fluentd https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-info.html[compressed final image ECR] = 533.05MB
+* Fluentd link:AmazonECR/latest/userguide/repository-info.html[compressed final image ECR,type="documentation"] = 533.05MB
 
 The base image already exists on the local disk, resulting in the total amount on disk being 1.2GB additional. The next time you see the amount of GBs in the size column, don't worry too much, likely more than 70% is already on disk as a cached container image.
 

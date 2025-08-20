@@ -29,7 +29,7 @@ image::topo_aware_routing.png[Topology aware routing]
 
 As the diagram above depicts, Services are the stable network abstraction layer that receive traffic destined for your Pods. When a Service is created, multiple EndpointSlices are created. Each EndpointSlice has a list of endpoints containing a subset of Pod addresses along with the nodes they're running on and any additional topology information. When using the Amazon VPC CNI, kube-proxy, a daemonset running on every node, maintains network rules to enable Pod communication and Service discovery (alternative eBPF-based CNIs may not use kube-proxy but provide equivalent behavior). It fulfills the role of internal routing, but it does so based on what it consumes from the created EndpointSlices.
 
-On EKS, kube-proxy primarily uses iptables NAT rules (or https://docs.aws.amazon.com/eks/latest/best-practices/ipvs.html[IPVS], https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[NFTables] as alternatives) for traffic distribution across all pods in the cluster, regardless of their node or AZ placement. This default distribution can lead to cross-AZ traffic routing, potentially causing increased latency for sensitive applications and inter-AZ data transfer charges in large deployments.
+On EKS, kube-proxy primarily uses iptables NAT rules (or link:eks/latest/best-practices/ipvs.html[IPVS,type="documentation"], https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[NFTables] as alternatives) for traffic distribution across all pods in the cluster, regardless of their node or AZ placement. This default distribution can lead to cross-AZ traffic routing, potentially causing increased latency for sensitive applications and inter-AZ data transfer charges in large deployments.
 
 *Using Topology Aware Routing (formerly known as Topology Aware Hints)*
 
@@ -321,9 +321,9 @@ image::ip_mode.png[IP mode]
 
 Data transfer into the Amazon ECR private registry is free. _In-region data transfer incurs no cost_, but data transfer out to the internet and across regions will be charged at Internet Data Transfer rates on both sides of the transfer.
 
-You should utilize ECRs built-in https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html[image replication feature] to replicate the relevant container images into the same region as your workloads. This way the replication would be charged once, and all the same region (intra-region) image pulls would be free.
+You should utilize ECRs built-in link:AmazonECR/latest/userguide/replication.html[image replication feature,type="documentation"] to replicate the relevant container images into the same region as your workloads. This way the replication would be charged once, and all the same region (intra-region) image pulls would be free.
 
-You can further reduce data transfer costs associated with pulling images from ECR (data transfer out) by _using https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html[Interface VPC Endpoints] to connect to the in-region ECR repositories_. The alternative approach of connecting to ECR's public AWS endpoint (via a NAT Gateway and an Internet Gateway) will incur higher data processing and transfer costs. The next section will cover reducing data transfer costs between your workloads and AWS Services in greater detail.
+You can further reduce data transfer costs associated with pulling images from ECR (data transfer out) by _using link:whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html[Interface VPC Endpoints,type="documentation"] to connect to the in-region ECR repositories_. The alternative approach of connecting to ECR's public AWS endpoint (via a NAT Gateway and an Internet Gateway) will incur higher data processing and transfer costs. The next section will cover reducing data transfer costs between your workloads and AWS Services in greater detail.
 
 If you're running workloads with especially large images, you can build your own custom Amazon Machine Images (AMIs) with pre-cached container images. This can reduce the initial image pull time and potential data transfer costs from a container registry to the EKS worker nodes.
 
@@ -345,7 +345,7 @@ image::recommended_approach.png[Recommended approach]
 
 === Using VPC Endpoints
 
-To further reduce costs in such architectures, _you should use https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html[VPC Endpoints] to establish connectivity between your workloads and AWS services_. VPC Endpoints allow you to access AWS services from within a VPC without data/network packets traversing the Internet. All traffic is internal and stays within the AWS network. There are two types of VPC Endpoints: Interface VPC Endpoints (https://docs.aws.amazon.com/vpc/latest/privatelink/aws-services-privatelink-support.html[supported by many AWS services]) and Gateway VPC Endpoints (only supported by S3 and DynamoDB).
+To further reduce costs in such architectures, _you should use link:whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html[VPC Endpoints,type="documentation"] to establish connectivity between your workloads and AWS services_. VPC Endpoints allow you to access AWS services from within a VPC without data/network packets traversing the Internet. All traffic is internal and stays within the AWS network. There are two types of VPC Endpoints: Interface VPC Endpoints (link:vpc/latest/privatelink/aws-services-privatelink-support.html[supported by many AWS services,type="documentation"]) and Gateway VPC Endpoints (only supported by S3 and DynamoDB).
 
 *Gateway VPC Endpoints*
 
@@ -367,7 +367,7 @@ image::between_vpcs.png[Between VPCs]
 
 === VPC Peering Connections
 
-To reduce costs for such use cases, you can make use of https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html[VPC Peering]. With a VPC Peering connection, there are no data transfer charges for network traffic that stays within the same AZ. If traffic crosses AZs, there will be a cost incurred. Nonetheless, the VPC Peering approach is recommended for cost-effective communication between workloads in separate VPCs within the same AWS region. However, it's important to note that VPC peering is primarily effective for 1:1 VPC connectivity because it doesn't allow for transitive networking.
+To reduce costs for such use cases, you can make use of link:vpc/latest/peering/what-is-vpc-peering.html[VPC Peering,type="documentation"]. With a VPC Peering connection, there are no data transfer charges for network traffic that stays within the same AZ. If traffic crosses AZs, there will be a cost incurred. Nonetheless, the VPC Peering approach is recommended for cost-effective communication between workloads in separate VPCs within the same AWS region. However, it's important to note that VPC peering is primarily effective for 1:1 VPC connectivity because it doesn't allow for transitive networking.
 
 The diagram below is a high-level representation of workloads communication via a VPC peering connection.
 
@@ -375,7 +375,7 @@ image::peering.png[Peering]
 
 === Transitive Networking Connections
 
-As pointed out in the previous section, VPC Peering connections do not allow for transitive networking connectivity. If you want to connect 3 or more VPCs with transitive networking requirements, then you should use a https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html[Transit Gateway] (TGW). This will enable you to overcome the limits of VPC Peering or any operational overhead associated with having multiple VPC Peering connections between multiple VPCs. You are https://aws.amazon.com/transit-gateway/pricing/[billed on an hourly basis] and for data sent to the TGW. _There is no destination cost associated with inter-AZ traffic that flows through the TGW._
+As pointed out in the previous section, VPC Peering connections do not allow for transitive networking connectivity. If you want to connect 3 or more VPCs with transitive networking requirements, then you should use a link:vpc/latest/tgw/what-is-transit-gateway.html[Transit Gateway,type="documentation"] (TGW). This will enable you to overcome the limits of VPC Peering or any operational overhead associated with having multiple VPC Peering connections between multiple VPCs. You are https://aws.amazon.com/transit-gateway/pricing/[billed on an hourly basis] and for data sent to the TGW. _There is no destination cost associated with inter-AZ traffic that flows through the TGW._
 
 The diagram below shows inter-AZ traffic flowing through a TGW between workloads in different VPCs but within the same AWS region.
 

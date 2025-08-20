@@ -15,7 +15,7 @@ However, you can combine these flags to manage *NodeAllocatable* to reduce Capac
 
 On Windows nodes, a best practice is to reserve at least 2GB of memory for the OS and process. Use `--kubelet-reserve` and/or `--system-reserve` to reduce NodeAllocatable.
 
-Following the https://docs.aws.amazon.com/eks/latest/userguide/launch-windows-workers.html[Amazon EKS Self-managed Windows nodes] documentation, use the CloudFormation template to launch a new Windows node group with customizations to kubelet configuration. The CloudFormation has an element called `BootstrapArguments` which is the same as `KubeletExtraArgs`. Use with the following flags and values:
+Following the link:eks/latest/userguide/launch-windows-workers.html[Amazon EKS Self-managed Windows nodes,type="documentation"] documentation, use the CloudFormation template to launch a new Windows node group with customizations to kubelet configuration. The CloudFormation has an element called `BootstrapArguments` which is the same as `KubeletExtraArgs`. Use with the following flags and values:
 
 [,bash]
 ----

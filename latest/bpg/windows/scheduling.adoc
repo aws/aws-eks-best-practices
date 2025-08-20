@@ -153,7 +153,7 @@ spec:
 
 == Managed Node Group Support
 
-To help customers run their Windows applications in a more streamlined manner, AWS launched the support for Amazon https://aws.amazon.com/about-aws/whats-new/2022/12/amazon-eks-automated-provisioning-lifecycle-management-windows-containers/[EKS Managed Node Group (MNG) support for Windows containers] on December 15, 2022. To help align operations teams, https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[Windows MNGs] are enabled using the same workflows and tools as https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[Linux MNGs]. Full and core AMI (Amazon Machine Image) family versions of Windows Server 2019 and 2022 are supported.
+To help customers run their Windows applications in a more streamlined manner, AWS launched the support for Amazon https://aws.amazon.com/about-aws/whats-new/2022/12/amazon-eks-automated-provisioning-lifecycle-management-windows-containers/[EKS Managed Node Group (MNG) support for Windows containers] on December 15, 2022. To help align operations teams, link:eks/latest/userguide/managed-node-groups.html[Windows MNGs,type="documentation"] are enabled using the same workflows and tools as link:eks/latest/userguide/managed-node-groups.html[Linux MNGs,type="documentation"]. Full and core AMI (Amazon Machine Image) family versions of Windows Server 2019 and 2022 are supported.
 
 Following AMI families are supported for Managed Node Groups(MNG)s.
 

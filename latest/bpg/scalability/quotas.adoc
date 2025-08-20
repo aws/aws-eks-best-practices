@@ -7,16 +7,16 @@ Amazon EKS can be used for a variety of workloads and can interact with a wide r
 
 Your AWS account has default quotas (an upper limit on the number of each AWS resource your team can request). Each AWS service defines their own quota, and quotas are generally region-specific. You can request increases for some quotas (soft limits), and other quotas cannot be increased (hard limits). You should consider these values when architecting your applications. Consider reviewing these service limits periodically and incorporate them during in your application design.
 
-You can review the usage in your account and open a quota increase request at the https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html#request-increase[AWS Service Quotas console], or using https://repost.aws/knowledge-center/request-service-quota-increase-cli[the AWS CLI]. Refer to the AWS documentation from the respective AWS Service for more details on the Service Quotas and any further restrictions or notices on their increase.
+You can review the usage in your account and open a quota increase request at the link:AWSEC2/latest/UserGuide/ec2-resource-limits.html#request-increase[AWS Service Quotas console,type="documentation"], or using https://repost.aws/knowledge-center/request-service-quota-increase-cli[the AWS CLI]. Refer to the AWS documentation from the respective AWS Service for more details on the Service Quotas and any further restrictions or notices on their increase.
 
 [NOTE]
 ====
-https://docs.aws.amazon.com/eks/latest/userguide/service-quotas.html[Amazon EKS Service Quotas] lists the service quotas and has links to request increases where available.
+link:eks/latest/userguide/service-quotas.html[Amazon EKS Service Quotas,type="documentation"] lists the service quotas and has links to request increases where available.
 ====
 
 == Other AWS Service Quotas
 
-We have seen EKS customers impacted by the quotas listed below for other AWS services. Some of these may only apply to specific use cases or configurations, however you may consider if your solution will encounter any of these as it scales. The Quotas are organized by Service and each Quota has an ID in the format of L-XXXXXXXX you can use to look it up in the https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html#request-increase[AWS Service Quotas console]
+We have seen EKS customers impacted by the quotas listed below for other AWS services. Some of these may only apply to specific use cases or configurations, however you may consider if your solution will encounter any of these as it scales. The Quotas are organized by Service and each Quota has an ID in the format of L-XXXXXXXX you can use to look it up in the link:AWSEC2/latest/UserGuide/ec2-resource-limits.html#request-increase[AWS Service Quotas console,type="documentation"]
 
 |===
 | Service | Quota (L-xxxxx) | *Impact* | *ID (L-xxxxx)* | default
@@ -213,7 +213,7 @@ We have seen EKS customers impacted by the quotas listed below for other AWS ser
 AWS services also implement request throttling to ensure that they remain performant and available for all customers. Similar to Service Quotas, each AWS service maintains their own request throttling thresholds. Consider reviewing the respective AWS Service documentation if your workloads will need to quickly issue a large number of API calls or if you notice request throttling errors in your application.
 
 EC2 API requests around provisioning EC2 network interfaces or IP addresses can encounter request throttling in large clusters or when clusters scale drastically. The table below shows some of the API actions that we have seen customers encounter request throttling from.
-You can review the EC2 rate limit defaults and the steps to request a rate limit increase in the https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html[EC2 documentation on Rate Throttling].
+You can review the EC2 rate limit defaults and the steps to request a rate limit increase in the link:AWSEC2/latest/APIReference/throttling.html[EC2 documentation on Rate Throttling,type="documentation"].
 
 |===
 | Mutating Actions | Read-only Actions
@@ -245,9 +245,9 @@ You can review the EC2 rate limit defaults and the steps to request a rate limit
 
 == Other Known Limits
 
-// * Route 53 DNS resolvers are limited to https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-limits[1024 Packets per second]. This limit can be encountered when DNS traffic from a large cluster is funneled through a small number of CoreDNS Pod replicas. xref:scale-coredns[Scaling CoreDNS and optimizing DNS behavior] can avoid timeouts on DNS lookups.
- ** https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/DNSLimitations.html#limits-api-requests[Route 53 also has a fairly low rate limit of 5 requests per second to the Route 53 API]. If you have a large number of domains to update with a project like External DNS you may see rate throttling and delays in updating domains.
-* Some https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/volume_limits.html#instance-type-volume-limits[Nitro instance types have a volume attachment limit of 28] that is shared between Amazon EBS volumes, network interfaces, and NVMe instance store volumes. If your workloads are mounting numerous EBS volumes you may encounter limits to the pod density you can achieve with these instance types
-* There is a maximum number of connections that can be tracked per Ec2 instance. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-tracking-throttling[If your workloads are handling a large number of connections you may see communication failures or errors because this maximum has been hit.] You can use the `conntrack_allowance_available` and `conntrack_allowance_exceeded` https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/monitoring-network-performance-ena.html[network performance metrics to monitor the number of tracked connections on your EKS worker nodes].
+// * Route 53 DNS resolvers are limited to link:vpc/latest/userguide/vpc-dns.html#vpc-dns-limits[1024 Packets per second,type="documentation"]. This limit can be encountered when DNS traffic from a large cluster is funneled through a small number of CoreDNS Pod replicas. xref:scale-coredns[Scaling CoreDNS and optimizing DNS behavior] can avoid timeouts on DNS lookups.
+ ** link:Route53/latest/DeveloperGuide/DNSLimitations.html#limits-api-requests[Route 53 also has a fairly low rate limit of 5 requests per second to the Route 53 API,type="documentation"]. If you have a large number of domains to update with a project like External DNS you may see rate throttling and delays in updating domains.
+* Some link:AWSEC2/latest/UserGuide/volume_limits.html#instance-type-volume-limits[Nitro instance types have a volume attachment limit of 28,type="documentation"] that is shared between Amazon EBS volumes, network interfaces, and NVMe instance store volumes. If your workloads are mounting numerous EBS volumes you may encounter limits to the pod density you can achieve with these instance types
+* There is a maximum number of connections that can be tracked per Ec2 instance. link:AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-tracking-throttling[If your workloads are handling a large number of connections you may see communication failures or errors because this maximum has been hit.,type="documentation"] You can use the `conntrack_allowance_available` and `conntrack_allowance_exceeded` link:AWSEC2/latest/UserGuide/monitoring-network-performance-ena.html[network performance metrics to monitor the number of tracked connections on your EKS worker nodes,type="documentation"].
 * In EKS environment, etcd storage limit is *8 GiB* as per https://etcd.io/docs/v3.5/dev-guide/limit/#storage-size-limit[upstream guidance]. Please monitor metric `etcd_db_total_size_in_bytes` to track etcd db size. You can refer to https://github.com/etcd-io/etcd/blob/main/contrib/mixin/mixin.libsonnet#L213-L240[alert rules] `etcdBackendQuotaLowSpace` and `etcdExcessiveDatabaseGrowth` to setup this monitoring.
 

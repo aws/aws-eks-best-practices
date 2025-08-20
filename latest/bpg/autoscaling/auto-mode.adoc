@@ -28,7 +28,7 @@ The new system introduces several operational improvements:
 
 From a cost perspective, EKS Auto Mode maintains standard EC2 pricing while adding a management fee only for Auto Mode-managed nodes. Importantly, customers can still mix Auto Mode managed nodes with self-managed nodes in the same cluster . 
 
-While AWS handles most operational aspects, customers retain responsibility for https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html[cluster version management] and can perform controlled upgrades that trigger rolling updates of worker nodes . 
+While AWS handles most operational aspects, customers retain responsibility for link:eks/latest/userguide/update-cluster.html[cluster version management,type="documentation"] and can perform controlled upgrades that trigger rolling updates of worker nodes . 
 
 == Reasons to use Auto Mode
 
@@ -53,7 +53,7 @@ Yes, you may run static nodes via a managed node groups alongside your autoscali
 === Can I migrate a cluster from standard EKS to EKS Auto Mode?
 
 Yes, instructions to enable EKS Auto Mode on an existing cluster can be found
-in the official https://docs.aws.amazon.com/eks/latest/userguide/auto-enable-existing.html[AWS Documentation]
+in the official link:eks/latest/userguide/auto-enable-existing.html[AWS Documentation,type="documentation"]
 
 Things to note:
 1. After enabling Auto Mode, you'll want to uninstall any components you had installed that are now managed by Auto Mode, like Karpenter or the AWS Load Balancer Controller

@@ -85,7 +85,7 @@ The page ID is a unique string that identifies each page on the documentation si
 For example, if you're viewing this page, the URL in your browser's address bar will look similar to:
 
 ```
-https://docs.aws.amazon.com/view-set-page-id.html
+link:view-set-page-id.html
 ```
 
 The last part of the URL (`view-set-page-id`) is the page ID.
@@ -98,7 +98,7 @@ When creating a new page, you need to set the page ID in the source file. The pa
 . At the top of the file, add the following line. It should be above the first heading.
 +
 ```asciidoc
-[#my-new-page]
+[#my-new-page,type="documentation"]
 ```
 +
 Replace `my-new-page` with the page ID for your new page.

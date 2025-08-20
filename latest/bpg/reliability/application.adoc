@@ -221,8 +221,8 @@ systems. If you want to track your application's state over time, you
 need a monitoring tool like Prometheus or Amazon CloudWatch.
 
 Follow the
-https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html[EKS
-documentation] to install metrics-server in your EKS cluster.
+link:eks/latest/userguide/metrics-server.html[EKS
+documentation,type="documentation"] to install metrics-server in your EKS cluster.
 
 == Horizontal Pod Autoscaler (HPA)
 
@@ -283,8 +283,8 @@ scale it because VPA's current implementation does not perform in-place
 adjustments to Pods; instead, it will recreate the Pod that needs to be
 scaled.
 
-https://docs.aws.amazon.com/eks/latest/userguide/vertical-pod-autoscaler.html[EKS
-Documentation] includes a walkthrough for setting up VPA.
+link:eks/latest/userguide/vertical-pod-autoscaler.html[EKS
+Documentation,type="documentation"] includes a walkthrough for setting up VPA.
 
 https://github.com/FairwindsOps/goldilocks/[Fairwinds Goldilocks]
 project provides a dashboard to visualize VPA recommendations for CPU
@@ -594,8 +594,8 @@ spec:
 The above PDB policy tells Kubernetes to halt the eviction process until
 three or more replicas are available. Node draining respects
 `PodDisruptionBudgets`. During an EKS managed node group upgrade,
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html[nodes
-are drained with a fifteen-minute timeout]. After fifteen minutes, if
+link:eks/latest/userguide/managed-node-update-behavior.html[nodes
+are drained with a fifteen-minute timeout,type="documentation"]. After fifteen minutes, if
 the update is not forced (the option is called Rolling update in the EKS
 console), the update fails. If the update is forced, the pods are
 deleted.
@@ -605,10 +605,10 @@ https://github.com/aws/aws-node-termination-handler[AWS Node Termination
 Handler], which ensures that the Kubernetes control plane responds
 appropriately to events that can cause your EC2 instance to become
 unavailable, such as
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/monitoring-instances-status-check_sched.html[EC2
-maintenance] events and
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-interruptions.html[EC2
-Spot interruptions]. It uses the Kubernetes API to cordon the node to
+link:AWSEC2/latest/UserGuide/monitoring-instances-status-check_sched.html[EC2
+maintenance,type="documentation"] events and
+link:AWSEC2/latest/UserGuide/spot-interruptions.html[EC2
+Spot interruptions,type="documentation"]. It uses the Kubernetes API to cordon the node to
 ensure no new Pods are scheduled, then drains it, terminating any
 running Pods.
 
@@ -701,8 +701,8 @@ growing continuously. It helps if you have an automated way to track
 your applications so you can focus on solving your customer's
 challenges. Cluster-wide monitoring tools like
 https://prometheus.io[Prometheus] or
-https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch
-Container Insights] can monitor your cluster and workload and provide
+link:AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch
+Container Insights,type="documentation"] can monitor your cluster and workload and provide
 you signals when, or preferably, before things go wrong.
 
 Monitoring tools allow you to create alerts that your operations team
@@ -739,8 +739,8 @@ your cluster. Application logs include logs produced by Pods that run
 the business logic applications and Kubernetes system components such as
 CoreDNS, Cluster Autoscaler, Prometheus, etc.
 
-https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html[EKS
-provide five types of control plane logs]:
+link:eks/latest/userguide/control-plane-logs.html[EKS
+provide five types of control plane logs,type="documentation"]:
 
 [arabic]
 . Kubernetes API server component logs
@@ -758,8 +758,8 @@ capture for each cluster in your account
 Collecting application logs requires installing a log aggregator tool
 like http://fluentbit.io[Fluent Bit], https://www.fluentd.org[Fluentd],
 or
-https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[CloudWatch
-Container Insights] in your cluster.
+link:AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[CloudWatch
+Container Insights,type="documentation"] in your cluster.
 
 Kubernetes log aggregator tools run as DaemonSets and scrape container
 logs from nodes. Application logs are then sent to a centralized

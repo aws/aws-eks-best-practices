@@ -28,7 +28,7 @@ For example, in non-production clusters, selectively enable specific log types, 
 
 ==== Stream Logs to S3
 
-Another cost optimization best practice is streaming control plane logs to S3 via CloudWatch Logs subscriptions. Leveraging CloudWatch Logs https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Subscriptions.html[subscriptions] allows you to selectively forward logs to S3 which provides more cost efficient long term storage compared to retaining logs indefinitely in CloudWatch. For example, for production clusters, you can create a critical log group and leverage subscriptions to stream these logs to S3 after 15 days. This will ensure you have have quick access to the logs for analysis but also save on cost by moving logs to a more cost efficient storage.
+Another cost optimization best practice is streaming control plane logs to S3 via CloudWatch Logs subscriptions. Leveraging CloudWatch Logs link:AmazonCloudWatch/latest/logs/Subscriptions.html[subscriptions,type="documentation"] allows you to selectively forward logs to S3 which provides more cost efficient long term storage compared to retaining logs indefinitely in CloudWatch. For example, for production clusters, you can create a critical log group and leverage subscriptions to stream these logs to S3 after 15 days. This will ensure you have have quick access to the logs for analysis but also save on cost by moving logs to a more cost efficient storage.
 
 [IMPORTANT]
 ====
@@ -43,7 +43,7 @@ Amazon CloudWatch's default retention policy is to keep logs indefinitely and ne
 
 In a development environment, a lengthy retention period may not be necessary. But in a production environment, you can set a longer retention policy to meet troubleshooting, compliance, and capacity planning requirements. For example, if you are running an e-commerce application during the peak holiday season the system is under heavier load and issues can arise that may not be immediately noticeable, you will want to set a longer log retention for detailed troubleshooting and post event analysis.
 
-You can https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html#SettingLogRetention[configure your retention periods] in the AWS CloudWatch console or https://docs.aws.amazon.com/cli/latest/reference/logs/put-retention-policy.html[AWS API] with the duration from 1 day to 10 years based on each log group. Having a flexible retention period can save log storage costs, while also maintaining critical logs.
+You can link:AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html#SettingLogRetention[configure your retention periods,type="documentation"] in the AWS CloudWatch console or link:cli/latest/reference/logs/put-retention-policy.html[AWS API,type="documentation"] with the duration from 1 day to 10 years based on each log group. Having a flexible retention period can save log storage costs, while also maintaining critical logs.
 
 === Log Storage Options
 
@@ -82,7 +82,7 @@ However, this will not have an instant affect on your cost savings. For addition
 
 ==== Export to Amazon S3 from CloudWatch
 
-For storing Amazon CloudWatch logs long term, we recommend exporting your Amazon EKS CloudWatch logs to Amazon Simple Storage Service (Amazon S3). You can forward the logs to Amazon S3 bucket by creating an export task via the https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/S3ExportTasksConsole.html[Console] or the API. After you have done so, Amazon S3 presents many options to further reduce cost. You can define your own https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html[Amazon S3 Lifecycle rules] to move your logs to a storage class that a fits your needs, or leverage the https://aws.amazon.com/s3/storage-classes/intelligent-tiering/[Amazon S3 Intelligent-Tiering] storage class to have AWS automatically move data to long-term storage based on your usage pattern. Please refer to this https://aws.amazon.com/blogs/containers/understanding-and-cost-optimizing-amazon-eks-control-plane-logs/[blog] for more details. For example, for your production environment logs reside in CloudWatch for more than 30 days then exported to Amazon S3 bucket. You can then use Amazon Athena to query the data in Amazon S3 bucket if you need to refer back to the logs at a later time.
+For storing Amazon CloudWatch logs long term, we recommend exporting your Amazon EKS CloudWatch logs to Amazon Simple Storage Service (Amazon S3). You can forward the logs to Amazon S3 bucket by creating an export task via the link:AmazonCloudWatch/latest/logs/S3ExportTasksConsole.html[Console,type="documentation"] or the API. After you have done so, Amazon S3 presents many options to further reduce cost. You can define your own link:AmazonS3/latest/userguide/object-lifecycle-mgmt.html[Amazon S3 Lifecycle rules,type="documentation"] to move your logs to a storage class that a fits your needs, or leverage the https://aws.amazon.com/s3/storage-classes/intelligent-tiering/[Amazon S3 Intelligent-Tiering] storage class to have AWS automatically move data to long-term storage based on your usage pattern. Please refer to this https://aws.amazon.com/blogs/containers/understanding-and-cost-optimizing-amazon-eks-control-plane-logs/[blog] for more details. For example, for your production environment logs reside in CloudWatch for more than 30 days then exported to Amazon S3 bucket. You can then use Amazon Athena to query the data in Amazon S3 bucket if you need to refer back to the logs at a later time.
 
 === Reduce Log Levels
 
@@ -244,7 +244,7 @@ If you are using grafana you can use Grafana Lab's Mimirtool to analyze your gra
 
 Collecting metrics at a higher granularity like every second vs every minute can have a big impact on how much telemetry is collected and stored which increases cost. Determine sensible scrape or metrics collection intervals that balance between enough granularity to see transient issues and low enough to be cost effective. Decrease granularity for metrics that are used for capacity planning and larger time window analysis.
 
-Below is a snippet from the default AWS Distro for Opentelemetry (ADOT) EKS Addon Collector https://docs.aws.amazon.com/eks/latest/userguide/deploy-deployment.html[configuration].
+Below is a snippet from the default AWS Distro for Opentelemetry (ADOT) EKS Addon Collector link:eks/latest/userguide/deploy-deployment.html[configuration,type="documentation"].
 
 [IMPORTANT]
 ====
@@ -281,7 +281,7 @@ The primary cost associated with tracing stem from trace storage generation. Wit
 
 === Apply Sampling rules
 
-The X-Ray sampling rate is conservative by default. Define sampling rules where you can control the amount of data that you gather. This will improve performance efficiency while reducing costs. By https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html#xray-console-custom[decreasing the sampling rate], you can collect traces from the request only what your workloads needs while maintaining a lower cost structure.
+The X-Ray sampling rate is conservative by default. Define sampling rules where you can control the amount of data that you gather. This will improve performance efficiency while reducing costs. By link:xray/latest/devguide/xray-console-sampling.html#xray-console-custom[decreasing the sampling rate,type="documentation"], you can collect traces from the request only what your workloads needs while maintaining a lower cost structure.
 
 For example, you have java application that you want to debug the traces of all the requests for 1 problematic route.
 

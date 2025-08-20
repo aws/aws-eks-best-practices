@@ -25,8 +25,8 @@ includes a reduced attack surface, a disk image that is verified on
 boot, and enforced permission boundaries using SELinux.
 
 Alternately, use the
-https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html[EKS
-optimized AMI] for your Kubernetes worker nodes. The EKS optimized AMI
+link:eks/latest/userguide/eks-optimized-amis.html[EKS
+optimized AMI,type="documentation"] for your Kubernetes worker nodes. The EKS optimized AMI
 is released regularly and contains a minimal set of OS packages and
 binaries necessary to run your containerized workloads.
 
@@ -59,8 +59,8 @@ all of the nodes in the group have been replaced with the latest AMI.
 Alternatively, you can add instances to a new node group while you
 sequentially cordon and drain nodes from the old node group until all of
 the nodes have been replaced. EKS
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[managed
-node groups] uses the first approach and will display a message in the
+link:eks/latest/userguide/managed-node-groups.html[managed
+node groups,type="documentation"] uses the first approach and will display a message in the
 console to upgrade your workers when a new AMI becomes available.
 `eksctl` also has a mechanism for creating node groups with the latest
 AMI and for gracefully cordoning and draining pods from nodes groups
@@ -99,8 +99,8 @@ The CIS Amazon EKS Benchmark].
 === Minimize access to worker nodes
 
 Instead of enabling SSH access, use
-https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html[SSM
-Session Manager] when you need to remote into a host. Unlike SSH keys
+link:systems-manager/latest/userguide/session-manager.html[SSM
+Session Manager,type="documentation"] when you need to remote into a host. Unlike SSH keys
 which can be lost, copied, or shared, Session Manager allows you to
 control access to EC2 instances using IAM. Moreover, it provides an
 audit trail and log of the commands that were run on the instance.
@@ -161,8 +161,8 @@ enable node access via SSM Systems Manager.
 ----
 
 With this policy in place and the
-https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html[Session
-Manager plugin] installed, you can then run
+link:systems-manager/latest/userguide/session-manager-working-with-install-plugin.html[Session
+Manager plugin,type="documentation"] installed, you can then run
 
 [source,bash]
 ----
@@ -173,7 +173,7 @@ to access the node.
 
 [NOTE]
 ====
-You may also want to consider adding permissions to https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging[enable Session Manager logging].
+You may also want to consider adding permissions to link:systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html#create-iam-instance-profile-ssn-logging[enable Session Manager logging,type="documentation"].
 ====
 
 === Deploy workers onto private subnets
@@ -189,22 +189,22 @@ implement restrictive AWS security group rules to limit their exposure.
 === Run Amazon Inspector to assess hosts for exposure, vulnerabilities, and deviations from best practices
 
 You can use
-https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html[Amazon
-Inspector] to check for unintended network access to your nodes and for
+link:inspector/latest/user/what-is-inspector.html[Amazon
+Inspector,type="documentation"] to check for unintended network access to your nodes and for
 vulnerabilities on the underlying Amazon EC2 instances.
 
 Amazon Inspector can provide common vulnerabilities and exposures (CVE)
 data for your Amazon EC2 instances only if the Amazon EC2 Systems
 Manager (SSM) agent is installed and enabled. This agent is preinstalled
 on several
-https://docs.aws.amazon.com/systems-manager/latest/userguide/ami-preinstalled-agent.html[Amazon
-Machine Images (AMIs)] including
-https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[EKS
-optimized Amazon Linux AMIs]. Regardless of SSM agent status, all of
+link:systems-manager/latest/userguide/ami-preinstalled-agent.html[Amazon
+Machine Images (AMIs),type="documentation"] including
+link:eks/latest/userguide/eks-optimized-ami.html[EKS
+optimized Amazon Linux AMIs,type="documentation"]. Regardless of SSM agent status, all of
 your Amazon EC2 instances are scanned for network reachability issues.
 For more information about configuring scans for Amazon EC2, see
-https://docs.aws.amazon.com/inspector/latest/user/enable-disable-scanning-ec2.html[Scanning
-Amazon EC2 instances].
+link:inspector/latest/user/enable-disable-scanning-ec2.html[Scanning
+Amazon EC2 instances,type="documentation"].
 
 [IMPORTANT]
 ====

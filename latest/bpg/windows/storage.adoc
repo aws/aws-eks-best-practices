@@ -11,13 +11,13 @@ Before the introduction of the Container Storage Interface (CSI), all volume plu
 
 Out-of-tree volume plugins are developed independently of the Kubernetes code base, and are deployed (installed) on Kubernetes clusters as extensions. This gives vendors the ability to update drivers out-of-band, i.e. separately from the Kubernetes release cycle. This is largely possible because Kubernetes has created a storage interface or CSI that provides vendors a standard way of interfacing with k8s.
 
-You can check more about Amazon Elastic Kubernetes Services (EKS) storage classes and CSI Drivers on https://docs.aws.amazon.com/eks/latest/userguide/storage.html
+You can check more about Amazon Elastic Kubernetes Services (EKS) storage classes and CSI Drivers on link:eks/latest/userguide/storage.html
 
 == In-tree Volume Plugin for Windows
 
 Kubernetes volumes enable applications, with data persistence requirements, to be deployed on Kubernetes. The management of persistent volumes consists of provisioning/de-provisioning/resizing of volumes, attaching/detaching a volume to/from a Kubernetes node, and mounting/dismounting a volume to/from individual containers in a pod. The code for implementing these volume management actions for a specific storage back-end or protocol is shipped in the form of a Kubernetes volume plugin *(In-tree Volume Plugins)*. On Amazon Elastic Kubernetes Services (EKS) the following class of Kubernetes volume plugins are supported on Windows:
 
-_In-tree Volume Plugin:_ https://kubernetes.io/docs/concepts/storage/volumes/#awselasticblockstore[awsElasticBlockStore]
+_In-tree Volume Plugin:_ https://kubernetes.io/docs/concepts/storage/volumes/#awselasticblockstore[awsElasticBlockStore,type="documentation"]
 
 In order to use In-tree volume plugin on Windows nodes, it is necessary to create an additional StorageClass to use NTFS as the fsType. On EKS, the default StorageClass uses ext4 as the default fsType.
 
@@ -185,7 +185,7 @@ Code associated with CSI plugins ship as out-of-tree scripts and binaries that a
 
 CSI node plugins (especially those associated with persistent volumes exposed as either block devices or over a shared file-system) need to perform various privileged operations like scanning of disk devices, mounting of file systems, etc. These operations differ for each host operating system. For Linux worker nodes, containerized CSI node plugins are typically deployed as privileged containers. For Windows worker nodes, privileged operations for containerized CSI node plugins is supported using https://github.com/kubernetes-csi/csi-proxy[csi-proxy], a community-managed, stand-alone binary that needs to be pre-installed on each Windows node.
 
-https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-windows-ami.html[The Amazon EKS Optimized Windows AMI] includes CSI-proxy starting from April 2022. Customers can use the https://github.com/kubernetes-csi/csi-driver-smb[SMB CSI Driver] on Windows nodes to access https://aws.amazon.com/fsx/windows/[Amazon FSx for Windows File Server], https://aws.amazon.com/fsx/netapp-ontap/[Amazon FSx for NetApp ONTAP SMB Shares], and/or https://aws.amazon.com/storagegateway/file/[AWS Storage Gateway -- File Gateway].
+link:eks/latest/userguide/eks-optimized-windows-ami.html[The Amazon EKS Optimized Windows AMI,type="documentation"] includes CSI-proxy starting from April 2022. Customers can use the https://github.com/kubernetes-csi/csi-driver-smb[SMB CSI Driver] on Windows nodes to access https://aws.amazon.com/fsx/windows/[Amazon FSx for Windows File Server], https://aws.amazon.com/fsx/netapp-ontap/[Amazon FSx for NetApp ONTAP SMB Shares], and/or https://aws.amazon.com/storagegateway/file/[AWS Storage Gateway -- File Gateway].
 
 The following https://aws.amazon.com/blogs/modernizing-with-aws/using-smb-csi-driver-on-amazon-eks-windows-nodes/[blog] has implementation details on how to setup SMB CSI Driver to use Amazon FSx for Windows File Server as a persistent storage for Windows Pods.
 

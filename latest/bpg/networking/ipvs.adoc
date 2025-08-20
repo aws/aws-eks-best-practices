@@ -4,7 +4,7 @@
 :info_doctype: section
 
 
-EKS in IP Virtual Server (IPVS) mode solves the https://docs.aws.amazon.com/eks/latest/best-practices/control-plane.html#reliability_cprunning_large_clusters[network latency issue] often seen when running large clusters with over 1,000 services with kube-proxy running in legacy iptables mode. This performance issue is the result of sequential processing of iptables packet filtering rules for each packet. This latency issue has been addressed in nftables, the successor to iptables. However, as of the time of this writing, https://kubernetes.io/docs/reference/networking/virtual-ips/#proxy-mode-nftables[kube-proxy is still under development] to make use of nftables. To get around this issue, you can configure your cluster to run `kube-proxy` in IPVS mode.
+EKS in IP Virtual Server (IPVS) mode solves the link:eks/latest/best-practices/control-plane.html#reliability_cprunning_large_clusters[network latency issue,type="documentation"] often seen when running large clusters with over 1,000 services with kube-proxy running in legacy iptables mode. This performance issue is the result of sequential processing of iptables packet filtering rules for each packet. This latency issue has been addressed in nftables, the successor to iptables. However, as of the time of this writing, https://kubernetes.io/docs/reference/networking/virtual-ips/#proxy-mode-nftables[kube-proxy is still under development] to make use of nftables. To get around this issue, you can configure your cluster to run `kube-proxy` in IPVS mode.
 
 == Overview
 
@@ -81,7 +81,7 @@ sudo modprobe nf_conntrack
 
 [NOTE]
 ====
-It is highly recommended to execute these worker node steps as part of you worker node's bootstrapping process via https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html[user data script] or in any build scripts executed to build a custom worker node AMI.
+It is highly recommended to execute these worker node steps as part of you worker node's bootstrapping process via link:AWSEC2/latest/UserGuide/user-data.html[user data script,type="documentation"] or in any build scripts executed to build a custom worker node AMI.
 ====
 
 Next, you will configure your cluster's `kube-proxy` DaemonSet to run in IPVS mode. This is done by setting the `kube-proxy` `mode` to `ipvs` and the `ipvs scheduler` to one of the load balancing options listed above, for example: `rr` for Round Robin.

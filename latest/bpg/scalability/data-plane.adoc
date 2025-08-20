@@ -11,7 +11,7 @@ Selecting EC2 instance types is possibly one of the hardest decisions customers 
 
 == Automatic node autoscaling
 
-We recommend you use node autoscaling that reduces toil and integrates deeply with Kubernetes. https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[Managed node groups] and https://karpenter.sh/[Karpenter] are recommended for large scale clusters.
+We recommend you use node autoscaling that reduces toil and integrates deeply with Kubernetes. link:eks/latest/userguide/managed-node-groups.html[Managed node groups,type="documentation"] and https://karpenter.sh/[Karpenter] are recommended for large scale clusters.
 
 Managed node groups will give you the flexibility of Amazon EC2 Auto Scaling groups with added benefits for managed upgrades and configuration. It can be scaled with the https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler[Kubernetes Cluster Autoscaler] and is a common option for clusters that have a variety of compute needs.
 
@@ -106,17 +106,17 @@ spec:
 
 Compute resources include EC2 instances and availability zones. Using compute resources effectively will increase your scalability, availability, performance, and reduce your total cost. Efficient resource usage is extremely difficult to predict in an autoscaling environment with multiple applications. https://karpenter.sh/[Karpenter] was created to provision instances on-demand based on the workload needs to maximize utilization and flexibility.
 
-Karpenter allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints for specific nodes. See the https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html[Karpenter best practices] for more information. Consider enabling https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html#_scheduling_pods[consolidation] in your Karpenter provisioner to replace nodes that are under utilized.
+Karpenter allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints for specific nodes. See the link:eks/latest/best-practices/karpenter.html[Karpenter best practices,type="documentation"] for more information. Consider enabling link:eks/latest/best-practices/karpenter.html#_scheduling_pods[consolidation,type="documentation"] in your Karpenter provisioner to replace nodes that are under utilized.
 
 == Automate Amazon Machine Image (AMI) updates
 
 Keeping worker node components up to date will make sure you have the latest security patches and compatible features with the Kubernetes API. Updating the kubelet is the most important component for Kubernetes functionality, but automating OS, kernel, and locally installed application patches will reduce maintenance as you scale.
 
-It is recommended that you use the latest https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[Amazon EKS optimized Amazon Linux 2] or https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html[Amazon EKS optimized Bottlerocket AMI] for your node image. Karpenter will automatically use the https://karpenter.sh/docs/concepts/nodepools/#instance-types[latest available AMI] to provision new nodes in the cluster. Managed node groups will update the AMI during a https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html[node group update] but will not update the AMI ID at node provisioning time.
+It is recommended that you use the latest link:eks/latest/userguide/eks-optimized-ami.html[Amazon EKS optimized Amazon Linux 2,type="documentation"] or link:eks/latest/userguide/eks-optimized-ami-bottlerocket.html[Amazon EKS optimized Bottlerocket AMI,type="documentation"] for your node image. Karpenter will automatically use the https://karpenter.sh/docs/concepts/nodepools/#instance-types[latest available AMI] to provision new nodes in the cluster. Managed node groups will update the AMI during a link:eks/latest/userguide/update-managed-node-group.html[node group update,type="documentation"] but will not update the AMI ID at node provisioning time.
 
-For Managed Node Groups you need to update the Auto Scaling Group (ASG) launch template with new AMI IDs when they are available for patch releases. AMI minor versions (e.g. 1.23.5 to 1.24.3) will be available in the EKS console and API as https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html[upgrades for the node group]. Patch release versions (e.g. 1.23.5 to 1.23.6) will not be presented as upgrades for the node groups. If you want to keep your node group up to date with AMI patch releases you need to create new launch template version and let the node group replace instances with the new AMI release.
+For Managed Node Groups you need to update the Auto Scaling Group (ASG) launch template with new AMI IDs when they are available for patch releases. AMI minor versions (e.g. 1.23.5 to 1.24.3) will be available in the EKS console and API as link:eks/latest/userguide/update-managed-node-group.html[upgrades for the node group,type="documentation"]. Patch release versions (e.g. 1.23.5 to 1.23.6) will not be presented as upgrades for the node groups. If you want to keep your node group up to date with AMI patch releases you need to create new launch template version and let the node group replace instances with the new AMI release.
 
-You can find the latest available AMI from https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[this page] or use the AWS CLI.
+You can find the latest available AMI from link:eks/latest/userguide/eks-optimized-ami.html[this page,type="documentation"] or use the AWS CLI.
 
 ----
 aws ssm get-parameter \
@@ -195,7 +195,7 @@ spec:
 
 == Avoid instances with low EBS attach limits if workloads use EBS volumes
 
-EBS is one of the easiest ways for workloads to have persistent storage, but it also comes with scalability limitations. Each instance type has a maximum number of https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/volume_limits.html[EBS volumes that can be attached]. Workloads need to declare what instance types they should run on and limit the number of replicas on a single instance with Kubernetes taints.
+EBS is one of the easiest ways for workloads to have persistent storage, but it also comes with scalability limitations. Each instance type has a maximum number of link:AWSEC2/latest/UserGuide/volume_limits.html[EBS volumes that can be attached,type="documentation"]. Workloads need to declare what instance types they should run on and limit the number of replicas on a single instance with Kubernetes taints.
 
 == Disable unnecessary logging to disk
 
@@ -217,7 +217,7 @@ It takes seconds to install a package on an existing Linux host without disrupti
 
 To replace an instance you first need to create, validate, and distribute new AMIs. The instance needs to have a replacement created, and the old instance needs to be cordoned and drained. Then workloads need to be created on the new instance, verified, and repeated for all instances that need to be patched. It takes hours, days, or weeks to replace instances safely without disrupting workloads.
 
-Amazon recommends using immutable infrastructure that is built, tested, and promoted from an automated, declarative system, but if you have a requirement to patch systems quickly then you will need to patch systems in place and replace them as new AMIs are made available. Because of the large time differential between patching and replacing systems we recommend using https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html[AWS Systems Manager Patch Manager] to automate patching nodes when required to do so.
+Amazon recommends using immutable infrastructure that is built, tested, and promoted from an automated, declarative system, but if you have a requirement to patch systems quickly then you will need to patch systems in place and replace them as new AMIs are made available. Because of the large time differential between patching and replacing systems we recommend using link:systems-manager/latest/userguide/systems-manager-patch.html[AWS Systems Manager Patch Manager,type="documentation"] to automate patching nodes when required to do so.
 
 Patching nodes will allow you to quickly roll out security updates and replace the instances on a regular schedule after your AMI has been updated. If you are using an operating system with a read-only root file system like https://flatcar-linux.org/[Flatcar Container Linux] or https://github.com/bottlerocket-os/bottlerocket[Bottlerocket OS] we recommend using the update operators that work with those operating systems. The https://github.com/flatcar/flatcar-linux-update-operator[Flatcar Linux update operator] and https://github.com/bottlerocket-os/bottlerocket-update-operator[Bottlerocket update operator] will reboot instances to keep nodes up to date automatically.
 

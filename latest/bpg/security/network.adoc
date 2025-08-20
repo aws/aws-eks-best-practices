@@ -58,7 +58,7 @@ evaluation does not affect the policy result.
 
 [IMPORTANT]
 ====
-When you first provision an EKS cluster, VPC CNI Network Policy functionality is not enabled by default. Ensure you deployed supported VPC CNI Add-on version and set `ENABLE_NETWORK_POLICY` flag to `true` on the vpc-cni add-on to enable this. Refer https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html[Amazon EKS User guide] for detailed instructions.
+When you first provision an EKS cluster, VPC CNI Network Policy functionality is not enabled by default. Ensure you deployed supported VPC CNI Add-on version and set `ENABLE_NETWORK_POLICY` flag to `true` on the vpc-cni add-on to enable this. Refer link:eks/latest/userguide/managing-vpc-cni.html[Amazon EKS User guide,type="documentation"] for detailed instructions.
 ====
 
 == Recommendations
@@ -218,8 +218,8 @@ contains_label(arr, val) {
 Enable the EKS Control plane controller manager logs to diagnose the
 network policy functionality. You can stream the control plane logs to a
 CloudWatch log group and use
-https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html[CloudWatch
-Log insights] to perform advanced queries. From the logs, you can view
+link:AmazonCloudWatch/latest/logs/AnalyzingLogData.html[CloudWatch
+Log insights,type="documentation"] to perform advanced queries. From the logs, you can view
 what pod endpoint objects are resolved to a Network Policy,
 reconcilation status of the policies, and debug if the policy is working
 as expected.
@@ -228,8 +228,8 @@ In addition, Amazon VPC CNI allows you to enable the collection and
 export of policy enforcement logs to
 https://aws.amazon.com/cloudwatch/[Amazon Cloudwatch] from the EKS
 worker nodes. Once enabled, you can leverage
-https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch
-Container Insights] to provide insights on your usage related to Network
+link:AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch
+Container Insights,type="documentation"] to provide insights on your usage related to Network
 Policies.
 
 Amazon VPC CNI also ships an SDK that provides an interface to interact
@@ -246,8 +246,8 @@ sudo /opt/cni/bin/aws-eks-na-cli ebpf progs
 
 ==== Log network traffic metadata
 
-https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html[AWS VPC
-Flow Logs] captures metadata about the traffic flowing through a VPC,
+link:vpc/latest/userguide/flow-logs.html[AWS VPC
+Flow Logs,type="documentation"] captures metadata about the traffic flowing through a VPC,
 such as source and destination IP address and port along with
 accepted/dropped packets. This information could be analyzed to look for
 suspicious or unusual activity between resources within the VPC,
@@ -259,8 +259,8 @@ metadata, making it easier to decipher the traffic flows between pods.
 == Security groups
 
 EKS uses
-https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS
-VPC Security Groups] (SGs) to control the traffic between the Kubernetes
+link:vpc/latest/userguide/VPC_SecurityGroups.html[AWS
+VPC Security Groups,type="documentation"] (SGs) to control the traffic between the Kubernetes
 control plane and the cluster's worker nodes. Security groups are also
 used to control the traffic between worker nodes, and other VPC
 resources, and external IP addresses. When you provision an EKS cluster
@@ -274,7 +274,7 @@ Prior to Kubernetes version 1.14 and EKS version eks.3, there were
 separate security groups configured for the EKS control plane and node
 groups. The minimum and suggested rules for the control plane and node
 group security groups can be found at
-https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html.
+link:eks/latest/userguide/sec-group-reqs.html.
 The minimum rules for the _control plane security group_ allows port 443
 inbound from the worker node SG. This rule is what allows the kubelets
 to communicate with the Kubernetes API server. It also includes port
@@ -288,7 +288,7 @@ If you need to control communication between services that run within
 the cluster and service the run outside the cluster such as an RDS
 database, consider
 https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html[security
-groups for pods]. With security groups for pods, you can assign an
+groups for pods,type="documentation"]. With security groups for pods, you can assign an
 *existing* security group to a collection of pods.
 
 [WARNING]
@@ -302,7 +302,7 @@ a `SecurityGroupPolicy` object and specifying a `PodSelector` or a
 the SGs referenced in the `SecurityGroupPolicy` to all pods in a
 namespace or all Service Accounts in a namespace. Be sure you've
 familiarized yourself with all the
-https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations[considerations]
+link:eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations[considerations,type="documentation"]
 before implementing security groups for pods.
 
 [IMPORTANT]
@@ -312,7 +312,7 @@ If you use SGs for pods you *must* create SGs that allow port 53 outbound to the
 
 [IMPORTANT]
 ====
-The https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups[limits for security groups] still apply when using security groups for pods so use them judiciously.
+The link:vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups[limits for security groups,type="documentation"] still apply when using security groups for pods so use them judiciously.
 ====
 
 [IMPORTANT]
@@ -322,7 +322,7 @@ You *must* create rules for inbound traffic from the cluster security group (kub
 
 [IMPORTANT]
 ====
-Security groups for pods relies on a feature known as https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html[ENI trunking] which was created to increase the ENI density of an EC2 instance. When a pod is assigned to an SG, a VPC controller associates a branch ENI from the node group with the pod. If there aren't enough branch ENIs available in a node group at the time the pod is scheduled, the pod will stay in pending state. The number of branch ENIs an instance can support varies by instance type/family. See https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types for further details.
+Security groups for pods relies on a feature known as link:AmazonECS/latest/developerguide/container-instance-eni.html[ENI trunking,type="documentation"] which was created to increase the ENI density of an EC2 instance. When a pod is assigned to an SG, a VPC controller associates a branch ENI from the node group with the pod. If there aren't enough branch ENIs available in a node group at the time the pod is scheduled, the pod will stay in pending state. The number of branch ENIs an instance can support varies by instance type/family. See link:eks/latest/userguide/security-groups-for-pods.html#supported-instance-types for further details.
 ====
 
 While security groups for pods offers an AWS-native way to control
@@ -335,7 +335,7 @@ can use an egress gateway to restrict network egress to specific, fully
 qualified domains or IP addresses. For further information about this
 option, read the three part series on
 https://istio.io/blog/2019/egress-traffic-control-in-istio-part-1/[egress
-traffic control in Istio].
+traffic control in Istio,type="documentation"].
 
 == When to use Network Policy vs Security Group for Pods?
 
@@ -525,8 +525,8 @@ Traffic exchanged between the following Nitro instance types, e.g. C5n,
 G4, I3en, M5dn, M5n, P3dn, R5dn, and R5n, is automatically encrypted by
 default. When there's an intermediate hop, like a transit gateway or a
 load balancer, the traffic is not encrypted. See
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html#encryption-transit[Encryption
-in transit] for further details on encryption in transit as well as the
+link:AWSEC2/latest/UserGuide/data-protection.html#encryption-transit[Encryption
+in transit,type="documentation"] for further details on encryption in transit as well as the
 complete list of instances types that support network encryption by
 default.
 
@@ -540,7 +540,7 @@ traffic, and IPsec ESP for fast datapath traffic.
 
 Encryption in transit can also be implemented with a service mesh like
 App Mesh, Linkerd v2, and Istio. AppMesh supports
-https://docs.aws.amazon.com/app-mesh/latest/userguide/mutual-tls.html[mTLS]
+link:app-mesh/latest/userguide/mutual-tls.html[mTLS,type="documentation"]
 with X.509 certificates or Envoy's Secret Discovery Service(SDS).
 Linkerd and Istio both have support for mTLS.
 
@@ -554,10 +554,10 @@ mTLS using X.509 certificates]
 TLS using SPIRE (SDS)]
 
 App Mesh also supports
-https://docs.aws.amazon.com/app-mesh/latest/userguide/virtual-node-tls.html[TLS
-encryption] with a private certificate issued by
-https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html[AWS
-Certificate Manager] (ACM) or a certificate stored on the local file
+link:app-mesh/latest/userguide/virtual-node-tls.html[TLS
+encryption,type="documentation"] with a private certificate issued by
+link:acm/latest/userguide/acm-overview.html[AWS
+Certificate Manager,type="documentation"] (ACM) or a certificate stored on the local file
 system of the virtual node.
 
 The https://github.com/aws/aws-app-mesh-examples[aws-app-mesh-examples]
@@ -590,16 +590,16 @@ the SSL offload at the Ingress or the load balancer.
 ==== Use encryption with AWS Elastic load balancers
 
 The
-https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html[AWS
-Application Load Balancer] (ALB) and
-https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html[Network
-Load Balancer] (NLB) both have support for transport encryption (SSL and
+link:elasticloadbalancing/latest/application/introduction.html[AWS
+Application Load Balancer,type="documentation"] (ALB) and
+link:elasticloadbalancing/latest/network/introduction.html[Network
+Load Balancer,type="documentation"] (NLB) both have support for transport encryption (SSL and
 TLS). The `alb.ingress.kubernetes.io/certificate-arn` annotation for
 the ALB lets you to specify which certificates to add to the ALB. If you
 omit the annotation the controller will attempt to add certificates to
 listeners that require it by matching the available
-https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html[AWS
-Certificate Manager (ACM)] certificates using the host field. Starting
+link:acm/latest/userguide/acm-overview.html[AWS
+Certificate Manager (ACM),type="documentation"] certificates using the host field. Starting
 with EKS v1.15 you can use the
 `service.beta.kubernetes.io/aws-load-balancer-ssl-cert` annotation
 with the NLB as shown in the example below.
@@ -701,8 +701,8 @@ more about ACM Private CA and its benefits here].
 ==== ACM Setup Instructions
 
 Start by creating a Private CA by following procedures provided in the
-https://docs.aws.amazon.com/acm-pca/latest/userguide/create-CA.html[ACM
-Private CA tech docs]. Once you have a Private CA, install cert-manager
+link:acm-pca/latest/userguide/create-CA.html[ACM
+Private CA tech docs,type="documentation"]. Once you have a Private CA, install cert-manager
 using https://cert-manager.io/docs/installation/[regular installation
 instructions]. After installing cert-manager, install the Private CA
 Kubernetes cert-manager plugin by following the
@@ -735,8 +735,8 @@ Private CA:
 }
 ----
 
-https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html[Service
-Roles for IAM Accounts&#44; or IRSA] can also be used. Please see the
+link:eks/latest/userguide/iam-roles-for-service-accounts.html[Service
+Roles for IAM Accounts&#44; or IRSA,type="documentation"] can also be used. Please see the
 Additional Resources section below for complete examples.
 
 Create an Issuer in Amazon EKS by creating a Custom Resource Definition
@@ -967,8 +967,8 @@ up end-to-end TLS encryption on Amazon EKS with the new AWS Load
 Balancer Controller and ACM Private CA].
 * https://github.com/cert-manager/aws-privateca-issuer[Private CA
 Kubernetes cert-manager plugin on GitHub].
-* https://docs.aws.amazon.com/acm-pca/latest/userguide/PcaKubernetes.html[Private
-CA Kubernetes cert-manager plugin user guide].
+* link:acm-pca/latest/userguide/PcaKubernetes.html[Private
+CA Kubernetes cert-manager plugin user guide,type="documentation"].
 * https://aws.amazon.com/blogs/security/how-to-use-aws-private-certificate-authority-short-lived-certificate-mode[How
 to use AWS Private Certificate Authority short-lived certificate mode]
 * https://github.com/monzo/egress-operator[egress-operator] An operator

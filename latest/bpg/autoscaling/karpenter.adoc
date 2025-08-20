@@ -35,8 +35,8 @@ provision right sized nodes based on these specifications.
 *Reasons to use Karpenter*
 
 Before the launch of Karpenter, Kubernetes users relied primarily on
-https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html[Amazon
-EC2 Auto Scaling groups] and the
+link:autoscaling/ec2/userguide/AutoScalingGroup.html[Amazon
+EC2 Auto Scaling groups,type="documentation"] and the
 https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler[Kubernetes
 Cluster Autoscaler] (CAS) to dynamically adjust the compute capacity of
 their clusters. With Karpenter, you don't need to create dozens of node
@@ -88,11 +88,11 @@ Karpenter brings scaling management closer to Kubernetes native APIs
 than do
 https://aws.amazon.com/blogs/containers/amazon-eks-cluster-multi-zone-auto-scaling-groups/[Autoscaling
 Groups] (ASGs) and
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[Managed
-Node Groups] (MNGs). ASGs and MNGs are AWS-native abstractions where
+link:eks/latest/userguide/managed-node-groups.html[Managed
+Node Groups,type="documentation"] (MNGs). ASGs and MNGs are AWS-native abstractions where
 scaling is triggered based on AWS level metrics, such as EC2 CPU load.
-https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html#cluster-autoscaler[Cluster
-Autoscaler] bridges the Kubernetes abstractions into AWS abstractions,
+link:eks/latest/userguide/autoscaling.html#cluster-autoscaler[Cluster
+Autoscaler,type="documentation"] bridges the Kubernetes abstractions into AWS abstractions,
 but loses some flexibility because of that, such as scheduling for a
 specific availability zone.
 
@@ -177,7 +177,7 @@ interruption handling in their clusters.
 When provisioning an EKS Cluster into a VPC with no route to the
 internet, you have to make sure you've configured your environment in
 accordance with the private cluster
-https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements[requirements]
+link:eks/latest/userguide/private-clusters.html#private-cluster-requirements[requirements,type="documentation"]
 that appear in EKS documentation. In addition, you need to make sure
 you've created an STS VPC regional endpoint in your VPC. If not, you
 will see errors similar to those that appear below.
@@ -206,8 +206,8 @@ endpoint in your VPC, it will cause the following error:
 ----
 
 There is no *_VPC endpoint for the
-https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-pelong.html[Price
-List Query API]_*. As a result, pricing data will go stale over time.
+link:awsaccountbilling/latest/aboutv2/using-pelong.html[Price
+List Query API,type="documentation"]_*. As a result, pricing data will go stale over time.
 Karpenter gets around this by including on-demand pricing data in its
 binary, but only updates that data when Karpenter is upgraded. Failed
 requests for pricing data will result in the following error messages:
@@ -390,8 +390,8 @@ Karpenter documentation for information on using
 === Avoid overly constraining the Instance Types that Karpenter can provision, especially when utilizing Spot
 
 When using Spot, Karpenter uses the
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html[Price
-Capacity Optimized] allocation strategy to provision EC2 instances. This
+link:AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html[Price
+Capacity Optimized,type="documentation"] allocation strategy to provision EC2 instances. This
 strategy instructs EC2 to provision instances from the deepest pools for
 the number of instances that you are launching and have the lowest risk
 of interruption. EC2 Fleet then requests Spot instances from the lowest
@@ -444,7 +444,7 @@ Karpenter for node provisioning.
 
 If you need to run highly available applications, follow general EKS
 best practice
-https://docs.aws.amazon.com/eks/latest/best-practices/application.html#_recommendations[recommendations].
+link:eks/latest/best-practices/application.html#_recommendations[recommendations,type="documentation"].
 See
 https://karpenter.sh/docs/concepts/scheduling/#topology-spread[Topology
 Spread] in Karpenter documentation for details on how to spread pods
@@ -496,11 +496,11 @@ Karpenter controller will write
 `memory resource usage of 1001 exceeds limit of 1000` or a similar
 looking message to the controller's logs. If you are routing your
 container logs to CloudWatch logs, you can create a
-https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html[metrics
-filter] to look for specific patterns or terms in your logs and then
+link:AmazonCloudWatch/latest/logs/MonitoringLogData.html[metrics
+filter,type="documentation"] to look for specific patterns or terms in your logs and then
 create a
-https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch
-alarm] to alert you when your configured metrics threshold is breached.
+link:AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html[CloudWatch
+alarm,type="documentation"] to alert you when your configured metrics threshold is breached.
 
 For further information using limits with Karpenter, see
 https://karpenter.sh/docs/concepts/nodepools/#speclimits[Setting
@@ -530,14 +530,14 @@ You may also want to enable Cost Anomaly Detection which is an AWS Cost
 Management feature that uses machine learning to continuously monitor
 your cost and usage to detect unusual spends. Further information can be
 found in the
-https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html[AWS
-Cost Anomaly Detection Getting Started] guide. If you've gone so far as
+link:cost-management/latest/userguide/getting-started-ad.html[AWS
+Cost Anomaly Detection Getting Started,type="documentation"] guide. If you've gone so far as
 to create a budget in AWS Budgets, you can also configure an action to
 notify you when a specific threshold has been breached. With budget
 actions you can send an email, post a message to an SNS topic, or send a
 message to a chatbot like Slack. For further information see
-https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html[Configuring
-AWS Budgets actions].
+link:cost-management/latest/userguide/budgets-controls.html[Configuring
+AWS Budgets actions,type="documentation"].
 
 === Use the karpenter.sh/do-not-disrupt annotation to prevent Karpenter from deprovisioning a node
 
@@ -590,8 +590,8 @@ information about your workloads requirements is accurate. This is
 particularly important if using Karpenter's consolidation feature.
 
 See
-https://docs.aws.amazon.com/eks/latest/best-practices/data-plane.html#_recommendations[Configure
-and Size Resource Requests/Limits for all Workloads]
+link:eks/latest/best-practices/data-plane.html#_recommendations[Configure
+and Size Resource Requests/Limits for all Workloads,type="documentation"]
 
 == CoreDNS recommendations
 
@@ -602,11 +602,11 @@ Karpenter's dynamic nature in rapidly terminating/creating new nodes to
 align with demand, it is advisable to adhere to the following best
 practices:
 
-https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html#_coredns_lameduck_duration[CoreDNS
-lameduck duration]
+link:eks/latest/best-practices/scale-cluster-services.html#_coredns_lameduck_duration[CoreDNS
+lameduck duration,type="documentation"]
 
-https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html#_coredns_readiness_probe[CoreDNS
-readiness probe]
+link:eks/latest/best-practices/scale-cluster-services.html#_coredns_readiness_probe[CoreDNS
+readiness probe,type="documentation"]
 
 This will ensure that DNS queries are not directed to a CoreDNS Pod that
 is not yet ready or has been terminated.

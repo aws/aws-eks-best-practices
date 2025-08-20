@@ -96,7 +96,7 @@ Sampling and filtering reduces the number of metrics and logs that are collected
 
 The ability to configure sampling depends on the agent software and can be implemented at different points of ingestion. It's important to add sampling as close to the agent as possible because that is likely where the API server calls happen. Contact your provider to find out more about sampling support.
 
-If you are using CloudWatch and CloudWatch Logs you can add agent filtering using patterns https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html[described in the documentation].
+If you are using CloudWatch and CloudWatch Logs you can add agent filtering using patterns link:AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html[described in the documentation,type="documentation"].
 
 To avoid losing logs and metrics you should send your data to a system that can buffer data in case of an outage on the receiving endpoint. With fluentbit you can use https://docs.fluentbit.io/manual/pipeline/outputs/firehose[Amazon Kinesis Data Firehose] to temporarily keep data which can reduce the chance of overloading your final data storage location.
 

@@ -28,7 +28,7 @@ image::eks-fargate-costexplorer.png[Cost Explorer - EKS Fargate]
 
 ==== Tagging of Resources
 
-Amazon EKS supports https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html[adding AWS tags] to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
+Amazon EKS supports link:eks/latest/userguide/eks-using-tags.html[adding AWS tags,type="documentation"] to your Amazon EKS clusters. This makes it easy to control access to the EKS API for managing your clusters. Tags added to an EKS cluster are specific to the AWS EKS cluster resource, they do not propagate to other AWS resources used by the cluster such as EC2 instances or load balancers. Today, cluster tagging is supported for all new and existing EKS clusters via the AWS API, Console, and SDKs.
 
 AWS Fargate is a technology that provides on-demand, right-sized compute capacity for containers. Before you can schedule pods on Fargate in your cluster, you must define at least one Fargate profile that specifies which pods should use Fargate when they are launched.
 
@@ -45,7 +45,7 @@ Adding and Listing tags to an EKS cluster:
      }
  }
 
-After you activate cost allocation tags in the https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html[AWS Cost Explorer], AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.
+After you activate cost allocation tags in the link:awsaccountbilling/latest/aboutv2/cost-alloc-tags.html[AWS Cost Explorer,type="documentation"], AWS uses the cost allocation tags to organize your resource costs on your cost allocation report, to make it easier for you to categorize and track your AWS costs.
 
 Tags don't have any semantic meaning to Amazon EKS and are interpreted strictly as a string of characters. For example, you can define a set of tags for your Amazon EKS clusters to help you track each cluster's owner and stack level.
 
@@ -66,7 +66,7 @@ The recommendations from Trusted Advisor are generic recommendations and not spe
 
 *_Kubernetes dashboard_*
 
-Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes cluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html[Amazon EKS documentation].
+Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes cluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the link:eks/latest/userguide/dashboard-tutorial.html[Amazon EKS documentation,type="documentation"].
 
 Dashboard provides resource usage breakdowns for each node and pod, as well as detailed metadata about pods, services, Deployments, and other Kubernetes objects. This consolidated information provides visibility into your Kubernetes environment.
 
@@ -91,9 +91,9 @@ kubectl top and describe, track the utilization and availability of critical res
 
 === Use CloudWatch Container Insights
 
-Use https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[CloudWatch Container Insights] to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Kubernetes Service on EC2, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network.
+Use link:AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[CloudWatch Container Insights,type="documentation"] to collect, aggregate, and summarize metrics and logs from your containerized applications and microservices. Container Insights is available for Amazon Elastic Kubernetes Service on EC2, and Kubernetes platforms on Amazon EC2. The metrics include utilization for resources such as CPU, memory, disk, and network.
 
-The installation of insights is given in the https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[documentation].
+The installation of insights is given in the link:AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[documentation,type="documentation"].
 
 CloudWatch creates aggregated metrics at the cluster, node, pod, task, and service level as CloudWatch metrics.
 
@@ -119,7 +119,7 @@ stats floor(avg(container_filesystem_usage/1024)) as container_filesystem_usage_
 | sort container_filesystem_usage_avg_kb desc
 ----
 
-More sample queries are given in the https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-view-metrics.html[Container Insights documention]
+More sample queries are given in the link:AmazonCloudWatch/latest/monitoring/Container-Insights-view-metrics.html[Container Insights documention,type="documentation"]
 
 This awareness will help in understanding resource usage and help in controlling costs.
 
@@ -201,12 +201,12 @@ Refer to the following resources to learn more about best practices for cost opt
 
 ==== Documentation and Blogs
 
-* https://docs.aws.amazon.com/eks/latest/userguide/eks-using-tags.html[Amazon EKS supports tagging]
+* link:eks/latest/userguide/eks-using-tags.html[Amazon EKS supports tagging,type="documentation"]
 
 ==== Tools
 
-* https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html[What is AWS Billing and Cost Management?]
-* https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[Amazon CloudWatch Container Insights]
+* link:awsaccountbilling/latest/aboutv2/cost-alloc-tags.html[What is AWS Billing and Cost Management?,type="documentation"]
+* link:AmazonCloudWatch/latest/monitoring/ContainerInsights.html[Amazon CloudWatch Container Insights,type="documentation"]
 * https://aws.amazon.com/blogs/containers/how-to-track-costs-in-multi-tenant-amazon-eks-clusters-using-kubecost/[How to track costs in multi-tenant Amazon EKS clusters using Kubecost]
 * https://kubecost.com/[Kubecost]
 * https://github.com/hjacobs/kube-ops-view[Kube Opsview]

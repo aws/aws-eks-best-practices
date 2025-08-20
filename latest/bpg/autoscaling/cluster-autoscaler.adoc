@@ -87,8 +87,8 @@ https://en.wikipedia.org/wiki/Leader_election[leader election] to ensure
 high availability, but work is done by a single replica at a time. It is
 not horizontally scalable. For basic setups, the default it should work
 out of the box using the provided
-https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html[installation
-instructions], but there are a few things to keep in mind.
+link:eks/latest/userguide/cluster-autoscaler.html[installation
+instructions,type="documentation"], but there are a few things to keep in mind.
 
 Ensure that:
 
@@ -183,8 +183,8 @@ fewer nodes. This will have the biggest impact on scalability.
 support (e.g. Regions, MixedInstancePolicy)
 
 NOTE: We recommend using
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS
-Managed Node Groups]. Managed Node Groups come with powerful management
+link:eks/latest/userguide/managed-node-groups.html[EKS
+Managed Node Groups,type="documentation"]. Managed Node Groups come with powerful management
 features, including features for Cluster Autoscaler like automatic EC2
 Auto Scaling Group discovery and graceful node termination.
 
@@ -343,8 +343,8 @@ image:cas_spot_mix_instance_policy.jpg[spot_mix_instance_policy]
 
 It's recommended to isolate On-Demand and Spot capacity into separate
 EC2 Auto Scaling groups. This is preferred over using a
-https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-purchase-options.html#asg-instances-distribution[base
-capacity strategy] because the scheduling properties are fundamentally
+link:autoscaling/ec2/userguide/asg-purchase-options.html#asg-instances-distribution[base
+capacity strategy,type="documentation"] because the scheduling properties are fundamentally
 different. Since Spot Instances be interrupted at any time (when EC2
 needs the capacity back), users will often taint their preemptable
 nodes, requiring an explicit pod toleration to the preemption behavior.

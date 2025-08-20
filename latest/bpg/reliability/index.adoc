@@ -61,12 +61,12 @@ The responsibility for the data plane's reliability is shared between
 you, the customer, and AWS. EKS offers four worker node options for deploying the Kubernetes data
 plane. 
 
-https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode], which is 
+link:eks/latest/userguide/automode.html[EKS Auto Mode,type="documentation"], which is 
 the most managed option, handles provisioning, scaling and updates of the data plane 
 along with providing managed Compute, Networking, and Storage capabilities. Auto 
 Mode AMIs are released frequently and clusters are updated to the latest AMI 
 automatically to deploy CVE fixes and security patches. You have the ability to control
-when this occurs by configuring https://docs.aws.amazon.com/eks/latest/userguide/create-node-pool.html#_disruption[disruption controls]
+when this occurs by configuring link:eks/latest/userguide/create-node-pool.html#_disruption[disruption controls,type="documentation"]
 on your Auto Mode NodePools.
 
 Fargate handles provisioning and scaling of the data 
@@ -75,8 +75,8 @@ handles provisioning, and updates of the data plane. And finally,
 self-managed nodes is the least managed option for the data plane. The
 more AWS-managed data plane you use, the less responsibility you have.
 
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[Managed
-node groups] automate the provisioning and lifecycle management of EC2
+link:eks/latest/userguide/managed-node-groups.html[Managed
+node groups,type="documentation"] automate the provisioning and lifecycle management of EC2
 nodes. You can use the EKS API (using EKS console, AWS API, AWS CLI,
 CloudFormation, Terraform, or `eksctl`), to create, scale, and upgrade
 managed nodes. Managed nodes run EKS-optimized Amazon Linux 2 EC2
@@ -94,27 +94,27 @@ versions of these AMIs when bug fixes. However, you are responsible for
 deploying these patched AMI versions to your managed node groups.
 
 EKS also
-https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html[manages
-updating the nodes] although you have to initiate the update process.
+link:eks/latest/userguide/update-managed-node-group.html[manages
+updating the nodes,type="documentation"] although you have to initiate the update process.
 The process of
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html[updating
-managed node] is explained in the EKS documentation.
+link:eks/latest/userguide/managed-node-update-behavior.html[updating
+managed node,type="documentation"] is explained in the EKS documentation.
 
 If you run self-managed nodes, you can use
-https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html[Amazon
-EKS-optimized Linux AMI] to create worker nodes. You are responsible for
+link:eks/latest/userguide/eks-optimized-ami.html[Amazon
+EKS-optimized Linux AMI,type="documentation"] to create worker nodes. You are responsible for
 patching and upgrading the AMI and the nodes. It is a best practice to
 use `eksctl`, CloudFormation, or infrastructure as code tools to
 provision self-managed nodes because this will make it easy for you to
-https://docs.aws.amazon.com/eks/latest/userguide/update-workers.html[upgrade
-self-managed nodes]. Consider
-https://docs.aws.amazon.com/eks/latest/userguide/migrate-stack.html[migrating
-to new nodes] when updating worker nodes because the migration process
+link:eks/latest/userguide/update-workers.html[upgrade
+self-managed nodes,type="documentation"]. Consider
+link:eks/latest/userguide/migrate-stack.html[migrating
+to new nodes,type="documentation"] when updating worker nodes because the migration process
 *taints* the old node group as `NoSchedule` and *drains* the nodes
 after a new stack is ready to accept the existing pod workload. However,
 you can also perform an
-https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html[in-place
-upgrade of self-managed nodes].
+link:eks/latest/userguide/update-stack.html[in-place
+upgrade of self-managed nodes,type="documentation"].
 
 .Shared Responsibility Model - Fargate
 image::SRM-Fargate.jpeg[Shared Responsibility Model - Fargate]

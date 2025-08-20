@@ -9,13 +9,13 @@ In Amazon EKS, each Pod that runs on a Windows host is assigned a secondary IP a
 
 In order to increase the pod density on Windows hosts, especially when using smaller instance types, you can enable *Prefix Delegation* for Windows nodes. When prefix delegation is enabled, /28 IPv4 prefixes are assigned to ENI slots rather than secondary IP addresses. Prefix delegation can be enabled by adding the `enable-windows-prefix-delegation: "true"` entry to the `amazon-vpc-cni` config map. This is the same config map where you need to set `enable-windows-ipam: "true"` entry for enabling Windows support.
 
-Please follow the instructions mentioned in the https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html[EKS user guide] to enable Prefix Delegation mode for Windows nodes.
+Please follow the instructions mentioned in the link:eks/latest/userguide/cni-increase-ip-addresses.html[EKS user guide,type="documentation"] to enable Prefix Delegation mode for Windows nodes.
 
 image::pm_windows-1.jpg[illustration of two worker subnets, comparing ENI secondary IPvs to ENIs with delegated prefixes]
 
 Figure: Comparison of Secondary IP mode with Prefix Delegation mode
 
-The maximum number of IP addresses you can assign to a network interface depends on the instance type and its size. Each prefix assigned to a network interface consumes an available slot. For example, a `c5.large` instance has a limit of `10` slots per network interface. The first slot on a network interface is always consumed by the interface's primary IP address, leaving you with 9 slots for prefixes and/or secondary IP addresses. If these  slots are assigned prefixes, the node can support (9 * 16) 144 IP address whereas if they're assigned secondary IP addresses it can only support 9 IP addresses. See the documentation on https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI[IP addresses per network interface per instance type] and https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html[assigning prefixes to network interfaces] for further information.
+The maximum number of IP addresses you can assign to a network interface depends on the instance type and its size. Each prefix assigned to a network interface consumes an available slot. For example, a `c5.large` instance has a limit of `10` slots per network interface. The first slot on a network interface is always consumed by the interface's primary IP address, leaving you with 9 slots for prefixes and/or secondary IP addresses. If these  slots are assigned prefixes, the node can support (9 * 16) 144 IP address whereas if they're assigned secondary IP addresses it can only support 9 IP addresses. See the documentation on link:AWSEC2/latest/UserGuide/using-eni.html#AvailableIpPerENI[IP addresses per network interface per instance type,type="documentation"] and link:AWSEC2/latest/UserGuide/ec2-prefix-eni.html[assigning prefixes to network interfaces,type="documentation"] for further information.
 
 During worker node initialization, the VPC Resource Controller assigns one or more prefixes to the primary ENI for faster pod startup by maintaining a warm pool of the IP addresses. The number of prefixes to be held in warm pool can be controlled by setting the following configuration parameters in `amazon-vpc-cni` config map.
 
@@ -34,7 +34,7 @@ Figure: Workflow during assignment of IPv4 address to the Pod
 
 === Use Prefix Delegation when
 
-Use prefix delegation if you are experiencing Pod density issues on the worker nodes. To avoid errors, we recommend examining the subnets for contiguous block of addresses for /28 prefix before migrating to prefix mode. Please refer "`https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html[Use Subnet Reservations to Avoid Subnet Fragmentation (IPv4)]`" section for Subnet reservation details.
+Use prefix delegation if you are experiencing Pod density issues on the worker nodes. To avoid errors, we recommend examining the subnets for contiguous block of addresses for /28 prefix before migrating to prefix mode. Please refer "`link:vpc/latest/userguide/subnet-cidr-reservation.html[Use Subnet Reservations to Avoid Subnet Fragmentation (IPv4),type="documentation"]`" section for Subnet reservation details.
 
 By default, the `max-pods` on Windows nodes is set to `110`. For the vast majority of instance types, this should be sufficient. If you want to increase or decrease this limit, then add the following to the bootstrap command in your user data:
 
@@ -42,7 +42,7 @@ By default, the `max-pods` on Windows nodes is set to `110`. For the vast majori
 -KubeletExtraArgs '--max-pods=example-value'
 ----
 
-For more details about the bootstrap configuration parameters for Windows nodes, please visit the documentation https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-windows-ami.html#bootstrap-script-configuration-parameters[here].
+For more details about the bootstrap configuration parameters for Windows nodes, please visit the documentation link:eks/latest/userguide/eks-optimized-windows-ami.html#bootstrap-script-configuration-parameters[here,type="documentation"].
 
 [#windows-prefix-avoid]
 === Avoid Prefix Delegation when
@@ -69,7 +69,7 @@ When EC2 allocates a /28 IPv4 prefix to an ENI, it has to be a contiguous block 
 InsufficientCidrBlocks: The specified subnet does not have enough free cidr blocks to satisfy the request
 ----
 
-To avoid fragmentation and have sufficient contiguous space for creating prefixes, use https://docs.aws.amazon.com/vpc/latest/userguide/subnet-cidr-reservation.html#work-with-subnet-cidr-reservations[VPC Subnet CIDR reservations] to reserve IP space within a subnet for exclusive use by prefixes. Once you create a reservation, the IP addresses from the reserved blocks will not be assigned to other resources. That way, VPC Resource Controller will be able to get available prefixes during the assignment call to the node ENI.
+To avoid fragmentation and have sufficient contiguous space for creating prefixes, use link:vpc/latest/userguide/subnet-cidr-reservation.html#work-with-subnet-cidr-reservations[VPC Subnet CIDR reservations,type="documentation"] to reserve IP space within a subnet for exclusive use by prefixes. Once you create a reservation, the IP addresses from the reserved blocks will not be assigned to other resources. That way, VPC Resource Controller will be able to get available prefixes during the assignment call to the node ENI.
 
 It is recommended to create a new subnet, reserve space for prefixes, and enable prefix assignment for worker nodes running in that subnet. If the new subnet is dedicated only to Pods running in your EKS cluster with prefix delegation enabled, then you can skip the prefix reservation step.
 
@@ -87,7 +87,7 @@ When using self-managed node groups, the steps for transition would be:
 When using managed node groups, the steps for transition would be:
 
 * Enable/Disable the Prefix Delegation feature for Windows
-* Update the node group using the steps mentioned https://docs.aws.amazon.com/eks/latest/userguide/update-managed-node-group.html[here]. This performs similar steps as above but are managed by EKS.
+* Update the node group using the steps mentioned link:eks/latest/userguide/update-managed-node-group.html[here,type="documentation"]. This performs similar steps as above but are managed by EKS.
 
 WARNING: Run all Pods on a node in the same mode
 

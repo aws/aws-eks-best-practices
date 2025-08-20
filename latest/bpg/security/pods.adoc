@@ -553,7 +553,7 @@ to the process running in the container. If you need to build container
 images on Kubernetes use
 https://github.com/GoogleContainerTools/kaniko[Kaniko],
 https://github.com/containers/buildah[buildah], or a build service like
-https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html[CodeBuild]
+link:codebuild/latest/userguide/welcome.html[CodeBuild,type="documentation"]
 instead.
 
 [NOTE]
@@ -707,7 +707,7 @@ all pods that use a particular ServiceAccount.
 
 // [IMPORTANT]
 ====
-// Disabling ServiceAccount mounting does not prevent a pod from having // network access to the Kubernetes API. To prevent a pod from having any // network access to the Kubernetes API, you will need to modify the // https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[EKS // cluster endpoint access] and use a // xref:iam-network-policy[NetworkPolicy] to block pod access.
+// Disabling ServiceAccount mounting does not prevent a pod from having // network access to the Kubernetes API. To prevent a pod from having any // network access to the Kubernetes API, you will need to modify the // link:eks/latest/userguide/cluster-endpoint.html[EKS // cluster endpoint access,type="documentation"] and use a // xref:iam-network-policy[NetworkPolicy] to block pod access.
 ====
 
 [source,yaml]

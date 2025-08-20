@@ -52,8 +52,8 @@ performance, cost optimization, and operational excellence.
 == Related guides
 
 In addition to the
-https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html[EKS
-User Guide], AWS has published several other guides that may help you
+link:eks/latest/userguide/what-is-eks.html[EKS
+User Guide,type="documentation"], AWS has published several other guides that may help you
 with your implementation of EKS.
 
 * https://aws.github.io/aws-emr-containers-best-practices/[EMR

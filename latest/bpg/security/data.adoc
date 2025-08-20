@@ -12,10 +12,10 @@
 
 There are three different AWS-native storage options you can use with
 Kubernetes:
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html[EBS],
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEFS.html[EFS],
-and https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html[FSx
-for Lustre]. All three offer encryption at rest using a service managed
+link:AWSEC2/latest/UserGuide/AmazonEBS.html[EBS,type="documentation"],
+link:AWSEC2/latest/UserGuide/AmazonEFS.html[EFS,type="documentation"],
+and link:fsx/latest/LustreGuide/what-is.html[FSx
+for Lustre,type="documentation"]. All three offer encryption at rest using a service managed
 key or a customer master key (CMK). For EBS you can use the in-tree
 storage driver or the
 https://github.com/kubernetes-sigs/aws-ebs-csi-driver[EBS CSI driver].
@@ -27,8 +27,8 @@ provisioning. If you want to use EFS with EKS, you will need to
 provision and configure at-rest encryption for the file system prior to
 creating a PV. For further information about EFS file encryption, please
 refer to
-https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html[Encrypting
-Data at Rest]. Besides offering at-rest encryption, EFS and FSx for
+link:efs/latest/ug/encryption-at-rest.html[Encrypting
+Data at Rest,type="documentation"]. Besides offering at-rest encryption, EFS and FSx for
 Lustre include an option for encrypting data in transit. FSx for Lustre
 does this by default. For EFS, you can add transport encryption by
 adding the `tls` parameter to `mountOptions` in your PV as in this
@@ -89,8 +89,8 @@ whether encryption is necessary, encrypt your data.
 Configure KMS to automatically rotate your CMKs. This will rotate your
 keys once a year while saving old keys indefinitely so that your data
 can still be decrypted. For additional information see
-https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html[Rotating
-customer master keys]
+link:kms/latest/developerguide/rotate-keys.html[Rotating
+customer master keys,type="documentation"]
 
 === Use EFS access points to simplify access to shared datasets
 
@@ -98,11 +98,11 @@ If you have shared datasets with different POSIX file permissions or
 want to restrict access to part of the shared file system by creating
 different mount points, consider using EFS access points. To learn more
 about working with access points, see
-https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today,
+link:efs/latest/ug/efs-access-points.html. Today,
 if you want to use an access point (AP) you'll need to reference the AP
 in the PV's `volumeHandle` parameter.
 
-[IMPORTANT]
+[IMPORTANT,type="documentation"]
 ====
 As of March 23, 2021 the EFS CSI driver supports dynamic
 provisioning of EFS Access Points. Access points are
@@ -119,8 +119,8 @@ Kubernetes secrets are used to store sensitive information, such as user
 certificates, passwords, or API keys. They are persisted in etcd as
 base64 encoded strings. On EKS, the EBS volumes for etcd nodes are
 encrypted with
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html[EBS
-encryption]. A pod can retrieve a Kubernetes secrets objects by
+link:AWSEC2/latest/UserGuide/EBSEncryption.html[EBS
+encryption,type="documentation"]. A pod can retrieve a Kubernetes secrets objects by
 referencing the secret in the `podSpec`. These secrets can either be
 mapped to an environment variable or mounted as volume. For additional
 information on creating secrets, see
@@ -241,8 +241,8 @@ Provider (ASCP) refer to the following resources:
 * https://aws.amazon.com/blogs/security/how-to-use-aws-secrets-configuration-provider-with-kubernetes-secrets-store-csi-driver/[How
 to use AWS Secrets Configuration Provider with Kubernetes Secret Store
 CSI Driver]
-* https://docs.aws.amazon.com/secretsmanager/latest/userguide/integrating_csi_driver.html[Integrating
-Secrets Manager secrets with Kubernetes Secrets Store CSI Driver]
+* link:secretsmanager/latest/userguide/integrating_csi_driver.html[Integrating
+Secrets Manager secrets with Kubernetes Secrets Store CSI Driver,type="documentation"]
 
 https://github.com/external-secrets/external-secrets[external-secrets]
 is yet another way to use an external secret store with Kubernetes. Like

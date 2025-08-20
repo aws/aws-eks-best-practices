@@ -11,16 +11,16 @@
 Load Balancers receive incoming traffic and distribute it across targets
 of the intended application hosted in an EKS Cluster. This improves the
 resilience of the application. When deployed in an EKS Cluster the
-https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html[AWS
-Load Balancer controller] will create and manage AWS Elastic Load
+link:eks/latest/userguide/aws-load-balancer-controller.html[AWS
+Load Balancer controller,type="documentation"] will create and manage AWS Elastic Load
 Balancers for that cluster. When a Kubernetes Service of type
 LoadBalancer is created, the AWS Load Balancer Controller creates a
-https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html[Network
-Load Balancer (NLB)] which load balances received traffic at Layer 4 of
+link:eks/latest/userguide/network-load-balancing.html[Network
+Load Balancer (NLB),type="documentation"] which load balances received traffic at Layer 4 of
 the OSI model. While when a Kubernetes Ingress object is created, the
 AWS Load Balancer Controller creates an
-https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html[Application
-Load Balancer (ALB)] which load balances traffic at Layer 7 of the OSI
+link:eks/latest/userguide/alb-ingress.html[Application
+Load Balancer (ALB),type="documentation"] which load balances traffic at Layer 7 of the OSI
 model.
 
 == Choosing Load Balancer Type
@@ -92,7 +92,7 @@ The Service Controller is legacy and is currently only receiving critical bug fi
 We recommend using the AWS Load Balancer Controller in your EKS
 clusters to reconcile Kubernetes Service and Ingress resources. You must use the right annotations in your Kubernetes Service or Ingress manifest so that AWS Load Balancer Controller owns the reconciliation process. (instead of Service Controller)
 
-If you are utilizing link:https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode] the the AWS Load Balancer Controller is provided for you automatically; no installation is necessary.
+If you are utilizing link:link:eks/latest/userguide/automode.html[EKS Auto Mode,type="documentation"] the the AWS Load Balancer Controller is provided for you automatically; no installation is necessary.
 
 == Choosing Load Balancer Target-Type
 
@@ -245,13 +245,13 @@ Balancer or Kubernetes Ingress (for north - south traffic) then the list
 of Pod IPs for the respective Kubernetes Service must be propagated to
 the external infrastructure load balancer so that the load balancer also
 has an up to date list targets.
-https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html[AWS
-Load Balancer Controller] bridges the gap here. When you use AWS Load
+link:eks/latest/userguide/aws-load-balancer-controller.html[AWS
+Load Balancer Controller,type="documentation"] bridges the gap here. When you use AWS Load
 Balancer Controller and leverage `target group: IP` , just like
 `kube-proxy` the AWS Load Balancer Controller also receives an update
 (via `watch`) and then it communicates with the
-https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/Welcome.html[ELB
-API] to configure and start registering the Pod IP as a target on the
+link:elasticloadbalancing/latest/APIReference/Welcome.html[ELB
+API,type="documentation"] to configure and start registering the Pod IP as a target on the
 ELB.
 
 When you perform a rolling update of a Deployment, new Pods get created,
@@ -259,8 +259,8 @@ and as soon as a new Pod's condition is "`Ready`" an old/existing Pod
 gets terminated. During this process, the Kubernetes EndpointSlice
 object is updated faster than the time it takes the ELB to register the
 new Pods as targets, see
-https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-register-targets.html[target
-registration]. For a brief time you could have a state mismatch between
+link:elasticloadbalancing/latest/application/target-group-register-targets.html[target
+registration,type="documentation"]. For a brief time you could have a state mismatch between
 the Kubernetes layer and the infrastructure layer where client requests
 could be dropped. During this period within the Kubernetes layer new
 Pods would be ready to process requests but from ELB point of view they
@@ -361,15 +361,15 @@ using AWS Load Balancer Controller and leverage `target group: IP` .
 Because just like `kube-proxy` the AWS Load Balancer Controller also
 receives an update (via watch) on the EndpointSlice object and then it
 communicates with the
-https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/Welcome.html[ELB
-API] to start deregistering the Pod IP from the ELB. However depending
+link:elasticloadbalancing/latest/APIReference/Welcome.html[ELB
+API,type="documentation"] to start deregistering the Pod IP from the ELB. However depending
 on the load on Kubernetes API or the ELB API this can also take time and
 the SIGTERM may have already been sent to the application long ago. Once
 the ELB starts deregistering the target it stops sending requests to
 that target so the application will not receive any new requests and the
 ELB also starts a
-https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#deregistration-delay[Deregistration
-delay] which is 300 seconds by default. During the deregistration
+link:elasticloadbalancing/latest/application/load-balancer-target-groups.html#deregistration-delay[Deregistration
+delay,type="documentation"] which is 300 seconds by default. During the deregistration
 process the target is `draining` where basically the ELB waits for the
 in-flight requests/existing connections to that target to drain. Once
 the deregistration delay expires then the target is unused and any

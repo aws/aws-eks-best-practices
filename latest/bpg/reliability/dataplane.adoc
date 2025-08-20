@@ -14,9 +14,9 @@ resilient data plane consists of two or more worker nodes, can grow and
 shrink with the workload, and automatically recover from failures.
 
 You have multiple choices for worker nodes with EKS:
-https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode managed nodes], 
-https://docs.aws.amazon.com/eks/latest/userguide/worker.html[EC2 Instances] and
-https://docs.aws.amazon.com/eks/latest/userguide/fargate.html[Fargate].
+link:eks/latest/userguide/automode.html[EKS Auto Mode managed nodes,type="documentation"], 
+link:eks/latest/userguide/worker.html[EC2 Instances,type="documentation"] and
+link:eks/latest/userguide/fargate.html[Fargate,type="documentation"].
 
 EKS Auto Mode offers the easiest path to a resilient data plane. Auto Mode extends AWS 
 management of Kubernetes clusters beyond the cluster itself, to allow AWS to also set up
@@ -27,24 +27,24 @@ for the currently running workloads.
 
 If you choose EC2 instances, you can manage the worker nodes yourself or
 use
-https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS
-managed node groups]. You can have a cluster with a mix of Auto Mode, managed,
+link:eks/latest/userguide/managed-node-groups.html[EKS
+managed node groups,type="documentation"]. You can have a cluster with a mix of Auto Mode, managed,
 self-managed worker nodes, and Fargate.
 
 Fargate runs each Pod in an isolated compute environment. Each Pod
 running on Fargate gets its own worker node. Fargate automatically
 scales the data plane as Kubernetes scales pods. You can scale both the
 data plane and your workload by using the
-https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html[horizontal
-pod autoscaler].
+link:eks/latest/userguide/horizontal-pod-autoscaler.html[horizontal
+pod autoscaler,type="documentation"].
 
 The preferred way to scale EC2 worker nodes (if not using EKS Auto Mode where this is performed
 automatically by AWS) is by using
 https://karpenter.sh/[Karpenter],
 https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md[Kubernetes
 Cluster Autoscaler], or
-https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html[EC2
-Auto Scaling groups].
+link:autoscaling/ec2/userguide/AutoScalingGroup.html[EC2
+Auto Scaling groups,type="documentation"].
 
 == Recommendations
 
@@ -163,7 +163,7 @@ If using EKS Auto Mode or Karpenter you will need to ensure that your NodeClass 
 in each AZ. If using Managed Node Groups, you need to ensure that you have a Node Group in each AZ.
 
 An EBS storage capability is built into EKS Auto Mode, but if using Karpenter or Managed Node Groups
-the https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html[EBS CSI] will also need to be installed.
+the link:eks/latest/userguide/ebs-csi.html[EBS CSI,type="documentation"] will also need to be installed.
 
 
 === Use EKS Auto Mode to manage worker nodes
@@ -173,12 +173,12 @@ clusters with minimal operational overhead. Auto Mode is responsible for
 scaling the number of Nodes up or down depending on the Pods that are 
 running in the cluster. Nodes are kept up to date with software patches
 and fixes automatically, with the updates being performed in accordance with
-the configured https://docs.aws.amazon.com/eks/latest/userguide/create-node-pool.html#_disruption[NodePool]
+the configured link:eks/latest/userguide/create-node-pool.html#_disruption[NodePool,type="documentation"]
 disruption settings and Pod Disruption Budgets.
 
 === Run the Node Monitoring Agent
 
-The https://docs.aws.amazon.com/eks/latest/userguide/node-health.html[Node Monitoring Agent] monitors
+The link:eks/latest/userguide/node-health.html[Node Monitoring Agent,type="documentation"] monitors
 and reacts to Node health issues by publishing Kubernetes events and updating the status condition
 on Nodes. The Node Monitoring Agent is included with EKS Auto Mode Nodes, and can be installed
 as an EKS Addon for Nodes that aren't managed by Auto Mode.  
@@ -291,7 +291,7 @@ included in EKS Auto Mode.
 === Configure auto-scaling CoreDNS
 
 Another method of improving Cluster DNS performance is by
-enabling the built-in https://docs.aws.amazon.com/eks/latest/userguide/coredns-autoscaling.html[auto-scaling of CoreDNS Pods]. 
+enabling the built-in link:eks/latest/userguide/coredns-autoscaling.html[auto-scaling of CoreDNS Pods,type="documentation"]. 
 
 This feature continuously monitors the cluster state, including the number of nodes and 
 CPU cores. Based on that information, the controller will dynamically adapt 

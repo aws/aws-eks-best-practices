@@ -112,7 +112,7 @@ spec:
 
 [IMPORTANT]
 ====
-A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS Security Groups] to isolate a compromised host from other hosts. When changing a host's security group, be aware that it will impact all containers running on that host.
+A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use link:vpc/latest/userguide/VPC_SecurityGroups.html[AWS Security Groups,type="documentation"] to isolate a compromised host from other hosts. When changing a host's security group, be aware that it will impact all containers running on that host.
 ====
 
 === Revoke temporary security credentials assigned to the pod or worker node if necessary
@@ -138,10 +138,10 @@ This guidance is not applicable to Fargate where each Fargate pod run in its own
 
 An attacker may attempt to erase their misdeeds by terminating an
 affected node. Enabling
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination[termination
-protection] can prevent this from happening.
-https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-termination.html#instance-protection[Instance
-scale-in protection] will protect the node from a scale-in event.
+link:AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination[termination
+protection,type="documentation"] can prevent this from happening.
+link:autoscaling/ec2/userguide/as-instance-termination.html#instance-protection[Instance
+scale-in protection,type="documentation"] will protect the node from a scale-in event.
 
 [WARNING]
 ====
@@ -207,8 +207,8 @@ the vulnerability. Then you should delete the vulnerable workload.
 While this section gives a brief overview along with a few
 recommendations for handling suspected security breaches, the topic is
 exhaustively covered in the white paper,
-https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/welcome.html[AWS
-Security Incident Response].
+link:whitepapers/latest/aws-security-incident-response-guide/welcome.html[AWS
+Security Incident Response,type="documentation"].
 
 === Practice security game days
 

@@ -12,7 +12,7 @@
 
 == Consider Higher Network Bandwidth or Elastic Fabric Adapter For Applications with High Inter-Node Communication
 
-For distributed training workloads on Amazon EKS with high inter-node communication demands, consider selecting instances with higher network bandwidth or https://docs.aws.amazon.com/eks/latest/userguide/node-efa.html[Elastic Fabric Adapter] (EFA). Insufficient network performance can bottleneck data transfer, slowing down machine learning tasks like distributed multi-GPU training. Note that inference workloads don't typically have high inter-node communication.
+For distributed training workloads on Amazon EKS with high inter-node communication demands, consider selecting instances with higher network bandwidth or link:eks/latest/userguide/node-efa.html[Elastic Fabric Adapter,type="documentation"] (EFA). Insufficient network performance can bottleneck data transfer, slowing down machine learning tasks like distributed multi-GPU training. Note that inference workloads don't typically have high inter-node communication.
 
 **Example**
 
@@ -52,4 +52,4 @@ To enable prefix delegation:
 ----
 kubectl set env daemonset/aws-node -n kube-system ENABLE_PREFIX_DELEGATION=true
 ----
-Ensure proper planning for VPC subnets to avoid IP address exhaustion, especially in large deployments, and manage CIDR blocks to avoid overlaps across VPCs. To learn more, see xref:ip-opt[Optimizing IP Address Utilization] and https://docs.aws.amazon.com/eks/latest/best-practices/ip-opt.html#_plan_for_growth[Assign more IP addresses to Amazon EKS nodes with prefixes].
+Ensure proper planning for VPC subnets to avoid IP address exhaustion, especially in large deployments, and manage CIDR blocks to avoid overlaps across VPCs. To learn more, see xref:ip-opt[Optimizing IP Address Utilization] and link:eks/latest/best-practices/ip-opt.html#_plan_for_growth[Assign more IP addresses to Amazon EKS nodes with prefixes,type="documentation"].
