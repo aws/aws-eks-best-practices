@@ -13,7 +13,7 @@
 == Data Management and Storage
 
 === Deploy AI Models to Pods Using a CSI Driver
-AI/ML workloads often require access to large model artifacts (e.g., trained weights, configurations), and pods need a reliable, scalable way to access these without embedding them in container images, which can increase image sizes and Container registry pull times. To reduce operational overhead of managing volume mounts we recommend deploying AI models to pods by mounting Amazon storage services (e.g., S3, FSx for Lustre, EFS) as Persistent Volumes (PVs) using their respective CSI drivers. For implementation details, see subsequent topics in this section.
+AI/ML workloads often require access to large model artifacts (e.g., trained weights, configurations), and pods need a reliable, scalable way to access these without embedding them in container images, which can increase image sizes and Container registry pull times. To reduce operational overhead of managing volume mounts we recommend deploying AI models to pods by mounting Amazon storage services (e.g., S3, FSx for Lustre, FSx for OpenZFS, EFS) as Persistent Volumes (PVs) using their respective CSI drivers. For implementation details, see subsequent topics in this section.
 
 === Optimize Storage for ML Model Caches on EKS
 Leveraging an optimal storage solution is critical to minimize pod and application start-up latency, reduce memory usage, obtaining the desired levels of performance to accelerate workloads, and ensuring scalability of ML workloads. ML workloads often rely on model files (weights), which can be large and require shared access to data across pods or nodes. Selecting the optimal storage solution depends on your workload's characteristics, such as single-node efficiency, multi-node access, latency requirements, cost constraints and also data integration requirements (such as with an Amazon S3 data repository). We recommend benchmarking different storage solutions with your workloads to understand which one meets your requirements, and we have provided the following options to help you evaluate based on your workload requirements.
@@ -28,6 +28,9 @@ The EKS CSI driver supports the following AWS Storage services, each have their 
 
 The choice of AWS Storage service depends on your deployment architecture, scale, performance requirements, and cost strategy. Storage CSI drivers need to be installed on your EKS cluster, which allows the CSI driver to create and manage Persistent Volumes (PV) outside the lifecycle of a Pod. Using the CSI driver, you can create PV definitions of supported AWS Storage services as EKS cluster resources. Pods can then access these storage volumes for their data volumes through creating a Persistent Volume Claim (PVC) for the PV. Depending on the AWS storage service and your deployment scenario, a single PVC (and its associated PV) can be attached to multiple Pods for a workload. For example, for ML training, shared training data is stored on a PV and accessed by multiple Pods; for real-time online inference, LLM models are cached on a PV and accessed by multiple Pods. Sample PV and PVC YAML files for AWS Storage services are provided below to help you get started.
 
+**Monitoring performance**
+Poor disk performance can delay container image reads, increase pod startup latency, and degrade inference or training throughput. Use https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html[Amazon CloudWatch] to monitor performance metrics for your AWS storage services. When you identify performance bottlenecks, modify your storage configuration parameters to optimize performance.
+
 **Scenario: Multiple GPU instances workload**
 
 **Amazon FSx for Lustre**: In scenarios where you have **multiple EC2 GPU compute instance** environment with latency-sensitive and high-bandwidth throughput dynamic workloads, such as distributed training and model serving, and you require native Amazon S3 data repository integration, we recommend https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html[Amazon FSx for Lustre]. FSx for Lustre provides a fully managed high performance parallel filesystem that is designed for compute-intensive workloads like high-performance computing (HPC), Machine Learning.
@@ -37,7 +40,7 @@ You can https://docs.aws.amazon.com/eks/latest/userguide/fsx-csi.html[Install th
 * **Scratch-SSD storage**: Recommended for workloads that are ephemeral or short-lived (hours), with fixed throughput capacity per-TiB provisioned.
 * **Persistent-SSD storage**: Recommended for mission-critical, long-running workloads that require the highest level of availability, for example HPC simulations, big data analytics or Machine Learning training. With Persistent-SSD storage, you can configure both the storage capacity and throughput capacity (per-TiB) that is required.
 
-Performance considerations:
+**Performance considerations:**
 
 * **Administrative pod to manage FSx for Lustre file system**: Configure an "administrative" Pod that has the lustre client installed and has the FSx file system mounted. This will enable an access point to enable fine-tuning of the FSx file system, and also in situations where you need to pre-warm the FSx file system with your ML training data or LLM models before starting up your GPU compute instances. This is especially important if your architecture utilizes Spot-based Amazon EC2 GPU/compute instances, where you can utilize the administrative Pod to "warm" or "pre-load" desired data into the FSx file system, so that the data is ready to be processed when you run your Spot based Amazon EC2 instances.
 * **Elastic Fabric Adapter (EFA)**: Persistent-SSD storage deployment types support https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html[Elastic Fabric Adapter (EFA)], where using EFA is ideal for high performance and throughput-based GPU-based workloads. Note that FSx for Lustre supports NVIDIA GPUDirect Storage (GDS), where GDS is a technology that creates a direct data path between local or remote storage and GPU memory, to enable faster data access.
@@ -120,7 +123,7 @@ spec:
 
 ----
 
-For complete examples, see the https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes[FSx for Lustre Driver Examples in GitHub].
+For complete examples, see the https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes[FSx for Lustre Driver Examples in GitHub]. Monitor https://docs.aws.amazon.com/fsx/latest/LustreGuide/monitoring-cloudwatch.html[Amazon FSx for Lustre performance metrics] using Amazon CloudWatch. When performance bottlenecks are identified, adjust your configuration parameters as needed.
 
 **Scenario: Single GPU instance workload**
 
@@ -165,6 +168,101 @@ volumes:
 
 For more details, see the https://docs.aws.amazon.com/eks/latest/userguide/s3-csi.html[Mountpoint for Amazon S3 CSI Driver] in the Amazon EKS official documentation. We recommend monitoring the performance metrics of https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudwatch-monitoring.html[Amazon S3 with Amazon CloudWatch metrics] if bottlenecks occur and adjusting your configuration where required.
 
+=== Amazon FSx for OpenZFS persistent shared storage
+
+For scenarios involving multiple EC2 GPU compute instances with latency-sensitive workloads requiring high availability, high performance, cost sensitivity, and multiple pod deployments for different applications, we recommend Amazon FSx for OpenZFS.  Some workload examples include real-time inference, reinforcement learning, and training generative adversarial networks. FSx for OpenZFS is particularly beneficial for workloads needing high performance access to a focused directory structure with small files using small IO data access patterns.  Also, FSx for OpenZFS provides the flexibility to scale performance independently from storage capacity, helping you achieve optimal cost efficiency by matching storage size to actual needs while maintaining required performance levels
+
+The native https://github.com/kubernetes-sigs/aws-fsx-openzfs-csi-driver/tree/main[FSx for OpenZFS CSI driver] allows for the creation of multiple PVCs to a single file system by creating multiple volumes. This reduces management overhead and maximizes the utilization of the file system's throughput and IOPS through consolidated application pod deployments on a single file system.  Additionally, it includes enterprise features like zero-copy snapshots, zero-copy clones, and user and group quotas which can be dynamically provisioned through the CSI driver.
+
+FSx for OpenZFS supports three different https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/availability-durability.html#choosing-single-or-multi[deployment types] upon creation:
+
+* **Single-AZ:** Lowest cost option with sub-millisecond latencies, but provides no high-availability at the file system or Availability Zone level.  Recommended for development and test workloads or those which have high-availability at the application layer.
+* **Single-AZ (HA):** Provides high-availability at the file system level with sub-millisecond latencies.  Recommended for highest performance workloads which require high-availability.
+* **Multi-AZ:** Provides high-availability at the file system level as well as across Availability Zones.  Recommended for high-performance workloads that require the additional availability across Availability Zones.
+
+Performance considerations:
+
+* **Deployment type:** If the additional availability across Availability Zones isn't a requirement, consider using the Single-AZ (HA) deployment type.  This deployment type provides up to 100% of the throughput for writes, maintains sub-millisecond latencies, and the Gen2 file systems have an additional NVMe cache for storing up to terrabytes of frequently accessed data.  The Multi-AZ file systems provide up to 75% of the throughput for writes at an increased latency to accomodate for cross-AZ traffic.  
+* **Throughput and IOPS:** Both the https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/managing-throughput-capacity.html[throughput] and https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/managing-storage-capacity.html[IOPS] configured for the file system can be scaled up or down post deployment.  You can provision up to 10GB/s of disk throughput providing up to 21GB/s of cached data access.  The IOPS can be scaled up to 400,000 from disk and the cache can provide over 1 million IOPS.  Note that throughput scaling of a Single-AZ file system does cause a brief outage of the file system as no high-availability exists.  Throughput scaling of a Single-AZ (HA) or Multi-AZ file system can be done non-disruptively.  The SSD IOPS can be scaled once every six hours.
+* **Storage Class:** FSx for OpenZFS supports both the https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/performance-ssd.html[SSD storage] class as well as the https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/performance-intelligent-tiering.html[Intelligent-Tiering] storage class.  For AI/ML workloads it is recommended to use the SSD storage class providing consistent performance to the workload keeping the CPU's/GPU's as busy as possible.
+* **Compression:** Enable the https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/performance.html#perf-data-compression[LZ4 compression] algorithm if you have a workload that can be compressed.  This reduces the amount of data each file consumes in the cache allowing more data to be served directly from the cache as network throughput and IOPS reducing the load on the SSD disk.
+* **Record size:** Most AI/ML workloads will benefit from leaving the default 128KiB https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/performance.html#record-size-performance[record size].  This value should only be reduced if the dataset consists of large files (above 10GiB) with consistent small block access below 128KiB from the application.
+
+Once the file system is created, an associated root volume is automatically created by the service.  It is best practice to store data within child volumes of the root volume on the file system.  Using the https://github.com/kubernetes-sigs/aws-fsx-openzfs-csi-driver/tree/main[FSx for OpenZFS CSI driver] you create an associated Persistent Volume Claim to dynamically create the child volume.  
+
+Examples:
+
+A Storage Class (SC) definition for an FSx for OpenZFS volume, used to create a child volume of the root volume ($ROOT_VOL_ID) on an existing file system and export the volume to the VPC CIDR ($VPC_CIDR) using the NFS v4.2 protocol.
+
+[,yaml]
+----
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fsxz-vol-sc
+provisioner: fsx.openzfs.csi.aws.com
+parameters:
+  ResourceType: "volume"
+  ParentVolumeId: '"$ROOT_VOL_ID"'
+  CopyTagsToSnapshots: 'false'
+  DataCompressionType: '"LZ4"'
+  NfsExports: '[{"ClientConfigurations": [{"Clients": "$VPC_CIDR", "Options": ["rw","crossmnt","no_root_squash"]}]}]'
+  ReadOnly: 'false'
+  RecordSizeKiB: '128'
+  Tags: '[{"Key": "Name", "Value": "AI-ML"}]'
+  OptionsOnDeletion: '["DELETE_CHILD_VOLUMES_AND_SNAPSHOTS"]'
+reclaimPolicy: Delete
+allowVolumeExpansion: false
+mountOptions:
+  - nfsvers=4.2
+  - rsize=1048576
+  - wsize=1048576
+  - timeo=600
+  - nconnect=16
+  - async
+----
+
+A dynamically created Persistent Volume Claim (PVC) against the fsxz-vol-sc created above.  **Note**, the storage capacity allocated is 1Gi, this is required for FSx for OpenZFS volumes as noted in the https://github.com/kubernetes-sigs/aws-fsx-openzfs-csi-driver/blob/main/docs/FAQ.md[CSI driver FAQ].  The volume will be provided the full capacity provisioned to the file system with this configuration.  If the volume capacity needs to be restricted you can do so using user or group quotas.
+
+[,yaml]
+----
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamic-vol-pvc
+  namespace: example
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: fsxz-vol-sc
+  resources:
+    requests:
+      storage: 1Gi
+----
+
+Configure a pod to mount a volume using the Persistent Volume Claim (PVC) of dynamic-vol-pvc:
+
+[,yaml]
+----
+kind: Pod
+apiVersion: v1
+metadata:
+  name: fsx-app
+  namespace: example
+spec:
+  volumes:
+    - name: dynamic-vol-pv
+      persistentVolumeClaim:
+        claimName: dynamic-vol-pvc
+  containers:
+    - name: app
+      image: amazonlinux:2023
+      command: ["/bin/sh"]
+      volumeMounts:
+        - mountPath: "/mnt/fsxz"
+          name: dynamic-vol-pv
+----
+
 === Amazon EFS for shared model caches
 
 In scenarios where you have a **multiple EC2 GPU compute instance environment** and have dynamic workloads requiring shared model access across multiple nodes and Availability Zones (e.g., real-time online inference with Karpenter) with moderate performance and scalability needs, we recommend using an Amazon Elastic File System (EFS) file system as a Persistent Volume through the EFS CSI Driver. https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html[Amazon EFS] is a fully managed, highly available, and scalable cloud-based NFS file system that enables EC2 instances and containers with shared file storage,  with consistent performance, and where no upfront provisioning of storage is required. Use EFS as the model volume, and mount the volume as a shared filesystem through defining a Persistent Volume on the EKS cluster. Each Persistent Volume Claim (PVC) that is backed by an EFS file system is created as an https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html[EFS Access-point to the EFS file system]. EFS allows multiple nodes and pods to access the same model files, eliminating the need to sync data to each node's filesystem. https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html[Install the EFS CSI driver] to integrate EFS with EKS.
@@ -182,11 +280,4 @@ To view performance specifications, see https://docs.aws.amazon.com/efs/latest/u
 * Use Elastic Throughput for varying workloads.
 * Use Standard storage class for active ML workloads.
 
-For complete examples of using Amazon EFS file system as a persistent Volume within your EKS cluster and Pods, refer to the https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/examples/kubernetes[EFS CSI Driver Examples in GitHub].
-
-**Monitoring performance**
-Poor disk performance can delay container image reads, increase pod startup latency, and degrade inference or training throughput. We recommend the following methods to monitor the performance metrics of the respective AWS Storage service if bottlenecks occur and adjusting your configuration where required.
-
-* https://docs.aws.amazon.com/fsx/latest/LustreGuide/monitoring-cloudwatch.html[Amazon FSx console and its performance metrics] to view the performance metrics related to your FSx file system.
-* https://docs.aws.amazon.com/efs/latest/ug/accessingmetrics.html[Access Amazon CloudWatch metrics for Amazon EFS] to view the performance metrics related to your EFS file system.
-* https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudwatch-monitoring.html[Monitoring Amazon S3 metrics with Amazon CloudWatch] to view performance details related to your S3 bucket.
+For complete examples of using Amazon EFS file system as a persistent Volume within your EKS cluster and Pods, refer to the https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/examples/kubernetes[EFS CSI Driver Examples in GitHub]. Monitor https://docs.aws.amazon.com/efs/latest/ug/accessingmetrics.html[Amazon EFS performance metrics] using Amazon CloudWatch. When performance bottlenecks are identified, adjust your configuration parameters as needed.
