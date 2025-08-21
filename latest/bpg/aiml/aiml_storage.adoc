@@ -28,6 +28,9 @@ The EKS CSI driver supports the following AWS Storage services, each have their 
 
 The choice of AWS Storage service depends on your deployment architecture, scale, performance requirements, and cost strategy. Storage CSI drivers need to be installed on your EKS cluster, which allows the CSI driver to create and manage Persistent Volumes (PV) outside the lifecycle of a Pod. Using the CSI driver, you can create PV definitions of supported AWS Storage services as EKS cluster resources. Pods can then access these storage volumes for their data volumes through creating a Persistent Volume Claim (PVC) for the PV. Depending on the AWS storage service and your deployment scenario, a single PVC (and its associated PV) can be attached to multiple Pods for a workload. For example, for ML training, shared training data is stored on a PV and accessed by multiple Pods; for real-time online inference, LLM models are cached on a PV and accessed by multiple Pods. Sample PV and PVC YAML files for AWS Storage services are provided below to help you get started.
 
+**Monitoring performance**
+Poor disk performance can delay container image reads, increase pod startup latency, and degrade inference or training throughput. Use https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html[Amazon CloudWatch] to monitor performance metrics for your AWS storage services. When you identify performance bottlenecks, modify your storage configuration parameters to optimize performance.
+
 **Scenario: Multiple GPU instances workload**
 
 **Amazon FSx for Lustre**: In scenarios where you have **multiple EC2 GPU compute instance** environment with latency-sensitive and high-bandwidth throughput dynamic workloads, such as distributed training and model serving, and you require native Amazon S3 data repository integration, we recommend https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html[Amazon FSx for Lustre]. FSx for Lustre provides a fully managed high performance parallel filesystem that is designed for compute-intensive workloads like high-performance computing (HPC), Machine Learning.
@@ -37,7 +40,7 @@ You can https://docs.aws.amazon.com/eks/latest/userguide/fsx-csi.html[Install th
 * **Scratch-SSD storage**: Recommended for workloads that are ephemeral or short-lived (hours), with fixed throughput capacity per-TiB provisioned.
 * **Persistent-SSD storage**: Recommended for mission-critical, long-running workloads that require the highest level of availability, for example HPC simulations, big data analytics or Machine Learning training. With Persistent-SSD storage, you can configure both the storage capacity and throughput capacity (per-TiB) that is required.
 
-Performance considerations:
+**Performance considerations:**
 
 * **Administrative pod to manage FSx for Lustre file system**: Configure an "administrative" Pod that has the lustre client installed and has the FSx file system mounted. This will enable an access point to enable fine-tuning of the FSx file system, and also in situations where you need to pre-warm the FSx file system with your ML training data or LLM models before starting up your GPU compute instances. This is especially important if your architecture utilizes Spot-based Amazon EC2 GPU/compute instances, where you can utilize the administrative Pod to "warm" or "pre-load" desired data into the FSx file system, so that the data is ready to be processed when you run your Spot based Amazon EC2 instances.
 * **Elastic Fabric Adapter (EFA)**: Persistent-SSD storage deployment types support https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html[Elastic Fabric Adapter (EFA)], where using EFA is ideal for high performance and throughput-based GPU-based workloads. Note that FSx for Lustre supports NVIDIA GPUDirect Storage (GDS), where GDS is a technology that creates a direct data path between local or remote storage and GPU memory, to enable faster data access.
@@ -120,7 +123,7 @@ spec:
 
 ----
 
-For complete examples, see the https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes[FSx for Lustre Driver Examples in GitHub].
+For complete examples, see the https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/examples/kubernetes[FSx for Lustre Driver Examples in GitHub]. Monitor https://docs.aws.amazon.com/fsx/latest/LustreGuide/monitoring-cloudwatch.html[Amazon FSx for Lustre performance metrics] using Amazon CloudWatch. When performance bottlenecks are identified, adjust your configuration parameters as needed.
 
 **Scenario: Single GPU instance workload**
 
@@ -277,11 +280,4 @@ To view performance specifications, see https://docs.aws.amazon.com/efs/latest/u
 * Use Elastic Throughput for varying workloads.
 * Use Standard storage class for active ML workloads.
 
-For complete examples of using Amazon EFS file system as a persistent Volume within your EKS cluster and Pods, refer to the https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/examples/kubernetes[EFS CSI Driver Examples in GitHub].
-
-**Monitoring performance**
-Poor disk performance can delay container image reads, increase pod startup latency, and degrade inference or training throughput. We recommend the following methods to monitor the performance metrics of the respective AWS Storage service if bottlenecks occur and adjusting your configuration where required.
-
-* https://docs.aws.amazon.com/fsx/latest/LustreGuide/monitoring-cloudwatch.html[Amazon FSx console and its performance metrics] to view the performance metrics related to your FSx file system.
-* https://docs.aws.amazon.com/efs/latest/ug/accessingmetrics.html[Access Amazon CloudWatch metrics for Amazon EFS] to view the performance metrics related to your EFS file system.
-* https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudwatch-monitoring.html[Monitoring Amazon S3 metrics with Amazon CloudWatch] to view performance details related to your S3 bucket.
+For complete examples of using Amazon EFS file system as a persistent Volume within your EKS cluster and Pods, refer to the https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/examples/kubernetes[EFS CSI Driver Examples in GitHub]. Monitor https://docs.aws.amazon.com/efs/latest/ug/accessingmetrics.html[Amazon EFS performance metrics] using Amazon CloudWatch. When performance bottlenecks are identified, adjust your configuration parameters as needed.
