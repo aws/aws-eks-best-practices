@@ -117,18 +117,16 @@ To address this, adopt small, lightweight base images with minimal dependencies,
 
 === Optimize Node Configuration and Runtime
 
-For very large images that you can't easily minimize, we recommend using the open source Seekable OCI (SOCI) snapshotter configured in parallel pull and unpack mode. This solution lets you use existing images without rebuilding or modifying your build pipelines. It's especially effective for these traits common in scaled AI/ML workloads:
-
-* Very large images deployed to high-performance Amazon EC2 compute instances
-* High-throughput networking and high-performance storage configurations
+For very large images that you can't easily minimize, we recommend using the open source Seekable OCI (SOCI) snapshotter configured in parallel pull and unpack mode. This solution lets you use existing images without rebuilding or modifying your build pipelines. This option is especially effective when deploying workloads with very large images to high performance EC2 compute instances. It works well with high-throughput networking and high performance storage configurations as is typical with scaled AI/ML workloads.
 
 SOCI parallel pull/unpack mode improves end-to-end image pull performance through configurable parallelization strategies. Faster image pulls and preparation directly impact how quickly you can deploy new workloads and scale your cluster efficiently. Image pulls have two main phases:
 
-1. Fetching layers from the registry to the node
-2. Unpacking and preparing those layers to create containers
-
+[discrete]
+*1. Fetching layers from the registry to the node*::
 For layer fetch optimization, SOCI creates multiple concurrent HTTP connections per layer, multiplying download throughput beyond the single-connection limitation. It splits large layers into chunks and downloads them simultaneously across multiple connections. This approach helps saturate your available network bandwidth and reduce download times significantly. This is particularly valuable for AI/ML workloads where a single layer can be several gigabytes.
 
+[discrete]
+*2. Unpacking and preparing those layers to create containers*::
 For layer unpacking optimization, SOCI processes multiple layers simultaneously. Instead of waiting for each layer to fully unpack before starting the next, it uses your available CPU cores to decompress and extract multiple layers concurrently. This parallel processing transforms the traditionally I/O-bound unpacking phase into a CPU-optimized operation that scales with your available cores. The system carefully orchestrates this parallelization to maintain filesystem consistency while maximizing throughput.
 
 SOCI parallel pull mode uses a dual-threshold control system with configurable parameters for both download concurrency and unpacking parallelism. This granular control lets you fine-tune SOCI's behavior to meet your specific performance requirements and environment conditions. Understanding these parameters helps you optimize your runtime for the best pull performance. For more information on the solution and tuning tradeoffs, see the https://github.com/awslabs/soci-snapshotter/blob/main/docs/parallel-mode.md[feature documentation] in the https://github.com/awslabs/soci-snapshotter[SOCI project repository] on GitHub.
