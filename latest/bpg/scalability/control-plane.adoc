@@ -30,7 +30,7 @@ To use a custom metric see the examples in the https://kubernetes.io/docs/tasks/
 
 Replacing nodes regularly keeps your cluster healthy by avoiding configuration drift and issues that only happen after extended uptime (e.g. slow memory leaks). Automated replacement will give you good process and practices for node upgrades and security patching. If every node in your cluster is replaced regularly then there is less toil required to maintain separate processes for ongoing maintenance.
 
-Use Karpenter's https://aws.github.io/aws-eks-best-practices/karpenter/#use-timers-ttl-to-automatically-delete-nodes-from-the-cluster[time to live (TTL)] settings to replace instances after they've been running for a specified amount of time. Self managed node groups can use the `max-instance-lifetime` setting to cycle nodes automatically. Managed node groups do not currently have this feature but you can track the request https://github.com/aws/containers-roadmap/issues/1190[here on GitHub].
+Use Karpenter's https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html#_creating_nodepools[time to live (TTL)] settings to replace instances after they've been running for a specified amount of time. Self managed node groups can use the `max-instance-lifetime` setting to cycle nodes automatically. Managed node groups do not currently have this feature but you can track the request https://github.com/aws/containers-roadmap/issues/1190[here on GitHub].
 
 === Remove underutilized nodes
 
