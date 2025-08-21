@@ -71,6 +71,26 @@ if ! git fetch github; then
     print_error "Failed to fetch from GitHub remote"
 fi
 
+# Verify required branches exist
+print_status "Verifying required branches exist..."
+if ! git show-ref --verify --quiet refs/heads/mainline; then
+    if git show-ref --verify --quiet refs/remotes/origin/mainline; then
+        print_status "Pulling mainline branch from origin..."
+        git checkout -b mainline origin/mainline
+    else
+        print_error "mainline branch not found locally or on origin"
+    fi
+fi
+
+if ! git show-ref --verify --quiet refs/heads/master; then
+    if git show-ref --verify --quiet refs/remotes/github/master; then
+        print_status "Pulling master branch from github..."
+        git checkout -b master github/master
+    else
+        print_error "master branch not found locally or on github"
+    fi
+fi
+
 # Update mainline branch from origin
 print_status "Updating mainline branch from origin..."
 if ! git checkout mainline; then
