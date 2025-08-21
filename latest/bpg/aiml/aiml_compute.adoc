@@ -288,7 +288,7 @@ the following:
 * Advanced sharing mechanisms, such as Multi-Process service (MPS) and
 Multi-Instance GPU (MIG)
 * Support for next-generation hardware architectures, including NVIDIA
-GB200 UltraClusters
+GB200 UltraServers
 
 Traditional GPU allocation treats GPUs as opaque integer resources,
 creating significant under-utilization (often 30-40% in production
@@ -431,7 +431,7 @@ isolated GPU instances.
 * *Multi-Process service (MPS)*: Enables concurrent execution of
 multiple CUDA processes on a single GPU.
 * *Internode Memory Exchange (IMEX)*: Memory-coherent communication
-across nodes for GB200 UltraClusters.
+across nodes for GB200 UltraServers.
 
 === Additional resources
 
@@ -2217,7 +2217,7 @@ root@ip-100-64-173-145 bin]# nvidia-smi
 :info_titleabbrev: IMEX
 
 IMEX (Internode Memory Exchange) enables memory-coherent communication
-across nodes for distributed training on NVIDIA GB200 UltraClusters.
+across nodes for distributed training on NVIDIA GB200 UltraServers.
 
 Do the following steps.
 
