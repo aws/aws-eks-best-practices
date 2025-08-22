@@ -153,7 +153,7 @@ You can use the below commands to find the security groups applied to a Fargate 
 
 [,bash]
 ----
-kubectl get pod FARGATE_POD -o jsonpath='{.metadata.annotations.vpc\.amazonaws\.com/pod-eni}{"\n"}'
+kubectl get pod FARGATE_POD -o jsonpath='{.metadata.annotations.fargate\.amazonaws\.com/pod-sg}{"\n"}'
 ----
 
 Note down the eniId from above command.
