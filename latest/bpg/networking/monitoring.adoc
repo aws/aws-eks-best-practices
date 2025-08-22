@@ -62,7 +62,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 
 helm upgrade -i prometheus-node-exporter prometheus-community/prometheus-node-exporter \
   --set extraArgs[0]="--collector.ethtool" \
-  --set extraArgs[1]="--collector.ethtool.device-include=^eth.*" \
+  --set extraArgs[1]="--collector.ethtool.device-include=(eth|em|eno|ens|enp)[0-9s]+" \
   --set extraArgs[2]="--collector.ethtool.metrics-include=.*" \
   --set podAnnotations."prometheus\.io/scrape='true'" \
   --set podAnnotations."prometheus\.io/port='9100'"
