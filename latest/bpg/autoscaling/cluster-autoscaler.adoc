@@ -182,11 +182,11 @@ fewer nodes. This will have the biggest impact on scalability.
 * Wherever possible, prefer EC2 features when both systems provide
 support (e.g. Regions, MixedInstancePolicy)
 
-_Note: We recommend using
+NOTE: We recommend using
 https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html[EKS
 Managed Node Groups]. Managed Node Groups come with powerful management
 features, including features for Cluster Autoscaler like automatic EC2
-Auto Scaling Group discovery and graceful node termination._
+Auto Scaling Group discovery and graceful node termination.
 
 == Optimizing for Performance and Scalability
 
@@ -548,8 +548,8 @@ Key: k8s.io/cluster-autoscaler/node-template/taint/$TAINT_KEY
 Value: NoSchedule
 ....
 
-_Note: Keep in mind, when scaling to zero your capacity is returned to
-EC2 and may be unavailable in the future._
+NOTE: Keep in mind, when scaling to zero your capacity is returned to
+EC2 and may be unavailable in the future.
 
 == Additional Parameters
 

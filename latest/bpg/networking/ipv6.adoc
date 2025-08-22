@@ -110,7 +110,7 @@ Managed node groups automatically calculate the maximum number of Pods for you. 
 
 === Evaluate Purpose of Existing Custom Networking
 
-If https://aws.github.io/aws-eks-best-practices/networking/custom-networking/[custom networking] is currently enabled, Amazon EKS recommends re-evaluating your need for it with IPv6. If you chose to use custom networking to address the IPv4 exhaustion issue, it is no longer necessary with IPv6. If you are utilizing custom networking to satisfy a security requirement, such as a separate network for nodes and Pods, you are encouraged to submit an https://github.com/aws/containers-roadmap/issues[EKS roadmap request].
+If https://docs.aws.amazon.com/eks/latest/best-practices/custom-networking.html[custom networking] is currently enabled, Amazon EKS recommends re-evaluating your need for it with IPv6. If you chose to use custom networking to address the IPv4 exhaustion issue, it is no longer necessary with IPv6. If you are utilizing custom networking to satisfy a security requirement, such as a separate network for nodes and Pods, you are encouraged to submit an https://github.com/aws/containers-roadmap/issues[EKS roadmap request].
 
 === Fargate Pods in EKS/IPv6 Cluster
 

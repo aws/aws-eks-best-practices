@@ -106,7 +106,7 @@ spec:
 
 Compute resources include EC2 instances and availability zones. Using compute resources effectively will increase your scalability, availability, performance, and reduce your total cost. Efficient resource usage is extremely difficult to predict in an autoscaling environment with multiple applications. https://karpenter.sh/[Karpenter] was created to provision instances on-demand based on the workload needs to maximize utilization and flexibility.
 
-Karpenter allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints for specific nodes. See the https://aws.github.io/aws-eks-best-practices/karpenter/[Karpenter best practices] for more information. Consider enabling https://aws.github.io/aws-eks-best-practices/karpenter/#configure-requestslimits-for-all-non-cpu-resources-when-using-consolidation[consolidation] in your Karpenter provisioner to replace nodes that are under utilized.
+Karpenter allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints for specific nodes. See the https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html[Karpenter best practices] for more information. Consider enabling https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html#_scheduling_pods[consolidation] in your Karpenter provisioner to replace nodes that are under utilized.
 
 == Automate Amazon Machine Image (AMI) updates
 

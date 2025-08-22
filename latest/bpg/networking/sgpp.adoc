@@ -97,7 +97,7 @@ If an application running within the EKS cluster has to communicate with another
 
 In contrast, Kubernetes https://kubernetes.io/docs/concepts/services-networking/network-policies/[network policies] provide a mechanism for controlling ingress and egress traffic both within and outside the cluster. Kubernetes network policies should be considered if your application has limited dependencies on other AWS services. You may configure network policies that specify egress rules based on CIDR ranges to limit access to AWS services as opposed to AWS native semantics like SGs. You may use Kubernetes network policies to control network traffic between Pods (often referred to as East/West traffic) and between Pods and external services. Kubernetes network policies are implemented at OSI levels 3 and 4.
 
-Amazon EKS allows you to use network policy engines such as https://projectcalico.docs.tigera.io/getting-started/kubernetes/managed-public-cloud/eks[Calico] and https://docs.cilium.io/en/stable/intro/[Cilium]. By default, the network policy engines are not installed. Please check the respective install guides for instructions on how to set up. For more information on how to use network policy, see https://aws.github.io/aws-eks-best-practices/security/docs/network/#network-policy[EKS Security best practices]. The DNS hostnames feature is available in the enterprise versions of network policy engines, which could be useful for controlling traffic between Kubernetes Services/Pods and resources that run outside of AWS. Also, you can consider DNS hostname support for AWS services that don't support security groups by default.
+Amazon EKS allows you to use network policy engines such as https://projectcalico.docs.tigera.io/getting-started/kubernetes/managed-public-cloud/eks[Calico] and https://docs.cilium.io/en/stable/intro/[Cilium]. By default, the network policy engines are not installed. Please check the respective install guides for instructions on how to set up. For more information on how to use network policy, see https://docs.aws.amazon.com/eks/latest/best-practices/network-security.html#iam-network-policy[EKS Security best practices]. The DNS hostnames feature is available in the enterprise versions of network policy engines, which could be useful for controlling traffic between Kubernetes Services/Pods and resources that run outside of AWS. Also, you can consider DNS hostname support for AWS services that don't support security groups by default.
 
 === Tag a single Security Group to use AWS Loadbalancer Controller
 
@@ -153,7 +153,7 @@ You can use the below commands to find the security groups applied to a Fargate 
 
 [,bash]
 ----
-kubectl get pod FARGATE_POD -o jsonpath='{.metadata.annotations.vpc\.amazonaws\.com/pod-eni}{"\n"}'
+kubectl get pod FARGATE_POD -o jsonpath='{.metadata.annotations.fargate\.amazonaws\.com/pod-sg}{"\n"}'
 ----
 
 Note down the eniId from above command.

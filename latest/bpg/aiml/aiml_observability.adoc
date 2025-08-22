@@ -19,3 +19,93 @@ We recommend setting up https://docs.aws.amazon.com/AmazonCloudWatch/latest/moni
 
 Static resource limits in Kubernetes (e.g., CPU, memory, and GPU counts) can lead to over-provisioning or underutilization, particularly for dynamic AI/ML workloads like inference. We recommend analyzing utilization trends and consolidate workloads onto fewer GPUs, ensuring each GPU is fully utilized before allocating new ones.
 If GPUs are underutilized, consider the following strategies to optimize scheduling and sharing. To learn more, see the https://docs.aws.amazon.com/eks/latest/best-practices/aiml-compute.html[EKS Compute and Autoscaling] best practices for details.
+
+== Observability and Metrics
+
+=== Using Monitoring and Observability Tools for your AI/ML Workloads
+
+Modern AI/ML services operate at the intersection of infrastructure, modeling, and application logic. Platform engineers manage the infrastructure, observability stack and ensure metrics are collected, stored and visualized. AI/ML Engineers define model specific metrics and focus on performance under varying load and distribution. Application developers consume api, route requests and track service-level metrics and user interactions. Success depends on establishing unified observability practices across environments that give all stakeholders visibility into system health and performance.
+
+Optimizing Amazon EKS clusters for AI/ML workloads presents unique monitoring challenges, particularly around GPU memory management. Without proper monitoring, organizations often face out-of-memory (OOM) errors, resource inefficiencies, and unnecessary costs. For EKS customers, effective monitoring ensures better performance, resilience, and lower costs. A holistic approach that combines granular GPU monitoring using 
+https://docs.nvidia.com/datacenter/dcgm/latest/gpu-telemetry/dcgm-exporter.html[NVIDIA DCGM Exporter] (e.g., GPU memory used, free GPU memory), monitoring and optimizing inference serving for distributed workload insights with their native metrics using frameworks like 
+https://docs.ray.io/en/latest/serve/monitoring.html[Ray], https://docs.vllm.ai/en/v0.8.5/design/v1/metrics.html[vLLM], and application level insights for custom metrics.
+
+Frameworks such as https://github.com/vllm-project/vllm[vLLM], https://github.com/ray-project/ray[Ray], and https://huggingface.co/docs/text-generation-inference/en/index[Hugging Face TGI], etc., provide these native metrics out of the box, enabling seamless integration for monitoring distributed inference workloads without additional custom setup. 
+
+==== Observability methods
+
+We recommend implementing any additional observability mechanisms in one of the following ways.
+
+**CloudWatch Container Insights**
+If your organization prefers AWS-native tools with minimal setup, we recommend https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html[CloudWatch Container Insights]. It integrates with the https://docs.nvidia.com/datacenter/dcgm/latest/gpu-telemetry/dcgm-exporter.html[NVIDIA DCGM Exporter] to collect GPU metrics and offers pre-built dashboards for quick insights. Enabled by installing the https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-EKS-addon.html[CloudWatch Observability add-on] on your cluster, Container Insights deploys and manages the lifecycle of the https://docs.nvidia.com/datacenter/dcgm/latest/gpu-telemetry/dcgm-exporter.html[NVIDIA DCGM Exporter] which collects GPU metrics from Nvidia’s drivers and exposes them to CloudWatch. 
+
+Once onboarded to Container Insights, CloudWatch automatically detects NVIDIA GPUs in your environment, collects the critical health and performance metrics of your NVIDIA GPUs as CloudWatch metrics and makes them available on curated out-of-the-box dashboards. Additionally, https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/aws.html[Ray] and https://docs.vllm.ai/en/latest/[vLLM]  can be integrated with CloudWatch using the https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/UseCloudWatchUnifiedAgent.html[Unified CloudWatch Agent] to send metrics. This simplifies observability in EKS environments, allowing teams to focus on performance tuning and cost optimization.
+
+For more information, to view a complete list of metrics available, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-metrics-EKS.html#Container-Insights-metrics-EKS-GPU[Amazon EKS and Kubernetes Container Insights metrics.] Refer to 
+https://aws.amazon.com/blogs/mt/gain-operational-insights-for-nvidia-gpu-workloads-using-amazon-cloudwatch-container-insights/[Gain operational insights for NVIDIA GPU workloads using Amazon CloudWatch Container Insights] and https://aws.amazon.com/blogs/machine-learning/optimizing-ai-responsiveness-a-practical-guide-to-amazon-bedrock-latency-optimized-inference/[Optimizing AI responsiveness: A practical guide to Amazon Bedrock latency-optimized inference] for detailed implementations.
+
+**Managed Prometheus and Grafana**
+If your organization is comfortable with open-source tools and customized dashboards, we recommend deploying Prometheus with the 
+https://catalog.ngc.nvidia.com/orgs/nvidia/teams/k8s/containers/dcgm-exporter[NVIDIA DCGM-Exporter] and Grafana for Kubernetes-native monitoring with advanced visualizations. Prometheus scrapes metrics, and Grafana creates advanced visualizations. 
+
+Additionally, you can use open source frameworks like 
+https://awslabs.github.io/ai-on-eks/docs/blueprints/inference/GPUs/vLLM-rayserve[Ray and vLLM] to export metrics to Prometheus (which can be visualized using Grafana), or you can 
+https://docs.aws.amazon.com/grafana/latest/userguide/x-ray-data-source.html[Connect to an AWS X-Ray data source], then build dashboards to look at analytics, insights, or traces.
+
+For more information, refer to
+https://aws.amazon.com/blogs/mt/monitoring-gpu-workloads-on-amazon-eks-using-aws-managed-open-source-services/[Monitoring GPU workloads on Amazon EKS using AWS managed open-source services] for a detailed implementation.
+
+=== Consider Monitoring Core Training & Fine-Tuning Metrics
+
+For core training metrics for AI/ML workloads on EKS, consider a combination of metrics that indicate the health and performance of your Amazon EKS cluster and the machine learning workloads running on it. Refer to 
+https://aws.amazon.com/blogs/containers/part-1-introduction-to-observing-machine-learning-workloads-on-amazon-eks/[Introduction to observing machine learning workloads on Amazon EKS] for a detailed implementation. Below, we break down the metrics we recommend monitoring.
+
+**Resource Usage Metrics**:
+
+* **CPU, Memory, and GPU Usage **— Monitoring these metrics for ML workloads allows you to ensure the allocated resources are sufficient and identify opportunities for optimization. For example, monitor the CPU usage of your training pods to ensure they have enough compute resources.
+* **Node and Pod Resource Utilization** — Tracking resource usage at the node and pod level helps you identify resource contention and potential bottlenecks. For example, check if any nodes are over-utilized, which could affect pod scheduling.
+* **Comparison of Resource Utilization with Requests and Limits** — This provides insight into whether your cluster can handle current workloads and accommodate future ones. For example, compare actual memory usage against limits to avoid out-of-memory errors.
+* **Internal Metrics from ML Frameworks** — Capture internal training and convergence metrics from ML frameworks (TensorFlow, PyTorch), such as loss curves, learning rate, batch processing time, and training step duration—often visualized with TensorBoard or similar.
+
+**Model Performance Metrics:**
+
+* **Accuracy, Precision, Recall, and F1-score** — These are vital for understanding the performance of your ML models. For example, after training, calculate the F1-score on a validation set to assess performance.
+* **Business-Specific Metrics and KPIs** — Define and track metrics directly linked to the business value of your AI/ML initiatives. For example, in a recommendation system, track increased user engagement.
+* **Tracking these metrics over time** — This helps identify any degradation in model performance. For example, compare performance metrics across model versions to spot trends.
+
+**Data Quality and Drift Metrics:**
+
+* **Statistical Properties of Input Data** — Monitor these over time to detect data drift or anomalies that could impact model performance. For example, track the mean of input features to detect shifts.
+* **Data Drift Detection and Alerts** — Implement mechanisms to automatically detect and alert on data quality issues. For example, use tests to compare current data with training data and alert on significant drift.
+
+**Latency and Throughput Metrics:**
+
+* **End-to-End Latency of ML Pipelines** — Monitor the time it takes for data to flow through the entire training pipeline. For example, measure total time from data ingestion to model update.
+* **Throughput and Processing Rate** — Track the volume of data processed during training to ensure efficiency. For example, monitor positive and negative samples processed per second.
+* **Identifying Performance Bottlenecks** — Use these metrics to pinpoint areas for optimization in the training process. For example, analyze time spent in data loading versus model computation.
+
+**Error Rates and Failures**:
+
+* **Monitoring errors throughout the ML pipeline** — This includes data preprocessing, model training, and inference. For example, log errors in preprocessing to quickly identify issues.
+* **Identifying and investigating recurring errors** — This helps maintain a high-quality model and ensure consistent performance. For example, analyze logs to find patterns like specific data causing failures. 
+
+**Kubernetes and EKS Specific Metrics:**
+
+* **Kubernetes Cluster State Metrics** — Monitor the health and status of various Kubernetes objects, including pods, nodes, and the control plane. For example, use tools like `kubectl` to check pod statuses.
+* **Success / Failed Pipeline Runs** — Track successful/failed pipeline runs, job durations, step completion times, and orchestration errors (e.g., using Kubeflow/Mlflow/Argo events).
+* **AWS Service Metrics **— Track metrics for other AWS services that support your EKS infrastructure and the applications running on it. For example, if using Amazon S3, monitor bucket size to track storage usage.
+* **Kubernetes Control Plane Metrics** — Monitor the API server, scheduler, controller manager, and etcd database for performance issues or failures. For example, track API server request latency for responsiveness.
+
+### Consider Monitoring Real-time Online Inference Metrics
+
+In real-time systems, low latency is critical for providing timely responses to users or other dependent systems. High latency can degrade user experience or violate performance requirements. Components that influence inference latency include model loading time, pre-processing time, actual prediction time, post-processing time, network transmission time. We recommend monitoring inference latency to ensure low-latency responses that meet service-level agreements (SLAs) and developing custom metrics for the following. Test under expected load, include network latency, account for concurrent requests, and test with varying batch sizes.
+
+* **Time to First Token (TTFT)** — Amount of time from when a user submits a request until they receive the beginning of a response (the first word, token, or chunk). For example, in chatbots, you’d check how long it takes to generate the first piece of output (token) after the user asks a question.
+* **End-to-End Latency** — This is the total time from when a request is received to when the response is sent back. For example, measure time from request to response.
+* **Output Tokens Per Second (TPS)** — Indicates how quickly your model generates new tokens after it starts responding. For example, in chatbots, you’d track generation speed for language models for a baseline text.
+* **Error Rate **— Tracks failed requests, which can indicate performance issues. For example, monitor failed requests for large documents or certain characters.
+* **Throughput** — Measure the number of requests or operations the system can handle per unit of time. For example, track requests per second to handle peak loads.
+
+K/V (Key/Value) cache can be a powerful optimization technique for inference latency, particularly relevant for transformer-based models. K/V cache stores the key and value tensors from previous transformer layer computations, reducing redundant computations during autoregressive inference, particularly in large language models (LLMs). Cache Efficiency Metrics (specifically for K/V or a session cache use):
+
+* **Cache hit/miss ratio** — For inference setups leveraging caching (K/V or embedding caches), measure how often cache is helping. Low hit rates may indicate suboptimal cache config or workload changes, both of which can increase latency.
