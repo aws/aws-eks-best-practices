@@ -49,7 +49,7 @@ With the move to API Priority and Fairness the total number of requests on the s
 Let's look at these queues with the following query:
 
 ----
-max without(instance)(apiserver_flowcontrol_request_concurrency_limit{})
+max without(instance)(apiserver_flowcontrol_nominal_limit_seats{})
 ----
 
 [NOTE]
