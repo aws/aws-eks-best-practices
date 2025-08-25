@@ -152,10 +152,6 @@ https://grafana.com/grafana/dashboards/14623[Kubernetes Monitoring
 Overview Dashboard] to visualize and monitor Kubernetes API server
 requests and latency and etcd latency metrics.
 
-[source,text]
-----
-max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
-----
 
 [IMPORTANT]
 ====
