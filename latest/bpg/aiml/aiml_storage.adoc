@@ -240,6 +240,7 @@ spec:
       storage: 1Gi
 ----
 
+
 Configure a pod to mount a volume using the Persistent Volume Claim (PVC) of dynamic-vol-pvc:
 
 [,yaml]
@@ -281,3 +282,31 @@ To view performance specifications, see https://docs.aws.amazon.com/efs/latest/u
 * Use Standard storage class for active ML workloads.
 
 For complete examples of using Amazon EFS file system as a persistent Volume within your EKS cluster and Pods, refer to the https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/examples/kubernetes[EFS CSI Driver Examples in GitHub]. Monitor https://docs.aws.amazon.com/efs/latest/ug/accessingmetrics.html[Amazon EFS performance metrics] using Amazon CloudWatch. When performance bottlenecks are identified, adjust your configuration parameters as needed.
+
+=== Use S3 Express One Zone for Latency-Sensitive, Object Oriented Workflows
+
+For latency-sensitive AI/ML workloads on Amazon EKS, such as large-scale model training, inference, or high-performance analytics, we recommend using https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-getting-started.html[S3 Express One Zone] for high-performance model storage and retrieval. S3 Express One Zone offers a hierarchical namespace, like a filesystem, where you simply upload to a directory bucket, suitable for "chucking everything in," while maintaining high speed.
+This is particularly useful if you are accustomed to object-oriented workflows. Alternatively, if you are more accustomed to file systems (e.g., POSIX-compliant), you may prefer Amazon FSx for Lustre or OpenZFS. Amazon S3 Express One Zone stores data in a single Availability Zone (AZ) using directory buckets and offering lower latency than standard S3 buckets, which distribute data across multiple AZs. For best results, make sure to co-locate your EKS compute in the same AZ as your Express One Zone bucket. To learn more about the differences of S3 Express One Zone, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-differences.html[Differences for directory buckets].
+
+To access S3 Express One Zone with filesystem semantics, we recommend using the https://github.com/awslabs/mountpoint-s3-csi-driver/tree/main[Mountpoint S3 CSI Driver], which mounts S3 buckets (including Express One Zone) as a local file system. This translates file operations (e.g., open, read, write) into S3 API calls, providing high-throughput access optimized for read-heavy workloads from multiple clients and sequential writes to new objects. For details on supported operations and limitations (e.g., no full POSIX compliance, but appends and renames supported in Express One Zone), see the https://github.com/awslabs/mountpoint-s3/blob/main/doc/SEMANTICS.md[Mountpoint semantics documentation]. 
+
+**Performance benefits**
+
+* Provides up to 10x faster data access than S3 Standard, with consistent single-digit millisecond latency and up to 80% lower request costs.
+* Scales to handle hundreds of thousands to https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-optimizing-performance-design-patterns.html#s3-express-how-directory-buckets-work[millions of requests per second per directory bucket], avoiding throttling or brownouts seen in standard S3 during extreme loads (e.g., from clusters with tens to hundreds of thousands of GPUs/CPUs saturating networks).
+* Uses a session-based authentication mechanism. Authenticate once to obtain a session token, then perform repeated operations at high speed without per-request auth overhead. This is optimized for workloads like frequent checkpointing or data loading.
+
+**Recommended use cases**
+
+* **Caching**: One of the top use cases of using the Mountpoint S3 CSI Driver with S3 Express One Zone is caching. The first instance reads data from S3 Standard (general purpose), caching it in lower-latency Express One Zone. Subsequent reads by other clients access the cached data faster, which is ideal for multi-node scenarios where multiple EKS nodes read the same data (e.g., shared training datasets). This can improve performance by up to 7x for repeated accesses and reduce compute costs. For workloads requiring full POSIX compliance (e.g., file locking and in-place modifications), consider Amazon FSx for Lustre or OpenZFS as alternatives.
+* **Large-Scale AI/ML training and inference**: Ideal for workloads with hundreds or thousands of compute nodes (e.g., GPUs in EKS clusters) where general purpose S3 throttling could cause delays, wasting expensive compute resources. For example, LLM researchers or organizations running daily model tests/checkpoints benefit from fast, reliable access without breaking regional S3. For smaller-scale workloads (e.g., 10s of nodes), S3 Standard or other storage classes may suffice.
+* **Data pipelines**: Load/prepare models, archive training data, or stream checkpoints. If your team prefers object storage over traditional file systems (e.g., due to familiarity with S3), use this instead of engineering changes for POSIX-compliant options like FSx for Lustre.
+
+**Considerations**
+
+* **Resilience**: Single-AZ design provides 99.999999999% durability (same as standard S3, via redundancy within the AZ) but lower availability (99.95% designed, 99.9% SLA) compared to multi-AZ classes (99.99% availability). It's less resilient to AZ failures. Use for recreatable or cached data. Consider multi-AZ replication or backups for critical workloads.
+* **API and Feature Support**: Supports a subset of S3 APIs (e.g., no lifecycle policies or replication); may require minor app changes for session authentication or object handling.
+* **EKS Integration**: Co-locate your EKS pods/nodes in the same AZ as the directory bucket to minimize network latency. Use Mountpoint for Amazon S3 or CSI drivers for Kubernetes-native access.
+* **Testing:** Test retrieval latency in a non-production environment to validate performance gains. Monitor for throttling in standard S3 scenarios (e.g., high GPU saturation) and compare.
+
+The S3 Express One Zone storage class is available in multiple regions and integrates with EKS for workloads needing object access without waiting on storage. To learn more, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-getting-started.html[Getting started with S3 Express One Zone]. 
