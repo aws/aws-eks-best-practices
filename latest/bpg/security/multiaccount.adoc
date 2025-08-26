@@ -169,7 +169,7 @@ https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.
 the same steps as the documentation], but use the
 https://docs.aws.amazon.com/eks/latest/userguide/cross-account-access.html[12
 digit account id of the workload account] as mentioned in the section
-"`Example Create an identity provider from another account’s cluster`".
+"`Example Create an identity provider from another account's cluster`".
 
 After this is configured, your application running in EKS will be able
 to directly use its service account to assume a role in the workload
@@ -427,4 +427,3 @@ accounts are delivered directly to pods with IRSA or EKS Pod Identities
 |===
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/multiaccount.adoc[Edit this page on GitHub]

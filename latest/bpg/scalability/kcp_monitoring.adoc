@@ -54,7 +54,7 @@ max without(instance)(apiserver_flowcontrol_request_concurrency_limit{})
 
 [NOTE]
 ====
-For more information on how API A&F works please see the following https://aws.github.io/aws-eks-best-practices/scalability/docs/control-plane/#api-priority-and-fairness[best practices guide]
+For more information on how API A&F works please see the following https://docs.aws.amazon.com/eks/latest/best-practices/scale-control-plane.html#_api_priority_and_fairness[best practices guide]
 ====
 
 Here we see the seven different priority groups that come by default on the cluster
@@ -71,7 +71,7 @@ Increasing the queue depth can make the API Server a significant source of laten
 
 To focus on a simple impactful change you can make in APF we simply take shares from underutilized buckets and increase the size of buckets that are at their max usage. By intelligently redistributing the shares among these buckets, you can make drops less likely.
 
-For more information, visit https://aws.github.io/aws-eks-best-practices/scalability/docs/control-plane/#api-priority-and-fairness[API Priority and Fairness settings] in the EKS Best Practices Guide.
+For more information, visit https://docs.aws.amazon.com/eks/latest/best-practices/scale-control-plane.html#_api_priority_and_fairness[API Priority and Fairness settings] in the EKS Best Practices Guide.
 
 === API vs. etcd latency
 
@@ -183,8 +183,8 @@ Kube Controller Manager, like all other controllers, has limits on how many oper
     concurrentServiceSyncs: 5
     concurrentResourceQuotaSyncs: 5
     concurrentGcSyncs: 20
-    kubeAPIBurst: 20
-    kubeAPIQPS: "30"
+    kubeAPIBurst: 30
+    kubeAPIQPS: "20"
 ----
 
 These controllers have queues that fill up during times of high churn on a cluster. In this case we see the replicaset set controller has a large backlog in its queue.
@@ -268,4 +268,3 @@ fields *@timestamp*, *@message*
 image::defrag.png[Defrag query]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/kcp_monitoring.adoc[Edit this page on GitHub]

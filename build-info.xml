@@ -5,7 +5,10 @@
       <pathslug>eks</pathslug>
       <title>Amazon EKS</title>
       <forumID>0</forumID>
-     <feedbackCTI>Amazon EKS</feedbackCTI>
+      <feedbackSIM>75a10997-4718-4741-9d4f-6dc5d580ea05</feedbackSIM>
+      <options>
+        <hide-github-link>0</hide-github-link>
+      </options>
       
       
 
@@ -19,21 +22,21 @@
           <version>latest</version>
           <asciidoc-source>latest/bpg</asciidoc-source>
           <locale>en_us</locale>
-<!--     
-          <options>
-          </options>
--->     
+
+          <github>
+            <user>aws</user>
+            <repo>aws-eks-best-practices</repo>
+            <branch>master</branch>
+            <source-folder>latest/bpg</source-folder>
+          </github>
+    
           <builds>
-            <html>
-              <rss>
-                <title>EKS Best Practices Guide Updates</title>
-                <filename>eks-bpg</filename>
-              </rss>
-            </html>
-            
-            <!-- <pdf/> -->
-            
-            </builds>
+            <html />
+            <pdf />
+            <asciidoc>
+              <include-html-profiling>1</include-html-profiling>
+            </asciidoc> 
+          </builds>
 
         </guide>
       </guides>

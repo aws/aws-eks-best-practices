@@ -1,0 +1,148 @@
+//!!NODE_ROOT <section>
+[.topic]
+[[hybrid-nodes-kubernetes-pod-failover,hybrid-nodes-kubernetes-pod-failover.title]]
+= Kubernetes pod failover through network disconnections
+:doctype: section
+:info_doctype: section
+:info_title: Kubernetes pod failover through network disconnections
+:info_titleabbrev: Kubernetes pod failover
+:info_abstract: Kubernetes pod failover through network disconnections
+
+We begin with a review of the key concepts, components, and settings that influence how Kubernetes behaves during network disconnections between nodes and the Kubernetes control plane. EKS is upstream Kubernetes conformant, so all the Kubernetes concepts, components, and settings described here apply to EKS and EKS Hybrid Nodes deployments. 
+
+There are improvements that have been made to EKS specifically to improve pod failover behavior during network disconnections, for more information see GitHub issues link:https://github.com/kubernetes/kubernetes/pull/131294[#131294] and link:https://github.com/kubernetes/kubernetes/issues/131481[#131481] in the upstream Kubernetes repository.
+
+== Concepts
+
+[.underline]#Taints and Tolerations#: Taints and tolerations are used in Kubernetes to control the scheduling of pods onto nodes. Taints are set by the node-lifecycle-controller to indicate that nodes are not eligible for scheduling or that pods on those nodes should be evicted. When nodes are unreachable due to a network disconnection, the node-lifecycle-controller applies the node.kubernetes.io/unreachable taint with a NoSchedule effect, and with a NoExecute effect if certain conditions are met. The node.kubernetes.io/unreachable taint corresponds to the NodeCondition Ready being Unknown. Users can specify tolerations for taints at the application level in the PodSpec.
+
+* NoSchedule: No new Pods are scheduled on the tainted node unless they have a matching toleration. Pods already running on the node are not evicted.
+* NoExecute: Pods that do not tolerate the taint are evicted immediately. Pods that tolerate the taint (without specifying tolerationSeconds) remain bound forever. Pods that tolerate the taint with a specified tolerationSeconds remain bound for the specified time. After that time elapses, the node lifecycle controller evicts the Pods from the node.
+
+[.underline]#Node Leases#: Kubernetes uses the Lease API to communicate kubelet node heartbeats to the Kubernetes API server. For every node, there is a Lease object with a matching name. Internally, each kubelet heartbeat updates the spec.renewTime field of the Lease object. The Kubernetes control plane uses the timestamp of this field to determine node availability. If nodes are disconnected from the Kubernetes control plane, they cannot update spec.renewTime for their Lease, and the control plane interprets that as the NodeCondition Ready being Unknown.
+
+== Components
+
+image::images/hybrid/k8s-components-pod-failover.png[Kubernetes components involved in pod failover behavior,scaledwidth=100%]
+
+[cols="2,2,5"]
+|===
+|Component|Sub-component|Description
+
+|Kubernetes control plane
+|kube-api-server
+|The API server is a core component of the Kubernetes control plane that exposes the Kubernetes API.
+
+|Kubernetes control plane
+|node-lifecycle-controller
+|One of the controllers that the kube-controller-manager runs. It is responsible for detecting and responding to node issues.
+
+|Kubernetes control plane
+|kube-scheduler
+|A control plane component that watches for newly created Pods with no assigned node, and selects a node for them to run on.
+
+|Kubernetes nodes
+|kubelet
+|An agent that runs on each node in the cluster. The kubelet watches PodSpecs and ensures that the containers described in those PodSpecs are running and healthy.
+|===
+
+== Configuration settings
+
+[cols="1,2,5,1,1,1"]
+|===
+|Component|Setting|Description|K8s default|EKS default|Configurable in EKS
+
+|kube-api-server
+|default-unreachable-toleration-seconds
+|Indicates the `tolerationSeconds` of the toleration for `unreachable:NoExecute` that is added by default to every pod that does not already have such a toleration.
+|300
+|300
+|No
+
+|node-lifecycle-controller
+|node-monitor-grace-period
+|The amount of time a node can be unresponsive before being marked unhealthy. Must be N times more than kubelet's `nodeStatusUpdateFrequency`, where N is the number of retries allowed for the kubelet to post node status.
+|40
+|40
+|No
+
+|node-lifecycle-controller
+|large-cluster-size-threshold
+|The number of nodes at which the node-lifecycle-controller treats the cluster as large for eviction logic. `--secondary-node-eviction-rate` is overridden to 0 for clusters of this size or smaller.
+|50
+|100,000
+|No
+
+|node-lifecycle-controller
+|unhealthy-zone-threshold
+|The percentage of nodes in a zone that must be Not Ready for that zone to be treated as unhealthy.
+|55%
+|55%
+|No
+
+|kubelet
+|node-status-update-frequency
+|How often the kubelet posts node status to the control plane. Must be compatible with `nodeMonitorGracePeriod` in node-lifecycle-controller.
+|10
+|10
+|Yes
+
+|kubelet
+|node-labels
+|Labels to add when registering the node in the cluster. The label `topology.kubernetes.io/zone` can be specified with hybrid nodes to group nodes into zones.
+|None
+|None
+|Yes
+|===
+
+== Kubernetes pod failover through network disconnections
+
+The behavior described here assumes pods are running as Kubernetes Deployments with default settings, and that EKS is used as the Kubernetes provider. Actual behavior might differ based on your environment, type of network disconnection, applications, dependencies, and cluster configuration. The content in this guide was validated using a specific application, cluster configuration, and subset of plugins. It is strongly recommended to test the behavior in your own environment and with your own applications before moving to production.
+
+When there are network disconnections between nodes and the Kubernetes control plane, the kubelet on each disconnected node cannot communicate with the Kubernetes control plane. Consequently, the kubelet cannot evict pods on those nodes until the connection is restored. This means that pods running on those nodes before the network disconnection continue to run during the disconnection, assuming no other failures cause them to shut down. In summary, you can achieve static stability during network disconnections between nodes and the Kubernetes control plane, but you cannot perform mutating operations on your nodes or workloads until the connection is restored.
+
+There are five main scenarios that produce different pod failover behaviors based on the nature of the network disconnection. In all scenarios, the cluster becomes healthy again without operator intervention once the nodes reconnect to the Kubernetes control plane. The scenarios below outline expected results based on our observations, but these results might not apply to all possible application and cluster configurations.
+
+=== Scenario 1: Full cluster disruption
+
+*Expected result*: Pods on unreachable nodes are not evicted and continue running on those nodes.
+
+A full cluster disruption means all nodes in the cluster are disconnected from the Kubernetes control plane. In this scenario, the node-lifecycle-controller on the control plane detects that all nodes in the cluster are unreachable and cancels any pod evictions.
+
+Cluster administrators will see all nodes with status `Not Ready` during the disconnection. Pod status does not change, and no new pods are scheduled on any nodes during the disconnection and subsequent reconnection.
+
+=== Scenario 2: Full zone disruption
+
+*Expected result*: Pods on unreachable nodes are not evicted and continue running on those nodes.
+
+A full zone disruption means all nodes in the zone are disconnected from the Kubernetes control plane. In this scenario, the node-lifecycle-controller on the control plane detects that all nodes in the zone are unreachable and cancels any pod evictions.
+
+Cluster administrators will see all nodes with status `Not Ready` during the disconnection. Pod status does not change, and no new pods are scheduled on any nodes during the disconnection and subsequent reconnection.
+
+=== Scenario 3: Majority zone disruption
+
+*Expected result*: Pods on unreachable nodes are not evicted and continue running on those nodes.
+
+A majority zone disruption means that most nodes in a given zone are disconnected from the Kubernetes control plane. Zones in Kubernetes are defined by nodes with the same `topology.kubernetes.io/zone` label. If no zones are defined in the cluster, a majority disruption means the majority of nodes in the entire cluster are disconnected. By default, a majority is defined by the node-lifecycle-controller's `unhealthy-zone-threshold`, which is set to 55% in both Kubernetes and EKS. Because `large-cluster-size-threshold` is set to 100,000 in EKS, if 55% or more of the nodes in a zone are unreachable, pod evictions are canceled (given that most clusters are far smaller than 100,000 nodes).
+
+Cluster administrators will see a majority of nodes in the zone with status `Not Ready` during the disconnection, but the status of pods will not change, and they will not be rescheduled on other nodes. 
+
+Note that the behavior above applies only to clusters larger than three nodes. In clusters of three nodes or fewer, pods on unreachable nodes are scheduled for eviction, and new pods are scheduled on healthy nodes.
+
+During testing, we occasionally observed that pods were evicted from exactly one unreachable node during network disconnections, even when a majority of the zone's nodes were unreachable. We are still investigating a possible race condition in the Kubernetes node-lifecycle-controller as the cause of this behavior.
+
+=== Scenario 4: Minority zone disruption
+
+*Expected result*: Pods are evicted from unreachable nodes, and new pods are scheduled on available, eligible nodes.
+
+A minority disruption means that a smaller percentage of nodes in a zone are disconnected from the Kubernetes control plane. If no zones are defined in the cluster, a minority disruption means the minority of nodes in the entire cluster are disconnected. As stated, minority is defined by the `unhealthy-zone-threshold` setting of node-lifecycle-controller, which is 55% by default. In this scenario, if the network disconnection lasts longer than the `default-unreachable-toleration-seconds` (5 minutes) and `node-monitor-grace-period` (40 seconds), and less than 55% of nodes in a zone are unreachable, new pods are scheduled on healthy nodes while pods on unreachable nodes are marked for eviction.
+
+Cluster administrators will see new pods created on healthy nodes, and the pods on disconnected nodes will show as `Terminating`. Remember that, even though pods on disconnected nodes have a `Terminating` status, they are not fully evicted until the node reconnects to the Kubernetes control plane.
+
+== Scenario 5: Node restart during network disruption
+
+*Expected result*: Pods on unreachable nodes are not started until the nodes reconnect to the Kubernetes control plane. Pod failover follows the logic described in Scenarios 1–3, depending on the number of unreachable nodes.
+
+A node restart during network disruption means that another failure (such as a power cycle, out-of-memory event, or other issue) occurred on a node at the same time as a network disconnection. The pods that were running on that node when the network disconnection began are not automatically restarted during the disconnection if the kubelet has also restarted. The kubelet queries the Kubernetes API server during startup to learn which pods it should run. If the kubelet cannot reach the API server due to a network disconnection, it cannot retrieve the information needed to start the pods.
+
+In this scenario, local troubleshooting tools such as the `crictl` CLI cannot be used to start pods manually as a “break-glass” measure. Kubernetes typically removes failed pods and creates new ones rather than restarting existing pods (see https://github.com/containerd/containerd/pull/10213[#10213] in the containerd GitHub repo for details). Static pods are the only Kubernetes workload object that are controlled by the kubelet and can be restarted during these scenarios. However, it is generally not recommended to use static pods for application deployments. Instead, deploy multiple replicas across different hosts to ensure application availability in the event of multiple simultaneous failures, such as a node failure plus a network disconnection between your nodes and the Kubernetes control plane.

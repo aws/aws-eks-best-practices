@@ -62,8 +62,8 @@ Console. Also unlike Fargate, MNGs will not automatically scale your
 infrastructure/cluster. That can be handled by the
 https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md[cluster-autoscaler]
 or other technologies such as https://karpenter.sh/[Karpenter], native
-AWS autoscaling, SpotInst’s
-https://spot.io/solutions/kubernetes-2/[Ocean], or Atlassian’s
+AWS autoscaling, SpotInst's
+https://spot.io/product/ocean[Ocean], or Atlassian's
 https://github.com/atlassian/escalator[Escalator].
 
 .Shared Responsibility Model - MNG
@@ -141,7 +141,7 @@ practices that align with DevOps processes and agile methodologies.
 https://catalog.workshops.aws/eks-security-immersionday/en-US[Amazon EKS
 Security Immersion Workshop]
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/index.adoc[Edit this page on GitHub]
+
 
 include::iam.adoc[leveloffset=+1]
 

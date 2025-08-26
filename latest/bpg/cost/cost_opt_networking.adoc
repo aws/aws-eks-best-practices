@@ -19,15 +19,19 @@ Depending on your setup, network communication and data transfer between Pods ca
 
 === Restricting Traffic to an Availability Zone
 
-Frequent egress cross-zone traffic (traffic distributed between AZs) can have a major impact on your network-related costs. Below are some strategies on how to control the amount of cross-zone traffic between Pods in your EKS cluster.
+The Kubernetes project early on began developing topology-aware constructs including labels like kubernetes.io/hostname, topology.kubernetes.io/region, and topology.kubernetes.io/zone assigned to nodes to enable features such as workload distribution across failure domains and topology-aware volume provisioners. Having graduated in Kubernetes 1.17, the labels were also leveraged to enable topology-aware routing capabilities for Pod to Pod communication. 
 
-_If you want granular visibility into the amount of cross-zone traffic between Pods in your cluster (such as the amount of data transferred in bytes), https://aws.amazon.com/blogs/containers/getting-visibility-into-your-amazon-eks-cross-az-pod-to-pod-network-bytes/[refer to this post]._
+Below are some strategies on how to control the amount of cross-AZ traffic between Pods in your EKS cluster to reduce costs and minimize latency. 
 
-*Using Topology Aware Routing (formerly known as Topology Aware Hints)*
+_If you want granular visibility into the amount of cross-AZ traffic between Pods in your cluster (such as the amount of data transferred in bytes), https://aws.amazon.com/blogs/containers/getting-visibility-into-your-amazon-eks-cross-az-pod-to-pod-network-bytes/[refer to this post]._
 
 image::topo_aware_routing.png[Topology aware routing]
 
-When using topology aware routing, it's important to understand how Services, EndpointSlices and the `kube-proxy` work together when routing traffic. As the diagram above depicts, Services are the stable network abstraction layer that receive traffic destined for your Pods. When a Service is created, multiple EndpointSlices are created. Each EndpointSlice has a list of endpoints containing a subset of Pod addresses along with the nodes they're running on and any additional topology information. `kube-proxy` is a daemonset that runs on every node in your cluster and also fulfills a role of internal routing, but it does so based on what it consumes from the created EndpointSlices.
+As the diagram above depicts, Services are the stable network abstraction layer that receive traffic destined for your Pods. When a Service is created, multiple EndpointSlices are created. Each EndpointSlice has a list of endpoints containing a subset of Pod addresses along with the nodes they're running on and any additional topology information. When using the Amazon VPC CNI, kube-proxy, a daemonset running on every node, maintains network rules to enable Pod communication and Service discovery (alternative eBPF-based CNIs may not use kube-proxy but provide equivalent behavior). It fulfills the role of internal routing, but it does so based on what it consumes from the created EndpointSlices.
+
+On EKS, kube-proxy primarily uses iptables NAT rules (or https://docs.aws.amazon.com/eks/latest/best-practices/ipvs.html[IPVS], https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[NFTables] as alternatives) for traffic distribution across all pods in the cluster, regardless of their node or AZ placement. This default distribution can lead to cross-AZ traffic routing, potentially causing increased latency for sensitive applications and inter-AZ data transfer charges in large deployments.
+
+*Using Topology Aware Routing (formerly known as Topology Aware Hints)*
 
 When https://kubernetes.io/docs/concepts/services-networking/topology-aware-routing/[_topology aware routing_] is enabled and implemented on a Kubernetes Service, the EndpointSlice controller will proportionally allocate endpoints to the different zones that your cluster is spread across. For each of those endpoints, the EndpointSlice controller will also set a _hint_ for the zone. _Hints_ describe which zone an endpoint should serve traffic for. `kube-proxy` will then route traffic from a zone to an endpoint based on the _hints_ that get applied.
 
@@ -65,8 +69,46 @@ image::slice_shell.png[Slice shell]
 
 [NOTE]
 ====
-It's important to note that topology aware routing is still in *beta*. Also, this feature is more predictable when workloads are widely and evenly distributed across the cluster topology. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/[pod topology spread constraints].
+It’s important to note that topology aware routing is still in beta. This feature performs more predictably with evenly distributed workloads across the cluster topology, as the controller allocates endpoints proportionally across zones but may skip hint assignments when node resources in a zone are too imbalanced to avoid excessive overload. Therefore, it is highly recommended to use it in conjunction with scheduling constraints that increase the availability of an application such as https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/[pod topology spread constraints]. Note that hints may also not be assigned when capacity fluctuates across zones, such as when using https://aws.amazon.com/ec2/spot/[Amazon EC2 Spot Instances], as interruptions or replacements are not detected in real-time when calculating the proportional distribution.
 ====
+
+*Using Traffic Distribution*
+
+Introduced in Kubernetes 1.30 and made generally available in 1.33, https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution[Traffic Distribution] offers a simpler alternative to Topology Aware Routing for same-zone traffic preference. While Topology Aware Routing attempts to use an intelligent approach to traffic routing to avoid overloading endpoints, it resulted in unpredictable behavior. Traffic Distribution prioritizes predictability instead. The PreferClose option directs kube-proxy to create rules that route traffic to same-zone endpoints first based on the zonal _hint_ set by the EndpointSlice Controller. When no same-zone endpoints are available, it falls back to distributing traffic across any cluster endpoint for the Service. This feature is designed for workloads that accept the tradeoff of optimizing for proximity rather than the attempted even distribution of load that Topology Aware Routing provides. 
+
+Below is a code snippet on how to enable _traffic distribution_ for a Service.
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-service
+  namespace: ecommerce
+spec:
+  trafficDistribution: PreferClose
+  selector:
+    app: orders
+  type: ClusterIP
+  ports:
+
+* protocol: TCP
+port: 3003
+targetPort: 3003
+----
+
+When enabling Traffic Distribution, a common challenge emerges: endpoints within a single AZ can become overloaded if most traffic originates from that same zone. This overloading can create significant issues:
+
+* A single Horizontal Pod Autoscaler (HPA) managing a multi-AZ deployment may respond by scaling out pods across different AZs. However, this action fails to effectively address the increased load in the affected zone.
+
+* This situation in turn can lead to resource inefficiency. When cluster autoscalers like Karpenter detect the pod scale-out across different AZs, they may provision additional nodes in the unaffected AZs, resulting in unnecessary resource allocation.
+
+To overcome this challenge:
+
+* Create separate deployments per zone which would have their own HPAs to scale independent of one another.
+
+* Leverage Topology Spread Constraints to ensure workload distribution across the cluster, which helps prevent endpoint overloads in high-traffic zones. 
+
 
 *Using Autoscalers: Provision Nodes to a Specific AZ*
 
@@ -78,7 +120,7 @@ To run all your Pods in the same AZ, either provision the worker nodes in the sa
 
 [source,yaml]
 ----
-apiVersion: karpenter.sh/v1alpha5
+apiVersion: karpenter.sh/v1
 kind: Provisioner
 metadata:
 name: single-az
@@ -309,9 +351,9 @@ To further reduce costs in such architectures, _you should use https://docs.aws.
 
 _There are no hourly or data transfer costs associated with Gateway VPC Endpoints_. When using Gateway VPC Endpoints, it's important to note that they are not extendable across VPC boundaries. They can't be used in VPC peering, VPN networking, or via Direct Connect.
 
-*Interface VPC Endpoint*
+*Interface VPC Endpoints*
 
-VPC Endpoints have an https://aws.amazon.com/privatelink/pricing/[hourly charge] and, depending on the AWS service, may or may not have an additional charge associated with data processing via the underlying ENI. To reduce inter-AZ data transfer costs related to Interface VPC Endpoints, you can create a VPC Endpoint in each AZ. You can create multiple VPC Endpoints in the same VPC even if they're pointing to the same AWS service.
+VPC Endpoints have an https://aws.amazon.com/privatelink/pricing/[hourly charge] and have an additional charge associated with data processing via the underlying ENI. Note that inter-AZ data transfer is [not charged](https://aws.amazon.com/about-aws/whats-new/2022/04/aws-data-transfer-price-reduction-privatelink-transit-gateway-client-vpn-services/).
 
 The diagram below shows Pods communicating with AWS services via VPC Endpoints.
 
@@ -409,7 +451,7 @@ image:istio-traffic-control.png[Istop Traffic Control]
 
 **Using the Service Internal Traffic Policy with Istio**
 
-To mitigate network costs associated with _external_ incoming traffic and _internal_ traffic between Pods, you can combine Istio’s Destination Rules and the Kubernetes Service _internal traffic policy_.  The way to combine Istio destination rules with the service internal traffic policy will largely depend on 3 things:
+To mitigate network costs associated with _external_ incoming traffic and _internal_ traffic between Pods, you can combine Istio's Destination Rules and the Kubernetes Service _internal traffic policy_.  The way to combine Istio destination rules with the service internal traffic policy will largely depend on 3 things:
 
 * The role of the microservices
 * Network traffic patterns across the microservices
@@ -504,4 +546,3 @@ image:../images/after-results.png[After results]
 * https://aws.amazon.com/blogs/containers/understanding-data-transfer-costs-for-aws-container-services/[Understanding data transfer costs for AWS container services]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/cost_opt_networking.adoc[Edit this page on GitHub]

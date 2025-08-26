@@ -14,7 +14,7 @@ resilience of the application. When deployed in an EKS Cluster the
 https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html[AWS
 Load Balancer controller] will create and manage AWS Elastic Load
 Balancers for that cluster. When a Kubernetes Service of type
-LoadBalancer is created, the AWS Load Balancer controller creates a
+LoadBalancer is created, the AWS Load Balancer Controller creates a
 https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html[Network
 Load Balancer (NLB)] which load balances received traffic at Layer 4 of
 the OSI model. While when a Kubernetes Ingress object is created, the
@@ -25,7 +25,7 @@ model.
 
 == Choosing Load Balancer Type
 
-The AWS Elastic Load Balancing portfolio supports the following load
+The AWS Elastic Load Balancing (ELB) portfolio supports the following load
 balancers: Application Load Balancers (ALB), Network Load Balancers
 (NLB), Gateway Load Balancers (GWLB), and Classic Load Balancers (CLB).
 This best practices section will focus on the ALB and NLB which are the
@@ -64,7 +64,7 @@ Another key reason to use the NLB is if your clients cannot utilize DNS.
 In this case, the NLB may be a better fit for your workload as the IPs
 on a Network Load Balancer are static. While clients are recommended to
 use DNS when resolving Domain Names to IP Addresses when connecting to
-Load Balancers, if a client’s application doesn’t support DNS resolution
+Load Balancers, if a client's application doesn't support DNS resolution
 and only accepts hard-coded IPs then an NLB is a better fit as the IPs
 are static and remain same for the life of the NLB.
 
@@ -78,35 +78,21 @@ customers have a number of options for provisioning a load balancer.
 There are two key methods of provisioning load balancers within an EKS
 Cluster.
 
-* Leveraging the AWS Cloud Provider Load balancer Controller (legacy)
+* Leveraging the Service Controller in the AWS Cloud Provider (legacy)
 * Leveraging the AWS Load Balancer Controller (recommended)
 
-By default, Kubernetes Service resources of type LoadBalancer get
-reconciled by the Kubernetes Service Controller that is built into the
-CloudProvider component of the kube-controller-manager or the
-cloud-controller-manager (also known as the in-tree controller).
+By default, the Kubernetes Service Controller, also known as the in-tree controller, reconciles the Kubernetes Service resource of type LoadBalancer.
+This controller is built into the link:https://github.com/kubernetes/cloud-provider-aws[AWS Cloud Provider] component which functions as the Kubernetes link:https://kubernetes.io/docs/concepts/architecture/cloud-controller/[Cloud Controller Manager]. 
 
-The configuration of the provisioned load balancer is controlled by
-annotations that are added to the manifest for the Service or Ingress
-object and are different when using the AWS Load Balancer Controller
-than they are when using the AWS cloud provider load balancer
-controller.
+The configuration of the provisioned Elastic Load Balancer is controlled by
+annotations that must be added to the Kubernetes Service manifest. The annotations that are used by the link:https://cloud-provider-aws.sigs.k8s.io/service_controller/[Service Controller] and link:https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/service/annotations/[AWS Load Balancer Controller] are different.
 
-The AWS Cloud Provider Load balancer Controller is legacy and is
-currently only receiving critical bug fixes. When you create a
-Kubernetes Service of type LoadBalancer, the AWS cloud provider load
-balancer controller creates AWS Classic Load Balancers by default, but
-can also create AWS Network Load Balancers with the correct annotation.
+The Service Controller is legacy and is currently only receiving critical bug fixes. When you create a Kubernetes Service of type LoadBalancer, the Service Controller creates an AWS CLB by default, but can also create AWS NLB if you use the right annotation. It is worth noting that Service Controller does not support Kubernetes Ingress resources and it also does not support IPv6.
 
-The AWS Load Balancer Controller (LBC) has to be installed in the EKS
-clusters and provisions AWS load balancers that point to cluster Service
-or Ingress resources.
+We recommend using the AWS Load Balancer Controller in your EKS
+clusters to reconcile Kubernetes Service and Ingress resources. You must use the right annotations in your Kubernetes Service or Ingress manifest so that AWS Load Balancer Controller owns the reconciliation process. (instead of Service Controller)
 
-In order for the LBC to manage the reconciliation of Kubernetes Service
-resources of type LoadBalancer, you need to offload the reconciliation
-from the in-tree controller to the LBC, explicitly. With
-LoadBalancerClassWith
-`service.beta.kubernetes.io/aws-load-balancer-type` annotation
+If you are utilizing link:https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode] the the AWS Load Balancer Controller is provided for you automatically; no installation is necessary.
 
 == Choosing Load Balancer Target-Type
 
@@ -118,7 +104,7 @@ there are 2 types of targets you can register in the target group:
 Instance & IP, which target type is used has implications on what gets
 registered and how traffic is routed from the Load Balancer to the pod.
 By default the AWS Load Balancer controller will register targets using
-'`Instance`' type and this target will be the Worker Node’s IP and
+'`Instance`' type and this target will be the Worker Node's IP and
 NodePort, implication of this include:
 
 * Traffic from the Load Balancer will be forwarded to the Worker Node on
@@ -134,10 +120,10 @@ means its health check which gets sent to the target will not be
 directly received by the pod but by the Worker Node on its NodePort and
 health check traffic will follow the same path described above.
 * Monitoring and Troubleshooting is more complex since traffic forwarded
-by the Load Balancer isn’t directly sent to the pods and you’d have to
+by the Load Balancer isn't directly sent to the pods and you'd have to
 carefully correlate the packet received on the Worker Node to to the
 Service ClusterIP and eventually the pod to have full end-to-end
-visibility into the packet’s path for proper troubleshooting.
+visibility into the packet's path for proper troubleshooting.
 
 image::lb_target_type_instance.png[Diagram illustrating the instance target type for load balancers]
 
@@ -150,9 +136,9 @@ of Worker Nodes and Service Cluster IP, it reduces latency that would
 otherwise have been incurred if the Service forwarded traffic to a pod
 in another AZ and lastly it removes the iptables rules overhead
 processing on the Worker Nodes.
-* The Load Balancer’s health check is directly received and responded to
+* The Load Balancer's health check is directly received and responded to
 by the pod, this means the target status '`healthy`' or '`unhealthy`'
-are a direct representation of the pod’s health status.
+are a direct representation of the pod's health status.
 * Monitoring and Troubleshooting is easier and any tool used that
 captures packet IP address will directly reveal the bi-directional
 traffic between the Load Balancer and the pod in its source and
@@ -163,11 +149,23 @@ image::lb_target_type_ip.png[Diagram illustrating the IP address target type for
 To create an AWS Elastic Load Balancing that uses IP Targets you add:
 
 * `alb.ingress.kubernetes.io/target-type: ip` annotation to your
-Ingress’ manifest when configuring your Kubernetes Ingress (Application
+Ingress' manifest when configuring your Kubernetes Ingress (Application
 Load Balancer)
 * `service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip`
-annotation to your Service’s Manifest when configuring your Kubernetes
+annotation to your Service's Manifest when configuring your Kubernetes
 Service of type LoadBalancer (Network Load Balancer).
+
+== Configuring Load Balancer Health Checks
+
+While Kubernetes provides its own health check mechanisms (detailed in the next section), we recommend implementing ELB health checks as a complementary safeguard that functions outside the Kubernetes control plane. This independent layer continues monitoring your application even during:
+
+* Kubernetes control plane disruptions
+* Probe execution delays
+* Network partitions between kubelet and pod
+
+For critical workloads requiring maximum availability accelerated recovery during the scenarios mentioned above, ELB health checks provide an essential safety net that works alongside — not in place of — Kubernetes' native mechanisms. 
+
+In order to configure and fine tune health checks on your ELB, you must use annotations in your Kubernetes Service or Ingress manifest that would be reconcilced by Service Controller or AWS Load Balancer Controller. 
 
 == Availability and Pod Lifecycle
 
@@ -257,7 +255,7 @@ API] to configure and start registering the Pod IP as a target on the
 ELB.
 
 When you perform a rolling update of a Deployment, new Pods get created,
-and as soon as a new Pod’s condition is "`Ready`" an old/existing Pod
+and as soon as a new Pod's condition is "`Ready`" an old/existing Pod
 gets terminated. During this process, the Kubernetes EndpointSlice
 object is updated faster than the time it takes the ELB to register the
 new Pods as targets, see
@@ -275,7 +273,7 @@ case of AWS ELB, the AWS Load Balancer Controller monitors the status of
 the target (the Pod) on the AWS ELB and once the target registration
 completes and its status turns "`Healthy`" then
 https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/deploy/pod_readiness_gate/[the
-controller updates the Pod’ s condition to "`Ready`"]. With this
+controller updates the Pod' s condition to "`Ready`"]. With this
 approach you influence the Pod condition based on the state of the
 external network, which is the target status on the AWS ELB. Pod
 Readiness Gates is crucial in rolling update scenarios as it enables you
@@ -391,7 +389,7 @@ running is never brought below the number needed for a quorum. Or a web
 front end might ensure that the number of replicas serving load never
 falls below a certain percentage of the total. PDB will protect the
 application against actions such as nodes being drained, or new versions
-of Deployments being rolled out. Keep in mind that PDB’s will not
+of Deployments being rolled out. Keep in mind that PDB's will not
 protect the application against involuntary disruptions such as a
 failure of the node operating system or loss of network connectivity.
 For more information please refer to the
@@ -418,7 +416,7 @@ traffic)]
 
 It is imperative to understand what is the sequence of events in a
 scenario where a Pod is deployed and then it becomes healthy/ready to
-receive and process client requests. Let’s talk about the sequence of
+receive and process client requests. Let's talk about the sequence of
 events.
 
 [arabic]
@@ -447,7 +445,7 @@ with the new Pod IP/port.
 === Pod Deletion
 
 Just like Pod creation, it is imperative to understand what is the
-sequence of events during Pod deletion. Let’ s talk about the sequence
+sequence of events during Pod deletion. Let' s talk about the sequence
 of events.
 
 [arabic]
@@ -488,4 +486,3 @@ object.
 . API server deletes the Pod object.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/loadbalancing.adoc[Edit this page on GitHub]

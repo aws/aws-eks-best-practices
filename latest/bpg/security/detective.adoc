@@ -307,8 +307,8 @@ fields @timestamp, @message, sourceIPs.0
 AWS APIs called by pods that are utilizing IAM Roles for Service
 Accounts (IRSA) are automatically logged to CloudTrail along with the
 name of the service account. If the name of a service account that
-wasn’t explicitly authorized to call an API appears in the log, it may
-be an indication that the IAM role’s trust policy was misconfigured.
+wasn't explicitly authorized to call an API appears in the log, it may
+be an indication that the IAM role's trust policy was misconfigured.
 Generally speaking, Cloudtrail is a great way to ascribe AWS API calls
 to specific IAM principals.
 
@@ -316,7 +316,7 @@ to specific IAM principals.
 
 CloudTrail insights automatically analyzes write management events from
 CloudTrail trails and alerts you of unusual activity. This can help you
-identify when there’s an increase in call volume on write APIs in your
+identify when there's an increase in call volume on write APIs in your
 AWS account, including from pods that use IRSA to assume an IAM role.
 See
 https://aws.amazon.com/blogs/aws/announcing-cloudtrail-insights-identify-and-respond-to-unusual-api-activity/[Announcing
@@ -345,7 +345,7 @@ investigation.
 == Tools and resources
 
 The following commercial and open source projects can be used to assess
-your cluster’s alignment with established best practices:
+your cluster's alignment with established best practices:
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/5-detective-controls[Amazon
 EKS Security Immersion Workshop - Detective Controls]
@@ -367,4 +367,3 @@ https://www.microsoft.com/security/blog/2021/03/23/secure-containerized-environm
 ATT&CK®].)
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/detective.adoc[Edit this page on GitHub]

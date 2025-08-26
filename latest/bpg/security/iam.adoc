@@ -336,7 +336,7 @@ edit the `aws-auth` ConfigMap manually, it's recommended using tools
 like `eksctl`, since this is a very senstitive configuration, and an
 inaccurate configuration can lock you outside your Amazon EKS Cluster.
 Check the subsection
-https://aws.github.io/aws-eks-best-practices/security/docs/iam/#use-tools-to-make-changes-to-the-aws-auth-configmap[Use
+https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html#_cluster_access_recommendations[Use
 tools to make changes to the aws-auth ConfigMap] below for more details.
 
 == Cluster Access Recommendations
@@ -1441,4 +1441,4 @@ resources, including blogs and tools, for Kubernetes RBAC
 * https://github.com/uswitch/kiam[kiam]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/iam.adoc[Edit this page on GitHub]
+

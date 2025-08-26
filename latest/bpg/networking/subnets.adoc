@@ -168,12 +168,3 @@ We strongly recommend creating a security group to allow all inter-node communic
 === Deploy NAT Gateways in each Availability Zone
 
 If you deploy nodes in private subnets (IPv4 and IPv6), consider creating a NAT Gateway in each Availability Zone (AZ) to ensure zone-independent architecture and reduce cross AZ expenditures. Each NAT gateway in an AZ is implemented with redundancy.
-
-=== Use Cloud9 to access Private Clusters
-
-AWS Cloud9 is a web-based IDE than can run securely in Private Subnets without ingress access, using AWS Systems Manager. Egress can also be disabled on the Cloud9 instance. https://aws.amazon.com/blogs/security/isolating-network-access-to-your-aws-cloud9-environments/[Learn more about using Cloud9 to access private clusters and subnets.]
-
-image::subnet_image-2.jpg[illustration of AWS Cloud9 console connecting to no-ingress EC2 instance.]
-
-
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/subnets.adoc[Edit this page on GitHub]

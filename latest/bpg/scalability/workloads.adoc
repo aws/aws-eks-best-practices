@@ -6,13 +6,13 @@
 
 Workloads have an impact on how large your cluster can scale. Workloads that use the Kubernetes APIs heavily will limit the total amount of workloads you can have in a single cluster, but there are some defaults you can change to help reduce the load.
 
-Workloads in a Kubernetes cluster have access to features that integrate with the Kubernetes API (e.g. Secrets and ServiceAccounts), but these features are not always required and should be disabled if they're not being used. Limiting workload access and dependence on the Kubernetes control plane will increase the number of workloads you can run in the cluster and improve the security of your clusters by removing unnecessary access to workloads and implementing least privilege practices. Please read the https://aws.github.io/aws-eks-best-practices/security/docs/[security best practices] for more information.
+Workloads in a Kubernetes cluster have access to features that integrate with the Kubernetes API (e.g. Secrets and ServiceAccounts), but these features are not always required and should be disabled if they're not being used. Limiting workload access and dependence on the Kubernetes control plane will increase the number of workloads you can run in the cluster and improve the security of your clusters by removing unnecessary access to workloads and implementing least privilege practices. Please read the https://docs.aws.amazon.com/eks/latest/best-practices/security.html[security best practices] for more information.
 
 == Use IPv6 for pod networking
 
-You cannot transition a VPC from IPv4 to IPv6 so enabling IPv6 before provisioning a cluster is important. If you enable IPv6 in a VPC it does not mean you have to use it and if your pods and services use IPv6 you can still route traffic to and from IPv4 addresses. Please see the https://aws.github.io/aws-eks-best-practices/networking/index/[EKS networking best practices] for more information.
+You cannot transition a VPC from IPv4 to IPv6 so enabling IPv6 before provisioning a cluster is important. If you enable IPv6 in a VPC it does not mean you have to use it and if your pods and services use IPv6 you can still route traffic to and from IPv4 addresses. Please see the https://docs.aws.amazon.com/eks/latest/best-practices/networking.html[EKS networking best practices] for more information.
 
-Using https://docs.aws.amazon.com/eks/latest/userguide/cni-ipv6.html[IPv6 in your cluster] avoids some of the most common cluster and workload scaling limits. IPv6 avoids IP address exhaustion where pods and nodes cannot be created because no IP address is available. It also has per node performance improvements because pods receive IP addresses faster by reducing the number of ENI attachments per node. You can achieve similar node performance by using https://aws.github.io/aws-eks-best-practices/networking/prefix-mode/[IPv4 prefix mode in the VPC CNI], but you still need to make sure you have enough IP addresses available in the VPC.
+Using https://docs.aws.amazon.com/eks/latest/userguide/cni-ipv6.html[IPv6 in your cluster] avoids some of the most common cluster and workload scaling limits. IPv6 avoids IP address exhaustion where pods and nodes cannot be created because no IP address is available. It also has per node performance improvements because pods receive IP addresses faster by reducing the number of ENI attachments per node. You can achieve similar node performance by using https://docs.aws.amazon.com/eks/latest/best-practices/prefix-mode-linux.html[IPv4 prefix mode in the VPC CNI], but you still need to make sure you have enough IP addresses available in the VPC.
 
 == Limit number of services per namespace
 
@@ -128,4 +128,3 @@ filter @logStream like "kube-apiserver-audit"
 
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/workloads.adoc[Edit this page on GitHub]

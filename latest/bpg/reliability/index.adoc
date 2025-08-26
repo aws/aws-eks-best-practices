@@ -57,10 +57,20 @@ plane. EKS runs Kubernetes control plane across three availability zones
 in an AWS Region. It automatically manages the availability and
 scalability of the Kubernetes API servers and the etcd cluster.
 
-The responsibility for the data plane’s reliability is shared between
-you, the customer, and AWS. EKS offers three worker node options for deploying the Kubernetes data
-plane. Fargate, which is the most managed option, handles provisioning
-and scaling of the data plane. The second option, managed nodes groups,
+The responsibility for the data plane's reliability is shared between
+you, the customer, and AWS. EKS offers four worker node options for deploying the Kubernetes data
+plane. 
+
+https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode], which is 
+the most managed option, handles provisioning, scaling and updates of the data plane 
+along with providing managed Compute, Networking, and Storage capabilities. Auto 
+Mode AMIs are released frequently and clusters are updated to the latest AMI 
+automatically to deploy CVE fixes and security patches. You have the ability to control
+when this occurs by configuring https://docs.aws.amazon.com/eks/latest/userguide/create-node-pool.html#_disruption[disruption controls]
+on your Auto Mode NodePools.
+
+Fargate handles provisioning and scaling of the data 
+plane by running one Pod per Node. The third option, managed nodes groups,
 handles provisioning, and updates of the data plane. And finally,
 self-managed nodes is the least managed option for the data plane. The
 more AWS-managed data plane you use, the less responsibility you have.
@@ -125,7 +135,7 @@ file an issue or submit a PR in the GitHub repository. We intend to
 update the guide periodically as new features are added to the service
 or when a new best practice evolves.
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/index.adoc[Edit this page on GitHub]
+
 
 include::application.adoc[leveloffset=+1]
 

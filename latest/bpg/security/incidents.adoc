@@ -112,7 +112,7 @@ spec:
 
 [IMPORTANT]
 ====
-A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS Security Groups] to isolate a compromised host from other hosts. When changing a host’s security group, be aware that it will impact all containers running on that host.
+A Network Policy may prove ineffective if an attacker has gained access to underlying host. If you suspect that has happened, you can use https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS Security Groups] to isolate a compromised host from other hosts. When changing a host's security group, be aware that it will impact all containers running on that host.
 ====
 
 === Revoke temporary security credentials assigned to the pod or worker node if necessary
@@ -125,7 +125,7 @@ IAM policies from the role without impacting other workloads.
 
 === Cordon the worker node
 
-By cordoning the impacted worker node, you’re informing the scheduler to
+By cordoning the impacted worker node, you're informing the scheduler to
 avoid scheduling pods onto the affected node. This will allow you to
 remove the node for forensic study without disrupting other workloads.
 
@@ -169,11 +169,9 @@ container.
 * *Run commands to save container-level state before evidence is
 altered*. You can use capabilities of the container runtime to capture
 information about currently running containers. For example, with
-Docker, you could do the following:
-** `docker top CONTAINER` for processes running.
-** `docker logs CONTAINER` for daemon level held logs.
-** `docker inspect CONTAINER` for various information about the
-container.
+Containerd, you could do the following:
+** `crictl ps` for processes running.
+** `crictl logs CONTAINER` for daemon level held logs.
 +
 The same could be achieved with containerd using the
 https://github.com/containerd/nerdctl[nerdctl] CLI, in place of
@@ -186,7 +184,7 @@ https://kubernetes.io/blog/2022/12/05/forensic-container-checkpointing-alpha/[th
 Kubernetes blog post] for discussion of similar capabilities with
 containerd or CRI-O runtimes.
 * *Pause the container for forensic capture*.
-* *Snapshot the instance’s EBS volumes*.
+* *Snapshot the instance's EBS volumes*.
 
 === Redeploy compromised Pod or Workload Resource
 
@@ -217,7 +215,7 @@ Security Incident Response].
 Divide your security practitioners into 2 teams: red and blue. The red
 team will be focused on probing different systems for vulnerabilities
 while the blue team will be responsible for defending against them. If
-you don’t have enough security practitioners to create separate teams,
+you don't have enough security practitioners to create separate teams,
 consider hiring an outside entity that has knowledge of Kubernetes
 exploits.
 
@@ -256,4 +254,3 @@ Attack and Defense]
 Cluster by Exploiting RBAC Permissions]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/incidents.adoc[Edit this page on GitHub]

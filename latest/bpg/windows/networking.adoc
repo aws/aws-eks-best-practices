@@ -106,7 +106,6 @@ It is considered a best practice to change from the default mode of open communi
 
 Instructions for installing Calico in EKS can be found on the https://docs.aws.amazon.com/eks/latest/userguide/calico.html[Installing Calico on Amazon EKS] page.
 
-In addition, the advice provided in the https://aws.github.io/aws-eks-best-practices/security/docs/network/[Amazon EKS Best Practices Guide for Security - Network Section] applies equally to EKS clusters with Windows worker nodes, however, some features like "Security Groups for Pods" are not supported by Windows at this time.
+In addition, the advice provided in the https://docs.aws.amazon.com/eks/latest/best-practices/network-security.html[Amazon EKS Best Practices Guide for Security - Network Section] applies equally to EKS clusters with Windows worker nodes, however, some features like "Security Groups for Pods" are not supported by Windows at this time.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/networking.adoc[Edit this page on GitHub]

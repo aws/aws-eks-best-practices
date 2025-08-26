@@ -108,7 +108,7 @@ audit trail and log of the commands that were run on the instance.
 As of August 19th, 2020 Managed Node Groups support custom AMIs and EC2
 Launch Templates. This allows you to embed the SSM agent into the AMI or
 install it as the worker node is being bootstrapped. If you rather not
-modify the Optimized AMI or the ASG’s launch template, you can install
+modify the Optimized AMI or the ASG's launch template, you can install
 the SSM agent with a DaemonSet as in
 https://github.com/aws-samples/ssm-agent-daemonset-installer[this
 example].
@@ -117,7 +117,7 @@ example].
 
 The `AmazonSSMManagedInstanceCore` AWS managed policy contains a
 number of permissions that are not required for SSM Session Manager /
-SSM RunCommand if you’re just looking to avoid SSH access. Of concern
+SSM RunCommand if you're just looking to avoid SSH access. Of concern
 specifically is the `*` permissions for `ssm:GetParameter(s)` which
 would allow for the role to access all parameters in Parameter Store
 (including SecureStrings with the AWS managed KMS key configured).
@@ -374,4 +374,3 @@ nodes.
 * https://eksctl.io/[eksctl]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/hosts.adoc[Edit this page on GitHub]

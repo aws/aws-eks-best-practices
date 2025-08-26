@@ -80,7 +80,7 @@ Viewing resource usage metrics with kubectl top and kubectl describe commands. k
  $ kubectl top nodes
  $ kubectl top pod pod-name --namespace mynamespace --containers
 
-Using the top command, the output will displays the total amount of CPU (in cores) and memory (in MiB) that the node is using, and the percentages of the node's allocatable capacity those numbers represent. You can then drill-down to the next level, container level within pods by adding a _--containers_ flag.
+Using the top command, the output will display the total amount of CPU (in cores) and memory (in MiB) that the node is using, and the percentages of the node's allocatable capacity those numbers represent. You can then drill-down to the next level, container level within pods by adding a _--containers_ flag.
 
  $ kubectl describe node <node>
  $ kubectl describe pod <pod>
@@ -156,7 +156,7 @@ NOTES:
 Next, navigate to http://localhost:9090 in a web browser.
 $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
 
-Note: If you are using Cloud 9 or have a need to forward it to a different port like 8080, issue the following command
+NOTE: If you are using Cloud 9 or have a need to forward it to a different port like 8080, issue the following command
 $ kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 8080:9090
 ----
 
@@ -168,18 +168,6 @@ image:../images/kube-cost.png[Kubernetes Cluster Auto Scaler logs]
 https://github.com/rchakode/kube-opex-analytics[Kubernetes Opex Analytics] is a tool to help organizations track the resources being consumed by their Kubernetes clusters to prevent overpaying. To do so it generates, short- (7 days), mid- (14 days) and long-term (12 months) usage reports showing relevant insights on what amount of resources each project is spending over time.
 
 image::kube-opex-analytics.png[Kubernetes Opex Analytics]
-
-=== Magalix Kubeadvisor
-
-https://www.magalix.com/kubeadvisor[KubeAdvisor] continuously scans your Kubernetes clusters and reports how you can fix issues, apply best practices, and optimize your cluster (with recommendations of resources like CPU/Memory around cost-efficiency).
-
-=== Spot.io, previously called Spotinst
-
-Spotinst Ocean is an application scaling service. Similar to Amazon Elastic Compute Cloud (Amazon EC2) Auto Scaling groups, Spotinst Ocean is designed to optimize performance and costs by leveraging Spot Instances combined with On-Demand and Reserved Instances. Using a combination of automated Spot Instance management and the variety of instance sizes, the Ocean cluster autoscaler scales according to the pod resource requirements. Spotinst Ocean also includes a prediction algorithm to predict Spot Instance interruption 15 minutes ahead of time and spin up a new node in a different Spot capacity pool.
-
-This is available as an https://aws.amazon.com/quickstart/architecture/spotinst-ocean-eks/[AWS Quickstart] developed by Spotinst, Inc. in collaboration with AWS.
-
-The EKS workshop also has a module on https://eksworkshop.com/beginner/190_ocean/[Optimized Worker Node on Amazon EKS Management] with Ocean by Spot.io which includes sections on cost allocation, right sizing and scaling strategies.
 
 === Yotascale
 
@@ -223,6 +211,3 @@ Refer to the following resources to learn more about best practices for cost opt
 * https://kubecost.com/[Kubecost]
 * https://github.com/hjacobs/kube-ops-view[Kube Opsview]
 * https://github.com/rchakode/kube-opex-analytics[Kubernetes Opex Analytics]
-
-
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/cost/awareness.adoc[Edit this page on GitHub]

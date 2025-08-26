@@ -56,7 +56,7 @@ Amazon VPC CNI allocates a warm pool of ENIs and secondary IP addresses from the
 
 Amazon VPC CNI natively integrates with AWS VPC and allows users to apply existing AWS VPC networking and security best practices for building Kubernetes clusters. This includes the ability to use VPC flow logs, VPC routing policies, and security groups for network traffic isolation. By default, the Amazon VPC CNI applies security group associated with the primary ENI on the node to the Pods. Consider enabling xref:sgpp[security groups for Pods] when you would like to assign different network rules for a Pod.
 
-By default, VPC CNI assigns IP addresses to Pods from the subnet assigned to the primary ENI of a node. It is common to experience a shortage of IPv4 addresses when running large clusters with thousands of workloads. AWS VPC allows you to extend available IPs by https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html#add-cidr-block-restrictions[assigning a secondary CIDRs] to work around exhaustion of IPv4 CIDR blocks. AWS VPC CNI allows you to use a different subnet CIDR range for Pods. This feature of VPC CNI is called xref:custom-networking[custom networking]. You might consider using custom networking to use `100.64.0.0/10` and `1`98.19.0.0/16` CIDRs (CG-NAT) with EKS. This effectively allows you to create an environment where Pods no longer consume any RFC1918 IP addresses from your VPC.
+By default, VPC CNI assigns IP addresses to Pods from the subnet assigned to the primary ENI of a node. It is common to experience a shortage of IPv4 addresses when running large clusters with thousands of workloads. AWS VPC allows you to extend available IPs by https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html#add-cidr-block-restrictions[assigning a secondary CIDRs] to work around exhaustion of IPv4 CIDR blocks. AWS VPC CNI allows you to use a different subnet CIDR range for Pods. This feature of VPC CNI is called xref:custom-networking[custom networking]. You might consider using custom networking to use `100.64.0.0/10` and `198.19.0.0/16` CIDRs (CG-NAT) with EKS. This effectively allows you to create an environment where Pods no longer consume any RFC1918 IP addresses from your VPC.
 
 Custom networking is one option to address the IPv4 address exhaustion problem, but it requires operational overhead. We recommend IPv6 clusters over custom networking to resolve this problem. Specifically, we recommend migrating to xref:ipv6[IPv6 clusters] if you have completely exhausted all available IPv4 address space for your VPC. Evaluate your organization's plans to support IPv6, and consider if investing in IPv6 may have more long-term value.
 
@@ -82,7 +82,7 @@ Outputs:
  ** Number of Warm IPs/ENIs per instance
  ** Number of Active IPs/ENIs per instance
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/index.adoc[Edit this page on GitHub]
+
 
 include::subnets.adoc[leveloffset=+1]
 

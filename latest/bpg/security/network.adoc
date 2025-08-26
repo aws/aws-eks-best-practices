@@ -51,7 +51,7 @@ https://kubernetes.io/docs/concepts/services-networking/network-policies/[identi
 supported by the upstream API. By default, all ingress and egress
 traffic is allowed to a pod. When a network policy with a policyType
 Ingress is specified, only allowed connections into the pod are those
-from the pod’s node and those allowed by the ingress rules. Same applies
+from the pod's node and those allowed by the ingress rules. Same applies
 for egress rules. If multiple rules are defined, then union of all rules
 are taken into account when making the decision. Thus, order of
 evaluation does not affect the policy result.
@@ -185,7 +185,7 @@ and sdk errors.
 ** Periodically audit your Network Policies to make sure that they meet
 your current application requirements. As your application evolves, an
 audit gives you the opportunity to remove redundant ingress, egress
-rules and make sure that your applications don’t have excessive
+rules and make sure that your applications don't have excessive
 permissions.
 * *Ensure Network Policies exists using Open Policy Agent (OPA)*
 ** Use OPA Policy like shown below to ensure Network Policy always
@@ -261,7 +261,7 @@ metadata, making it easier to decipher the traffic flows between pods.
 EKS uses
 https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html[AWS
 VPC Security Groups] (SGs) to control the traffic between the Kubernetes
-control plane and the cluster’s worker nodes. Security groups are also
+control plane and the cluster's worker nodes. Security groups are also
 used to control the traffic between worker nodes, and other VPC
 resources, and external IP addresses. When you provision an EKS cluster
 (with Kubernetes version 1.14-eks.3 or greater), a cluster security
@@ -300,7 +300,7 @@ You can control which pods are assigned to a security group by creating
 a `SecurityGroupPolicy` object and specifying a `PodSelector` or a
 `ServiceAccountSelector`. Setting the selectors to `{}` will assign
 the SGs referenced in the `SecurityGroupPolicy` to all pods in a
-namespace or all Service Accounts in a namespace. Be sure you’ve
+namespace or all Service Accounts in a namespace. Be sure you've
 familiarized yourself with all the
 https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#security-groups-pods-considerations[considerations]
 before implementing security groups for pods.
@@ -322,7 +322,7 @@ You *must* create rules for inbound traffic from the cluster security group (kub
 
 [IMPORTANT]
 ====
-Security groups for pods relies on a feature known as https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html[ENI trunking] which was created to increase the ENI density of an EC2 instance. When a pod is assigned to an SG, a VPC controller associates a branch ENI from the node group with the pod. If there aren’t enough branch ENIs available in a node group at the time the pod is scheduled, the pod will stay in pending state. The number of branch ENIs an instance can support varies by instance type/family. See https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types for further details.
+Security groups for pods relies on a feature known as https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html[ENI trunking] which was created to increase the ENI density of an EC2 instance. When a pod is assigned to an SG, a VPC controller associates a branch ENI from the node group with the pod. If there aren't enough branch ENIs available in a node group at the time the pod is scheduled, the pod will stay in pending state. The number of branch ENIs an instance can support varies by instance type/family. See https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html#supported-instance-types for further details.
 ====
 
 While security groups for pods offers an AWS-native way to control
@@ -330,7 +330,7 @@ network traffic within and outside of your cluster without the overhead
 of a policy daemon, other options are available. For example, the Cilium
 policy engine allows you to reference a DNS name in a network policy.
 Calico Enterprise includes an option for mapping network policies to AWS
-security groups. If you’ve implemented a service mesh like Istio, you
+security groups. If you've implemented a service mesh like Istio, you
 can use an egress gateway to restrict network egress to specific, fully
 qualified domains or IP addresses. For further information about this
 option, read the three part series on
@@ -512,7 +512,7 @@ an analysis of network traffic
 
 Applications that need to conform to PCI, HIPAA, or other regulations
 may need to encrypt data while it is in transit. Nowadays TLS is the de
-facto choice for encrypting traffic on the wire. TLS, like it’s
+facto choice for encrypting traffic on the wire. TLS, like it's
 predecessor SSL, provides secure communications over a network using
 cryptographic protocols. TLS uses symmetric encryption where the keys to
 encrypt the data are generated based on a shared secret that is
@@ -523,7 +523,7 @@ that you can encrypt data in a Kubernetes environment.
 
 Traffic exchanged between the following Nitro instance types, e.g. C5n,
 G4, I3en, M5dn, M5n, P3dn, R5dn, and R5n, is automatically encrypted by
-default. When there’s an intermediate hop, like a transit gateway or a
+default. When there's an intermediate hop, like a transit gateway or a
 load balancer, the traffic is not encrypted. See
 https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html#encryption-transit[Encryption
 in transit] for further details on encryption in transit as well as the
@@ -541,7 +541,7 @@ traffic, and IPsec ESP for fast datapath traffic.
 Encryption in transit can also be implemented with a service mesh like
 App Mesh, Linkerd v2, and Istio. AppMesh supports
 https://docs.aws.amazon.com/app-mesh/latest/userguide/mutual-tls.html[mTLS]
-with X.509 certificates or Envoy’s Secret Discovery Service(SDS).
+with X.509 certificates or Envoy's Secret Discovery Service(SDS).
 Linkerd and Istio both have support for mTLS.
 
 The https://github.com/aws/aws-app-mesh-examples[aws-app-mesh-examples]
@@ -579,7 +579,7 @@ load balancer, like the Classic Load Balancer or the Network Load
 Balancer (NLB). Encrypted traffic can be terminated at different places
 within the network, e.g. at the load balancer, at the ingress resource,
 or the Pod. How and where you terminate your SSL connection will
-ultimately be dictated by your organization’s network security policy.
+ultimately be dictated by your organization's network security policy.
 For instance, if you have a policy that requires end-to-end encryption,
 you will have to decrypt the traffic at the Pod. This will place
 additional burden on your Pod as it will have to spend cycles
@@ -658,7 +658,7 @@ spec:
 Following are additional examples for SSL/TLS termination.
 
 * https://aws.amazon.com/blogs/containers/securing-eks-ingress-contour-lets-encrypt-gitops/[Securing
-EKS Ingress With Contour And Let’s Encrypt The GitOps Way]
+EKS Ingress With Contour And Let's Encrypt The GitOps Way]
 * https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/[How
 do I terminate HTTPS traffic on Amazon EKS workloads with ACM?]
 
@@ -711,7 +711,7 @@ instructions in GitHub]. The plugin lets cert-manager request private
 certificates from ACM Private CA.
 
 Now that you have a Private CA and an EKS cluster with cert-manager and
-the plugin installed, it’s time to set permissions and create the
+the plugin installed, it's time to set permissions and create the
 issuer. Update IAM permissions of the EKS node role to allow access to
 ACM Private CA. Replace the `<CA_ARN>` with the value from your
 Private CA:
@@ -762,10 +762,10 @@ kubectl apply -f cluster-issuer.yaml
 ----
 
 Your EKS cluster is configured to request certificates from Private CA.
-You can now use cert-manager’s `Certificate` resource to issue
-certificates by changing the `issuerRef` field’s values to the Private
+You can now use cert-manager's `Certificate` resource to issue
+certificates by changing the `issuerRef` field's values to the Private
 CA Issuer you created above. For more details on how to specify and
-request Certificate resources, please check cert-manager’s
+request Certificate resources, please check cert-manager's
 https://cert-manager.io/docs/usage/certificate/[Certificate Resources
 guide].
 https://github.com/cert-manager/aws-privateca-issuer/tree/main/config/samples/[See
@@ -776,7 +776,7 @@ examples here].
 If you are running Istio in your EKS cluster, you can disable the Istio
 control plane (specifically `istiod`) from functioning as the root
 Certificate Authority (CA), and configure ACM Private CA as the root CA
-for mTLS between workloads. If you’re going with this approach, consider
+for mTLS between workloads. If you're going with this approach, consider
 using the _short-lived CA mode_ in ACM Private CA. Refer to the
 xref:iam-ca-mode[previous
 section] and this
@@ -786,7 +786,7 @@ post] for more details.
 ==== How Certificate Signing Works in Istio (Default)
 
 Workloads in Kubernetes are identified using service accounts. If you
-don’t specify a service account, Kubernetes will automatically assign
+don't specify a service account, Kubernetes will automatically assign
 one to your workload. Also, service accounts automatically mount an
 associated token. This token is used by the service account for
 workloads to authenticate against the Kubernetes API. The service
@@ -799,7 +799,7 @@ with other services in the mesh.
 To get this identity from Istio, the `istio-agent` sends a request
 known as a certificate signing request (or CSR) to the Istio control
 plane. This CSR contains the service account token so that the
-workload’s identity can be verified before being processed. This
+workload's identity can be verified before being processed. This
 verification process is handled by `istiod`, which acts as both the
 Registration Authority (or RA) and the CA. The RA serves as a gatekeeper
 that makes sure only verified CSR makes it through to the CA. Once the
@@ -827,7 +827,7 @@ that _istiod_ serves in the default config of validating incoming CSRs.
 Except, after verification, it will convert the requests into resources
 that cert manager supports (i.e. integrations with external CA issuers).
 
-Whenever there’s a CSR from a workload, it will be forwarded to
+Whenever there's a CSR from a workload, it will be forwarded to
 _istio-csr_, which will request certificates from ACM Private CA. This
 communication between _istio-csr_ and ACM Private CA is enabled by the
 https://github.com/cert-manager/aws-privateca-issuer[AWS Private CA
@@ -980,4 +980,3 @@ data loss prevention (DLP), web application firewall (WAF) and network
 threat signatures.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/security/network.adoc[Edit this page on GitHub]

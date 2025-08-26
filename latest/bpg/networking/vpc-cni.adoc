@@ -78,9 +78,7 @@ You can use the following formula to determine maximum number of Pods you can de
 (Number of network interfaces for the instance type * (the number of IP addresses per network interface - 1)) + 2
 ----
 
-The +2 indicates Pods that require host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be operating on each node, and these requirements are factored into the max-pods value. If you want to run additional host networking pods, consider updating the max-pods value.
-
-The +2 indicates Kubernetes Pods that use host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be running on every node and are calculated towards max-pods. Consider updating max-pods if you plan to run more host networking Pods. You can specify `--kubelet-extra-args "—max-pods=110"` as user data in the launch template.
+The +2 indicates Pods that require host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be operating on each node, and these requirements are factored into the max-pods value. If you want to run additional host networking pods, consider updating the max-pods value. You can specify `--kubelet-extra-args "—max-pods=110"` as user data in the launch template.
 
 As an example, on a cluster with 3 c5.large nodes (3 ENIs and max 10 IPs per ENI), when the cluster starts up and has 2 CoreDNS pods, the CNI will consume 49 IP addresses and keeps them in warm pool. The warm pool enables faster Pod launches when the application is deployed.
 
@@ -96,11 +94,15 @@ Keep in mind that infrastructure pods, often running as daemon sets, each contri
 * Amazon Elastic LoadBalancer
 * Operational pods for metrics-server
 
-We suggest that you plan your infrastructure by combining these Pods' capacities. For a list of the maximum number of Pods supported by each instance type, see https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt[eni-max-Pods.txt] on GitHub.
+We suggest that you plan your infrastructure by combining these Pods' capacities. For a list of the maximum number of Pods supported by each instance type, see https://github.com/awslabs/amazon-eks-ami/blob/main/nodeadm/internal/kubelet/eni-max-pods.txt[eni-max-Pods.txt] on GitHub.
 
 image::cni_image-5.png[illustration of multiple ENIs attached to a node]
 
 == Recommendations
+
+=== Deploy EKS cluster with Auto Mode
+
+When you use EKS Auto Mode to create a cluster, AWS manages the VPC Container Network Interface (CNI) configuration for your cluster. With Amazon EKS Auto Mode, you don't need to install or upgrade networking add-ons. However, ensure your workloads are compatible with the managed VPC CNI configuration.
 
 === Deploy VPC CNI Managed Add-On
 
@@ -165,11 +167,11 @@ Configuring a separate IAM role with the relevant policies for Amazon VPC CNI is
 
 The VPC CNI plugin creates and configures a service account called aws-node. By default, the service account binds to the Amazon EKS node IAM role with Amazon EKS CNI policy attached. To use the separate IAM role, we recommend that you https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-role[create a new service account] with Amazon EKS CNI policy attached. To use a new service account you must https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-redeploy-pods[redeploy the CNI pods]. Consider specifying a `--service-account-role-arn` for VPC CNI managed add-on when creating new clusters. Make sure you remove Amazon EKS CNI policy for both IPv4 and IPv6 from Amazon EKS node role.
 
-It is advised that you https://aws.github.io/aws-eks-best-practices/security/docs/iam/#restrict-access-to-the-instance-profile-assigned-to-the-worker-node[block access instance metadata] to minimize the blast radius of security breach.
+It is advised that you https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html#_identities_and_credentials_for_eks_pods_recommendations[block access instance metadata] to minimize the blast radius of security breach.
 
 === Handle Liveness/Readiness Probe failures
 
-We advise increasing the liveness and readiness probe timeout values (default `timeoutSeconds: 10`) for EKS 1.20 an later clusters to prevent probe failures from causing your application's Pod to become stuck in a containerCreating state. This problem has been seen in data-intensive and batch-processing clusters. High CPU use causes aws-node probe health failures, leading to unfulfilled Pod CPU requests. In addition to modifying the probe timeout, ensure that the CPU resource requests (default `CPU: 25m`) for aws-node are correctly configured. We do not suggest updating the settings unless your node is having issues.
+We advise increasing the liveness and readiness probe timeout values (default `timeoutSeconds: 10`) for EKS 1.20 and later clusters to prevent probe failures from causing your application's Pod to become stuck in a containerCreating state. This problem has been seen in data-intensive and batch-processing clusters. High CPU use causes aws-node probe health failures, leading to unfulfilled Pod CPU requests. In addition to modifying the probe timeout, ensure that the CPU resource requests (default `CPU: 25m`) for aws-node are correctly configured. We do not suggest updating the settings unless your node is having issues.
 
 We highly encourage you to run sudo `bash /opt/cni/bin/aws-cni-support.sh` on a node while you engage Amazon EKS support. The script will assist in evaluating kubelet logs and memory utilization on the node. Please consider installing SSM Agent on Amazon EKS worker nodes to run the script.
 
@@ -182,4 +184,3 @@ If you are using custom AMI, make sure to set iptables forward policy to ACCEPT 
 The VPC CNI is backward compatible. The latest version works with all Amazon EKS supported Kubernetes versions. Additionally, the VPC CNI is offered as an EKS add-on (see "`Deploy VPC CNI Managed Add-On`" above). While EKS add-ons orchestrates upgrades of add-ons, it will not automatically upgrade add-ons like the CNI because they run on the data plane. You are responsible for upgrading the VPC CNI add-on following managed and self-managed worker node upgrades.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/vpc-cni.adoc[Edit this page on GitHub]

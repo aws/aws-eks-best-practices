@@ -25,7 +25,8 @@ Amazon EKS IPv6 support leverages the native VPC IPv6 capabilities. Each VPC is 
 
 image::ipv6_eks-ipv6-foundation.png[Dual Stack VPC, mandatory foundation for EKS cluster in IPv6 mode]
 
-In the IPv6 world, every address is internet routable. By default, VPC allocates IPv6 CIDR from the public GUA range. VPCs do not support assigning private IPv6 addresses from the https://en.wikipedia.org/wiki/Unique_local_address[Unique Local Address (ULA)] range as defined by RFC 4193 (fd00::/8 or fc00::/8). This is true even when you would like to assign an IPv6 CIDR owned by you. Egressing to the internet from Private Subnets is supported by implementing an egress-only internet gateway (EIGW) in a VPC, allowing outbound traffic while blocking all incoming traffic.
+In the IPv6 world, every address is internet routable. By default, VPC allocates IPv6 CIDR from the public GUA range. However since https://aws.amazon.com/about-aws/whats-new/2024/08/aws-private-ipv6-addressing-vpcs-subnets/[August 2024] you can also use private IPv6 addressing for VPCs and subnets with Amazon VPC IP Address Manager (IPAM). Please see the https://aws.amazon.com/blogs/networking-and-content-delivery/understanding-ipv6-addressing-on-aws-and-designing-a-scalable-addressing-plan[this AWS Networking blog post] and https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html#vpc-ipv6-addresses[VPC documentation] for more information.
+
 The following diagram depict a Pod IPv6 Internet egress flow inside an EKS/IPv6 cluster:
 
 image::ipv6_eks-egress-ipv6.png[Dual Stack VPC, EKS Cluster in IPv6 Mode, Pods in private subnets egressing to Internet IPv6 endpoints]
@@ -38,8 +39,7 @@ image::ipv6_eks-cluster-ipv6-foundation.png[Dual Stack VPC, EKS Cluster in IPv6 
 
 == Overview
 
-EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix
-Mode].
+EKS/IPv6 is only supported in prefix mode (VPC-CNI Plug-in ENI IP assign mode). Learn more on xref:prefix-mode-linux[Prefix Mode].
 
 Prefix assignment only works on Nitro-based EC2 instances, hence EKS/IPv6 is only supported when the cluster data-plane uses EC2 Nitro-based instances.
 
@@ -90,10 +90,6 @@ image::ipv6_image-5.png[illustration of cluster including X-ENIs]
 
 == Recommendations
 
-=== Maintain Access to IPv4 EKS APIs
-
-EKS APIs are accessible by IPv4 only. This also includes the Cluster API Endpoint. You will not be able to access cluster endpoints and APIs from an IPv6 only network. It is required that your network supports (1) an IPv6 transition mechanism such as NAT64/DNS64 that facilitates communication between IPv6 and IPv4 hosts and (2) a DNS service that supports translations of IPv4 endpoints.
-
 === Schedule Based on Compute Resources
 
 A single IPv6 prefix is sufficient to run many Pods on a single node. This also effectively removes ENI and IP limitations on the maximum number of Pods on a node. Although IPv6 removes direct dependency on max-Pods, when using prefix attachments with smaller instance types like the m5.large, you're likely to exhaust the instance's CPU and memory resources long before you exhaust its IP addresses. You must set the EKS recommended maximum Pod value by hand if you are using self-managed node groups or a managed node group with a custom AMI ID.
@@ -114,7 +110,7 @@ Managed node groups automatically calculate the maximum number of Pods for you. 
 
 === Evaluate Purpose of Existing Custom Networking
 
-If https://aws.github.io/aws-eks-best-practices/networking/custom-networking/[custom networking] is currently enabled, Amazon EKS recommends re-evaluating your need for it with IPv6. If you chose to use custom networking to address the IPv4 exhaustion issue, it is no longer necessary with IPv6. If you are utilizing custom networking to satisfy a security requirement, such as a separate network for nodes and Pods, you are encouraged to submit an https://github.com/aws/containers-roadmap/issues[EKS roadmap request].
+If https://docs.aws.amazon.com/eks/latest/best-practices/custom-networking.html[custom networking] is currently enabled, Amazon EKS recommends re-evaluating your need for it with IPv6. If you chose to use custom networking to address the IPv4 exhaustion issue, it is no longer necessary with IPv6. If you are utilizing custom networking to satisfy a security requirement, such as a separate network for nodes and Pods, you are encouraged to submit an https://github.com/aws/containers-roadmap/issues[EKS roadmap request].
 
 === Fargate Pods in EKS/IPv6 Cluster
 
@@ -127,4 +123,3 @@ EKS supports IPv6 for Pods running on Fargate. Pods running on Fargate will cons
 AWS Network Load Balancer does not support dual-stack UDP protocol address types. If you have strong requirements for low-latency, real-time streaming, online gaming, and IoT, we recommend running IPv4 clusters. To learn more about managing health checks for UDP services, please refer to https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/["`How to route UDP traffic into Kubernetes`"].
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/networking/ipv6.adoc[Edit this page on GitHub]

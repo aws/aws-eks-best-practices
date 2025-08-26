@@ -37,7 +37,7 @@ distinct Availability Zones (AZs) within in AWS region. Likewise, for
 durability, the etcd server nodes also run in an auto-scaling group that
 spans three AZs. EKS runs a NAT Gateway in each AZ, and API servers and
 etcd servers run in a private subnet. This architecture ensures that an
-event in a single AZ doesn’t affect the EKS cluster’s availability.
+event in a single AZ doesn't affect the EKS cluster's availability.
 
 When you create a new cluster, Amazon EKS creates a highly-available
 endpoint for the managed Kubernetes API server that you use to
@@ -53,7 +53,7 @@ image::eks-data-plane-connectivity.jpeg[Connectivity]
 
 You can
 https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html[configure
-whether your Kubernetes cluster’s API server] is reachable from the
+whether your Kubernetes cluster's API server] is reachable from the
 public internet (using the public endpoint) or through your VPC (using
 the EKS-managed ENIs) or both.
 
@@ -73,7 +73,7 @@ Monitoring Kubernetes API metrics can give you insights into control
 plane performance and identify issues. An unhealthy control plane can
 compromise the availability of the workloads running inside the cluster.
 For example, poorly written controllers can overload the API servers,
-affecting your application’s availability.
+affecting your application's availability.
 
 Kubernetes exposes control plane metrics at the `/metrics` endpoint.
 
@@ -95,7 +95,7 @@ EKS control plane. You can use
 https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights-Prometheus-Setup-configure.html#ContainerInsights-Prometheus-Setup-new-exporters[Tutorial
 for Adding a New Prometheus Scrape Target: Prometheus KPI Server
 Metrics] to collect metrics and create CloudWatch dashboard to monitor
-your cluster’s control plane.
+your cluster's control plane.
 
 You can find Kubernetes API server metrics
 https://github.com/kubernetes/apiserver/blob/master/pkg/endpoints/metrics/metrics.go[here].
@@ -142,8 +142,7 @@ status code, method, and host.
 |`etcd_request_duration_seconds` |Etcd request latency in seconds for
 each operation and object type.
 
-|`etcd_db_total_size_in_bytes` or
-`apiserver_storage_db_total_size_in_bytes` (starting with EKS v1.26)
+|`apiserver_storage_db_total_size_in_bytes`
 or `apiserver_storage_size_bytes` (starting with EKS v1.28) |Etcd
 database size.
 |===
@@ -153,19 +152,10 @@ https://grafana.com/grafana/dashboards/14623[Kubernetes Monitoring
 Overview Dashboard] to visualize and monitor Kubernetes API server
 requests and latency and etcd latency metrics.
 
-The following Prometheus query can be used to monitor the current size
-of etcd. The query assumes there is job called `kube-apiserver` for
-scraping metrics from API metrics endpoint and the EKS version is below
-v1.26.
-
-[source,text]
-----
-max(etcd_db_total_size_in_bytes{job="kube-apiserver"} / (8 * 1024 * 1024 * 1024))
-----
 
 [IMPORTANT]
 ====
-When the database size limit is exceeded, etcd emits a no space alarm and stops taking further write requests. In other words, the cluster becomes read-only, and all requests to mutate objects such as creating new pods, scaling deployments, etc., will be rejected by the cluster’s API server.
+When the database size limit is exceeded, etcd emits a no space alarm and stops taking further write requests. In other words, the cluster becomes read-only, and all requests to mutate objects such as creating new pods, scaling deployments, etc., will be rejected by the cluster's API server.
 ====
 
 == Cluster Authentication
@@ -186,11 +176,11 @@ https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html[aws-auth
 configmap].
 
 If you misconfigure the `aws-auth` configmap and lose access to the
-cluster, you can still use the cluster creator’s user or role to access
+cluster, you can still use the cluster creator's user or role to access
 your EKS cluster.
 
 In the unlikely event that you cannot use the IAM service in the AWS
-region, you can also use the Kubernetes service account’s bearer token
+region, you can also use the Kubernetes service account's bearer token
 to manage the cluster.
 
 Create a `super-admin` account that is permitted to perform all
@@ -206,7 +196,7 @@ Create a role binding that gives super-admin cluster-admin role:
 kubectl create clusterrolebinding super-admin-rb --clusterrole=cluster-admin --serviceaccount=kube-system:super-admin
 ....
 
-Get service account’s secret:
+Get service account's secret:
 
 ....
 SECRET_NAME=`kubectl -n kube-system get serviceaccount/super-admin -o jsonpath='{.secrets[0].name}'`
@@ -263,7 +253,7 @@ users:
 #      env: null
 - name: super-admin
   user:
-    token: <<super-admin sa’s secret>>
+    token: <<super-admin sa's secret>>
 ....
 
 == Admission Webhooks
@@ -273,7 +263,7 @@ https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-con
 admission webhooks and mutating admission webhooks]. These allow a user
 to extend the kubernetes API and validate or mutate objects before they
 are accepted by the API. Poor configurations of these webhooks can
-distabilize the EKS control plane by blocking cluster critical
+destabilize the EKS control plane by blocking cluster critical
 operations.
 
 In order to avoid impacting cluster critical operations either avoid
@@ -297,12 +287,12 @@ not impair cluster critical workloads.
 
 `Sysctl` is a Linux utility that allows users to modify kernel
 parameters during runtime. These kernel parameters control various
-aspects of the operating system’s behavior, such as network, file
+aspects of the operating system's behavior, such as network, file
 system, virtual memory, and process management.
 
 Kubernetes allows assigning `sysctl` profiles for Pods. Kubernetes
 categorizes `systcls` as safe and unsafe. Safe `sysctls` are
-namespaced in the container or Pod, and setting them doesn’t impact
+namespaced in the container or Pod, and setting them doesn't impact
 other Pods on the node or the node itself. In contrast, unsafe sysctls
 are disabled by default since they can potentially disrupt other Pods or
 make the node unstable.
@@ -326,7 +316,7 @@ releases a year (once a quarter) to three releases a year. A new minor
 version (like 1.*21* or 1.*22*) is released approximately
 https://kubernetes.io/blog/2021/07/20/new-kubernetes-release-cadence/#what-s-changing-and-when[every
 fifteen weeks]. Starting with Kubernetes 1.19, each minor version is
-supported for approximately twelve months after it’s first released.
+supported for approximately twelve months after it's first released.
 With the advent of Kubernetes v1.28, the compatibility skew between the
 control plane and worker nodes has expanded from n-2 to n-3 minor
 versions. To learn more, see xref:cluster-upgrades[Best Practices
@@ -334,7 +324,9 @@ for Cluster Upgrades].
 
 == Cluster Endpoint Connectivity
 
-When working with Amazon EKS (Elastic Kubernetes Service), you may encounter connection timeouts or errors during events such as Kubernetes control plane scaling or patching. These events can cause the kube-apiserver instances to be replaced, potentially resulting in different IP addresses being returned when resolving the FQDN. This document outlines best practices for Kubernetes API consumers to maintain reliable connectivity. Note: Implementing these best practices may require updates to client configurations or scripts to handle new DNS re-resolution and retry strategies effectively.
+When working with Amazon EKS (Elastic Kubernetes Service), you may encounter connection timeouts or errors during events such as Kubernetes control plane scaling or patching. These events can cause the kube-apiserver instances to be replaced, potentially resulting in different IP addresses being returned when resolving the FQDN. This document outlines best practices for Kubernetes API consumers to maintain reliable connectivity.
+
+NOTE: Implementing these best practices may require updates to client configurations or scripts to handle new DNS re-resolution and retry strategies effectively.
 
 The main issue stems from DNS client-side caching and the potential for stale IP addresses of EKS endpoint -  _public NLB for public endpoint or X-ENI for private endpoint_. When the kube-apiserver instances are replaced, the Fully Qualified Domain Name (FQDN) may resolve to new IP addresses. However, due to DNS Time to Live (TTL)settings, which are set to 60 seconds in the AWS managed Route 53 zone, clients may continue to use outdated IP addresses for a short period of time.
 
@@ -384,4 +376,3 @@ EKS cluster endpoint access control]
 EKS under the hood (CON421-R1)]
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/reliability/controlplane.adoc[Edit this page on GitHub]

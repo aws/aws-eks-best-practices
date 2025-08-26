@@ -15,12 +15,13 @@
 :info_titleabbrev: Cluster Autoscaling
 :imagesdir: images/
 
-This guide provides advice about Cluster Autoscaling, including guidance for Kubernetes Cluster Autoscaler and Karpenter. 
+This guide provides advice about Cluster Autoscaling, including guidance for Auto Mode, Karpenter and Kubernetes Cluster Autoscaler.
 
 [.topiclist]
 [[Topic List]]
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/autoscaling/index.adoc[Edit this page on GitHub]
+
+include::auto-mode.adoc[leveloffset=+1]
 
 include::karpenter.adoc[leveloffset=+1]
 

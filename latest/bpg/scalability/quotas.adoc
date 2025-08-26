@@ -193,13 +193,13 @@ We have seen EKS customers impacted by the quotas listed below for other AWS ser
 | Registered repositories
 | Can limit the number of workloads in your clusters
 | L-CFEB8E8D
-| 10,000
+| 100,000
 
 | ECR
 | Images per repository
 | Can limit the number of workloads in your clusters
 | L-03A36CE1
-| 10,000
+| 20,000
 
 | SecretsManager
 | Secrets per Region
@@ -210,7 +210,7 @@ We have seen EKS customers impacted by the quotas listed below for other AWS ser
 
 == AWS Request Throttling
 
-AWS services also implement request throttling to ensure that they remain performant and available for all customers. Simliar to Service Quotas, each AWS service maintains their own request throttling thresholds. Consider reviewing the respective AWS Service documentation if your workloads will need to quickly issue a large number of API calls or if you notice request throttling errors in your application.
+AWS services also implement request throttling to ensure that they remain performant and available for all customers. Similar to Service Quotas, each AWS service maintains their own request throttling thresholds. Consider reviewing the respective AWS Service documentation if your workloads will need to quickly issue a large number of API calls or if you notice request throttling errors in your application.
 
 EC2 API requests around provisioning EC2 network interfaces or IP addresses can encounter request throttling in large clusters or when clusters scale drastically. The table below shows some of the API actions that we have seen customers encounter request throttling from.
 You can review the EC2 rate limit defaults and the steps to request a rate limit increase in the https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html[EC2 documentation on Rate Throttling].
@@ -251,5 +251,3 @@ You can review the EC2 rate limit defaults and the steps to request a rate limit
 * There is a maximum number of connections that can be tracked per Ec2 instance. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-tracking-throttling[If your workloads are handling a large number of connections you may see communication failures or errors because this maximum has been hit.] You can use the `conntrack_allowance_available` and `conntrack_allowance_exceeded` https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/monitoring-network-performance-ena.html[network performance metrics to monitor the number of tracked connections on your EKS worker nodes].
 * In EKS environment, etcd storage limit is *8 GiB* as per https://etcd.io/docs/v3.5/dev-guide/limit/#storage-size-limit[upstream guidance]. Please monitor metric `etcd_db_total_size_in_bytes` to track etcd db size. You can refer to https://github.com/etcd-io/etcd/blob/main/contrib/mixin/mixin.libsonnet#L213-L240[alert rules] `etcdBackendQuotaLowSpace` and `etcdExcessiveDatabaseGrowth` to setup this monitoring.
 
-
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/quotas.adoc[Edit this page on GitHub]

@@ -51,4 +51,3 @@ In the example below, when the Kubernetes scheduler tries to place a pod on a no
 Using this approach minimizes the risks of memory exhaustion but does not prevent it happen. Using Amazon CloudWatch Metrics, you can set up alerts and remediations in case of memory exhaustion occurs.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/windows/oom.adoc[Edit this page on GitHub]

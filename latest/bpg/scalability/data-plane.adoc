@@ -106,7 +106,7 @@ spec:
 
 Compute resources include EC2 instances and availability zones. Using compute resources effectively will increase your scalability, availability, performance, and reduce your total cost. Efficient resource usage is extremely difficult to predict in an autoscaling environment with multiple applications. https://karpenter.sh/[Karpenter] was created to provision instances on-demand based on the workload needs to maximize utilization and flexibility.
 
-Karpenter allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints for specific nodes. See the https://aws.github.io/aws-eks-best-practices/karpenter/[Karpenter best practices] for more information. Consider enabling https://aws.github.io/aws-eks-best-practices/karpenter/#configure-requestslimits-for-all-non-cpu-resources-when-using-consolidation[consolidation] in your Karpenter provisioner to replace nodes that are under utilized.
+Karpenter allows workloads to declare the type of compute resources it needs without first creating node groups or configuring label taints for specific nodes. See the https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html[Karpenter best practices] for more information. Consider enabling https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html#_scheduling_pods[consolidation] in your Karpenter provisioner to replace nodes that are under utilized.
 
 == Automate Amazon Machine Image (AMI) updates
 
@@ -222,4 +222,3 @@ Amazon recommends using immutable infrastructure that is built, tested, and prom
 Patching nodes will allow you to quickly roll out security updates and replace the instances on a regular schedule after your AMI has been updated. If you are using an operating system with a read-only root file system like https://flatcar-linux.org/[Flatcar Container Linux] or https://github.com/bottlerocket-os/bottlerocket[Bottlerocket OS] we recommend using the update operators that work with those operating systems. The https://github.com/flatcar/flatcar-linux-update-operator[Flatcar Linux update operator] and https://github.com/bottlerocket-os/bottlerocket-update-operator[Bottlerocket update operator] will reboot instances to keep nodes up to date automatically.
 
 
-📝 https://github.com/aws/aws-eks-best-practices/tree/master/latest/bpg/scalability/data-plane.adoc[Edit this page on GitHub]
