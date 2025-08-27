@@ -12,7 +12,7 @@ Effective access management is crucial for maintaining the security and integrit
 
 == EKS access management options
 
-ConfigMap-based access management (aws-auth ConfigMap) is deprecated and replaced by Cluster Access Management (CAM) API. For new EKS clusters, implement CAM API to manage cluster access. For existing clusters using aws-auth ConfigMap, migrate to using CAM API.
+NOTE: ConfigMap-based access management (aws-auth ConfigMap) is deprecated and replaced by Cluster Access Management (CAM) API. For new EKS clusters, implement CAM API to manage cluster access. For existing clusters using aws-auth ConfigMap, migrate to using CAM API.
 
 == Option 1: AWS IAM Identity Center with Cluster Access Management (CAM) API
 
@@ -109,7 +109,7 @@ While both IRSA and EKS Pod Identities provide the benefits of least privilege a
 
 For detailed guidance on Identity and credentials for EKS pods, please refer to the link:eks/latest/best-practices/identity-and-access-management.html#_identities_and_credentials_for_eks_pods[Identities and Credentials section,type="documentation"] of Security best practices.
 
-== Recommendation:
+== Recommendation
 
 === Combine IAM Identity Center with CAM API
 
