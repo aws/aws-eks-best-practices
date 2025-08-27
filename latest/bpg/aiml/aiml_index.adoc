@@ -9,8 +9,10 @@
 :authors: ["Leah Tucker"]
 :date: 2025-05-30
 
+TIP: Visit https://aws-experience.com/emea/smb/events/series/get-hands-on-with-amazon-eks?trk=4a9b4147-2490-4c63-bc9f-f8a84b122c8c&sc_channel=elthis[Get Hands on with EKS] to learn about upcoming Amazon EKS AI/ML events and workshops.
+
 Implementing best practices when running AI/ML workloads on EKS can ensure that those workloads are performant, cost-effective, resilient, and properly resourced.
-Best practices for AI/ML on EKS are divided into the following general sections: Compute, Networking, Storage, Observability, and Performance.
+Best practices are divided into the following general sections: Compute, Networking, Storage, Observability, and Performance.
 
 == Feedback
 
@@ -19,6 +21,8 @@ This guide is being released on GitHub so as to collect direct feedback and sugg
 include::aiml_compute.adoc[leveloffset=+1]
 
 include::aiml_networking.adoc[leveloffset=+1]
+
+include::aiml_security.adoc[leveloffset=+1]
 
 include::aiml_storage.adoc[leveloffset=+1]
 

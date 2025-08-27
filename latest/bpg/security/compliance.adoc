@@ -106,7 +106,7 @@ Security] for information about PaC options and the future of PSPs.
 === Use policy-as-code tools in pipelines to detect violations before deployment
 
 * https://www.openpolicyagent.org/[OPA] is an open source policy engine
-that’s part of the CNCF. It’s used for making policy decisions and can
+that's part of the CNCF. It's used for making policy decisions and can
 be run a variety of different ways, e.g. as a language library or a
 service. OPA policies are written in a Domain Specific Language (DSL)
 called Rego. While it is often run as part of a Kubernetes Dynamic

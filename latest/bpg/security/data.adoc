@@ -81,7 +81,7 @@ As of May 28, 2020 all data written to the ephemeral volume in EKS Fargate pods 
 
 === Encrypt data at rest
 
-Encrypting data at rest is considered a best practice. If you’re unsure
+Encrypting data at rest is considered a best practice. If you're unsure
 whether encryption is necessary, encrypt your data.
 
 === Rotate your CMKs periodically
@@ -99,8 +99,8 @@ want to restrict access to part of the shared file system by creating
 different mount points, consider using EFS access points. To learn more
 about working with access points, see
 https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html. Today,
-if you want to use an access point (AP) you’ll need to reference the AP
-in the PV’s `volumeHandle` parameter.
+if you want to use an access point (AP) you'll need to reference the AP
+in the PV's `volumeHandle` parameter.
 
 [IMPORTANT]
 ====
@@ -128,7 +128,7 @@ https://kubernetes.io/docs/concepts/configuration/secret/.
 
 [WARNING]
 ====
-Secrets in a particular namespace can be referenced by all pods in the secret’s namespace.
+Secrets in a particular namespace can be referenced by all pods in the secret's namespace.
 ====
 
 [WARNING]
@@ -182,7 +182,7 @@ code.
 
 === Rotate your secrets periodically
 
-Kubernetes doesn’t automatically rotate secrets. If you have to rotate
+Kubernetes doesn't automatically rotate secrets. If you have to rotate
 secrets, consider using an external secret store, e.g. Vault or AWS
 Secrets Manager.
 
@@ -202,11 +202,11 @@ the pod is deleted.
 
 There are several viable alternatives to using Kubernetes secrets,
 including https://aws.amazon.com/secrets-manager/[AWS Secrets Manager]
-and Hashicorp’s
+and Hashicorp's
 https://www.hashicorp.com/blog/injecting-vault-secrets-into-kubernetes-pods-via-a-sidecar/[Vault].
 These services offer features such as fine grained access controls,
 strong encryption, and automatic rotation of secrets that are not
-available with Kubernetes Secrets. Bitnami’s
+available with Kubernetes Secrets. Bitnami's
 https://github.com/bitnami-labs/sealed-secrets[Sealed Secrets] is
 another approach that uses asymmetric encryption to create "`sealed
 secrets`". A public key is used to encrypt the secret while the private

@@ -14,7 +14,7 @@ Each topic has a brief overview, followed by recommendations and best practices 
 
 == Understanding scaling dimensions
 
-Scalability is different from performance and https://aws.github.io/aws-eks-best-practices/reliability/docs/[reliability], and all three should be considered when planning your cluster and workload needs. As clusters scale, they need to be monitored, but this guide will not cover monitoring best practices. EKS can scale to large sizes, but you will need to plan how you are going to scale a cluster beyond 300 nodes or 5000 pods. These are not absolute numbers, but they come from collaborating this guide with multiple users, engineers, and support professionals.
+Scalability is different from performance and https://aws.github.io/aws-eks-best-practices/reliability/docs/[reliability], and all three should be considered when planning your cluster and workload needs. As clusters scale, they need to be monitored, but this guide will not cover monitoring best practices. EKS can scale to large sizes, but you will need to plan how you are going to scale a cluster beyond 300 nodes or 5,000 Pods. These are not absolute numbers, but they come from collaborating this guide with multiple users, engineers, and support professionals.
 
 Scaling in Kubernetes is multi-dimensional and there are no specific settings or recommendations that work in every situation. The main areas areas where we can provide guidance for scaling include:
 
@@ -33,7 +33,7 @@ Scaling in Kubernetes is multi-dimensional and there are no specific settings or
 
 == Extra large scaling
 
-If you are scaling a single cluster beyond 1000 nodes or 50,000 pods we would love to talk to you. We recommend reaching out to your support team or technical account manager to get in touch with specialists who can help you plan and scale beyond the information provided in this guide.
+If you are scaling a single cluster beyond 1,000 nodes or 50,000 Pods, we would love to talk to you. We recommend reaching out to your support team or technical account manager to get in touch with specialists who can help you plan and scale beyond the information provided in this guide. Amazon EKS can support up to 100,000 nodes in a single cluster if you are selected for onboarding.
 
 
 

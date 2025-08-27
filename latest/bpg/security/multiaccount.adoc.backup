@@ -169,7 +169,7 @@ https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.
 the same steps as the documentation], but use the
 https://docs.aws.amazon.com/eks/latest/userguide/cross-account-access.html[12
 digit account id of the workload account] as mentioned in the section
-"`Example Create an identity provider from another account’s cluster`".
+"`Example Create an identity provider from another account's cluster`".
 
 After this is configured, your application running in EKS will be able
 to directly use its service account to assume a role in the workload
@@ -330,7 +330,7 @@ pods use IRSA or EKS Pod Identities to access their AWS resources.
 
 GitOps is a way of managing application and infrastructure deployment so
 that the whole system is described declaratively in a Git repository.
-It’s an operational model that offers you the ability to manage the
+It's an operational model that offers you the ability to manage the
 state of multiple Kubernetes clusters using the best practices of
 version control, immutable artifacts, and automation. In this multi
 cluster model, each workload cluster is bootstrapped with multiple Git
@@ -401,7 +401,7 @@ k8s native constructs like `Namespaces`. Workloads may share the
 underlying resources like CPU, memory, etc. AWS resources are isolated
 into their own workload accounts which by default are not accessible
 from other AWS accounts. |Stronger isolation on compute resources as the
-workloads run in individual clusters and nodes that don’t share any
+workloads run in individual clusters and nodes that don't share any
 resources. AWS resources are isolated into their own workload accounts
 which by default are not accessible from other AWS accounts.
 

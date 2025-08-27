@@ -102,7 +102,7 @@ image::cni_image-5.png[illustration of multiple ENIs attached to a node]
 
 === Deploy EKS cluster with Auto Mode
 
-When you use EKS Auto Mode to create a cluster, AWS manages the VPC Container Network Interface (CNI) configuration for your cluster. With Amazon EKS Auto Mode, you don’t need to install or upgrade networking add-ons. However, ensure your workloads are compatible with the managed VPC CNI configuration.
+When you use EKS Auto Mode to create a cluster, AWS manages the VPC Container Network Interface (CNI) configuration for your cluster. With Amazon EKS Auto Mode, you don't need to install or upgrade networking add-ons. However, ensure your workloads are compatible with the managed VPC CNI configuration.
 
 === Deploy VPC CNI Managed Add-On
 
@@ -167,7 +167,7 @@ Configuring a separate IAM role with the relevant policies for Amazon VPC CNI is
 
 The VPC CNI plugin creates and configures a service account called aws-node. By default, the service account binds to the Amazon EKS node IAM role with Amazon EKS CNI policy attached. To use the separate IAM role, we recommend that you https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-role[create a new service account] with Amazon EKS CNI policy attached. To use a new service account you must https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-redeploy-pods[redeploy the CNI pods]. Consider specifying a `--service-account-role-arn` for VPC CNI managed add-on when creating new clusters. Make sure you remove Amazon EKS CNI policy for both IPv4 and IPv6 from Amazon EKS node role.
 
-It is advised that you https://aws.github.io/aws-eks-best-practices/security/docs/iam/#restrict-access-to-the-instance-profile-assigned-to-the-worker-node[block access instance metadata] to minimize the blast radius of security breach.
+It is advised that you https://docs.aws.amazon.com/eks/latest/best-practices/identity-and-access-management.html#_identities_and_credentials_for_eks_pods_recommendations[block access instance metadata] to minimize the blast radius of security breach.
 
 === Handle Liveness/Readiness Probe failures
 

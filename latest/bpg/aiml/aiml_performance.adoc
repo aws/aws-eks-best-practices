@@ -12,11 +12,122 @@
 
 == Application Scaling and Performance
 
-=== Optimize Image Pull Performance
-We strongly recommend optimizing container image pull performance for Amazon EKS clusters running AI/ML workloads. Using large, unoptimized base images or inefficient layer ordering can lead to slow pod startup times, increased resource consumption, and degraded inference latency. To address this, adopt small, lightweight base images with minimal dependencies, tailored to your workloads. You can also consider the AWS Deep Learning Containers (DLCs) which **** are pre-built container images that make it easier to run popular deep learning frameworks  (e.g., https://pytorch.org/[PyTorch] and https://www.tensorflow.org/[TensorFlow]). To learn more about building a custom image, see https://docs.aws.amazon.com/deep-learning-containers/latest/devguide/deep-learning-containers-custom-images.html[Customize Deep Learning Containers]. When building custom images, consider lightweight base images and add only necessary libraries to keep images lean. Use multi-stage builds to reduce layer size and optimize layer ordering for efficient caching. For more details, see the https://docs.docker.com/develop/develop-images/dockerfile_best-practices/[Docker Best Practices for Building Images].
+=== Managing ML Artifacts, Serving Frameworks, and Startup Optimization
 
-=== Reduce Container Startup Times by Preloading Container Images into Data Volumes
-For machine learning workloads requiring low pod startup latency, such as real-time inference, we recommend preloading container images to minimize initialization delays. Large container images can slow pod startup, especially on nodes with limited bandwidth. In addition to using minimal base images, multi-stage builds, and lazy-loading techniques, consider the following approaches to preload images in Amazon EKS. In addition to using minimal base images, multi-stage builds, and lazy-loading techniques, consider the following options:
+Deploying machine learning (ML) models on Amazon EKS requires thoughtful consideration of how models are integrated into container images and runtime environments. This ensures scalability, reproducibility, and efficient resource utilization. This topic describes the different approaches to handling ML model artifacts, selecting serving frameworks, and optimizing container startup times through techniques like pre-caching, all tailored to reduce container startup times.
 
-* **Pre-load images using EBS snapshots**: Take an Amazon Elastic Block Store (EBS) snapshot of cached container images and reuse this snapshot for EKS worker nodes. Though this adds additional operational activities it ensures images are prefetched locally upon node startup, reducing pod initialization time. See this https://aws.amazon.com/blogs/containers/reduce-container-startup-time-on-amazon-eks-with-bottlerocket-data-volume/[Reduce container startup time on Amazon EKS with Bottlerocket data volume] for more information using Karpenter and this https://aws-ia.github.io/terraform-aws-eks-blueprints/patterns/machine-learning/ml-container-cache/[EKS Terraform Blueprints] for managed node groups.
-* **Pre-pull images into container runtime cache**: Pre-pull container images onto nodes using Kubernetes resources (e.g., DaemonSet or Deployment) to populate the node’s container runtime cache. The container runtime cache is the local storage managed by the container runtime (e.g., https://containerd.io/[containerd]) where images are stored after being pulled from a registry. Pre-pulling ensures images are available locally, avoiding download delays during pod startup. This approach is useful when EBS snapshots are not preconfigured or when image pre-pulling is preferred. Test this approach in a staging environment to validate latency improvements. See the https://github.com/aws-samples/aws-do-eks/tree/main/Container-Root/eks/deployment/prepull[AWS Samples GitHub repository] for examples of pre-pulling images.
+==== Reducing Container Image Sizes
+
+* Reducing the size of container images during startup is another way to make images smaller. You can make reductions at every step of the container image build process. To start, choose base images that contain the least number of dependencies required. During image builds, include only the essential libraries and artifacts that are required. When building images, try combining multiple RUN or COPY commands to create a smaller number of larger layers. Building smaller images has the following pros and cons:
+* **Pros**:
+ ** Image pulls are faster and less storage is needed overall.
+ ** Smaller images have less of an attack vector.
+* **Cons**:
+ ** With container images being more streamlined, you will need to create multiple images to meet needs to run on different environments.
+ ** Size savings by combining commands can sometimes be negligible, so you should test different build approaches to see what brings the best results. For AI/ML frameworks, select variants like runtime-only images (e.g., `pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime` at 3.03 GB vs. devel at 6.66 GB), but benchmark workloads as smaller images may skip JIT compilation, leading to slower code paths. Use multi-stage builds to separate build and runtime, copying only required artifacts (e.g., via COPY —from= for registries or local contexts). Employ layer optimization by combining COPY in an assembly stage for fewer layers, though weigh against reduced cache efficiency and longer build times.
+
+==== Handling ML Model Artifacts in Deployments
+
+A key decision is how to handle the ML model artifacts (e.g., weights, configurations) themselves. The choice impacts image size, deployment speed, model update frequency, and operational overhead. Not that when referring to storing the "model", we are referring to the model artifacts (e.g., trained parameters, model weights). There are three approaches to handling ML model artifacts on Amazon EKS. Each has its trade-offs, and the best one depends on your model's size, update cadence, and infrastructure needs — listed from least to most recommended:
+
+**Baking the model into the container image**
+Copy the model files (e.g., .safetensors, .pth, .h5) into the container image (e.g., Dockerfile) during image build. The model is part of the immutable image. We recommend using this approach for smaller models with infrequent updates.
+
+* **Pros**: Ensures consistency and reproducibility, no loading delay, simplifies dependency management.
+* **Cons**: Results in larger image sizes, slowing builds and pushes, requires rebuilding and redeploying for model updates, not ideal for large models due to registry pull throughput. Additionally, this can lead to longer feedback loops for experimentation, debugging, and testing due to the more complex setup, and it may increase storage costs if co-locating across different images.
+
+**Downloading the model at runtime**
+At container startup, the application downloads the model from external storage (e.g., Amazon S3, backed by S3 CRT for optimized high-throughput transfers using methods such as Mountpoint for S3 CSI driver, AWS S3 CLI, or s5cmd OSS CLI) via scripts in an init container or entrypoint. We recommend starting with this approach for large models with frequent updates.
+
+* **Pros**: Keeps container images focused on code/runtime, enables easy model updates without rebuilds, supports versioning via storage metadata. It also allows for A/B testing, hot-swapping, or rolling back models without increasing container image size, and provides ability to share models between different applications without packaging them into all container images. Furthermore, it introduces minimal changes to ML or application teams' workflows and enables faster container builds to aid experimentation and testing. Using S3 CRT-backed tools like the AWS CLI, https://github.com/peak/s5cmd[s5cmd], or the link:eks/latest/userguide/s3-csi.html[Mountpoint S3 CSI Driver,type="documentation"] can significantly reduce download latency and improve performance for large files, often resulting in faster overall pod startup times compared to pulling large baked container images from registries like ECR, depending on network and registry performance.
+* **Cons**: Introduces potential network failures (requires retry logic), it requires authentication and caching. Additional operational complexity arises from handling the download process, including retries, error handling, and backoff, along with extra storage and cleanup management that replicates ECR functionality.
+
+**Mounting the model via persistent volumes**
+Store the model in external storage (e.g., Amazon EFS, EBS, FSx for NetApp ONTAP, FSx for Lustre, FSx for OpenZFS, or S3 via the Mountpoint S3 CSI driver) and mount it as a Kubernetes PersistentVolume (PV). These are the files and data generated during the model's training process that allow it to make predictions or inferences. We recommend using this approach for shared models across pods or clusters.
+
+* **Pros**: Decouples model from image for shared access, facilitates updates without restarts (if supported by your framework), handles large datasets efficiently. It also enables Kubernetes-driven provisioning and access control via features like cloning, sharing, and snapshots, reducing the need to copy models and create new operations. POSIX-based access control to models is possible, along with ability to update model versions separately from the application without rebuilding the container image, and faster container builds for experimentation and testing. For AI/ML inference applications that read artifacts into memory,  this allows loading the data directly from the external file system without needing to store it intermediately on the node's local disk, improving load performance. Additionally, for storing large models at scale, services like FSx for NetApp ONTAP, FSx for Lustre provide storage optimization techniques (e.g., deduplication, compression, thin provisioning), versioning via snapshots, and support for reusing the same file without wasting storage space. Other services, such as S3, offer native versioning. This approach can also span across clusters and potentially regions, depending on the replication configuration (e.g., asynchronous replication in FSx or cross-region replication in S3 and EFS).
+* **Cons**: May add I/O latency if network-attached, requires storage provisioning and access controls, may be less portable (e.g., EBS) if storage is cluster-specific. Trade-offs include additional operational complexity for CI/CD changes and maintaining loader processes, the need for custom TTL/retention mechanisms to reduce storage costs, and more complex cross-region replication. Read-performance for model artifacts should be measured against container image download time.
+
+==== Serving ML Models
+
+Deploying and serving machine learning (ML) models on Amazon EKS requires selecting an appropriate model serving approach to optimize for latency, throughput, scalability, and operational simplicity. The choice depends on your model type (e.g., language, vision model), workload demands (e.g., real-time inference), and team expertise. Common approaches include Python-based setups for prototyping, dedicated model servers for production-grade features, and specialized inference engines for high-performance and efficiency. Each method involves trade-offs in setup complexity, performance, and resource utilization. Note that serving frameworks may increase container image sizes (multiple GBs) due to dependencies, potentially impacting startup times—consider decoupling using artifact handling techniques to mitigate this. Options are listed from least to most recommended:
+
+**Using Python frameworks (e.g., FastAPI, HuggingFace Transformers with PyTorch)**
+Develop a custom application using Python frameworks, embedding model files (weights, config, tokenizer) within a containerized node setup. 
+
+* **Pros**: Easy prototyping, Python-only with no extra infrastructure, compatible with all HuggingFace models, simple Kubernetes deployment. 
+* **Cons**: Restricts to single request/simple batching, slow token generation (no optimized kernels), memory inefficient, lacks scaling/monitoring, and involves long startup times. 
+* **Recommendation**: Use for initial prototyping or single-node tasks requiring custom logic integration.
+
+**Using dedicated model serving frameworks (e.g., TensorRT-LLM, TGI)** 
+Adopt specialized servers like TensorRT-LLM or TGI for ML inference, managing model loading, routing, and optimization. These support formats like safetensors, with optional compilation or plugins. 
+
+* **Pros**: Offers batching (static/in-flight or continuous), quantization (INT8, FP8, GPTQ), hardware optimizations (NVIDIA, AMD, Intel, Inferentia), and multi-GPU support (Tensor/Pipeline Parallelism). TensorRT-LLM supports diverse models (LLMs, Encoder-Decoder), while TGI leverages HuggingFace integration. 
+* **Cons**: TensorRT-LLM needs compilation and is NVIDIA-only; TGI may be less efficient in batching; both add configuration overhead and may not fit all model types (e.g., non-transformers). 
+* **Recommendation**: Suitable for PyTorch/TensorFlow models needing production capabilities like A/B testing or high throughput with compatible hardware.
+
+**Using specialized high-throughput inference engines (e.g., vLLM)**
+Utilize advanced inference engines like vLLM, optimizing LLM serving with PagedAttention, in-flight batching, and quantization (INT8, FP8-KV, AWQ), integrable with EKS autoscaling.
+
+* **Pros**: High throughput and memory efficiency (40-60% VRAM savings), dynamic request handling, token streaming, single-node Tensor Parallel multi-GPU support, and broad hardware compatibility. 
+* **Cons**: Optimized for decoder-only transformers (e.g., LLaMA), less effective for non-transformer models, requires compatible hardware (e.g., NVIDIA GPUs) and setup effort. 
+* **Recommendation**: Top choice for high-volume, low-latency LLM inference on EKS, maximizing scalability and performance.
+
+== Pre-caching Container Images
+
+Large container images (such as those containing models like PyTorch) can cause cold start delays that impact latency.
+For latency-sensitive workloads, like real-time inference workloads scaled horizontally and quick pod startup is critical, we recommend preloading container images to minimize initialization delays. Consider the following approaches from least to most recommended:
+
+=== Using the Container Runtime Cache to Pre-pull Images
+
+You can pre-pull container images onto nodes using Kubernetes resources (e.g., DaemonSet or Deployment) to populate the node’s container runtime cache. The container runtime cache is the local storage managed by the container runtime (e.g., https://containerd.io/[containerd] where images are stored after being pulled from a registry. Pre-pulling ensures images are available locally, avoiding download delays during pod startup. This approach is particularly useful when images change often (e.g., frequent updates), when EBS snapshots are not preconfigured, when building an EBS volume would be more time-consuming than direct pulling from a container registry, or when nodes are already in the cluster and need to spin up pods on-demand using one of several possible images.
+
+Pre-pulling all variants ensures fast startup time regardless of which image is needed. For example, in a massively parallel ML workload requiring 100,000 small models built using 10 different techniques, pre-pulling 10 images via DaemonSet across a large cluster (e.g., thousands of nodes) minimizes pod startup time, enabling completion in under 10 seconds by avoiding on-demand pulls. Using the container runtime cache approach eliminates the need to manage EBS snapshots, ensures you always get the latest container image version with DaemonSets, but for real-time inference workloads where nodes scale in/out, new nodes added by tools like Cluster Autoscaler may schedule workload pods before the pre-pull DaemonSet completes image pulling. This can cause the initial pod on the new node to trigger the pull anyway, potentially delaying startup and impacting low-latency requirements. Additionally, kubelet image garbage collection can affect pre-pulled images by removing unused ones when disk usage exceeds certain thresholds or if they exceed a configured maximum unused age. In scale-in/out patterns, this may evict images on idle nodes, which requires re-pulls during subsequent scale-ups and reducing the reliability of the cache for bursty workloads.
+
+See https://github.com/aws-samples/aws-do-eks/tree/main/Container-Root/eks/deployment/prepull[AWS GitHub repository] for examples of pre-pulling images into the container runtime cache. 
+
+===  Using EBS Snapshots to Pre-pull Images
+
+You can take an Amazon Elastic Block Store (EBS) snapshot of cached container images and reuse this snapshot for EKS worker nodes. This ensures images are prefetched locally upon node startup, reducing pod initialization time. See https://aws.amazon.com/blogs/containers/reduce-container-startup-time-on-amazon-eks-with-bottlerocket-data-volume/[Reduce container startup time on Amazon EKS with Bottlerocket data volume] for more information using Karpenter and https://aws-ia.github.io/terraform-aws-eks-blueprints/patterns/machine-learning/ml-container-cache/[EKS Terraform Blueprints for managed node groups].
+
+We recommend automating the creation of EBS snapshots as part of your CI/CD pipeline to keep them up-to-date with the latest container image versions. Note that alternatives like lazy loading with the https://github.com/awslabs/soci-snapshotter[SOCI Snapshotter] can complement these methods, though it requires custom setup. Additionally, you can preload container images into Bottlerocket volumes. Using the EBS snapshot approach eliminates the need to pull large container images at pod startup, significantly reducing startup time (e.g., from 10-15 minutes to seconds for images larger than 10 GB), but it requires additional maintenance, as you need to update the EBS snapshot with every image or version upgrade. 
+
+To learn more, see https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/accelerate-pull-process/containerd-snapshotter[Using containerd snapshotter] and https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/accelerate-pull-process/prefecthing-images-on-br[Preload container images into Bottlerocket data volumes with EBS Snapshots] in the AI on EKS Workshop.
+
+== Pulling Images with SOCI snapshotter
+
+For very large images that you can't easily minimize, you can use the open source Seekable OCI (SOCI) snapshotter configured in parallel pull and unpack mode.
+This solution lets you use existing images without rebuilding or modifying your build pipelines. This option is especially effective when deploying workloads with very large images to high performance EC2 compute instances. It works well with high-throughput networking and high performance storage configurations as is typical with scaled AI/ML workloads.
+
+SOCI parallel pull/unpack mode improves end-to-end image pull performance through configurable parallelization strategies. Faster image pulls and preparation directly impact how quickly you can deploy new workloads and scale your cluster efficiently. Image pulls have two main phases:
+
+[discrete]
+*1. Fetching layers from the registry to the node*::
+For layer fetch optimization, SOCI creates multiple concurrent HTTP connections per layer, multiplying download throughput beyond the single-connection limitation. It splits large layers into chunks and downloads them simultaneously across multiple connections. This approach helps saturate your available network bandwidth and reduce download times significantly. This is particularly valuable for AI/ML workloads where a single layer can be several gigabytes.
+
+[discrete]
+*2. Unpacking and preparing those layers to create containers*::
+For layer unpacking optimization, SOCI processes multiple layers simultaneously. Instead of waiting for each layer to fully unpack before starting the next, it uses your available CPU cores to decompress and extract multiple layers concurrently. This parallel processing transforms the traditionally I/O-bound unpacking phase into a CPU-optimized operation that scales with your available cores. The system carefully orchestrates this parallelization to maintain filesystem consistency while maximizing throughput.
+
+SOCI parallel pull mode uses a dual-threshold control system with configurable parameters for both download concurrency and unpacking parallelism. This granular control lets you fine-tune SOCI's behavior to meet your specific performance requirements and environment conditions. Understanding these parameters helps you optimize your runtime for the best pull performance. 
+
+**References**
+
+* For more information on the solution and tuning tradeoffs, see the https://github.com/awslabs/soci-snapshotter/blob/main/docs/parallel-mode.md[feature documentation] in the https://github.com/awslabs/soci-snapshotter[SOCI project repository] on GitHub.
+* For a hands-on example with Karpenter on Amazon EKS, see the https://github.com/aws-samples/karpenter-blueprints/tree/main/blueprints/soci-snapshotter[Karpenter Blueprint using SOCI snapshotter parallel pull/unpack mode].
+* For information on configuring Bottlerocket for parallel pull, see https://bottlerocket.dev/en/os/1.44.x/api/settings/container-runtime-plugins/#tag-soci-parallel-pull-configuration[soci-snapshotter Parallel Pull Unpack Mode] in the Bottlerocket Documentation.
+
+== Reducing Container Image Sizes
+
+Reducing the size of container images during startup is another way to make images smaller. You can make reductions at every step of the container image build process. To start, choose base images that contain the least number of dependencies required. During image builds, include only the essential libraries and artifacts that are required. When building images, try combining multiple RUN or COPY commands to create a smaller number of larger layers.
+
+For AI/ML frameworks, use multi-stage builds to separate build and runtime, copying only required artifacts (e.g., via COPY —from= for registries or local contexts), and select variants like runtime-only images (e.g., `pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime` at 3.03 GB vs. devel at 6.66 GB). To learn more, see https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/reduce-container-image-size[Reducing container image size] in the AI on EKS Workshop.
+
+== Handling ML Model Artifacts in Deployments
+
+A key decision is how to handle the ML model artifacts (e.g., weights, configurations) themselves. The choice impacts image size, deployment speed, model update frequency, and operational overhead. Not that when referring to storing the "model", we are referring to the model artifacts (e.g., trained parameters, model weights). There are three approaches to handling ML model artifacts on Amazon EKS. Each has its trade-offs, and the best one depends on your model’s size, update cadence, and infrastructure needs. Consider the following approaches from least to most recommended:
+
+* **Baking the model into the container image**: Copy the model files (e.g., .safetensors, .pth, .h5) into the container image (e.g., Dockerfile) during image build. The model is part of the immutable image. We recommend using this approach for smaller models with infrequent updates. This ensures consistency and reproducibility, no loading delay, simplifies dependency management, but results in larger image sizes, slowing builds and pushes, requires rebuilding and redeploying for model updates, and it is not ideal for large models due to registry pull throughput. 
+* **Downloading the model at runtime**: At container startup, the application downloads the model from external storage (e.g., Amazon S3, backed by S3 CRT for optimized high-throughput transfers using methods such as Mountpoint for S3 CSI driver, AWS S3 CLI, or s5cmd OSS CLI) via scripts in an init container or entrypoint. We recommend starting with this approach for large models with frequent updates. This keeps container images focused on code/runtime, enables easy model updates without rebuilds, supports versioning via storage metadata, but it introduces potential network failures (requires retry logic), it requires authentication and caching. 
+
+To learn more, see https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/accelerate-pull-process[Accelerating pull process] in the AI on EKS Workshop.

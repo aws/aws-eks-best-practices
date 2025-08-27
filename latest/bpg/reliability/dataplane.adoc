@@ -96,13 +96,13 @@ spec:
 
 [NOTE]
 ====
-`kube-scheduler` is only aware of topology domains via nodes that exist with those labels. If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `kube-scheduler` isn’t aware of the other zones. For this topology spread to work as expected with the scheduler, nodes must already exist in all zones. The `minDomains` property of a topology spread constraints 
+`kube-scheduler` is only aware of topology domains via nodes that exist with those labels. If the above deployment is deployed to a cluster with nodes only in a single zone, all of the pods will schedule on those nodes as `kube-scheduler` isn't aware of the other zones. For this topology spread to work as expected with the scheduler, nodes must already exist in all zones. The `minDomains` property of a topology spread constraints 
 is used to inform the scheduler of the number of eligible domains, even if there is a Node running there to avoid this issue.
 ====
 
 [WARNING]
 ====
-Setting `whenUnsatisfiable` to `DoNotSchedule` will cause pods to be unschedulable if the topology spread constraint can’t be fulfilled. It should only be set if its preferable for pods to not run instead of violating the topology spread constraint.
+Setting `whenUnsatisfiable` to `DoNotSchedule` will cause pods to be unschedulable if the topology spread constraint can't be fulfilled. It should only be set if its preferable for pods to not run instead of violating the topology spread constraint.
 ====
 
 On older versions of Kubernetes, you can use pod anti-affinity rules to

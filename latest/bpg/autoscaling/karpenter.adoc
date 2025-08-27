@@ -39,9 +39,9 @@ https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html[Amaz
 EC2 Auto Scaling groups] and the
 https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler[Kubernetes
 Cluster Autoscaler] (CAS) to dynamically adjust the compute capacity of
-their clusters. With Karpenter, you don’t need to create dozens of node
+their clusters. With Karpenter, you don't need to create dozens of node
 groups to achieve the flexibility and diversity you get with Karpenter.
-Unlike CAS, Karpenter is not as tightly coupled to Kubernetes versions and doesn’t 
+Unlike CAS, Karpenter is not as tightly coupled to Kubernetes versions and doesn't 
 require you to jump between AWS and Kubernetes APIs.
 
 Karpenter consolidates instance orchestration responsibilities within a
@@ -113,7 +113,8 @@ yet part of Karpenter.
 
 === Run the Karpenter controller on EKS Fargate or on a worker node that belongs to a node group
 
-Karpenter is installed using a [Helm chart](https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter). 
+Karpenter is installed using a 
+https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter[Helm chart]. 
 The Helm chart installs the Karpenter controller and a webhook pod as a Deployment 
 that needs to run before the controller can be used for scaling your cluster.
 We recommend a minimum of one small node group with at least one worker
@@ -174,11 +175,11 @@ interruption handling in their clusters.
 === *Amazon EKS private cluster without outbound internet access*
 
 When provisioning an EKS Cluster into a VPC with no route to the
-internet, you have to make sure you’ve configured your environment in
+internet, you have to make sure you've configured your environment in
 accordance with the private cluster
 https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html#private-cluster-requirements[requirements]
 that appear in EKS documentation. In addition, you need to make sure
-you’ve created an STS VPC regional endpoint in your VPC. If not, you
+you've created an STS VPC regional endpoint in your VPC. If not, you
 will see errors similar to those that appear below.
 
 [source,console]
@@ -232,7 +233,7 @@ workloads on different worker nodes, or have different OS or instance
 type requirements, create multiple NodePools. For example, one team may
 want to use Bottlerocket, while another may want to use Amazon Linux.
 Likewise, one team might have access to expensive GPU hardware that
-wouldn’t be needed by another team. Using multiple NodePools makes sure
+wouldn't be needed by another team. Using multiple NodePools makes sure
 that the most appropriate assets are available to each team.
 
 === Create NodePools that are mutually exclusive or weighted
@@ -395,14 +396,14 @@ strategy instructs EC2 to provision instances from the deepest pools for
 the number of instances that you are launching and have the lowest risk
 of interruption. EC2 Fleet then requests Spot instances from the lowest
 priced of these pools. The more instance types you allow Karpenter to
-utilize, the better EC2 can optimize your spot instance’s runtime. By
+utilize, the better EC2 can optimize your spot instance's runtime. By
 default, Karpenter will use all Instance Types EC2 offers in the region
 and availability zones your cluster is deployed in. Karpenter
 intelligently chooses from the set of all instance types based on
 pending pods to make sure your pods are scheduled onto appropriately
 sized and equipped instances. For example, if your pod does not require
 a GPU, Karpenter will not schedule your pod to an EC2 instance type
-supporting a GPU. When you’re unsure about which instance types to use,
+supporting a GPU. When you're unsure about which instance types to use,
 you can run the Amazon
 https://github.com/aws/amazon-ec2-instance-selector[ec2-instance-selector]
 to generate a list of instance types that match your compute
@@ -423,7 +424,7 @@ t3.medium
 t3a.medium
 ----
 
-You shouldn’t place too many constraints on Karpenter when using Spot
+You shouldn't place too many constraints on Karpenter when using Spot
 instances because doing so can affect the availability of your
 applications. Say, for example, all of the instances of a particular
 type are reclaimed and there are no suitable alternatives available to
@@ -443,7 +444,7 @@ Karpenter for node provisioning.
 
 If you need to run highly available applications, follow general EKS
 best practice
-https://aws.github.io/aws-eks-best-practices/reliability/docs/application/#recommendations[recommendations].
+https://docs.aws.amazon.com/eks/latest/best-practices/application.html#_recommendations[recommendations].
 See
 https://karpenter.sh/docs/concepts/scheduling/#topology-spread[Topology
 Spread] in Karpenter documentation for details on how to spread pods
@@ -454,7 +455,7 @@ in case there are attempts to evict or delete pods.
 
 === Use layered Constraints to constrain the compute features available from your cloud provider
 
-Karpenter’s model of layered constraints allows you to create a complex
+Karpenter's model of layered constraints allows you to create a complex
 set of NodePool and pod deployment constraints to get the best possible
 matches for pod scheduling. Examples of constraints that a pod spec can
 request include the following:
@@ -479,7 +480,7 @@ When you configure your cluster to automatically scale, you should
 create billing alarms to warn you when your spend has exceeded a
 threshold and add resource limits to your Karpenter configuration.
 Setting resource limits with Karpenter is similar to setting an AWS
-autoscaling group’s maximum capacity in that it represents the maximum
+autoscaling group's maximum capacity in that it represents the maximum
 amount of compute resources that can be instantiated by a Karpenter
 NodePool.
 
@@ -493,7 +494,7 @@ CPU cores and 1000Gi of memory. Karpenter will stop adding capacity only
 when the limit is met or exceeded. When a limit is exceeded the
 Karpenter controller will write
 `memory resource usage of 1001 exceeds limit of 1000` or a similar
-looking message to the controller’s logs. If you are routing your
+looking message to the controller's logs. If you are routing your
 container logs to CloudWatch logs, you can create a
 https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html[metrics
 filter] to look for specific patterns or terms in your logs and then
@@ -513,7 +514,7 @@ spec:
     memory: 1000Gi
 ----
 
-If you don’t use limits or constrain the instance types that Karpenter
+If you don't use limits or constrain the instance types that Karpenter
 can provision, Karpenter will continue adding compute capacity to your
 cluster as needed. While configuring Karpenter in this way allows your
 cluster to scale freely, it can also have significant cost implications.
@@ -530,7 +531,7 @@ Management feature that uses machine learning to continuously monitor
 your cost and usage to detect unusual spends. Further information can be
 found in the
 https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html[AWS
-Cost Anomaly Detection Getting Started] guide. If you’ve gone so far as
+Cost Anomaly Detection Getting Started] guide. If you've gone so far as
 to create a budget in AWS Budgets, you can also configure an action to
 notify you when a specific threshold has been breached. With budget
 actions you can send an email, post a message to an SNS topic, or send a
@@ -542,7 +543,7 @@ AWS Budgets actions].
 
 If you are running a critical application on a Karpenter-provisioned
 node, such as a _long running_ batch job or stateful application, _and_
-the node’s TTL has expired, the application will be interrupted when the
+the node's TTL has expired, the application will be interrupted when the
 instance is terminated. By adding a
 `karpenter.sh/do-not-disrupt` annotation to the pod, you
 are instructing Karpenter to preserve the node until the Pod is
@@ -568,12 +569,12 @@ works to pack pods onto nodes only considering their requests.
 
 === Use LimitRanges to configure defaults for resource requests and limits
 
-Because Kubernetes doesn’t set default requests or limits, a container’s
+Because Kubernetes doesn't set default requests or limits, a container's
 consumption of resources from the underlying host, CPU, and memory is
-unbound. The Kubernetes scheduler looks at a pod’s total requests (the
-higher of the total requests from the pod’s containers or the total
-resources from the pod’s Init containers) to determine which worker node
-to schedule the pod onto. Similarly, Karpenter considers a pod’s
+unbound. The Kubernetes scheduler looks at a pod's total requests (the
+higher of the total requests from the pod's containers or the total
+resources from the pod's Init containers) to determine which worker node
+to schedule the pod onto. Similarly, Karpenter considers a pod's
 requests to determine which type of instance it provisions. You can use
 a limit range to apply a sensible default for a namespace, in case
 resource requests are not specified by some pods.
@@ -586,10 +587,10 @@ Default Memory Requests and Limits for a Namespace]
 
 Karpenter is able to launch nodes that best fit your workloads when its
 information about your workloads requirements is accurate. This is
-particularly important if using Karpenter’s consolidation feature.
+particularly important if using Karpenter's consolidation feature.
 
 See
-https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#configure-and-size-resource-requestslimits-for-all-workloads[Configure
+https://docs.aws.amazon.com/eks/latest/best-practices/data-plane.html#_recommendations[Configure
 and Size Resource Requests/Limits for all Workloads]
 
 == CoreDNS recommendations
@@ -597,14 +598,14 @@ and Size Resource Requests/Limits for all Workloads]
 === Update the configuration of CoreDNS to maintain reliability
 
 When deploying CoreDNS pods on nodes managed by Karpenter, given
-Karpenter’s dynamic nature in rapidly terminating/creating new nodes to
+Karpenter's dynamic nature in rapidly terminating/creating new nodes to
 align with demand, it is advisable to adhere to the following best
 practices:
 
-https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-lameduck-duration[CoreDNS
+https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html#_coredns_lameduck_duration[CoreDNS
 lameduck duration]
 
-https://aws.github.io/aws-eks-best-practices/scalability/docs/cluster-services/#coredns-readiness-probe[CoreDNS
+https://docs.aws.amazon.com/eks/latest/best-practices/scale-cluster-services.html#_coredns_readiness_probe[CoreDNS
 readiness probe]
 
 This will ensure that DNS queries are not directed to a CoreDNS Pod that
@@ -617,7 +618,7 @@ capacity for to the Kubernetes data plane, there are common workload
 scenarios that you might be wondering how to configure them properly.
 https://github.com/aws-ia/terraform-aws-eks-blueprints-addons[Karpenter
 Blueprints] is a repository that includes a list of common workload
-scenarios following the best practices described here. You’ll have all
+scenarios following the best practices described here. You'll have all
 the resources you need to even create an EKS cluster with Karpenter
 configured, and test each of the blueprints included in the repository.
 You can combine different blueprints to finally create the one you need

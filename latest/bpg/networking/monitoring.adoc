@@ -9,7 +9,7 @@
 
 Running DNS intensive workloads can sometimes experience intermittent CoreDNS failures due to DNS throttling, and this can impact applications where you may encounter occasional UnknownHostException errors.
 
-The Deployment for CoreDNS has an anti-affinity policy that instructs the Kubernetes scheduler to run instances of CoreDNS on separate worker nodes in the cluster, i.e. it should avoid co-locating replicas on the same worker node. This effectively reduces the number of DNS queries per network interface because traffic from each replica is routed through a different ENI. If you notice that DNS queries are being throttled because of the 1024 packets per second limit, you can 1) try increasing the number of CoreDNS replicas or 2) implement https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/[NodeLocal DNSCache]. See https://aws.github.io/aws-eks-best-practices/reliability/docs/dataplane/#monitor-coredns-metrics[Monitor CoreDNS Metrics] for further information.
+The Deployment for CoreDNS has an anti-affinity policy that instructs the Kubernetes scheduler to run instances of CoreDNS on separate worker nodes in the cluster, i.e. it should avoid co-locating replicas on the same worker node. This effectively reduces the number of DNS queries per network interface because traffic from each replica is routed through a different ENI. If you notice that DNS queries are being throttled because of the 1024 packets per second limit, you can 1) try increasing the number of CoreDNS replicas or 2) implement https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/[NodeLocal DNSCache]. See https://docs.aws.amazon.com/eks/latest/userguide/coredns-metrics.html[Monitor CoreDNS Metrics] for further information.
 
 === Challenge
 
@@ -53,12 +53,19 @@ Let's now capture the metrics discussed above, store them in Amazon Managed Serv
 * An AMP workspace configured in your AWS account. For instructions, see https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-onboard-create-workspace.html[Create a workspace] in the AMP User Guide.
 * Amazon Managed Grafana Workspace
 
-=== Deploying Prometheus ethtool exporter
+=== Deploying Prometheus Node Exporter
 
-The deployment contains a python script that pulls information from ethtool and publishes it in prometheus format.
+In order to collect the ethtool metrics for worker nodes, we need to deploy a collector which gathers the metrics and exposes them in Prometheus format. The following commands will add the `prometheus-community` Helm repository and install the `prometheus-node-exporter` chart with the `ethtool` collector enabled.
 
 ----
-kubectl apply -f https://raw.githubusercontent.com/Showmax/prometheus-ethtool-exporter/master/deploy/k8s-daemonset.yaml
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+helm upgrade -i prometheus-node-exporter prometheus-community/prometheus-node-exporter \
+  --set extraArgs[0]="--collector.ethtool" \
+  --set extraArgs[1]="--collector.ethtool.device-include=(eth|em|eno|ens|enp)[0-9s]+" \
+  --set extraArgs[2]="--collector.ethtool.metrics-include=.*" \
+  --set podAnnotations."prometheus\.io/scrape='true'" \
+  --set podAnnotations."prometheus\.io/port='9100'"
 ----
 
 === Deploy the ADOT collector to scrape the ethtool metrics and store in Amazon Managed Service for Prometheus workspace

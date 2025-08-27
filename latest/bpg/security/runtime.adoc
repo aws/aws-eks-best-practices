@@ -9,7 +9,7 @@
 :imagesdir: images/
 
 Runtime security provides active protection for your containers while
-they’re running. The idea is to detect and/or prevent malicious activity
+they're running. The idea is to detect and/or prevent malicious activity
 from occurring inside the container. This can be achieved with a number
 of mechanisms in the Linux kernel or kernel extensions that are
 integrated with Kubernetes, such as Linux capabilities, secure computing
@@ -46,10 +46,10 @@ system clock.
 
 With secure computing (seccomp) you can prevent a containerized
 application from making certain syscalls to the underlying host
-operating system’s kernel. While the Linux operating system has a few
-hundred system calls, the lion’s share of them are not necessary for
+operating system's kernel. While the Linux operating system has a few
+hundred system calls, the lion's share of them are not necessary for
 running containers. By restricting what syscalls can be made by a
-container, you can effectively decrease your application’s attack
+container, you can effectively decrease your application's attack
 surface.
 
 Seccomp works by intercepting syscalls and only allowing those that have
@@ -58,7 +58,7 @@ https://github.com/moby/moby/blob/master/profiles/seccomp/default.json[default]
 seccomp profile which is suitable for a majority of general purpose
 workloads, and other container runtimes like containerd provide
 comparable defaults. You can configure your container or Pod to use the
-container runtime’s default seccomp profile by adding the following to
+container runtime's default seccomp profile by adding the following to
 the `securityContext` section of the Pod spec:
 
 [source,yaml]
@@ -74,7 +74,7 @@ https://kubernetes.io/docs/tutorials/security/seccomp/#enable-the-use-of-runtime
 kubelet flag], `--seccomp-default`. Then the profile specified in
 `securityContext` is only needed for other profiles.
 
-It’s also possible to create your own profiles for things that require
+It's also possible to create your own profiles for things that require
 additional privileges. This can be very tedious to do manually, but
 there are tools like
 https://github.com/inspektor-gadget/inspektor-gadget[Inspektor Gadget]
@@ -146,7 +146,7 @@ minutes.
 === Optionally: Use a 3rd party solution for runtime monitoring
 
 Creating and managing seccomp and Apparmor profiles can be difficult if
-you’re not familiar with Linux security. If you don’t have the time to
+you're not familiar with Linux security. If you don't have the time to
 become proficient, consider using a 3rd party commercial solution. A lot
 of them have moved beyond static profiles like Apparmor and seccomp and
 have begun using machine learning to block or alert on suspicious

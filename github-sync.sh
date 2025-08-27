@@ -2,6 +2,9 @@
 
 set -e  # Exit on any error
 
+# Configuration
+GITHUB_SSH_URL="git@github.com:aws/aws-eks-best-practices.git"
+
 # Color codes for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,7 +21,7 @@ print_warning() {
 }
 
 print_error() {
-    echo -e "${RED}Error:${NC} $1"
+    echo -e "${RED}ERROR:${NC} $1"
     exit 1
 }
 
@@ -27,52 +30,101 @@ if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     print_error "Not in a git repository"
 fi
 
-# Check if both remotes exist
-if ! git remote | grep -q "^gitfarm$"; then
-    print_error "Remote 'gitfarm' not found"
+# Check for origin remote
+if ! git remote | grep -q "^origin$"; then
+    print_error "Remote 'origin' not found"
 fi
 
+# Check for GitHub remote, add if missing
 if ! git remote | grep -q "^github$"; then
-    print_error "Remote 'github' not found"
+    print_status "GitHub remote not found. Adding it..."
+    if ! git remote add github "$GITHUB_SSH_URL"; then
+        print_error "Failed to add GitHub remote"
+    fi
+fi
+
+# Verify remote configurations
+print_status "Verifying remote configurations..."
+github_url=$(git remote get-url github 2>/dev/null || echo "")
+if [[ "$github_url" != *"github.com"* ]]; then
+    print_error "GitHub remote does not point to GitHub. Current: $github_url"
+fi
+
+origin_url=$(git remote get-url origin 2>/dev/null || echo "")
+if [[ "$origin_url" != *"amazon.com"* ]]; then
+    print_error "Origin remote does not point to Amazon internal. Current: $origin_url"
 fi
 
 # Check for uncommitted changes
 if ! git diff-index --quiet HEAD --; then
-    print_warning "You have uncommitted changes. Please commit or stash them before syncing."
-    exit 1
+    print_error "You have uncommitted changes. Please commit or stash them before syncing."
 fi
 
-# Store current branch
-current_branch=$(git symbolic-ref --short HEAD)
+# Fetch from both remotes
+print_status "Fetching from origin (Amazon internal)..."
+if ! git fetch origin; then
+    print_error "Failed to fetch from origin remote"
+fi
 
-# Switch to mainline branch
-if [ "$current_branch" != "mainline" ]; then
-    print_status "Switching to mainline branch..."
-    if ! git checkout mainline; then
-        print_error "Failed to switch to mainline branch"
+print_status "Fetching from GitHub..."
+if ! git fetch github; then
+    print_error "Failed to fetch from GitHub remote"
+fi
+
+# Verify required branches exist
+print_status "Verifying required branches exist..."
+if ! git show-ref --verify --quiet refs/heads/mainline; then
+    if git show-ref --verify --quiet refs/remotes/origin/mainline; then
+        print_status "Pulling mainline branch from origin..."
+        git checkout -b mainline origin/mainline
+    else
+        print_error "mainline branch not found locally or on origin"
     fi
 fi
 
-print_status "Fetching from github remote..."
-if ! git fetch github; then
-    print_error "Failed to fetch from github remote"
+if ! git show-ref --verify --quiet refs/heads/master; then
+    if git show-ref --verify --quiet refs/remotes/github/master; then
+        print_status "Pulling master branch from github..."
+        git checkout -b master github/master
+    else
+        print_error "master branch not found locally or on github"
+    fi
 fi
 
-print_status "Attempting to merge github/master into mainline..."
-if ! git merge github/master --no-edit; then
-    print_error "Merge failed. Please resolve conflicts and try again"
+# Update mainline branch from origin
+print_status "Updating mainline branch from origin..."
+if ! git checkout mainline; then
+    print_error "Failed to checkout mainline branch"
 fi
 
-print_status "Pushing changes to gitfarm..."
-if ! git push gitfarm mainline; then
-    print_error "Failed to push to gitfarm remote"
+if ! git merge origin/mainline --ff-only; then
+    print_error "Failed to fast-forward mainline from origin. Manual intervention required."
 fi
 
-# If we got here, everything worked
-print_status "Successfully synced changes from github/master to gitfarm/mainline!"
-
-# Return to original branch if we weren't on mainline
-if [ "$current_branch" != "mainline" ]; then
-    print_status "Returning to branch '$current_branch'..."
-    git checkout "$current_branch"
+# Update master branch from GitHub
+print_status "Updating master branch from GitHub..."
+if ! git checkout master; then
+    print_error "Failed to checkout master branch"
 fi
+
+if ! git merge github/master --ff-only; then
+    print_error "Failed to fast-forward master from GitHub. Manual intervention required."
+fi
+
+# Switch back to mainline and merge master
+print_status "Switching to mainline and merging master..."
+if ! git checkout mainline; then
+    print_error "Failed to checkout mainline branch"
+fi
+
+if ! git merge master --no-edit; then
+    print_error "Merge conflicts detected between master and mainline. Please resolve manually."
+fi
+
+# Push mainline to origin
+print_status "Pushing mainline to origin..."
+if ! git push origin mainline; then
+    print_error "Failed to push mainline to origin"
+fi
+
+print_status "Successfully synced: GitHub master -> local master -> mainline -> origin"
