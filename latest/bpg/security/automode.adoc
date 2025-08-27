@@ -1,0 +1,406 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[eks-auto-mode-security,eks-auto-mode-security.title]]
+= EKS Auto Mode Security
+:info_doctype: section
+:info_title: EKS Auto Mode Security
+:info_abstract: EKS Auto Mode Security
+:info_titleabbrev: EKS Auto Mode Security
+:imagesdir: images/
+
+== Introduction
+
+Amazon EKS Auto Mode introduces enhanced security capabilities by extending AWS's security management beyond the control plane to include worker nodes and core cluster components. This comprehensive security model helps organizations maintain a strong security posture while reducing operational overhead.
+
+.Shared Responsibility Model - EKS Auto Mode
+image::security/SRM-AUTO.png[Shared Responsibility Model - Amazon EKS Auto Mode]
+
+Key security enhancements in Auto Mode include:
+
+* Minimal container-optimized OS with reduced attack surface
+* Enforced security best practices through EC2 Managed Instances
+* Automated security patch management with mandatory Node rotation
+* Built-in node isolation and security boundaries
+* Enhanced network security controls
+* Streamlined IAM integration with minimal required permissions
+
+Auto Mode enforces these security controls by default, helping organizations meet their security and compliance requirements while simplifying cluster operations. This approach aligns with defense-in-depth principles, providing multiple layers of security controls at the infrastructure, node, and workload levels.
+
+[IMPORTANT]
+====
+While Auto Mode provides enhanced security capabilities, organizations should still implement appropriate security controls at the application layer and follow security best practices for their workloads running on the cluster.
+====
+
+== Security Architecture
+
+Auto Mode implements security controls across multiple layers of the EKS infrastructure, from the control plane to individual nodes. Understanding this architecture is crucial for effectively managing and securing your EKS clusters.
+
+=== Control Plane Security
+
+The EKS control plane in Auto Mode maintains the same high-security standards as traditional EKS clusters while adding new security capabilities:
+
+* *Envelope Encryption*: All Kubernetes API data is automatically encrypted using envelope encryption.
+* *KMS Integration*: Uses AWS KMS with Kubernetes KMS provider v2, with options for AWS-owned keys or customer-managed keys (CMK).
+* *Enhanced Component Management*: Critical components like auto-scaling, ENI management, and EBS controllers are moved outside the cluster and managed by AWS.
+
+[IMPORTANT]
+====
+Auto Mode requires additional permissions beyond standard EKS clusters, but these are managed through the cluster IAM role rather than individual node roles, providing better security control and audit capabilities.
+====
+
+=== IAM Integration and Access Management
+
+EKS Auto Mode provides enhanced integration with AWS Identity and Access Management (IAM) through EKS Access Entries and EKS Pod Identity.
+
+==== Cluster Access Management
+
+Auto Mode introduces improvements to cluster access management through the Cluster Access Management (CAM) API:
+
+* Standardized authentication modes through `EKS_API`
+* Enhanced security through API-based access management
+* Simplified access control using Access Entries and Access Policies
+
+Access Entries can be created to manage cluster access:
+
+[source,bash]
+----
+aws eks create-access-entry \
+    --cluster-name ${EKS_CLUSTER_NAME} \
+    --principal-arn arn:aws:iam::${ACCOUNT_ID}:role/${IAM_ROLE_NAME} \
+    --type STANDARD
+----
+
+[IMPORTANT]
+====
+While it still possible to create an Amazon EKS Auto Mode cluster with `CONFIG_MAP_AND_API` authentication mode, this is not the standard approach, and it's highly recommended to use the default `API` authentication mode for new clusters, which provides enhanced security and simplified access management compared to the legacy ConfigMap-based approach.
+====
+
+==== EKS Pod Identity
+
+Auto Mode comes with Pod Identity Agent already deployed, allowing a streamlined way to grant AWS IAM permissions to Pods:
+
+* Simplified IAM permissions management without OIDC provider configuration
+* Reduced operational overhead compared to IRSA
+* Enhanced security through session tagging and ABAC support
+
+[source,bash]
+----
+aws eks create-pod-identity-association \
+  --cluster-name ${EKS_CLUSTER_NAME} \
+  --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/${IAM_ROLE_NAME} \
+  --namespace ${NAMESPACE} \
+  --service-account ${SERVICE_ACCOUNT_NAME}
+----
+
+[IMPORTANT]
+====
+While IRSA (IAM Roles for Service Accounts) is still supported in Auto Mode, EKS Pod Identity is the recommended approach for managing pod IAM permissions due to its enhanced security features and simplified management.
+====
+
+==== Node IAM Role
+
+Auto Mode uses a new `AmazonEKSWorkerNodeMinimalPolicy` which provides only the permissions required for EKS Auto Mode nodes to operate:
+
+* Reduced set of permissions compared to traditional node policies
+* Adheres to the principle of least privilege
+* Automatically managed and updated by AWS
+
+This minimal policy approach helps improve the security posture by limiting the permissions available to the node and its workloads.
+
+=== Node Security
+
+EKS Auto Mode introduces several significant security improvements at the node level:
+
+==== EC2 Managed Instances Security
+
+Auto Mode nodes use Amazon EC2 Managed Instances with enhanced security properties:
+
+* IAM-enforced restrictions that prevent operations that could compromise AWS's ability to operate the nodes
+* Immutable infrastructure patterns where configuration changes require node replacement
+* Mandatory node replacement within 21 days to ensure regular security updates
+* Restricted access to instance metadata using IMDSv2 with controlled hop limits
+
+==== Operating System Security
+
+The operating system is a custom variant of https://aws.amazon.com/bottlerocket/[Bottlerocket] optimized for Auto Mode:
+
+* Read-only root filesystem
+* SELinux enabled by default with mandatory access controls
+* Automatic Pod isolation using unique SELinux MCS labels
+* Disabled SSH access and removal of unnecessary services
+* Automated security patches through node rotation
+
+==== Node Component Security
+
+Node components are configured with security best practices:
+
+* Kubelet configured with secure defaults
+* Container runtime hardened configuration
+* Automated certificate management and rotation
+* Restricted node-to-control-plane communication
+
+=== Network Security
+
+EKS Auto Mode implements several network security features to ensure secure communication within the cluster and with external resources:
+
+==== VPC CNI Network Policy
+
+Auto Mode leverages the native Kubernetes Network Policy support of Amazon VPC CNI Plugin:
+
+* Integrates with the upstream Kubernetes Network Policy API
+* Allows fine-grained control over pod-to-pod communication
+* Supports both ingress and egress rules
+
+To enable network policy support in Auto Mode, you need to configure the VPC CNI add-on with a `configMap` manifest.
+
+[source,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amazon-vpc-cni
+  namespace: kube-system
+data:
+  enable-network-policy: "true"
+----
+
+It's also required to define the Network Policy support is configured in the Node Class.
+
+[source,yaml]
+----
+apiVersion: eks.amazonaws.com/v1
+kind: NodeClass
+metadata:
+  name: example-node-class
+spec:
+  networkPolicy: DefaultAllow
+  networkPolicyEventLogs: Enabled
+----
+
+Once enabled, you can create network policies to control traffic:
+
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+----
+
+==== Enhanced ENI Management
+
+Auto Mode provides improved security for Elastic Network Interface (ENI) management:
+
+* AWS-managed ENI attachment and configuration
+* Separation of control traffic from data traffic
+* Automated IP address management with reduced privileges required on nodes
+
+=== Storage Security
+
+EKS Auto Mode provides enhanced security features for both ephemeral and persistent storage:
+
+==== Ephemeral Storage
+
+* All data written to ephemeral volumes is automatically encrypted
+* Uses industry-standard AES-256 cryptographic algorithm
+* Encryption and decryption handled seamlessly by the service
+
+==== EBS Volumes
+
+* Root and data EBS volumes are always encrypted
+* Volumes configured to be deleted upon termination of the instance
+* Option to specify custom KMS keys for encryption
+
+==== EFS Integration
+
+* Support for encryption in transit with EFS
+* Automatic encryption at rest for EFS file systems
+* Integration with EFS access points for enhanced access control
+
+[IMPORTANT]
+====
+When using EFS with Auto Mode, ensure that the appropriate encryption settings are configured at the EFS file system level, as Auto Mode does not manage EFS encryption directly.
+====
+
+=== Monitoring and Logging
+
+EKS Auto Mode provides enhanced monitoring and logging capabilities to help you maintain visibility into your cluster's security posture and operational health.
+
+==== Control Plane Logging
+
+Auto Mode maintains the same control plane logging capabilities as standard EKS, however it enables all logs by default for enhanced monitoring.
+
+* Logs are sent to Amazon CloudWatch Logs
+* By default, enables all control-plane logs: API server, audit, authenticator, controller manager, and scheduler
+* Enables detailed visibility into cluster operations and security events
+
+[IMPORTANT]
+====
+Control plane logging incurs additional costs for log storage in CloudWatch. Consider your logging strategy carefully to balance security needs with cost management.
+====
+
+==== Node-level Logging
+
+EKS Auto Mode enhances node-level logging:
+
+* System logs are automatically collected and can be accessed via CloudWatch Logs
+* Node logs are retained even after node termination, aiding in post-incident analysis
+* Enhanced visibility into node-level security events and operational issues
+
+==== Amazon GuardDuty Integration
+
+EKS Auto Mode clusters seamlessly integrate with Amazon GuardDuty for enhanced threat detection:
+
+* Automated scanning for control-plane audit logs
+* Runtime monitoring can be enabled for workloads monitoring
+* Integration with existing GuardDuty findings and alerting mechanisms
+
+To enable GuardDuty for Amazon EKS Auto Mode:
+
+[source,bash]
+----
+aws guardduty update-detector \
+    --detector-id 12abc34d567e8fa901bc2d34e56789f0 \
+    --data-sources '{"Kubernetes":{"AuditLogs":{"Enable":true}}}'
+----
+
+==== Amazon GuardDuty Integration for Runtime Security
+
+Amazon GuardDuty provides essential runtime security monitoring for EKS Auto Mode clusters, offering comprehensive threat detection and security monitoring capabilities. This integration is particularly important as it helps identify potential security threats and malicious activity in real-time.
+
+===== Key GuardDuty Features for EKS Auto Mode
+
+* *Runtime Monitoring*:
+** Continuous monitoring of runtime behavior
+** Detection of malicious or suspicious activities
+** Identification of potential container escape attempts
+** Monitoring of unusual process execution or network connections
+
+* *Kubernetes-Specific Threat Detection*:
+** Identification of suspicious pod deployment attempts
+** Detection of compromised containers
+** Monitoring of privileged container launches
+** Identification of suspicious service account usage
+
+* *Comprehensive Finding Types*:
+** Policy:Kubernetes/* - Detects violations of security best practices
+** Impact:Kubernetes/* - Identifies potentially impacted resources
+** Discovery:Kubernetes/* - Detects reconnaissance activities
+** Execution:Kubernetes/* - Identifies suspicious execution patterns
+** Persistence:Kubernetes/* - Detects potential persistent threats
+
+[source,bash]
+----
+# Enable GuardDuty for full EKS protection
+aws guardduty update-detector \
+    --detector-id 12abc34d567e8fa901bc2d34e56789f0 \
+    --data-sources '{
+        "Kubernetes": {
+            "AuditLogs": {"Enable": true},
+            "RuntimeMonitoring": {"Enable": true}
+        }
+    }'
+----
+
+[IMPORTANT]
+====
+GuardDuty Runtime Monitoring is automatically supported in Auto Mode clusters, providing enhanced security visibility without additional configuration at the node level.
+====
+
+===== GuardDuty Findings Integration
+
+GuardDuty findings can be integrated with other AWS services for automated response:
+
+* *EventBridge Rules*:
+[source,json]
+----
+{
+  "source": ["aws.guardduty"],
+  "detail-type": ["GuardDuty Finding"],
+  "detail": {
+    "type": ["Runtime:Container/*", "Runtime:Kubernetes/*"],
+    "severity": [4, 5, 6, 7, 8]
+  }
+}
+----
+
+* *Security Hub Integration*:
+[source,bash]
+----
+# Enable Security Hub integration
+aws securityhub enable-security-hub \
+    --enable-default-standards \
+    --tags '{"Environment":"Production"}' \
+    --region us-west-2
+----
+
+===== Best Practices for GuardDuty with Auto Mode
+
+1. *Enable All Finding Types*:
+   * Enable both Kubernetes audit log monitoring and runtime monitoring
+   * Configure findings for all severity levels
+
+2. *Implement Automated Response*:
+   * Create EventBridge rules for high-severity findings
+   * Integrate with AWS Security Hub for centralized security management
+   * Set up automated remediation actions where appropriate
+
+3. *Regular Review and Tuning*:
+   * Regularly review GuardDuty findings
+   * Tune detection thresholds based on your environment
+   * Update response procedures based on new finding types
+
+4. *Cross-Account Management*:
+   * Consider using GuardDuty administrator account for centralized management
+   * Enable findings aggregation across multiple accounts
+
+[WARNING]
+====
+While GuardDuty provides comprehensive security monitoring, it should be part of a defense-in-depth strategy that includes other security controls such as Network Policies, Pod Security Standards, and proper RBAC configuration.
+====
+
+
+==== AWS Distro for OpenTelemetry (ADOT)
+
+Auto Mode supports easy integration with ADOT for comprehensive observability:
+
+* Simplified deployment of ADOT Collector as an add-on
+* Standardized approach to collecting metrics, traces, and logs
+* Integration with various AWS and partner monitoring solutions
+
+To enable the ADOT add-on:
+
+[source,bash]
+----
+aws eks create-addon \
+    --cluster-name ${EKS_CLUSTER_NAME} \
+    --addon-name adot \
+    --addon-version v0.88.0-eksbuild.1
+----
+
+==== Container Insights
+
+Auto Mode clusters can leverage Amazon CloudWatch Container Insights for detailed performance and health monitoring:
+
+* Collects, aggregates, and summarizes metrics and logs from containerized applications
+* Provides insights at the cluster, node, pod, and container levels
+* Enables automated detection of issues and setting of alarms
+
+To enable Container Insights:
+
+[source,bash]
+----
+kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluentd-quickstart.yaml
+----
+
+[NOTE]
+====
+While Auto Mode provides these monitoring and logging capabilities, it's crucial to configure them according to your specific security and operational requirements.
+====
+
+== FAQ
