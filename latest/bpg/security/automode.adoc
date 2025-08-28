@@ -364,43 +364,99 @@ aws securityhub enable-security-hub \
 While GuardDuty provides comprehensive security monitoring, it should be part of a defense-in-depth strategy that includes other security controls such as Network Policies, Pod Security Standards, and proper RBAC configuration.
 ====
 
+== Frequently Asked Questions (FAQ)
 
-==== AWS Distro for OpenTelemetry (ADOT)
+Q: How does Auto Mode differ from standard EKS in terms of security?
+A: Auto Mode provides enhanced security through EC2 Managed Instances, automated patching, mandatory node rotation, and built-in security controls. It reduces the operational overhead while maintaining strong security posture by having AWS manage more of the security aspects.
 
-Auto Mode supports easy integration with ADOT for comprehensive observability:
+Q: Can I still use existing security tools and policies with Auto Mode?
+A: Yes, Auto Mode is compatible with most existing security tools and policies. However, some node-level security tools might require adaptation due to the managed nature of Auto Mode nodes.
 
-* Simplified deployment of ADOT Collector as an add-on
-* Standardized approach to collecting metrics, traces, and logs
-* Integration with various AWS and partner monitoring solutions
+Q: How do I deploy security agents and monitoring tools in Auto Mode?
+A: In Auto Mode, security agents and monitoring tools should be deployed as Kubernetes workloads (typically DaemonSets) rather than installed directly on the node OS. This approach aligns with the immutable infrastructure model of Auto Mode. Example:
 
-To enable the ADOT add-on:
-
-[source,bash]
+[source,yaml]
 ----
-aws eks create-addon \
-    --cluster-name ${EKS_CLUSTER_NAME} \
-    --addon-name adot \
-    --addon-version v0.88.0-eksbuild.1
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: security-agent
+  namespace: security
+spec:
+  selector:
+    matchLabels:
+      app: security-agent
+  template:
+    metadata:
+      labels:
+        app: security-agent
+    spec:
+      containers:
+      - name: security-agent
+        image: security-vendor/agent:latest
+        securityContext:
+          privileged: false
+          # Use specific capabilities instead of privileged mode
+          capabilities:
+            add: ["NET_ADMIN", "SYS_ADMIN"]
 ----
 
-==== Container Insights
+Q: Are third-party security solutions compatible with Auto Mode?
+A: Many popular third-party security solutions have been updated to support EKS Auto Mode, however is always recommended to verify the specific version and deployment requirements with your security vendor, as support for Auto Mode may require updated versions or specific deployment configurations.
 
-Auto Mode clusters can leverage Amazon CloudWatch Container Insights for detailed performance and health monitoring:
+Q: What are the limitations for security agents in Auto Mode?
+A: Key limitations include:
 
-* Collects, aggregates, and summarizes metrics and logs from containerized applications
-* Provides insights at the cluster, node, pod, and container levels
-* Enables automated detection of issues and setting of alarms
-
-To enable Container Insights:
-
-[source,bash]
-----
-kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluentd-quickstart.yaml
-----
+* No direct access to modify the node's operating system
+* No persistence across node rotations
+* Must be compatible with container-based deployment
+* Need to respect node immutability
+* May require different privilege configurations
 
 [NOTE]
 ====
-While Auto Mode provides these monitoring and logging capabilities, it's crucial to configure them according to your specific security and operational requirements.
+While Auto Mode may require adjustments to your security tooling deployment strategy, these changes often result in more maintainable and secure configurations aligned with cloud-native best practices.
 ====
 
-== FAQ
+Q: Can I use custom AMIs with Auto Mode?
+A: At this moment, Auto Mode does not support custom AMIs. This is by design as AWS manages the security, patching, and maintenance of the nodes as part of the shared responsibility model. The Auto Mode nodes use a specialized variant of Bottlerocket that is optimized and maintained by AWS.
+
+Q: How often are nodes automatically rotated in Auto Mode?
+A: Nodes in Auto Mode have a maximum lifetime of 21 days. They will be automatically replaced before this limit, ensuring regular security updates and patch application.
+
+Q: Can I SSH into Auto Mode nodes for troubleshooting?
+A: No, direct SSH access is not available in Auto Mode. Instead, you can use the NodeDiagnostic Custom Resource Definition (CRD) for collecting system logs and debugging information.
+
+Q: Is Network Policy support enabled by default in Auto Mode?
+A: For now, Network Policy support needs to be explicitly enabled through the VPC CNI add-on configuration. Once enabled, you can use standard Kubernetes Network Policies.
+
+Q: Can I use Security Groups for Pods with Auto Mode?
+A: Yes, Auto Mode fully supports Security Groups for Pods, allowing you to apply AWS Security Group rules directly to pods.
+
+Q: Should I use IRSA or Pod Identity with Auto Mode?
+A: While both are supported, Pod Identity is the recommended approach in Auto Mode as it already includes the Pod Identity Security agent add-on and provides enhanced security features and simplified management.
+
+Q: Can I still use the aws-auth ConfigMap in Auto Mode?
+A: While the `aws-auth` ConfigMap is a deprecated feature and it's recommended to use the default approach of API based authentication for enhanced security and simplified access management. 
+
+[NOTE]
+====
+The `aws-auth` ConfigMap will have it's supportability removed in future releases of Amazon EKS overall.
+====
+
+Q: Does Auto Mode support compliance standards like PCI DSS and HIPAA?
+A: Yes, Auto Mode maintains the same compliance standards as standard EKS. Always refer to the latest AWS compliance documentation for specific details.
+
+Q: How can I monitor security events in Auto Mode?
+A: Auto Mode integrates with multiple monitoring solutions including GuardDuty, CloudWatch, and CloudTrail. GuardDuty provides enhanced runtime security monitoring specifically for EKS workloads.
+
+Q: How do I collect logs from Auto Mode nodes?
+A: Use the NodeDiagnostic CRD, which automatically uploads logs to an S3 bucket. You can also use CloudWatch Container Insights and AWS Distro for OpenTelemetry.
+
+Q: What happens if a security issue is detected on a node?
+A: Auto Mode includes automated detection and response capabilities. Depending on the severity, nodes can be automatically replaced, and GuardDuty will generate appropriate findings.
+
+[NOTE]
+====
+This FAQ section is regularly updated as new features are added to EKS Auto Mode and as we receive common questions from customers.
+====
