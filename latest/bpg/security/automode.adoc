@@ -1,12 +1,12 @@
 //!!NODE_ROOT <section>
 [."topic"]
-[[eks-auto-mode-security,eks-auto-mode-security.title]]
-= EKS Auto Mode Security
+[[autosecure,autosecure.title]]
+= EKS Auto Mode - Security
 :info_doctype: section
-:info_title: EKS Auto Mode Security
-:info_abstract: EKS Auto Mode Security
-:info_titleabbrev: EKS Auto Mode Security
-:imagesdir: images/
+:info_title: EKS Auto Mode - Security
+:info_abstract: EKS Auto Mode - Security
+:info_titleabbrev: EKS Auto Mode - Security
+:imagesdir: images/security
 
 == Introduction
 
@@ -15,7 +15,7 @@ Amazon EKS Auto Mode introduces enhanced security capabilities by extending AWS'
 .Shared Responsibility Model - EKS Auto Mode
 image::security/SRM-AUTO.png[Shared Responsibility Model - Amazon EKS Auto Mode]
 
-Key security enhancements in Auto Mode include:
+Key security enhancements in EKS Auto Mode include:
 
 * Minimal container-optimized OS with reduced attack surface
 * Enforced security best practices through EC2 Managed Instances
@@ -24,20 +24,20 @@ Key security enhancements in Auto Mode include:
 * Enhanced network security controls
 * Streamlined IAM integration with minimal required permissions
 
-Auto Mode enforces these security controls by default, helping organizations meet their security and compliance requirements while simplifying cluster operations. This approach aligns with defense-in-depth principles, providing multiple layers of security controls at the infrastructure, node, and workload levels.
+EKS Auto Mode enforces these security controls by default, helping organizations meet their security and compliance requirements while simplifying cluster operations. This approach aligns with defense-in-depth principles, providing multiple layers of security controls at the infrastructure, node, and workload levels.
 
 [IMPORTANT]
 ====
-While Auto Mode provides enhanced security capabilities, organizations should still implement appropriate security controls at the application layer and follow security best practices for their workloads running on the cluster.
+While EKS Auto Mode provides enhanced security capabilities, organizations should still implement appropriate security controls at the application layer and follow security best practices for their workloads running on the cluster.
 ====
 
 == Security Architecture
 
-Auto Mode implements security controls across multiple layers of the EKS infrastructure, from the control plane to individual nodes. Understanding this architecture is crucial for effectively managing and securing your EKS clusters.
+EKS Auto Mode implements security controls across multiple layers of the EKS infrastructure, from the control plane to individual nodes. Understanding this architecture is crucial for effectively managing and securing your EKS clusters.
 
 === Control Plane Security
 
-The EKS control plane in Auto Mode maintains the same high-security standards as traditional EKS clusters while adding new security capabilities:
+The EKS control plane in EKS Auto Mode maintains the same high-security standards as traditional EKS clusters while adding new security capabilities:
 
 * *Envelope Encryption*: All Kubernetes API data is automatically encrypted using envelope encryption.
 * *KMS Integration*: Uses AWS KMS with Kubernetes KMS provider v2, with options for AWS-owned keys or customer-managed keys (CMK).
@@ -45,7 +45,7 @@ The EKS control plane in Auto Mode maintains the same high-security standards as
 
 [IMPORTANT]
 ====
-Auto Mode requires additional permissions beyond standard EKS clusters, but these are managed through the cluster IAM role rather than individual node roles, providing better security control and audit capabilities.
+EKS Auto Mode requires additional permissions beyond standard EKS clusters, but these are managed through the cluster IAM role rather than individual node roles, providing better security control and audit capabilities.
 ====
 
 === IAM Integration and Access Management
@@ -54,7 +54,7 @@ EKS Auto Mode provides enhanced integration with AWS Identity and Access Managem
 
 ==== Cluster Access Management
 
-Auto Mode introduces improvements to cluster access management through the Cluster Access Management (CAM) API:
+EKS Auto Mode introduces improvements to cluster access management through the Cluster Access Management (CAM) API:
 
 * Standardized authentication modes through `EKS_API`
 * Enhanced security through API-based access management
@@ -72,12 +72,12 @@ aws eks create-access-entry \
 
 [IMPORTANT]
 ====
-While it still possible to create an Amazon EKS Auto Mode cluster with `CONFIG_MAP_AND_API` authentication mode, this is not the standard approach, and it's highly recommended to use the default `API` authentication mode for new clusters, which provides enhanced security and simplified access management compared to the legacy ConfigMap-based approach.
+While it still possible to create an EKS Auto Mode cluster with `CONFIG_MAP_AND_API` authentication mode, this is not the standard approach, and it's highly recommended to use the default `API` authentication mode for new clusters, which provides enhanced security and simplified access management compared to the legacy ConfigMap-based approach.
 ====
 
 ==== EKS Pod Identity
 
-Auto Mode comes with Pod Identity Agent already deployed, allowing a streamlined way to grant AWS IAM permissions to Pods:
+EKS Auto Mode comes with Pod Identity Agent already deployed, allowing a streamlined way to grant AWS IAM permissions to Pods:
 
 * Simplified IAM permissions management without OIDC provider configuration
 * Reduced operational overhead compared to IRSA
@@ -94,12 +94,12 @@ aws eks create-pod-identity-association \
 
 [IMPORTANT]
 ====
-While IRSA (IAM Roles for Service Accounts) is still supported in Auto Mode, EKS Pod Identity is the recommended approach for managing pod IAM permissions due to its enhanced security features and simplified management.
+
 ====
 
 ==== Node IAM Role
 
-Auto Mode uses a new `AmazonEKSWorkerNodeMinimalPolicy` which provides only the permissions required for EKS Auto Mode nodes to operate:
+EKS Auto Mode uses a new `AmazonEKSWorkerNodeMinimalPolicy` which provides only the permissions required for EKS Auto Mode nodes to operate:
 
 * Reduced set of permissions compared to traditional node policies
 * Adheres to the principle of least privilege
@@ -113,7 +113,7 @@ EKS Auto Mode introduces several significant security improvements at the node l
 
 ==== EC2 Managed Instances Security
 
-Auto Mode nodes use Amazon EC2 Managed Instances with enhanced security properties:
+EKS Auto Mode nodes use Amazon EC2 Managed Instances with enhanced security properties:
 
 * IAM-enforced restrictions that prevent operations that could compromise AWS's ability to operate the nodes
 * Immutable infrastructure patterns where configuration changes require node replacement
@@ -145,13 +145,13 @@ EKS Auto Mode implements several network security features to ensure secure comm
 
 ==== VPC CNI Network Policy
 
-Auto Mode leverages the native Kubernetes Network Policy support of Amazon VPC CNI Plugin:
+EKS Auto Mode leverages the native Kubernetes Network Policy support of Amazon VPC CNI Plugin:
 
 * Integrates with the upstream Kubernetes Network Policy API
 * Allows fine-grained control over pod-to-pod communication
 * Supports both ingress and egress rules
 
-To enable network policy support in Auto Mode, you need to configure the VPC CNI add-on with a `configMap` manifest.
+To enable network policy support in EKS Auto Mode, you need to configure the VPC CNI add-on with a `configMap` manifest.
 
 [source,yaml]
 ----
@@ -194,7 +194,7 @@ spec:
 
 ==== Enhanced ENI Management
 
-Auto Mode provides improved security for Elastic Network Interface (ENI) management:
+EKS Auto Mode provides improved security for Elastic Network Interface (ENI) management:
 
 * AWS-managed ENI attachment and configuration
 * Separation of control traffic from data traffic
@@ -224,7 +224,7 @@ EKS Auto Mode provides enhanced security features for both ephemeral and persist
 
 [IMPORTANT]
 ====
-When using EFS with Auto Mode, ensure that the appropriate encryption settings are configured at the EFS file system level, as Auto Mode does not manage EFS encryption directly.
+When using EFS with EKS Auto Mode, ensure that the appropriate encryption settings are configured at the EFS file system level, as EKS Auto Mode does not manage EFS encryption directly.
 ====
 
 === Monitoring and Logging
@@ -233,7 +233,7 @@ EKS Auto Mode provides enhanced monitoring and logging capabilities to help you 
 
 ==== Control Plane Logging
 
-Auto Mode maintains the same control plane logging capabilities as standard EKS, however it enables all logs by default for enhanced monitoring.
+EKS Auto Mode maintains the same control plane logging capabilities as standard EKS, however it enables all logs by default for enhanced monitoring.
 
 * Logs are sent to Amazon CloudWatch Logs
 * By default, enables all control-plane logs: API server, audit, authenticator, controller manager, and scheduler
@@ -309,7 +309,7 @@ aws guardduty update-detector \
 
 [IMPORTANT]
 ====
-GuardDuty Runtime Monitoring is automatically supported in Auto Mode clusters, providing enhanced security visibility without additional configuration at the node level.
+GuardDuty Runtime Monitoring is automatically supported in EKS Auto Mode clusters, providing enhanced security visibility without additional configuration at the node level.
 ====
 
 ===== GuardDuty Findings Integration
@@ -339,7 +339,7 @@ aws securityhub enable-security-hub \
     --region us-west-2
 ----
 
-===== Best Practices for GuardDuty with Auto Mode
+===== Best Practices for GuardDuty with EKS Auto Mode
 
 1. *Enable All Finding Types*:
    * Enable both Kubernetes audit log monitoring and runtime monitoring
@@ -366,14 +366,14 @@ While GuardDuty provides comprehensive security monitoring, it should be part of
 
 == Frequently Asked Questions (FAQ)
 
-Q: How does Auto Mode differ from standard EKS in terms of security?
-A: Auto Mode provides enhanced security through EC2 Managed Instances, automated patching, mandatory node rotation, and built-in security controls. It reduces the operational overhead while maintaining strong security posture by having AWS manage more of the security aspects.
+Q: How does EKS Auto Mode differ from standard EKS in terms of security?
+A: EKS Auto Mode provides enhanced security through EC2 Managed Instances, automated patching, mandatory node rotation, and built-in security controls. It reduces the operational overhead while maintaining strong security posture by having AWS manage more of the security aspects.
 
-Q: Can I still use existing security tools and policies with Auto Mode?
-A: Yes, Auto Mode is compatible with most existing security tools and policies. However, some node-level security tools might require adaptation due to the managed nature of Auto Mode nodes.
+Q: Can I still use existing security tools and policies with EKS Auto Mode?
+A: Yes, EKS Auto Mode is compatible with most existing security tools and policies. However, some node-level security tools might require adaptation due to the managed nature of EKS Auto Mode nodes.
 
-Q: How do I deploy security agents and monitoring tools in Auto Mode?
-A: In Auto Mode, security agents and monitoring tools should be deployed as Kubernetes workloads (typically DaemonSets) rather than installed directly on the node OS. This approach aligns with the immutable infrastructure model of Auto Mode. Example:
+Q: How do I deploy security agents and monitoring tools in EKS Auto Mode?
+A: In EKS Auto Mode, security agents and monitoring tools should be deployed as Kubernetes workloads (typically DaemonSets, which deploys one instance of the Pod on every node by default) rather than installed directly on the node OS. This approach aligns with the immutable infrastructure model of EKS Auto Mode. Example:
 
 [source,yaml]
 ----
@@ -401,10 +401,10 @@ spec:
             add: ["NET_ADMIN", "SYS_ADMIN"]
 ----
 
-Q: Are third-party security solutions compatible with Auto Mode?
-A: Many popular third-party security solutions have been updated to support EKS Auto Mode, however is always recommended to verify the specific version and deployment requirements with your security vendor, as support for Auto Mode may require updated versions or specific deployment configurations.
+Q: Are third-party security solutions compatible with EKS Auto Mode?
+A: Many popular third-party security solutions have been updated to support EKS Auto Mode, however it is always recommended to verify the specific version and deployment requirements with your security vendor, as support for EKS Auto Mode may require updated versions or specific deployment configurations.
 
-Q: What are the limitations for security agents in Auto Mode?
+Q: What are the limitations for security agents in EKS Auto Mode?
 A: Key limitations include:
 
 * No direct access to modify the node's operating system
@@ -412,51 +412,53 @@ A: Key limitations include:
 * Must be compatible with container-based deployment
 * Need to respect node immutability
 * May require different privilege configurations
+* Any persistent changes to the Nodes, should be done through `NodePools` and `NodeClasses` resources. 
 
 [NOTE]
 ====
-While Auto Mode may require adjustments to your security tooling deployment strategy, these changes often result in more maintainable and secure configurations aligned with cloud-native best practices.
+While EKS Auto Mode may require adjustments to your security tooling deployment strategy, these changes often result in more maintainable and secure configurations aligned with cloud-native best practices.
+EKS Auto Mode expects to completely take over most of the features it manages. Therefore, any manual changes you make to those features, if you can get to them, could be overwritten or discarded by EKS Auto Mode.
 ====
 
-Q: Can I use custom AMIs with Auto Mode?
-A: At this moment, Auto Mode does not support custom AMIs. This is by design as AWS manages the security, patching, and maintenance of the nodes as part of the shared responsibility model. The Auto Mode nodes use a specialized variant of Bottlerocket that is optimized and maintained by AWS.
+Q: Can I use custom AMIs with EKS Auto Mode?
+A: At this moment, EKS Auto Mode does not support custom AMIs. This is by design as AWS manages the security, patching, and maintenance of the nodes as part of the shared responsibility model. The EKS Auto Mode nodes use a specialized variant of Bottlerocket that is optimized and maintained by AWS.
 
-Q: How often are nodes automatically rotated in Auto Mode?
-A: Nodes in Auto Mode have a maximum lifetime of 21 days. They will be automatically replaced before this limit, ensuring regular security updates and patch application.
+Q: How often are nodes automatically rotated in EKS Auto Mode?
+A: Nodes in EKS Auto Mode have a maximum lifetime of 21 days. They will be automatically replaced before this limit, ensuring regular security updates and patch application.
 
-Q: Can I SSH into Auto Mode nodes for troubleshooting?
-A: No, direct SSH access is not available in Auto Mode. Instead, you can use the NodeDiagnostic Custom Resource Definition (CRD) for collecting system logs and debugging information.
+Q: Can I SSH into EKS Auto Mode nodes for troubleshooting?
+A: No, direct SSH access is not available in EKS Auto Mode. Instead, you can use the NodeDiagnostic Custom Resource Definition (CRD) for collecting system logs and debugging information.
 
-Q: Is Network Policy support enabled by default in Auto Mode?
+Q: Is Network Policy support enabled by default in EKS Auto Mode?
 A: For now, Network Policy support needs to be explicitly enabled through the VPC CNI add-on configuration. Once enabled, you can use standard Kubernetes Network Policies.
 
-Q: Can I use Security Groups for Pods with Auto Mode?
-A: Yes, Auto Mode fully supports Security Groups for Pods, allowing you to apply AWS Security Group rules directly to pods.
+Q: Can I use Security Groups for Pods with EKS EKS Auto Mode?
+A: Yes, EKS Auto Mode fully supports Security Groups for Pods, allowing you to apply AWS Security Group rules directly to pods.
 
-Q: Should I use IRSA or Pod Identity with Auto Mode?
-A: While both are supported, Pod Identity is the recommended approach in Auto Mode as it already includes the Pod Identity Security agent add-on and provides enhanced security features and simplified management.
+Q: Should I use IRSA or Pod Identity with EKS Auto Mode?
+A: While both are supported, Pod Identity is the recommended approach in EKS Auto Mode as it already includes the Pod Identity Security agent add-on and provides enhanced security features and simplified management.
 
-Q: Can I still use the aws-auth ConfigMap in Auto Mode?
-A: While the `aws-auth` ConfigMap is a deprecated feature and it's recommended to use the default approach of API based authentication for enhanced security and simplified access management. 
+Q: Can I still use the aws-auth ConfigMap in EKS Auto Mode?
+A: The `aws-auth` ConfigMap is a deprecated feature. It's recommended to use the default approach of API-based authentication for enhanced security and simplified access management.
 
 [NOTE]
 ====
-The `aws-auth` ConfigMap will have it's supportability removed in future releases of Amazon EKS overall.
+The `aws-auth` ConfigMap will have its supportability removed in future releases of Amazon EKS overall.
 ====
 
-Q: Does Auto Mode support compliance standards like PCI DSS and HIPAA?
-A: Yes, Auto Mode maintains the same compliance standards as standard EKS. Always refer to the latest AWS compliance documentation for specific details.
+Q: Does EKS Auto Mode support compliance standards like PCI DSS and HIPAA?
+A: Yes, EKS Auto Mode maintains the same compliance standards as standard EKS. Always refer to the latest AWS compliance documentation for specific details.
 
-Q: How can I monitor security events in Auto Mode?
-A: Auto Mode integrates with multiple monitoring solutions including GuardDuty, CloudWatch, and CloudTrail. GuardDuty provides enhanced runtime security monitoring specifically for EKS workloads.
+Q: How can I monitor security events in EKS Auto Mode?
+A: EKS Auto Mode integrates with multiple monitoring solutions including GuardDuty, CloudWatch, and CloudTrail. GuardDuty provides enhanced runtime security monitoring specifically for EKS workloads.
 
-Q: How do I collect logs from Auto Mode nodes?
+Q: How do I collect logs from EKS Auto Mode nodes?
 A: Use the NodeDiagnostic CRD, which automatically uploads logs to an S3 bucket. You can also use CloudWatch Container Insights and AWS Distro for OpenTelemetry.
 
 Q: What happens if a security issue is detected on a node?
-A: Auto Mode includes automated detection and response capabilities. Depending on the severity, nodes can be automatically replaced, and GuardDuty will generate appropriate findings.
+A: EKS Auto Mode includes automated detection and response capabilities. Depending on the severity, nodes can be automatically replaced, and GuardDuty will generate appropriate findings.
 
 [NOTE]
 ====
-This FAQ section is regularly updated as new features are added to EKS Auto Mode and as we receive common questions from customers.
+This FAQ section is regularly updated as new features are added to EKS EKS Auto Mode and as we receive common questions from customers.
 ====
