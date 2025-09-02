@@ -80,13 +80,28 @@ You can use the following formula to determine maximum number of Pods you can de
 
 The +2 indicates Pods that require host networking, such as kube-proxy and VPC CNI. Amazon EKS requires kube-proxy and VPC CNI to be operating on each node, and these requirements are factored into the max-pods value. If you want to run additional host networking pods, consider updating the max-pods value. You can specify `--kubelet-extra-args "—max-pods=110"` as user data in the launch template.
 
-As an example, on a cluster with 3 c5.large nodes (3 ENIs and max 10 IPs per ENI), when the cluster starts up and has 2 CoreDNS pods, the CNI will consume 49 IP addresses and keeps them in warm pool. The warm pool enables faster Pod launches when the application is deployed.
+As an example, on a cluster with 3 c5.large nodes (3 ENIs and max 10 IPs per ENI), when the cluster starts up and has 2 CoreDNS pods, the CNI will consume 50 IP addresses and keep 43 IPs in warm pool. The warm pool enables faster Pod launches when the application is deployed.
 
 Node 1 (with CoreDNS pod): 2 ENIs, 20 IPs assigned
 
 Node 2 (with CoreDNS pod): 2 ENIs, 20 IPs assigned
 
 Node 3 (no Pod): 1 ENI. 10 IPs assigned.
+
+For Node 1 and Node 2 (identical configuration):
+
+- 2 ENIs × 10 IPs per ENI = 20 IPs total
+- Subtract 2 primary IPs (1 per ENI) = 18 IPs
+- Subtract 1 IP for CoreDNS pod = 17 IPs available
+- So each of these nodes has 17 IPs in warm pool
+
+For Node 3:
+
+- 1 ENI × 10 IPs = 10 IPs total
+- Subtract 1 primary IP = 9 IPs available in warm pool
+
+Total warm pool calculation:
+- 17 (Node 1) + 17 (Node 2) + 9 (Node 3) = 43 IPs
 
 Keep in mind that infrastructure pods, often running as daemon sets, each contribute to the max-pod count. These can include:
 
