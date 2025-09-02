@@ -7,10 +7,6 @@
 
 The Kubernetes control plane consists of the Kubernetes API Server, Kubernetes Controller Manager, Scheduler and other components that are required for Kubernetes to function. Scalability limits of these components are different depending on what you're running in the cluster, but the areas with the biggest impact to scaling include the Kubernetes version, utilization, and individual Node scaling.
 
-== Use EKS 1.24 or above
-
-EKS 1.24 introduced a number of changes and switches the container runtime to https://containerd.io/[containerd] instead of docker. Containerd helps clusters scale by increasing individual node performance by limiting container runtime features to closely align with Kubernetes`' needs. Containerd is available in every supported version of EKS and if you would like to switch to containerd in versions prior to 1.24 please use the https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html#containerd-bootstrap[`--container-runtime` bootstrap flag].
-
 == Limit workload and node bursting
 
 [IMPORTANT]
@@ -115,16 +111,17 @@ To protect itself from being overloaded during periods of increased requests, th
 
 The mechanism used by Kubernetes to configure how these inflights requests are divided among different request types is called https://kubernetes.io/docs/concepts/cluster-administration/flow-control/[API Priority and Fairness]. The API Server configures the total number of inflight requests it can accept by summing together the values specified by the `--max-requests-inflight` and `--max-mutating-requests-inflight` flags. EKS uses the default values of 400 and 200 requests for these flags, allowing a total of 600 requests to be dispatched at a given time. However, as it scales the control-plane to larger sizes in response to increased utilization and workload churn, it correspondingly increases the inflight request quota all the way till 2000 (subject to change). APF specifies how these inflight request quota is further sub-divided among different request types. Note that EKS control planes are highly available with at least 2 API Servers registered to each cluster. This means the total number of inflight requests your cluster can handle is twice (or higher if horizontally scaled out further) the inflight quota set per kube-apiserver. This amounts to several thousands of requests/second on the largest EKS clusters.
 
-Two kinds of Kubernetes objects, called PriorityLevelConfigurations and FlowSchemas, configure how the total number of requests is divided between different request types. These objects are maintained by the API Server automatically and EKS uses the default configuration of these objects for the given Kubernetes minor version. PriorityLevelConfigurations represent a fraction of the total number of allowed requests. For example, the workload-high PriorityLevelConfiguration is allocated 98 out of the total of 600 requests. The sum of requests allocated to all PriorityLevelConfigurations will equal 600 (or slightly above 600 because the API Server will round up if a given level is granted a fraction of a request). To check the PriorityLevelConfigurations in your cluster and the number of requests allocated to each, you can run the following command. These are the defaults on EKS 1.24:
+Two kinds of Kubernetes objects, called PriorityLevelConfigurations and FlowSchemas, configure how the total number of requests is divided between different request types. These objects are maintained by the API Server automatically and EKS uses the default configuration of these objects for the given Kubernetes minor version. PriorityLevelConfigurations represent a fraction of the total number of allowed requests. For example, the workload-high PriorityLevelConfiguration is allocated 98 out of the total of 600 requests. The sum of requests allocated to all PriorityLevelConfigurations will equal 600 (or slightly above 600 because the API Server will round up if a given level is granted a fraction of a request). To check the PriorityLevelConfigurations in your cluster and the number of requests allocated to each, you can run the following command. These are the defaults on EKS 1.32:
 
- $ kubectl get --raw /metrics | grep apiserver_flowcontrol_request_concurrency_limit
- apiserver_flowcontrol_request_concurrency_limit{priority_level="catch-all"} 13
- apiserver_flowcontrol_request_concurrency_limit{priority_level="global-default"} 49
- apiserver_flowcontrol_request_concurrency_limit{priority_level="leader-election"} 25
- apiserver_flowcontrol_request_concurrency_limit{priority_level="node-high"} 98
- apiserver_flowcontrol_request_concurrency_limit{priority_level="system"} 74
- apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-high"} 98
- apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-low"} 245
+ $ kubectl get --raw /metrics | grep apiserver_flowcontrol_nominal_limit_seats
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="catch-all"} 13
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="exempt"} 0
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="global-default"} 49
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="leader-election"} 25
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="node-high"} 98
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="system"} 74
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="workload-high"} 98
+ apiserver_flowcontrol_nominal_limit_seats{priority_level="workload-low"} 245
 
 The second type of object are FlowSchemas. API Server requests with a given set of properties are classified under the same FlowSchema. These properties include either the authenticated user or attributes of the request, such as the API group, namespace, or resource. A FlowSchema also specifies which PriorityLevelConfiguration this type of request should map to. The two objects together say, "I want this type of request to count towards this share of inflight requests." When a request hits the API Server, it will check each of its FlowSchemas until it finds one that matches all the required properties. If multiple FlowSchemas match a request, the API Server will choose the FlowSchema with the smallest matching precedence which is specified as a property in the object.
 
@@ -164,11 +161,11 @@ apiserver_flowcontrol_rejected_requests_total{flow_schema="service-accounts",pri
 To check how close a given PriorityLevelConfiguration is to receiving 429s or experiencing increased latency due to queuing, you can compare the difference between the concurrency limit and the concurrency in use. In this example, we have a buffer of 100 requests.
 
 ----
-% kubectl get --raw /metrics | grep 'apiserver_flowcontrol_request_concurrency_limit.*workload-low'
-apiserver_flowcontrol_request_concurrency_limit{priority_level="workload-low"} 245
+% kubectl get --raw /metrics | grep 'apiserver_flowcontrol_nominal_limit_seats.*workload-low'
+apiserver_flowcontrol_nominal_limit_seats{priority_level="workload-low"} 245
 
-% kubectl get --raw /metrics | grep 'apiserver_flowcontrol_request_concurrency_in_use.*workload-low'
-apiserver_flowcontrol_request_concurrency_in_use{flow_schema="service-accounts",priority_level="workload-low"} 145
+% kubectl get --raw /metrics | grep 'apiserver_flowcontrol_current_executing_seats.*workload-low'
+apiserver_flowcontrol_current_executing_seats{flow_schema="service-accounts",priority_level="workload-low"} 145
 ----
 
 To check if a given PriorityLevelConfiguration is experiencing queuing but not necessarily dropped requests, the metric for `apiserver_flowcontrol_current_inqueue_requests` can be referenced:
@@ -219,14 +216,14 @@ Alternatively, new FlowSchema and PriorityLevelConfigurations objects can be cre
 When making changes to APF defaults, these metrics should be monitored on a non-production cluster to ensure changing the settings do not cause unintended 429s:
 
 . The metric for `apiserver_flowcontrol_rejected_requests_total` should be monitored for all FlowSchemas to ensure that no buckets start to drop requests.
-. The values for `apiserver_flowcontrol_request_concurrency_limit` and `apiserver_flowcontrol_request_concurrency_in_use` should be compared to ensure that the concurrency in use is not at risk for breaching the limit for that priority level.
+. The values for `apiserver_flowcontrol_nominal_limit_seats` and `apiserver_flowcontrol_current_executing_seats` should be compared to ensure that the concurrency in use is not at risk for breaching the limit for that priority level.
 
 One common use-case for defining a new FlowSchema and PriorityLevelConfiguration is for isolation. Suppose we want to isolate long-running list event calls from pods to their own share of requests. This will prevent important requests from pods using the existing service-accounts FlowSchema from receiving 429s and being starved of request capacity. Recall that the total number of inflight requests is finite, however, this example shows APF settings can be modified to better divide request capacity for the given workload:
 
 Example FlowSchema object to isolate list event requests:
 
 ----
-apiVersion: flowcontrol.apiserver.k8s.io/v1beta1
+apiVersion: flowcontrol.apiserver.k8s.io/v1
 kind: FlowSchema
 metadata:
   name: list-events-default-service-accounts
