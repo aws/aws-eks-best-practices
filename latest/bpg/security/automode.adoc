@@ -21,7 +21,6 @@ Key security enhancements in EKS Auto Mode include:
 * Enforced security best practices through EC2 Managed Instances
 * Automated security patch management with mandatory Node rotation
 * Built-in node isolation and security boundaries
-* Enhanced network security controls
 * Streamlined IAM integration with minimal required permissions
 
 EKS Auto Mode enforces these security controls by default, helping organizations meet their security and compliance requirements while simplifying cluster operations. This approach aligns with defense-in-depth principles, providing multiple layers of security controls at the infrastructure, node, and workload levels.
@@ -42,10 +41,7 @@ The EKS control plane in EKS Auto Mode maintains the same high-security standard
 * *Envelope Encryption*: All Kubernetes API data is automatically encrypted using envelope encryption.
 * *KMS Integration*: Uses AWS KMS with Kubernetes KMS provider v2, with options for AWS-owned keys or customer-managed keys (CMK).
 * *Enhanced Component Management*: Critical components like auto-scaling, ENI management, and EBS controllers are moved outside the cluster and managed by AWS.
-
-[IMPORTANT]
-====
-EKS Auto Mode requires additional permissions beyond standard EKS clusters, but these are managed through the cluster IAM role rather than individual node roles, providing better security control and audit capabilities.
+* *Improved Security Controls and Audit Capabilities*: EKS Auto Mode required permissions beyond standard EKS clusters, are fully managed through the cluster IAM role rather than individual node roles.
 ====
 
 === IAM Integration and Access Management
@@ -432,22 +428,11 @@ A: No, direct SSH access is not available in EKS Auto Mode. Instead, you can use
 Q: Is Network Policy support enabled by default in EKS Auto Mode?
 A: For now, Network Policy support needs to be explicitly enabled through the VPC CNI add-on configuration. Once enabled, you can use standard Kubernetes Network Policies.
 
-Q: Can I use Security Groups for Pods with EKS EKS Auto Mode?
-A: Yes, EKS Auto Mode fully supports Security Groups for Pods, allowing you to apply AWS Security Group rules directly to pods.
-
 Q: Should I use IRSA or Pod Identity with EKS Auto Mode?
 A: While both are supported, Pod Identity is the recommended approach in EKS Auto Mode as it already includes the Pod Identity Security agent add-on and provides enhanced security features and simplified management.
 
 Q: Can I still use the aws-auth ConfigMap in EKS Auto Mode?
 A: The `aws-auth` ConfigMap is a deprecated feature. It's recommended to use the default approach of API-based authentication for enhanced security and simplified access management.
-
-[NOTE]
-====
-The `aws-auth` ConfigMap will have its supportability removed in future releases of Amazon EKS overall.
-====
-
-Q: Does EKS Auto Mode support compliance standards like PCI DSS and HIPAA?
-A: Yes, EKS Auto Mode maintains the same compliance standards as standard EKS. Always refer to the latest AWS compliance documentation for specific details.
 
 Q: How can I monitor security events in EKS Auto Mode?
 A: EKS Auto Mode integrates with multiple monitoring solutions including GuardDuty, CloudWatch, and CloudTrail. GuardDuty provides enhanced runtime security monitoring specifically for EKS workloads.
