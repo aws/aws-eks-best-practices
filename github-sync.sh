@@ -30,6 +30,12 @@ if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     print_error "Not in a git repository"
 fi
 
+# Check if current branch is mainline
+current_branch=$(git symbolic-ref --short HEAD)
+if [ "$current_branch" != "mainline" ]; then
+    print_error "Must be on 'mainline' branch to sync. Currently on '$current_branch'"
+fi
+
 # Check for origin remote
 if ! git remote | grep -q "^origin$"; then
     print_error "Remote 'origin' not found"
@@ -43,88 +49,49 @@ if ! git remote | grep -q "^github$"; then
     fi
 fi
 
-# Verify remote configurations
-print_status "Verifying remote configurations..."
-github_url=$(git remote get-url github 2>/dev/null || echo "")
-if [[ "$github_url" != *"github.com"* ]]; then
-    print_error "GitHub remote does not point to GitHub. Current: $github_url"
-fi
-
-origin_url=$(git remote get-url origin 2>/dev/null || echo "")
-if [[ "$origin_url" != *"amazon.com"* ]]; then
-    print_error "Origin remote does not point to Amazon internal. Current: $origin_url"
+# Test GitHub authentication
+print_status "Testing GitHub authentication..."
+if ! git ls-remote github &>/dev/null; then
+    print_error "GitHub authentication failed. Please check your SSH keys and permissions"
 fi
 
 # Check for uncommitted changes
-if ! git diff-index --quiet HEAD --; then
-    print_error "You have uncommitted changes. Please commit or stash them before syncing."
-fi
+ if ! git diff-index --quiet HEAD --; then
+     print_warning "You have uncommitted changes. Please commit or stash them before syncing."
+     exit 1
+ fi
 
-# Fetch from both remotes
-print_status "Fetching from origin (Amazon internal)..."
-if ! git fetch origin; then
-    print_error "Failed to fetch from origin remote"
-fi
-
-print_status "Fetching from GitHub..."
+print_status "Fetching from GitHub remote..."
 if ! git fetch github; then
-    print_error "Failed to fetch from GitHub remote"
+    print_error "Failed to fetch from GitHub remote. Check your internet connection and repository permissions"
 fi
 
-# Verify required branches exist
-print_status "Verifying required branches exist..."
-if ! git show-ref --verify --quiet refs/heads/mainline; then
-    if git show-ref --verify --quiet refs/remotes/origin/mainline; then
-        print_status "Pulling mainline branch from origin..."
-        git checkout -b mainline origin/mainline
-    else
-        print_error "mainline branch not found locally or on origin"
-    fi
+print_status "Attempting to merge github/mainline..."
+if ! git merge github/mainline --no-edit; then
+    print_warning "Merge conflicts detected. Please:"
+    echo "1. Resolve the conflicts"
+    echo "2. Complete the merge with 'git commit'"
+    echo "3. Run this script again to finish syncing"
+    exit 1
 fi
 
-if ! git show-ref --verify --quiet refs/heads/master; then
-    if git show-ref --verify --quiet refs/remotes/github/master; then
-        print_status "Pulling master branch from github..."
-        git checkout -b master github/master
-    else
-        print_error "master branch not found locally or on github"
-    fi
+print_status "Pushing changes to GitHub..."
+if ! git push github; then
+    print_error "Failed to push to GitHub remote. Possible causes:"
+    echo "- You don't have push permissions"
+    echo "- The remote branch is protected"
+    echo "- There are new changes on the remote that you need to pull first"
+    exit 1
 fi
 
-# Update mainline branch from origin
-print_status "Updating mainline branch from origin..."
-if ! git checkout mainline; then
-    print_error "Failed to checkout mainline branch"
+print_status "Pushing changes to origin..."
+if ! git push origin; then
+    print_error "Failed to push to origin remote. Possible causes:"
+    echo "- You don't have push permissions"
+    echo "- The remote branch is protected"
+    echo "- There are new changes on the remote that you need to pull first"
+    exit 1
 fi
 
-if ! git merge origin/mainline --ff-only; then
-    print_error "Failed to fast-forward mainline from origin. Manual intervention required."
-fi
-
-# Update master branch from GitHub
-print_status "Updating master branch from GitHub..."
-if ! git checkout master; then
-    print_error "Failed to checkout master branch"
-fi
-
-if ! git merge github/master --ff-only; then
-    print_error "Failed to fast-forward master from GitHub. Manual intervention required."
-fi
-
-# Switch back to mainline and merge master
-print_status "Switching to mainline and merging master..."
-if ! git checkout mainline; then
-    print_error "Failed to checkout mainline branch"
-fi
-
-if ! git merge master --no-edit; then
-    print_error "Merge conflicts detected between master and mainline. Please resolve manually."
-fi
-
-# Push mainline to origin
-print_status "Pushing mainline to origin..."
-if ! git push origin mainline; then
-    print_error "Failed to push mainline to origin"
-fi
-
-print_status "Successfully synced: GitHub master -> local master -> mainline -> origin"
+# If we got here, everything worked
+print_status "Successfully synced mainline branch between remotes!"
