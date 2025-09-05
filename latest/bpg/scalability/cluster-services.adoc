@@ -46,6 +46,8 @@ CoreDNS instances can scale by adding additional replicas to the deployment. It'
 
 NodeLocal DNS will require run one instance per node--as a DaemonSet--which requires more compute resources in the cluster, but it will avoid failed DNS requests and decrease the response time for DNS queries in the cluster. The cluster proportional autoscaler will scale CoreDNS based on the number of nodes or cores in the cluster. This isn't a direct correlation to request queries, but can be useful depending on your workloads and cluster size. The default proportional scale is to add an additional replica for every 256 cores or 16 nodes in the cluster--whichever happens first.
 
+If using the https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html[CoreDNS EKS add-on], consider enabling the https://docs.aws.amazon.com/eks/latest/userguide/coredns-autoscaling.html[autoscaling] option. The CoreDNS autoscaler dynamically adjusts the number of CoreDNS replicas by monitoring node count and CPU cores, using a formula that takes the maximum of (nodes÷16) or (CPU cores÷256), scaling up immediately when needed and down gradually to maintain stability. 
+
 == Scale Kubernetes Metrics Server Vertically
 
 The Kubernetes Metrics Server supports horizontal and vertical scaling. By horizontally scaling the Metrics Server it will be highly available, but it will not scale horizontally to handle more cluster metrics. You will need to vertically scale the Metrics Server based on https://kubernetes-sigs.github.io/metrics-server/#scaling[their recommendations] as nodes and collected metrics are added to the cluster.
