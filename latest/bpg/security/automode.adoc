@@ -248,7 +248,7 @@ EKS Auto Mode enhances node-level logging:
 * Node logs are retained even after node termination, aiding in post-incident analysis
 * Enhanced visibility into node-level security events and operational issues
 
-==== Amazon GuardDuty Integration
+=== Amazon GuardDuty Integration
 
 EKS Auto Mode clusters seamlessly integrate with Amazon GuardDuty for enhanced threat detection:
 
@@ -439,9 +439,6 @@ A: EKS Auto Mode integrates with multiple monitoring solutions including GuardDu
 
 Q: How do I collect logs from EKS Auto Mode nodes?
 A: Use the NodeDiagnostic CRD, which automatically uploads logs to an S3 bucket. You can also use CloudWatch Container Insights and AWS Distro for OpenTelemetry.
-
-Q: What happens if a security issue is detected on a node?
-A: EKS Auto Mode includes automated detection and response capabilities. Depending on the severity, nodes can be automatically replaced, and GuardDuty will generate appropriate findings.
 
 [NOTE]
 ====
