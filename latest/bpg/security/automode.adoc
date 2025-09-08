@@ -42,7 +42,6 @@ The EKS control plane in EKS Auto Mode maintains the same high-security standard
 * *KMS Integration*: Uses AWS KMS with Kubernetes KMS provider v2, with options for AWS-owned keys or customer-managed keys (CMK).
 * *Enhanced Component Management*: Critical components like auto-scaling, ENI management, and EBS controllers are moved outside the cluster and managed by AWS.
 * *Improved Security Controls and Audit Capabilities*: EKS Auto Mode required permissions beyond standard EKS clusters, are fully managed through the cluster IAM role rather than individual node roles.
-====
 
 === IAM Integration and Access Management
 
@@ -90,7 +89,7 @@ aws eks create-pod-identity-association \
 
 [IMPORTANT]
 ====
-
+Pod Identity is the recommended approach for IAM permissions in EKS Auto Mode as it provides enhanced security features and simplified management compared to IRSA.
 ====
 
 ==== Node IAM Role
