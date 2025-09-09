@@ -41,7 +41,7 @@ The EKS control plane in EKS Auto Mode maintains the same high-security standard
 * *Envelope Encryption*: All Kubernetes API data is automatically encrypted using envelope encryption.
 * *KMS Integration*: Uses AWS KMS with Kubernetes KMS provider v2, with options for AWS-owned keys or customer-managed keys (CMK).
 * *Enhanced Component Management*: Critical components like auto-scaling, ENI management, and EBS controllers are moved outside the cluster and managed by AWS.
-* *Improved Security Controls and Audit Capabilities*: EKS Auto Mode required permissions beyond standard EKS clusters, are fully managed through the cluster IAM role rather than individual node roles.
+* *Improved Security Controls and Audit Capabilities*: EKS Auto Mode required permissions, beyond standard EKS clusters, are fully managed through the cluster IAM role rather than individual node roles.
 
 === IAM Integration and Access Management
 
@@ -67,7 +67,7 @@ aws eks create-access-entry \
 
 [IMPORTANT]
 ====
-While it still possible to create an EKS Auto Mode cluster with `CONFIG_MAP_AND_API` authentication mode, this is not the standard approach, and it's highly recommended to use the default `API` authentication mode for new clusters, which provides enhanced security and simplified access management compared to the legacy ConfigMap-based approach.
+While it is still possible to create an EKS Auto Mode cluster with `CONFIG_MAP_AND_API` authentication mode, this is not the standard approach, and it's highly recommended to use the default `API` authentication mode for new clusters. `API` based authentication provides enhanced security and simplified access management compared to the legacy ConfigMap-based approach.
 ====
 
 ==== EKS Pod Identity
@@ -94,7 +94,7 @@ Pod Identity is the recommended approach for IAM permissions in EKS Auto Mode as
 
 ==== Node IAM Role
 
-EKS Auto Mode uses a new `AmazonEKSWorkerNodeMinimalPolicy` which provides only the permissions required for EKS Auto Mode nodes to operate:
+EKS Auto Mode uses a new `AmazonEKSWorkerNodeMinimalPolicy` which provides only the permissions required for EKS Auto Mode nodes to operate. Those permissions:
 
 * Reduced set of permissions compared to traditional node policies
 * Adheres to the principle of least privilege
@@ -231,8 +231,8 @@ EKS Auto Mode provides enhanced monitoring and logging capabilities to help you 
 EKS Auto Mode maintains the same control plane logging capabilities as standard EKS, however it enables all logs by default for enhanced monitoring.
 
 * Logs are sent to Amazon CloudWatch Logs
-* By default, enables all control-plane logs: API server, audit, authenticator, controller manager, and scheduler
-* Enables detailed visibility into cluster operations and security events
+* By default, EKS Auto Mode enables all control-plane logs: API server, audit, authenticator, controller manager, and scheduler
+* EKS Auto Mode enables detailed visibility into cluster operations and security events
 
 [IMPORTANT]
 ====
@@ -249,13 +249,13 @@ EKS Auto Mode enhances node-level logging:
 
 === Amazon GuardDuty Integration
 
-EKS Auto Mode clusters seamlessly integrate with Amazon GuardDuty for enhanced threat detection:
+EKS Auto Mode clusters seamlessly integrate with Amazon GuardDuty for enhanced threat detection. Features include:
 
 * Automated scanning for control-plane audit logs
-* Runtime monitoring can be enabled for workloads monitoring
+* Runtime monitoring that can be enabled for workloads monitoring
 * Integration with existing GuardDuty findings and alerting mechanisms
 
-To enable GuardDuty for Amazon EKS Auto Mode:
+To enable EKS Auto Mode protection on Amazon GuardDuty for Kubernetes Audit Logs, you can run the following command:
 
 [source,bash]
 ----
@@ -289,9 +289,10 @@ Amazon GuardDuty provides essential runtime security monitoring for EKS Auto Mod
 ** Execution:Kubernetes/* - Identifies suspicious execution patterns
 ** Persistence:Kubernetes/* - Detects potential persistent threats
 
+To enable EKS Auto Mode protection on Amazon GuardDuty for Kubernetes Audit Logs and Runtime Monitoring, you can run the following command:
+
 [source,bash]
 ----
-# Enable GuardDuty for full EKS protection
 aws guardduty update-detector \
     --detector-id 12abc34d567e8fa901bc2d34e56789f0 \
     --data-sources '{
@@ -441,5 +442,5 @@ A: Use the NodeDiagnostic CRD, which automatically uploads logs to an S3 bucket.
 
 [NOTE]
 ====
-This FAQ section is regularly updated as new features are added to EKS EKS Auto Mode and as we receive common questions from customers.
+This FAQ section is regularly updated as new features are added to EKS Auto Mode and as we receive common questions from customers.
 ====

@@ -141,6 +141,8 @@ practices that align with DevOps processes and agile methodologies.
 https://catalog.workshops.aws/eks-security-immersionday/en-US[Amazon EKS
 Security Immersion Workshop]
 
+include::automode.adoc[leveloffset=+1]
+
 include::iam.adoc[leveloffset=+1]
 
 include::pods.adoc[leveloffset=+1]
@@ -166,5 +168,3 @@ include::image.adoc[leveloffset=+1]
 include::multiaccount.adoc[leveloffset=+1]
 
 include::cam.adoc[leveloffset=+1]
-
-include::automode.adoc[leveloffset=+1] 
