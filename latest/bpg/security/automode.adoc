@@ -6,7 +6,7 @@
 :info_title: EKS Auto Mode - Security
 :info_abstract: EKS Auto Mode - Security
 :info_titleabbrev: EKS Auto Mode - Security
-:imagesdir: images/security
+:imagesdir: images/
 
 == Introduction
 
