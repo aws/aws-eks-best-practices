@@ -19,7 +19,7 @@ pick==1.0.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
-pyinstaller==5.13.1
+pyinstaller==6.0.0
 pyinstaller-hooks-contrib==2020.7
 pyOpenSSL==19.1.0
 python-dateutil==2.8.1
