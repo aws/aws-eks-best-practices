@@ -196,7 +196,7 @@ When you enable control plane logging, you will incur https://aws.amazon.com/clo
 
 [WARNING]
 ====
-The maximum size for a CloudWatch Logs entry is https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html[256KB] whereas the maximum Kubernetes API request size is 1.5MiB. Log entries greater than 256KB will either be truncated or only include the request metadata.
+The maximum size for a CloudWatch Logs entry is https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html[1MB] whereas the maximum Kubernetes API request size is 1.5MiB. Log entries greater than 1MB will either be truncated or only include the request metadata.
 ====
 
 === Utilize audit metadata
