@@ -96,9 +96,9 @@ Pod Identity is the recommended approach for IAM permissions in EKS Auto Mode as
 
 EKS Auto Mode uses a new `AmazonEKSWorkerNodeMinimalPolicy` which provides only the permissions required for EKS Auto Mode nodes to operate. Those permissions:
 
-* Reduced set of permissions compared to traditional node policies
-* Adheres to the principle of least privilege
-* Automatically managed and updated by AWS
+* Provide a reduced set of permissions compared to traditional node policies
+* Adhere to the principle of least privilege
+* Are automatically managed and updated by AWS
 
 This minimal policy approach helps improve the security posture by limiting the permissions available to the node and its workloads.
 
@@ -117,7 +117,7 @@ EKS Auto Mode nodes use Amazon EC2 Managed Instances with enhanced security prop
 
 ==== Operating System Security
 
-The operating system is a custom variant of https://aws.amazon.com/bottlerocket/[Bottlerocket] optimized for Auto Mode:
+The operating system is a custom variant of https://aws.amazon.com/bottlerocket/[Bottlerocket], optimized for EKS Auto Mode, that includes:
 
 * Read-only root filesystem
 * SELinux enabled by default with mandatory access controls
@@ -140,13 +140,13 @@ EKS Auto Mode implements several network security features to ensure secure comm
 
 ==== VPC CNI Network Policy
 
-EKS Auto Mode leverages the native Kubernetes Network Policy support of Amazon VPC CNI Plugin:
+EKS Auto Mode leverages the native Kubernetes Network Policy support of the Amazon VPC CNI Plugin:
 
 * Integrates with the upstream Kubernetes Network Policy API
 * Allows fine-grained control over pod-to-pod communication
 * Supports both ingress and egress rules
 
-To enable network policy support in EKS Auto Mode, you need to configure the VPC CNI add-on with a `configMap` manifest.
+To enable network policy support in EKS Auto Mode, you need to configure the VPC CNI add-on with a `configMap` manifest. Here is an example:
 
 [source,yaml]
 ----
@@ -159,7 +159,7 @@ data:
   enable-network-policy: "true"
 ----
 
-It's also required to define the Network Policy support is configured in the Node Class.
+It's also required to define the Network Policy support is configured in the Node Class, as illustrated here:
 
 [source,yaml]
 ----
@@ -208,8 +208,8 @@ EKS Auto Mode provides enhanced security features for both ephemeral and persist
 ==== EBS Volumes
 
 * Root and data EBS volumes are always encrypted
-* Volumes configured to be deleted upon termination of the instance
-* Option to specify custom KMS keys for encryption
+* Volumes are configured to be deleted upon termination of the instance
+* There is an option to specify custom KMS keys for encryption
 
 ==== EFS Integration
 
