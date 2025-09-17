@@ -8,7 +8,7 @@
 :info_titleabbrev: EKS Auto Mode - Security
 :imagesdir: images/
 
-== Introduction
+TIP: Interested in gaining hands-on experience with Amazon EKS Auto Mode? Join an upcoming virtual Kubernetes workshop led by AWS experts by signing up on https://aws-experience.com/emea/smb/events/series/simplifying-kubernetes-operations-with-amazon-eks-auto-mode?trk=e3d0398c-e0e9-4665-af82-a2e8124a6db8[AWS Connected Community].
 
 Amazon EKS Auto Mode introduces enhanced security capabilities by extending AWS's security management beyond the control plane to include worker nodes and core cluster components. This comprehensive security model helps organizations maintain a strong security posture while reducing operational overhead.
 
