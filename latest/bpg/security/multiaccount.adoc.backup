@@ -273,7 +273,7 @@ and `kubernetes-namespace` tags all have the expected value.
 [source,json]
 ----
 {
-    "Version": "2012-10-17",
+    "Version": "2012-10-17",&TCX5-2025-waiver;
     "Statement": [
         {
             "Effect": "Allow",
