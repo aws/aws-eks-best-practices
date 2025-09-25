@@ -119,7 +119,7 @@ def create_trust_policy(Account: str, OidcUrl: str):
     # TODO(jicowan@amazon.com) Append trust policy for re-use with multiple clusters
     OidcUrl = OidcUrl.lstrip('https://')
     trust_policy = {
-        "Version": "2012-10-17",&TCX5-2025-waiver;
+        "Version": "2012-10-17",
         "Statement": [
             {
                 "Effect": "Allow",

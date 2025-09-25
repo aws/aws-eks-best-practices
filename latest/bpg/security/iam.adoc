@@ -893,7 +893,7 @@ EKS Pod Identities to use an IAM role:
 [source,json,subs="verbatim,attributes"]
 ----
 {
-  "Version": "2012-10-17",&TCX5-2025-waiver;{tcx5-waiver}
+  "Version": "2012-10-17",{tcx5-waiver}
   "Statement": [
     {
       "Effect": "Allow",
@@ -980,7 +980,7 @@ values, where the EKS cluster is hosted in the AWS account
 [source,json,subs="verbatim,attributes"]
 ----
 {
-    "Version": "2012-10-17",&TCX5-2025-waiver;{tcx5-waiver}
+    "Version": "2012-10-17",{tcx5-waiver}
     "Statement": [
         {
             "Effect": "Allow",
