@@ -201,27 +201,7 @@ restrict access might look like the following:
 
 [source,json,subs="verbatim,attributes"]
 ----
-{
-  "Version": "2012-10-17",{tcx5-waiver}
-  "Statement": [
-    {
-      "Sid": "AllowPushPull",
-      "Effect": "Allow",
-      "Action": [
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:PutImage",
-        "ecr:InitiateLayerUpload",
-        "ecr:UploadLayerPart",
-        "ecr:CompleteLayerUpload"
-      ],
-      "Resource": [
-        "arn:aws:ecr:<region>:<account_id>:repository/team-a/*"
-      ]
-    }
-  ]
-}
+include::iam_snippet:2043a038-0f13-4c00-9cca-2526a893d57a[]
 ----
 
 === Consider using ECR private endpoints

@@ -129,37 +129,7 @@ enable node access via SSM Systems Manager.
 
 [source,json,subs="verbatim,attributes"]
 ----
-{
-  "Version": "2012-10-17",{tcx5-waiver}
-  "Statement": [
-    {
-      "Sid": "EnableAccessViaSSMSessionManager",
-      "Effect": "Allow",
-      "Action": [
-        "ssmmessages:OpenDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:CreateControlChannel",
-        "ssm:UpdateInstanceInformation"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Sid": "EnableSSMRunCommand",
-      "Effect": "Allow",
-      "Action": [
-        "ssm:UpdateInstanceInformation",
-        "ec2messages:SendReply",
-        "ec2messages:GetMessages",
-        "ec2messages:GetEndpoint",
-        "ec2messages:FailMessage",
-        "ec2messages:DeleteMessage",
-        "ec2messages:AcknowledgeMessage"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
+include::iam_snippet:1feadff1-db12-4cb1-8753-76bec50c3160[]
 ----
 
 With this policy in place and the

@@ -274,25 +274,7 @@ and `kubernetes-namespace` tags all have the expected value.
 
 [source,json,subs="verbatim,attributes"]
 ----
-{
-    "Version": "2012-10-17",{tcx5-waiver}
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::111122223333:root"
-            },
-            "Action": "sts:AssumeRole",
-            "Condition": {
-                "StringEquals": {
-                    "aws:PrincipalTag/kubernetes-service-account": "PayrollApplication",
-                    "aws:PrincipalTag/eks-cluster-arn": "arn:aws:eks:us-east-1:111122223333:cluster/ProductionCluster",
-                    "aws:PrincipalTag/kubernetes-namespace": "PayrollNamespace"
-                }
-            }
-        }
-    ]
-}
+include::iam_snippet:453c9c30-e4dd-4afc-8e6f-72c22cbd9055[]
 ----
 
 When using this strategy it is a best practice to ensure that the common

@@ -892,26 +892,7 @@ EKS Pod Identities to use an IAM role:
 
 [source,json,subs="verbatim,attributes"]
 ----
-{
-  "Version": "2012-10-17",{tcx5-waiver}
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "pods.eks.amazonaws.com"
-      },
-      "Action": [
-        "sts:AssumeRole",
-        "sts:TagSession"
-      ],
-      "Condition": {
-        "StringEquals": {
-          "aws:SourceOrgId": "${aws:ResourceOrgId}"
-        }
-      }
-    }
-  ]
-}
+include::iam_snippet:54119990-6a92-4f20-95b7-1b347ae4fdeb[]
 ----
 
 AWS recommends using condition keys like `aws:SourceOrgId` to help
@@ -979,28 +960,7 @@ values, where the EKS cluster is hosted in the AWS account
 
 [source,json,subs="verbatim,attributes"]
 ----
-{
-    "Version": "2012-10-17",{tcx5-waiver}
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::111122223333:root"
-            },
-            "Action": "s3:*",
-            "Resource":            [
-                "arn:aws:s3:::ExampleBucket/*"
-            ],
-            "Condition": {
-                "StringEquals": {
-                    "aws:PrincipalTag/kubernetes-service-account": "s3objectservice",
-                    "aws:PrincipalTag/eks-cluster-arn": "arn:aws:eks:us-west-2:111122223333:cluster/ProductionCluster",
-                    "aws:PrincipalTag/kubernetes-namespace": "s3datanamespace"
-                }
-            }
-        }
-    ]
-}
+include::iam_snippet:0c7a17e3-fc4e-4962-9104-40b6184a455f[]
 ----
 
 === EKS Pod Identities compared to IRSA

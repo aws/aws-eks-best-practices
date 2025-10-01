@@ -119,41 +119,7 @@ nodegroups of the cluster using tags (for example
 
 [source,json,subs="verbatim,attributes"]
 ----
-{
-    "Version": "2012-10-17",{tcx5-waiver}
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "autoscaling:SetDesiredCapacity",
-                "autoscaling:TerminateInstanceInAutoScalingGroup"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "aws:ResourceTag/k8s.io/cluster-autoscaler/enabled": "true",
-                    "aws:ResourceTag/k8s.io/cluster-autoscaler/<my-cluster>": "owned"
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "autoscaling:DescribeAutoScalingGroups",
-                "autoscaling:DescribeAutoScalingInstances",
-                "autoscaling:DescribeLaunchConfigurations",
-                "autoscaling:DescribeScalingActivities",
-                "autoscaling:DescribeTags",
-                "ec2:DescribeImages",
-                "ec2:DescribeInstanceTypes",
-                "ec2:DescribeLaunchTemplateVersions",
-                "ec2:GetInstanceTypesFromInstanceRequirements",
-                "eks:DescribeNodegroup"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
+include::iam_snippet:8766d860-1b5c-4664-a60d-063f2985a4f6[]
 ----
 
 === Configuring your Node Groups

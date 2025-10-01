@@ -8,6 +8,8 @@ package.AmazonEKSBestPracticesDocs = {
             
             ZonBook = 5.0;
             AWSEC2ContainerChecklist = 1.0;
+            AWSDocsSdkExamplesPublic = 1.0;
+            AWSDocsChecklistCodeSampleCatalog = 2.0;
         };
     };
 };

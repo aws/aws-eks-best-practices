@@ -720,21 +720,7 @@ Private CA:
 
 [source,json,subs="verbatim,attributes"]
 ----
-{
-    "Version": "2012-10-17",{tcx5-waiver}
-    "Statement": [
-        {
-            "Sid": "awspcaissuer",
-            "Action": [
-                "acm-pca:DescribeCertificateAuthority",
-                "acm-pca:GetCertificate",
-                "acm-pca:IssueCertificate"
-            ],
-            "Effect": "Allow",
-            "Resource": "<CA_ARN>"
-        }
-    ]
-}
+include::iam_snippet:6ab440ae-ea51-4955-bc36-a6be567588dc[]
 ----
 
 https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html[Service
