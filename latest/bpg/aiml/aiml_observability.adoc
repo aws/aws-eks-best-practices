@@ -337,7 +337,7 @@ start_time = time.time()
 token_duration.observe(time.time() - start_time)
 ----
 
-In Grafana, use the query `histogram_quantile(0.95, sum(rate(token_processing_duration_seconds_bucket[5m])) by (le, pod))`` to visualize P95 processing time trends. To learn more, see https://github.com/prometheus/client_python[Prometheus Histogram Documentation] and https://quip-amazon.com/YU8bAEM6VS5h/EKS-AIML-Best-Practices-Community-Collaboration#temp:C:PFYbfe26309dd2f4d45966d4f141[Prometheus Client Documentation].
+In Grafana, use the query `histogram_quantile(0.95, sum(rate(token_processing_duration_seconds_bucket[5m])) by (le, pod))`` to visualize P95 processing time trends. To learn more, see https://github.com/prometheus/client_python[Prometheus Histogram Documentation] and https://github.com/prometheus/client_python[Prometheus Client Documentation].
 
 **Measure Checkpoint Restore Latency**
 
