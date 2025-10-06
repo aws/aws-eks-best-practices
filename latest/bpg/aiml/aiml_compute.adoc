@@ -41,7 +41,9 @@ spec:
 To expose GPUs on nodes, the NVIDIA GPU driver must be installed on the node's operating system and container runtime configured to allow the Kubernetes scheduler to assign pods to nodes with available GPUs. The setup process for the NVIDIA Kubernetes Device Plugin depends on the EKS Accelerated AMI you are using:
 
 * **https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html[Bottlerocket Accelerated AMI]**: This AMI includes the NVIDIA GPU driver **and** the https://github.com/NVIDIA/k8s-device-plugin[NVIDIA Kubernetes Device Plugin] is pre-installed and ready to use, enabling GPU support out of the box. No additional configuration is required to expose GPUs to the Kubernetes scheduler.
-* **https://aws.amazon.com/blogs/containers/amazon-eks-optimized-amazon-linux-2023-accelerated-amis-now-available/[AL2023 Accelerated AMI]**: This AMI includes NVIDIA GPU driver but the https://github.com/NVIDIA/k8s-device-plugin[NVIDIA Kubernetes Device Plugin] is **not** pre-installed. You must install and configure the device plugin separately, typically via a DaemonSet.  Note that if you use eksctl to create your cluster and specify a GPU instance type (e.g., `g5.xlarge`) in your ClusterConfig, `eksctl` will automatically select the accelerated AMI and install the NVIDIA Kubernetes Device Plugin on each instance in the node group. To learn more, see https://eksctl.io/usage/gpu-support/[GPU support] in eksctl documentation.
+* **https://aws.amazon.com/blogs/containers/amazon-eks-optimized-amazon-linux-2023-accelerated-amis-now-available/[AL2023 Accelerated AMI]**: This AMI includes NVIDIA GPU driver but the https://github.com/NVIDIA/k8s-device-plugin[NVIDIA Kubernetes Device Plugin] is **not** pre-installed. You must install and configure the device plugin separately, typically via a DaemonSet.  Note that if you use eksctl to create your cluster and specify a GPU instance type (e.g., `g5.xlarge`) in your ClusterConfig, `eksctl` will automatically select the appropriate AMI and install the NVIDIA Kubernetes Device Plugin. To learn more, see https://eksctl.io/usage/gpu-support/[GPU support] in eksctl documentation.
+
+If you decide to use the EKS Accelerated AMIs and https://github.com/NVIDIA/gpu-operator[NVIDIA GPU operator] to manage components such as the NVIDIA Kubernetes device plugin instead, take note to disable management of the NVIDIA GPU driver and NVIDIA Container toolkit as per the https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#pre-installed-nvidia-gpu-drivers-and-nvidia-container-toolkit[Pre-Installed NVIDIA GPU Drivers and NVIDIA Container Toolkit] NVIDIA documentation.
 
 To verify that the NVIDIA Device Plugin is active and GPUs are correctly exposed, run:
 
@@ -51,6 +53,128 @@ kubectl describe node | grep nvidia.com/gpu
 ----
 
 This command checks if the `nvidia.com/gpu` resource is in the node's capacity and allocatable resources. For example, a node with one GPU should show `nvidia.com/gpu: 1`. See the https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/[Kubernetes GPU Scheduling Guide] for more information.
+
+
+=== Use many different EC2 instance types
+
+Using as many different EC2 instance types as possible is an important best practice for scalability on Amazon EKS, as outlined in the <<scale-data-plane>> section. This recommendation also applies to instances with accelerated hardware (e.g., GPUs). If you create a cluster that uses only one instance type and try to scale the number of nodes beyond the capacity of the region, you may receive an insufficient capacity error (ICE), indicating that no instances are available. It’s important to understand the unique characteristics of your AI/ML workloads (e.g. CUDA supported version) before diversifying arbitrarily. Review the available instance types using the https://aws.amazon.com/ec2/instance-explorer/[EC2 Instance Type Explorer] tool to generate a list of instance types that match your specific compute requirements, and avoid arbitrarily limiting the type of instances that can be used in your cluster. 
+
+Accelerated compute instances are offered in different purchase models to fit short term, medium term and steady state workloads. For short term, flexible and fault tolerant workloads, where you'd like to avoid making a reservation, look into Spot instances. Capacity Blocks, On-Demand instances and Saving Plans allow you to provision accelerated compute instances for medium and long term workload duration. To increase the chances of successfully accessing the required capacity in your preferred purchase option, it's recommended to use a diverse list of instance types and availability zones. Alternatively, if you encounter ICEs for a specific purchase model, retry using a different model.
+
+**Example**
+The following example shows how to enable a Karpenter NodePool to provision G and P instances greater than generations 3 (e.g., p3). To learn more, see the <<scalability>> section.
+
+[source,bash]
+----
+- key: karpenter.k8s.aws/instance-category
+  operator: In
+  values: ["g", "p"] # Diversifies across G-series and P-series
+- key: karpenter.k8s.aws/instance-generation
+  operator: Gt
+  values: ["3"] # Selects instance generations greater than 3
+----
+
+For details on using Spot instances for GPUs, see "Consider using Amazon EC2 Spot Instances for GPUs with Karpenter" below.
+
+=== Consider using Amazon EC2 Spot Instances for GPUs with Karpenter
+
+Amazon EC2 Spot Instances let you take advantage of unused EC2 capacity in the AWS cloud and are available at up to a 90% discount compared to On-Demand prices. Amazon EC2 Spot Instances can be interrupted with a two-minute notice when EC2 needs the capacity back. For more information, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html[Spot Instances] in the Amazon EC2 User Guide. Amazon EC2 Spot can be a great choice for fault-tolerant, stateless and flexible (time and instance type) workloads. To learn more about when to use Spot instances, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html[EC2 Spot Instances Best Practices]. You can also use Spot Instances for AI/ML workloads if they're Spot-friendly. 
+
+**Use cases**
+
+Spot-friendly workloads can be big data, containerized workloads, CI/CD, stateless web servers, high performance computing (HPC), and rendering workloads. Spot Instances are not suitable for workloads that are inflexible, stateful, fault-intolerant, or tightly coupled between instance nodes (e.g., workloads with parallel processes that depend heavily on each other for computation, requiring constant inter-node communication, such as MPI-based high-performance computing applications like computational fluid dynamics or distributed databases with complex interdependencies). Here are the specific use cases we recommend (in no particular order):
+
+* **Real-time online inference**: Use Spot instances for cost-optimized scaling for your real-time inference workloads, as long as your workloads are spot-friendly. In other words, the inference time is either less than two minutes, the application is fault-tolerant to interruptions, and can run on different instance types. Ensure high availability through instance diversity (e.g., across multiple instance types and Availability Zones) or reservations, while implementing application-level fault tolerance to handle potential Spot interruptions.
+* **Hyper-parameter tuning**: Use Spot instances to run exploratory tuning jobs opportunistically, as interruptions can be tolerated without significant loss, especially for short-duration experiments.
+* **Data augmentation**: Use Spot instances to perform data preprocessing and augmentation tasks that can restart from checkpoints if interrupted, making them ideal for Spot's variable availability.
+* **Fine-tuning models**: Use Spot instances for fine-tuning with robust checkpointing mechanisms to resume from the last saved state, minimizing the impact of instance interruptions.
+* **Batch inference**: Use Spot instances to process large batches of offline inference requests in a non-real-time manner, where jobs can be paused and resumed, offering the best alignment with Spot's cost savings and handling potential interruptions through retries or diversification.
+* **Opportunistic training subsets**: Use Spot instances for marginal or experimental training workloads (e.g., smaller models under 10 million parameters), where interruptions are acceptable and efficiency optimizations like diversification across instance types or regions can be applied—though not recommended for production-scale training due to potential disruptions.
+
+**Considerations**
+
+To use Spot Instances for accelerated workloads on Amazon EKS, there are a number of key considerations (in no particular order):
+
+* **Use Karpenter to manage Spot instances with advanced consolidation enabled**. By specifying karpenter.sh/capacity-type as "spot" in your Karpenter NodePool, Karpenter will provision Spot instances by default without any additional configuration. However, to enable advanced Spot-to-Spot consolidation, which replaces underutilized Spot nodes with lower-priced Spot alternatives, you need to enable the SpotToSpotConsolidation https://karpenter.sh/docs/reference/settings/[feature gate] by setting --feature-gates SpotToSpotConsolidation=true in Karpenter controller arguments or via the FEATURE_GATES environment variable. Karpenter uses the https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html[price-capacity-optimized] allocation strategy to provision EC2 instances. Based on the NodePool requirements and pod constraints, Karpenter bin-packs unschedulable pods and sends a diverse set of instance types to the https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-request-type.html[Amazon EC2 Fleet API]. You can use the https://aws.amazon.com/ec2/instance-explorer/[EC2 Instance Type Explorer] tool to generate a list of instance types that match your specific compute requirements.
+* **Ensure workloads are stateless, fault-tolerance and flexible**. Workloads must be stateless, fault-tolerant, and flexible in terms of instance/GPU size. This allows seamless resumption after Spot interruptions, and instance flexibility enables you to potentially stay on Spot for longer. Enable https://karpenter.sh/docs/concepts/disruption/#interruption[Spot interruption handling] in Karpenter by configuring the settings.interruptionQueue Helm value with the name of the AWS SQS queue to catch Spot interruption events. For example, when installing via Helm, use --set "settings.interruptionQueue=${CLUSTER_NAME}".  To see an example, see the https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/[Getting Started with Karpenter] guide. When Karpenter notices a Spot interruption event, it automatically cordons, taints, drains, and terminates the node(s) ahead of the interruption event to maximize the termination grace period of the pods. At the same time, Karpenter will immediately start a new node so it can be ready as soon as possible.
+* **Avoid overly constraining instance type selection**. You should avoid constraining instance types as much as possible. By not constraining instance types, there is a higher chance of acquiring Spot capacity at large scales with a lower frequency of Spot Instance interruptions at a lower cost. For example, avoid limiting to specific types (e.g., g5.xlarge). Consider specifying a diverse set of instance categories and generations using keys like karpenter.k8s.aws/instance-category and karpenter.k8s.aws/instance-generation. Karpenter enables easier diversification of on-demand and Spot instance capacity across multiple instance types and Availability Zones (AZs). Moreover, if your AI/ML workload requires specific or limited number of accelerators but is flexible between regions, you can use Spot Placement Score to dynamically identify the optimal region to deploy your workload before launch.
+* **Broaden NodePool requirements to include a larger number of similar EC2 instance families**. Every Spot Instance pool consists of an unused EC2 instance capacity for a specific instance type in a specific Availability Zone (AZ). When Karpenter tries to provision a new node, it selects an instance type that matches the NodePool's requirements. If no compatible instance type has Spot capacity in any AZ, then provisioning fails. To avoid this issue, allow broader g-series instances (generation 4 or higher) from NVIDIA across sizes and Availability Zones (AZs), while considering hardware needs like GPU memory or Ray Tracing. As instances can be of different types, you need to make sure that your workload is able to run on each type, and the performance you get meets your needs. 
+* **Leverage all availability zones in a region**. Available capacity varies by Availability Zone (AZ), a specific instance type might be unavailable in one AZ but plentiful in another. Each unique combination of an instance type and an Availability Zone constitutes a separate Spot capacity pool. By requesting capacity across all AZs in a region within your Karpenter NodePool requirements, you are effectively searching more pools at once. This maximizes the number of Spot capacity pools and therefore increases the probability of acquiring Spot capacity. To achieve this, in your NodePool configuration, either omit the topology.kubernetes.io/zone key entirely to allow Karpenter to select from all available AZs in the region, or explicitly list AZs using the operator: In and provide the values (e.g., us-west-2a).
+* **Consider using Spot Placement Score (SPS) to get visibility into the likelihood of successfully accessing the required capacity using Spot instances**.  https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/work-with-spot-placement-score.html[Spot Placement Score (SPS)] is a tool that provides a score to help you assess how likely a Spot request is to succeed. When you use SPS, you first specify your compute requirements for your Spot Instances, and then Amazon EC2 returns the top 10 Regions or Availability Zones (AZs) where your Spot request is likely to succeed. Regions and Availability Zones are scored on a scale from 1 to 10. A score of 10 indicates that your Spot request is highly likely but not guaranteed to succeed. A score of 1 indicates that your Spot request is not likely to succeed at all. The same score might be returned for different Regions or Availability Zones. To learn more, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/work-with-spot-placement-score.html[Guidance for Building a Spot Placement Score Tracker Dashboard on AWS]. As Spot capacity fluctuates all the time, SPS will help you to identify which combination of instance types, AZs, and regions work best for your workload constraints (i.e. flexibility, performance, size, etc.). If your AI/ML workload requires specific or a limited number of accelerators but is flexible between regions, you can use Spot placement score to dynamically identify the optimal region to deploy your workload before launch.  To help you find out automatically the likelihood of acquiring Spot capacity, we provide a guidance for building an SPS tracker dashboard. This solution monitors SPS scores over time using a YAML configuration for diversified setups (e.g., instance requirements including GPUs), stores metrics in CloudWatch, and provides dashboards to compare configurations. Define dashboards per workload to evaluate vCPU, memory, and GPU needs, ensuring optimal setups for EKS clusters including the consideration of using other AWS Regions. To learn more, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/how-sps-works.html[How Spot placement score works].
+* **Gracefully handle Spot interruptions and test**. For a pod with a termination period longer than two minutes, the old node will be interrupted prior to those pods being rescheduled, which could impact workload availability. Consider the two-minute Spot interruption notice when designing your applications, implement checkpointing in long-running applications (e.g., saving progress to persistent storage like Amazon S3) to resume after interruptions, extend the terminationGracePeriodSeconds (default is 30 seconds) in Pod specifications to allow more time for graceful shutdown, and handle interruptions using preStop lifecycle hooks and/or SIGTERM signals within your application for graceful shutdown activities like cleanup, state saving, and connection closure. For real-time workloads, where scaling time is important and workloads take longer than two-minutes for the application to be ready to serve traffic, consider optimizing container start-up and ML model loading times by reviewing <<aiml-storage>> and <<aiml-performance>> best practices. To test a replacement node, use https://aws.amazon.com/fis/[AWS Fault Injection Service] (FIS) to simulate Spot interruptions.
+
+In addition to these core Spot best practices, take these factors into account when managing GPU workloads on Amazon EKS. Unlike CPU-based workloads, GPU workloads are particularly sensitive to hardware details such as GPU capabilities and available GPU memory. GPU workloads might be constrained by the instance types they can use, with fewer options available compared to CPUs. As a first step, assess if your workload is instance flexible. If you don't know how many instance types your workload can use, test them individually to ensure compatibility and functionality. Identify how flexible you can be to diversify as much as possible, while confirming that diversification keeps the workload working and understanding any performance impacts (e.g., on throughput or completion time). As part of diversifying your workloads, consider the following:
+
+* **Review CUDA and framework compatibility**. Your GPU workloads might be optimized for specific hardware, GPU types (e.g., V100 in p3 vs. A100 in p4), or written for specific CUDA versions for libraries like TensorFlow, so be sure to review compatibility for your workloads. This compatibility is crucial to prevent runtime errors, crashes, failures in GPU acceleration (e.g., mismatched CUDA versions with frameworks like PyTorch or TensorFlow can prevent execution), or the ability to leverage hardware features like FP16/INT8 precision.
+* **GPU Memory**. Be sure to evaluate your models' memory requirements and profile your model's memory usage during runtime using tools like the https://docs.nvidia.com/datacenter/dcgm/latest/gpu-telemetry/dcgm-exporter.html[DCGM Exporter] and set the minimum GPU memory required for the instance type in well-known labels like karpenter.k8s.aws/instance-gpu-memory. GPU VRAM varies across instance types (e.g., NVIDIA T4 has 16GB, A10G has 24GB, V100 has 16-32GB), and ML models (e.g., large language models) can exceed available memory, causing out-of-memory (OOM) errors or crashes. For Spot Instances in EKS, this may limit diversification. For instance, you can't include lower-VRAM types if your model doesn't fit, which may limit access to capacity pools and increase interruption risk. Note that for single GPU, single node inference (e.g., multiple pods scheduled on the same node to utilize its GPU resources), this might limit diversification, as you can only include instance types with sufficient VRAM in your Spot configuration. 
+* **Floating-point precision and performance**. Not all Nvidia GPU architectures have the same floating point precision (e.g., FP16/INT8). Evaluate core types (CUDA/Tensor/RT) performance and floating point precision required for your workloads. Running on a lower priced, less performant GPU does not mean it’s better, so consider evaluating performance in terms of work completed within a specific time frame to understand impact of diversification. 
+
+**Scenario: Diversification for real time inference workloads**
+
+For a real-time online inference workload on Spot Instances, you can configure a Karpenter NodePool to diversify across compatible GPU instance families and generations. This approach ensures high availability by drawing from multiple Spot pools, while maintaining performance through constraints on GPU capabilities, memory, and architecture. It supports using alternatives when instance capacity is constrained, minimizing interruptions and optimizing for inference latency. This example NodePool states, use g and p series instances greater than 3, which have more than 20GB GPU memory.
+
+**Example**
+
+[,yaml]
+----
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: gpu-inference-spot
+spec:
+  template:
+    metadata:
+      labels:
+        role: gpu-spot-worker
+    spec:
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot"] # Use Spot Instances
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["g", "p"] # Diversifies across G-series and P-series
+        - key: karpenter.k8s.aws/instance-generation
+          operator: Gt
+          values: ["3"] # Selects instance generations greater than 3
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"] # Specifies AMD64 architecture, compatible with NVIDIA GPUs
+        - key: karpenter.k8s.aws/instance-gpu-memory
+          operator: Gt
+          values: ["20480"] # Ensures more than 20GB (20480 MiB) total GPU memory
+      taints:
+        - key: nvidia.com/gpu
+          effect: NoSchedule
+      nodeClassRef:
+        name: gpu-inference-ec2
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+      expireAfter: 720h
+  limits:
+    cpu: 100
+    memory: 100Gi
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 5m # Enables consolidation of underutilized nodes after 5 minutes 
+----
+
+=== Implement Checkpointing for Long Running Training Jobs
+
+Checkpointing is a fault-tolerance technique that involves periodically saving the state of a process, allowing it to resume from the last saved point in case of interruptions. In machine learning, it is commonly associated with training, where long-running jobs can save model weights and optimizer states to resume training after failures, such as hardware issues or Spot Instance interruptions. 
+
+You use checkpoints to save the state of machine learning (ML) models during training. Checkpoints are snapshots of the model and can be configured by the callback functions of ML frameworks. You can use the saved checkpoints to restart a training job from the last saved checkpoint. Using checkpoints, you save your model snapshots under training due to an unexpected interruption to the training job or instance. This allows you to resume training the model in the future from a checkpoint. In addition to implementing a node resiliency system, we recommend implementing checkpointing to mitigate the impact of interruptions, including those caused by hardware failures or Amazon EC2 Spot Instance interruptions. 
+
+Without checkpointing, interruptions can result in wasted compute time and lost progress, which is costly for long-running training jobs. Checkpointing allows jobs to save their state periodically (e.g., model weights and optimizer states) and resume from the last checkpoint (last processed batch) after an interruption. To implement checkpointing, design your application to process data in large batches and save intermediate results to persistent storage, such as an Amazon S3 bucket via the https://docs.aws.amazon.com/eks/latest/userguide/s3-csi.html[Mountpoint for Amazon S3 CSI Driver] while the training job progresses.
+
+**Use cases**
+
+Checkpointing is particularly beneficial in specific scenarios to balance fault tolerance with performance overhead. Consider using checkpointing in the following cases:
+
+* **Job duration exceeds a few hours**: For long-running training jobs (e.g., >1-2 hours for small models, or days/weeks for large foundation models with billions of parameters), where progress loss from interruptions is costly. Shorter jobs may not justify the I/O overhead.
+* **For Spot instances or hardware failures**: In environments prone to interruptions, such as EC2 Spot (2-minute notice) or hardware failures (e.g., GPU memory errors), checkpointing enables quick resumption, making Spot viable for cost savings in fault-tolerant workloads.
+* **Distributed training at scale**: For setups with hundreds/thousands of accelerators (e.g., >100 GPUs), where mean time between failures decreases linearly with scale. Use for model/data parallelism to handle concurrent checkpoint access and avoid complete restarts.
+* **Large-scale models with high resource demands**: In petabyte-scale LLM training, where failures are inevitable due to cluster size; tiered approaches (fast local every 5-30 minutes for transients, durable hourly for major failures) optimize recovery time vs. efficiency.
 
 === Use ML Capacity Blocks for capacity assurance of P and Trainium instances
 https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-blocks.html[Capacity Blocks for ML] allow you to reserve highly sought-after GPU instances, specifically P instances (e.g., p6-b200, p5, p5e, p5en, p4d, p4de) and Trainium instances (e.g., trn1, trn2), to start either almost immediately or on a future date to support your short duration machine learning (ML) workloads. These reservations are ideal for ensuring capacity for compute-intensive tasks like model training and fine-tuning. EC2 Capacity Blocks pricing consists of a reservation fee and an operating system fee. To learn more about pricing, see https://aws.amazon.com/ec2/capacityblocks/pricing/[EC2 Capacity Blocks for ML pricing].
@@ -2366,4 +2490,3 @@ crw-rw-rw-. 1 root root 241, 1 Jul 8 10:45 channel1
 For more information, see the
 link:https://github.com/NVIDIA/k8s-dra-driver-gpu/discussions/249[NVIDIA
 example] on GitHub.
-
