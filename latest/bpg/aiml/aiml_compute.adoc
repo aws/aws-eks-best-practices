@@ -517,6 +517,25 @@ eksctl create cluster -f dra-eks-cluster.yaml
 [#aiml-dra-nvidia-plugin]
 ==== Step 2: Deploy the NVIDIA device plugin
 
+When you create a cluster using eksctl, the device plugin service is automatically installed in the kube-system namespace.
+
+. Verify that the NVIDIA device plugin service are available:
++
+[source,bash,subs="verbatim,attributes"]
+----
+kubectl get po -n kube-system | grep nvidia-device-plugin-daemonset
+----
++
+The following is the expected output:
++
+[source,bash,subs="verbatim,attributes",role="nocopy"]
+----
+kube-system   nvidia-device-plugin-daemonset-2s6pv   1/1     Running   0          7m8s
+kube-system   nvidia-device-plugin-daemonset-8zhq8   1/1     Running   0          7m8s
+----
+
+If you find that the device plugin service is not automatically installed, please follow the steps below to deploy it.
+
 Deploy the NVIDIA device plugin to enable basic GPU discovery:
 
 . Add the NVIDIA device plugin Helm repository:
