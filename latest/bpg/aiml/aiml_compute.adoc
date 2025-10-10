@@ -490,12 +490,12 @@ metadata:
   version: '1.33'
 
 managedNodeGroups:
-  - name: base-nodes
-    amiFamily: AmazonLinux2023
-    instanceType: m5.xlarge
-    desiredCapacity: 1
-    minSize: 1
-    maxSize: 2
+- name: base-nodes
+  amiFamily: AmazonLinux2023
+  instanceType: m5.xlarge
+  desiredCapacity: 1
+  minSize: 1
+  maxSize: 2
 
 - name: gpu-dra-nodes
   amiFamily: AmazonLinux2023
