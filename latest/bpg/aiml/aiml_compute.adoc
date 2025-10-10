@@ -526,16 +526,14 @@ eksctl create cluster -f dra-eks-cluster.yaml
 
 When you create a cluster using eksctl, the device plugin service is automatically installed in the kube-system namespace.
 
-Verify that the NVIDIA device plugin service are available:
-+
-[source,bash,subs="verbatim,attributes"]
+Verify that the NVIDIA device plugin service is available:
+[,bash]
 ----
 kubectl get po -n kube-system | grep nvidia-device-plugin-daemonset
 ----
-+
+
 The following is the expected output:
-+
-[source,bash,subs="verbatim,attributes",role="nocopy"]
+[,bash]
 ----
 kube-system   nvidia-device-plugin-daemonset-2s6pv   1/1     Running   0          7m8s
 kube-system   nvidia-device-plugin-daemonset-8zhq8   1/1     Running   0          7m8s
