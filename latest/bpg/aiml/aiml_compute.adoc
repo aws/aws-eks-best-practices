@@ -795,7 +795,7 @@ spec:
   - name: gpu0
     resourceClaimTemplateName: single-gpu
   nodeSelector:
-    NodeGroupType: gpu-dra      
+    node-type: "gpu-dra"
     nvidia.com/gpu.present: "true"
   tolerations:
   - key: "nvidia.com/gpu"
@@ -977,7 +977,7 @@ spec:
   - name: shared-gpu-claim
     resourceClaimTemplateName: timeslicing-gpu-template
   nodeSelector:
-    NodeGroupType: "gpu-dra"
+    node-type: "gpu-dra"
     nvidia.com/gpu.present: "true"
   tolerations:
   - key: nvidia.com/gpu
@@ -1029,7 +1029,7 @@ spec:
   - name: shared-gpu-claim-2
     resourceClaimTemplateName: timeslicing-gpu-template
   nodeSelector:
-    NodeGroupType: "gpu-dra"
+    node-type: "gpu-dra"
     nvidia.com/gpu.present: "true"
   tolerations:
   - key: nvidia.com/gpu
@@ -1241,7 +1241,7 @@ spec:
     resourceClaimTemplateName: mps-gpu-template
   
   nodeSelector:
-    NodeGroupType: "gpu-dra"
+    node-type: "gpu-dra"
     nvidia.com/gpu.present: "true"
   tolerations:
   - key: nvidia.com/gpu
