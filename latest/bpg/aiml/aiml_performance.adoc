@@ -58,10 +58,9 @@ Utilize advanced inference engines like vLLM, optimizing LLM serving with PagedA
 * **Cons**: Optimized for decoder-only transformers (e.g., LLaMA), less effective for non-transformer models, requires compatible hardware (e.g., NVIDIA GPUs) and setup effort. 
 * **Recommendation**: Top choice for high-volume, low-latency LLM inference on EKS, maximizing scalability and performance.
 
-== Pre-caching Container Images
+== Optimizing container image pull times
 
-Large container images (such as those containing models like PyTorch) can cause cold start delays that impact latency.
-For latency-sensitive workloads, like real-time inference workloads scaled horizontally and quick pod startup is critical, we recommend preloading container images to minimize initialization delays. Consider the following approaches from least to most recommended:
+Large container images can cause cold start delays that impact pod start-up latency. For latency-sensitive workloads, like real-time inference workloads scaled horizontally, quick pod startup is critical. Consider the following approaches to optimize container image pull times:
 
 === Using SOCI snapshotter to Pre-pull Images
 
