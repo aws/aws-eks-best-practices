@@ -136,3 +136,8 @@ NOTE: When the CNI prefix allocates a /28 prefix to an ENI, it has to be a conti
 Custom networking allows you to mitigate IP exhaustion issue, however it can't solve all the challenges. If you already using CG-NAT space for your cluster, or simply don't have the ability to associate a secondary CIDR with your cluster VPC, we suggest you to explore other options, like using an alternate CNI or moving to IPv6 clusters.
 
 
+== Considerations
+
+The following are considerations for using the feature.
+
+* With custom networking enabled, no IP addresses assigned to the primary network interface are assigned to Pods. Only IP addresses from secondary network interfaces are assigned to Pods. For Pods to commnicate with the EKS Control Plane ENIs, suitable networking configuration is required. Please see the https://docs.aws.amazon.com/eks/latest/best-practices/subnets.html[VPC and Subnet Considerations] documention for more information.
