@@ -472,7 +472,7 @@ Machine learning distributed training jobs benefit significantly from
 the minimized latency of same-zone node configurations. These workloads
 deploy multiple pods to a specific zone. This can be achieved by setting
 Pod Affinity for all co-scheduled pods or Node Affinity using
-`topologyKey: failure-domain.beta.kubernetes.io/zone`. The Cluster
+`topologyKey: topology.kubernetes.io/zone`. The Cluster
 Autoscaler will then scale out a specific zone to match demands. You may
 wish to allocate multiple EC2 Auto Scaling Groups, one per availability
 zone to enable failover for the entire co-scheduled workload.
