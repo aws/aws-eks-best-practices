@@ -6,7 +6,7 @@ package.AmazonEKSBestPracticesDocs = {
         3.0 = {
             ZonBookTrails = 1.0;
             
-            ZonBook = 5.0;
+            ZonBook = 5.1;
             AWSEC2ContainerChecklist = 1.0;
             AWSDocsSdkExamplesPublic = 1.0;
         };
