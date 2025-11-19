@@ -116,7 +116,7 @@ Monitor Kubernetes and EKS metrics to ensure your cluster infrastructure remains
 * **AWS Service Metrics** — Track metrics for AWS services that support your EKS infrastructure and training workloads. Monitor S3 metrics such as request latency, error rates, and throughput to ensure data loading performance remains consistent. Track EBS volume metrics including IOPS, throughput, and queue length to detect storage bottlenecks. Monitor VPC flow logs and network metrics to identify connectivity issues between nodes or to external services.
 * **Kubernetes Control Plane Metrics** — Monitor the API server, scheduler, controller manager, and etcd database to detect performance issues or failures that affect cluster operations. Track API server request latency, request rate, and error rate to ensure the control plane responds quickly to scheduling requests. Monitor etcd database size, commit duration, and leader changes to detect stability issues. High API server latency or frequent etcd leader changes can delay pod scheduling and extend training job startup times.
 
-** Application and Instance Logs**
+**Application and Instance Logs**
 
 Collect and analyze application and instance logs to diagnose issues that metrics alone cannot explain. Logs provide detailed context about errors, state changes, and system events that help you understand why training jobs fail or perform poorly. Correlating logs with metrics allows you to pinpoint root causes faster.
 
