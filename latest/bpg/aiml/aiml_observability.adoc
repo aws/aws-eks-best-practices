@@ -7,8 +7,8 @@
 :info_title: Observability
 :info_abstract: Observability
 :info_titleabbrev: Observability
-:authors: ["Leah Tucker"]
-:date: 2025-05-30
+:authors: ["Leah Tucker", "Omri Shiv"]
+:date: 2025-11-19
 
 == Monitoring and Observability
 
@@ -71,7 +71,7 @@ Monitor core training metrics to track the health and performance of your Amazon
 Monitor resource usage metrics to validate that your resources are being properly consumed. These metrics help you identify bottlenecks and root cause performance issues. 
 
 * **CPU, Memory, Network, GPU Power and GPU Temperature** - Monitor these metrics to ensure allocated resources meet workload demands and identify optimization opportunities. Track metrics like gpu_memory_usage_bytes to identify memory consumption patterns and detect peak usage. Calculate percentiles such as the 95th percentile (P95) to understand the highest memory demands during training. This analysis helps you optimize models and infrastructure to avoid OOM errors and reduce costs.
-* **SM Occupancy, SM Activity, FPxx Activity** - Monitor these metrics to understand how the underlying resource on the GPU is being used. Target 0.8 for SM Activity as a rule of thumb https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/feature-overview.html#metrics[(metrics)]. 
+* **SM Occupancy, SM Activity, FPxx Activity** - Monitor these metrics to understand how the underlying resource on the GPU is being used. Target 0.8 for SM Activity as a https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/feature-overview.html#metrics[rule of thumb]. 
 * **Node and Pod Resource Utilization** - Track resource usage at the node and pod level to identify resource contention and potential bottlenecks. Monitor whether nodes approach capacity limits, which can delay pod scheduling and slow training jobs.
 * **Resource Utilization Compared to Requests and Limits** — Compare actual resource usage against configured requests and limits to determine whether your cluster can handle current workloads and accommodate future ones. This comparison reveals whether you need to adjust resource allocations to avoid OOM errors or resource waste.
 * **Internal Metrics from ML Frameworks** - Capture internal training and convergence metrics from ML frameworks such as TensorFlow and PyTorch. These metrics include loss curves, learning rate, batch processing time, and training step duration. Visualize these metrics using TensorBoard or similar tools to track model convergence and identify training inefficiencies.
