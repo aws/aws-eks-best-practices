@@ -60,6 +60,8 @@ image::ipv6_eks-ipv4-snat-cni.png[EKS/IPv6, IPv4 egress-only flow]
 
 In the above diagram Pods will perform a DNS lookup for the endpoint and, upon receiving an IPv4 "`A`" response, Pod's node-only unique IPv4 address is translated through source network address translation (SNAT) to the Private IPv4 (VPC) address of the primary network interface attached to the EC2 Worker-node.
 
+NOTE: The above pattern requires DNS64 being disabled on subnets where EKS/IPv6 Pods are running. When DNS64 is enabled, the DNS resolver returns a synthesized IPv6 address for IPv4-only endpoints along with an IPv4 address. As a result, traffic routes through the NAT Gateway's (if included in the architecture) NAT64 functionality instead of staying within the VPC as shown in the pattern above. This may lead to unexpected NAT Gateway usage and associated costs.
+
 EKS/IPv6 Pods will also need to connect to IPv4 endpoints over the internet using public IPv4 Addresses, to achieve that a similar flow exists.
 The following diagram depict the flow of an IPv6 Pod connecting to an IPv4 endpoint outside the cluster boundary (internet routable):
 
@@ -120,6 +122,5 @@ EKS supports IPv6 for Pods running on Fargate. Pods running on Fargate will cons
 
 *The upstream in-tree Kubernetes service controller does not support IPv6*. We recommend using the https://kubernetes-sigs.github.io/aws-load-balancer-controller[most recent version] of the AWS Load Balancer Controller add-on. The LBC will only deploy a dual-stack NLB or a dual-stack ALB upon consuming corresponding kubernetes service/ingress definition annotated with: `"alb.ingress.kubernetes.io/ip-address-type: dualstack"` and `"alb.ingress.kubernetes.io/target-type: ip"`
 
-AWS Network Load Balancer does not support dual-stack UDP protocol address types. If you have strong requirements for low-latency, real-time streaming, online gaming, and IoT, we recommend running IPv4 clusters. To learn more about managing health checks for UDP services, please refer to https://aws.amazon.com/blogs/containers/how-to-route-udp-traffic-into-kubernetes/["`How to route UDP traffic into Kubernetes`"].
 
 
