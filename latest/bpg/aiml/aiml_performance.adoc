@@ -14,14 +14,6 @@
 
 Deploying machine learning (ML) models on Amazon EKS requires thoughtful consideration of how models are integrated into container images and runtime environments. This ensures scalability, reproducibility, and efficient resource utilization. This topic describes the different approaches to handling ML model artifacts, selecting serving frameworks, and optimizing container startup times through techniques like pre-caching, all tailored to reduce container startup times.
 
-=== Reducing Container Image Sizes
-
-Reducing the size of container images during startup is another way to make images smaller. You can make reductions at every step of the container image build process.
-To start, choose base images that contain the least number of dependencies required. During image builds, include only the essential libraries and artifacts that are required.
-When building images, try combining multiple `RUN` or `COPY` commands to create a smaller number of larger layers.
-For AI/ML frameworks, use multi-stage builds to separate build and runtime, copying only required artifacts (e.g., via `COPY —from=` for registries or local contexts), and select variants like runtime-only images (e.g., `pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime` at 3.03 GB vs. devel at 6.66 GB).
-To learn more, see https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/reduce-container-image-size[Reducing container image size] in the AI on EKS Workshop.
-
 === Handling ML Model Artifacts in Deployments
 
 A key decision is how to handle the ML model artifacts (such as weights and configurations) themselves. The choice impacts image size, deployment speed, model update frequency, and operational overhead.
@@ -62,6 +54,14 @@ Utilize advanced inference engines like vLLM, optimizing LLM serving with PagedA
 
 Large container images can cause cold start delays that impact pod start-up latency. For latency-sensitive workloads, like real-time inference workloads scaled horizontally, quick pod startup is critical. Consider the following approaches to optimize container image pull times:
 
+=== Reducing Container Image Sizes
+
+Reducing the size of container images during startup is another way to make images smaller. You can make reductions at every step of the container image build process.
+To start, choose base images that contain the least number of dependencies required. During image builds, include only the essential libraries and artifacts that are required.
+When building images, try combining multiple `RUN` or `COPY` commands to create a smaller number of larger layers.
+For AI/ML frameworks, use multi-stage builds to separate build and runtime, copying only required artifacts (e.g., via `COPY —from=` for registries or local contexts), and select variants like runtime-only images (e.g., `pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime` at 3.03 GB vs. devel at 6.66 GB).
+To learn more, see https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/reduce-container-image-size[Reducing container image size] in the AI on EKS Workshop.
+
 === Using SOCI snapshotter to Pre-pull Images
 
 For very large images that you can't easily minimize, you can use the open source Seekable OCI (SOCI) snapshotter configured in parallel pull and unpack mode.
@@ -99,7 +99,7 @@ Pre-pulling all variants ensures fast startup time regardless of which image is 
 
 See https://github.com/aws-samples/aws-do-eks/tree/main/Container-Root/eks/deployment/prepull[AWS GitHub repository] for examples of pre-pulling images into the container runtime cache. 
 
-== Use NVMe for kubelet and containerd storage
+== Consider NVMe for kubelet and containerd storage
 
 Consider configuring `kubelet` and `containerd` to use ephemeral NVMe instance storage disks for higher disk performance.
 The container pull process involves downloading a container image from a registry and decompressing its layers into a usable format. To optimize I/O operations during decompression, you should evaluate what provides higher levels of I/O performance and throughput for your container host’s instance type: https://docs.aws.amazon.com/en_us/documentdb/latest/developerguide/db-instance-nvme.html[NVMe backed-instances] with local storage vs. EBS Volume IOPS/throughput. For EC2 instances with NVMe local storage, consider configuring the node’s underlying filesystem for kubelet (`/var/lib/kubelet`), containerd (`/var/lib/containerd`) and Pod logs (`/var/log/pods`) to use ephemeral NVMe instance storage disks for higher levels of I/O performance and throughput. 
