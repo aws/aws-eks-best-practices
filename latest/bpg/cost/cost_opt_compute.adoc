@@ -123,23 +123,23 @@ spec:
 
 For workloads that might not be interruptible e.g. long running batch jobs without checkpointing, consider annotating pods with the `do-not-evict` annotation. By opting pods out of eviction, you are telling Karpenter that it should not voluntarily remove nodes containing this pod. However, if a `do-not-evict` pod is added to a node while the node is draining, the remaining pods will still evict, but that pod will block termination until it is removed. In either case, the node will be cordoned to prevent additional work from being scheduled on the node. Below is an example showing how set the annotation:
 
-```yaml hl_lines="8"
+[,yaml]
+----
 apiVersion: v1
 kind: Pod
 metadata:
   name: label-demo
   labels:
     environment: production
-  annotations: +
-    "karpenter.sh/do-not-evict": "true"
+  annotations:
+    karpenter.sh/do-not-evict: "true"
 spec:
   containers:
-
-* name: nginx
-image: nginx
-ports:
- ** containerPort: 80
-```
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+----
 
 === Remove under-utilized nodes by adjusting Cluster Autoscaler parameters
 
