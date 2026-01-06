@@ -8,6 +8,7 @@
       <feedbackCTI>Amazon EKS</feedbackCTI>
       <options>
         <hide-github-link>0</hide-github-link>
+        <schema-validation>disabled</schema-validation>
       </options>
       
       
