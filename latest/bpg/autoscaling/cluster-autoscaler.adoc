@@ -85,8 +85,8 @@ https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudpro
 in your cluster. It uses
 https://en.wikipedia.org/wiki/Leader_election[leader election] to ensure
 high availability, but work is done by a single replica at a time. It is
-not horizontally scalable. For basic setups, the default it should work
-out of the box using the provided
+not horizontally scalable. For basic setups, the default should work out
+of the box using the provided
 https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html[installation
 instructions], but there are a few things to keep in mind.
 
