@@ -195,7 +195,8 @@ exists before onboarding application pods. This policy denies onboarding
 k8s pods with a label `k8s-app: sample-app` if corresponding network
 policy does not exist.
 
-```
+[source,rego]
+----
 package kubernetes.admission
 import data.kubernetes.networkpolicies
 
@@ -210,7 +211,7 @@ deny[msg] {
 contains_label(arr, val) {
     arr[_] == val
 }
-```
+----
 
 
 === Troubleshooting

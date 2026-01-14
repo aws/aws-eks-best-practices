@@ -196,12 +196,13 @@ Selecting the appropriate accelerated instance and size is essential for optimiz
 
 If you use a GPU instance in an EKS node then it will have the `nvidia-device-plugin-daemonset` pod in the `kube-system` namespace by default. To get a quick sense of whether you are fully utilizing the GPU(s) in your instance, you can use https://docs.nvidia.com/deploy/nvidia-smi/index.html[nvidia-smi] as shown here:
 
-```bash
+[source,bash]
+----
 kubectl exec nvidia-device-plugin-daemonset-xxxxx \
   -n kube-system -- nvidia-smi \
   --query-gpu=index,power.draw,power.limit,temperature.gpu,utilization.gpu,utilization.memory,memory.free,memory.used \
   --format=csv -l 5
-```
+----
 
 * If `utilization.memory` is close to 100%, then your code(s) are likely memory bound. This means that the GPU (memory) is fully utilized but could suggest that further performance optimization should be investigated.
 * If the `utilization.gpu` is close to 100%, this does not necessarily mean the GPU is fully utilized. A better metric to look at is the ratio of `power.draw` to `power.limit`. If this ratio is 100% or more, then your code(s) are fully utilizing the compute capacity of the GPU.

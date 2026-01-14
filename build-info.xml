@@ -8,10 +8,9 @@
       <feedbackCTI>Amazon EKS</feedbackCTI>
       <options>
         <hide-github-link>0</hide-github-link>
-        <schema-validation>disabled</schema-validation>
       </options>
-      
-      
+
+
 
       <guides>
         <guide id="eks-bpg" region="-BJS,-DCA,-LCK">
@@ -30,13 +29,13 @@
             <branch>master</branch>
             <source-folder>latest/bpg</source-folder>
           </github>
-    
+
           <builds>
             <html />
             <pdf />
             <asciidoc>
               <include-html-profiling>1</include-html-profiling>
-            </asciidoc> 
+            </asciidoc>
           </builds>
 
         </guide>

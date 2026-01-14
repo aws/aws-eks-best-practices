@@ -1359,7 +1359,8 @@ with both Amazon S3 and Amazon SQS. `AssumeRoleWithWebIdentity` is
 only called once, and the AWS SDK will refresh the credentials of
 `my_session` when they expire automatically.
 
-```python
+[source,python]
+----
 import boto3
 
 = Create your own session
@@ -1374,8 +1375,8 @@ s3response = s3.list_buckets() sqsresponse = sqs.list_queues()
 
 #print the response from the S3 and SQS APIs print("`s3 response:`")
 print(s3response) print("`—`") print("`sqs response:`")
-print(sqsresponse) ```
-```
+print(sqsresponse)
+----
 
 
 If you're migrating an application from another AWS compute service,

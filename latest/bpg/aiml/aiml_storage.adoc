@@ -132,7 +132,8 @@ For complete examples, see the https://github.com/kubernetes-sigs/aws-fsx-csi-dr
 **Example**
 Partial example of a Pod deployment YAML with CSI Driver:
 
-```yaml
+[source,yaml]
+----
 # CSI driver dynamically mounts the S3 bucket for each pod
 
 volumes:
@@ -158,7 +159,7 @@ volumes:
     hostPath:
       path: /mnt/s3-model-cache
 
-```
+----
 **Performance considerations:**
 
 * **Data caching**: Mountpoint for S3 can cache content to reduce costs and improve performance for repeated reads to the same file. Refer to https://github.com/awslabs/mountpoint-s3/blob/main/doc/CONFIGURATION.md#caching-configuration[Caching configuration] for caching options and parameters.
