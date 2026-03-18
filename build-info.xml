@@ -13,7 +13,7 @@
 
 
       <guides>
-        <guide id="eks-bpg" region="-BJS,-DCA,-LCK">
+        <guide id="eks-bpg" region="-BJS">
           <pathslug>best-practices</pathslug>
           <basename>eks-bpg</basename>
           <title>Best Practices Guide</title>
