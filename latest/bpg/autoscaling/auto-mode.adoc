@@ -110,13 +110,17 @@ like Karpenter, the AWS Load Balancer Controller, and the EBS CSI Driver are all
 
 === What managed components are running to support my new EKS Auto Mode cluster?
 
-EKS Auto Mode completely automates the deployment most of the pieces of a data plane needed for production-grade Kubernetes.  This includes:
+EKS Auto Mode completely automates the deployment of most of the pieces of a data plane needed for production-grade Kubernetes.  This includes:
 
 * Karpenter, for auto-scaling the compute of your cluster
 * AWS Load Balancer Controller to allow you to easily expose Kubernetes services via automated Elastic Load Balancer integration
-* EBS CSI
 * VPC CNI
+* Cluster DNS
+* kube-proxy
+* EBS CSI
 * EKS Pod Identity Agent
+* EKS Node Monitoring Agent
+
 
 === How do I troubleshoot the components of Auto Mode that used to run as pods in my cluster? ===
 
