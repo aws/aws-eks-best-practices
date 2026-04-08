@@ -180,15 +180,81 @@ account, and use resources within it.
 ===== Accessing AWS API Resources with EKS Pod Identities
 
 https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html[EKS
-Pod Identities] provide another way to deliver temporary AWS credentials to your workloads running on EKS. EKS Pod Identities integrate with the EKS control plane and an on-cluster agent so that pods receive credentials without requiring you to create or manage an IAM OIDC identity provider. EKS Pod Identities are the recommended approach for new workloads on https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html#pod-id-considerations[supported node types], while IRSA remains a fully supported alternative.
-
-With EKS Pod Identities, you associate a Kubernetes service account in your cluster with an IAM role in the same AWS account as the cluster. EKS uses this association to obtain temporary credentials for that IAM role and securely deliver them to pods that use the service account. Your application can then use standard AWS SDKs and the default credential chain to call AWS APIs; no custom credential providers or configuration files are required. 
-
+Pod Identities] is a new way of delivering AWS credentials to your
+workloads running on EKS. EKS pod identities simplifies the
+configuration of AWS resources as you no longer need to manage OIDC
+configurations to deliver AWS credentials to your pods on EKS.
 
 ====== Enabling EKS Pod Identities for cross account access
-EKS Pod Identities natively support cross account access by using a target IAM role in the workload account and IAM role chaining. When you create a Pod Identity association for a Kubernetes service account, you specify both a pod IAM role in the cluster account and a target IAM role in the workload account. EKS Pod Identity uses the pod role to assume the target role and returns temporary credentials for the target role to the pod.  
 
-Refer this https://aws.amazon.com/blogs/containers/amazon-eks-pod-identity-a-new-way-for-applications-on-eks-to-obtain-iam-credentials/[AWS blog] for a detailed walkthrough and considerations of this approach.
+Unlike IRSA, EKS Pod Identities can only be used to directly grant
+access to a role in the same account as the EKS cluster. To access a
+role in another AWS account, pods that use EKS Pod Identities must
+perform
+https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html#iam-term-role-chaining[Role
+Chaining].
+
+Role chaining can be configured in an applications profile with their
+aws configuration file using the
+https://docs.aws.amazon.com/sdkref/latest/guide/feature-process-credentials.html[Process
+Credentials Provider] available in various AWS SDKs.
+`credential_process` can be used as a credential source when
+configuring a profile, such as:
+
+[source,bash]
+----
+# Content of the AWS Config file
+[profile account_b_role] 
+source_profile = account_a_role 
+role_arn = arn:aws:iam::444455556666:role/account-b-role
+
+[profile account_a_role] 
+credential_process = /eks-credential-processrole.sh
+----
+
+The source of the script called by credential_process:
+
+[source,bash]
+----
+#!/bin/bash
+# Content of the eks-credential-processrole.sh
+# This will retreive the credential from the pod identities agent,
+# and return it to the AWS SDK when referenced in a profile
+curl -H "Authorization: $(cat $AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE)" $AWS_CONTAINER_CREDENTIALS_FULL_URI | jq -c '{AccessKeyId: .AccessKeyId, SecretAccessKey: .SecretAccessKey, SessionToken: .Token, Expiration: .Expiration, Version: 1}' 
+----
+
+You can create an aws config file as shown above with both Account A and
+B roles and specify the AWS_CONFIG_FILE and AWS_PROFILE env vars in your
+pod spec. EKS Pod identity webhook does not override if the env vars
+already exists in the pod spec.
+
+[source,yaml]
+----
+# Snippet of the PodSpec
+containers: 
+  - name: container-name
+    image: container-image:version
+    env:
+    - name: AWS_CONFIG_FILE
+      value: path-to-customer-provided-aws-config-file
+    - name: AWS_PROFILE
+      value: account_b_role
+----
+
+When configuring role trust policies for role chaining with EKS pod
+identities, you can reference
+https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html[EKS
+specific attributes] as session tags and use attribute based access
+control(ABAC) to limit access to your IAM roles to only specific EKS Pod
+identity sessions, such as the Kubernetes Service Account a pod belongs
+to.
+
+Please note that some of these attributes may not be universally unique,
+for example two EKS clusters may have identical namespaces, and one
+cluster may have identically named service accounts across namespaces.
+So when granting access via EKS Pod Identities and ABAC, it is a best
+practice to always consider the cluster arn and namespace when granting
+access to a service account.
 
 ====== ABAC and EKS Pod Identities for cross account access
 
@@ -198,60 +264,30 @@ assign a unique IAM role for each service account that needs to access
 another account, or use a common IAM role across multiple service
 accounts and use ABAC to control what accounts it can access.
 
-To use ABAC to control what service accounts can assume a role into another account with role chaining, you create a role trust policy statement that only allows a role to be assumed by the pod IAM role from the EKS cluster account (account ID 111122223333) when the expected values are present. The following role trust policy will only let the pod IAM role from the EKS cluster account assume a role if the `kubernetes-service-account`, `eks-cluster-arn` and `kubernetes-namespace` tags all have the expected value. 
+To use ABAC to control what service accounts can assume a role into
+another account with role chaining, you create a role trust policy
+statement that only allows a role to be assumed by a role session when
+the expected values are present. The following role trust policy will
+only let a role from the EKS cluster account (account ID 111122223333)
+assume a role if the `kubernetes-service-account`, `eks-cluster-arn`
+and `kubernetes-namespace` tags all have the expected value.
 
-
-[source,json]
+[source,json,subs="verbatim,attributes"]
 ----
-{ 
-    "Version":"2012-10-17", 
-    "Statement": [ 
-        { 
-            "Effect": "Allow", 
-            "Principal": { 
-                "AWS": "arn:aws:iam::111122223333:role/account-a-role" 
-            }, 
-            "Action": [ 
-                "sts:AssumeRole", 
-                "sts:TagSession" 
-            ], 
-            "Condition": { 
-                "StringEquals": { 
-                    "aws:RequestTag/kubernetes-service-account": "PayrollApplication", 
-                    "aws:RequestTag/eks-cluster-arn": "arn:aws:eks:us-east-1:111122223333:cluster/ProductionCluster", 
-                    "aws:RequestTag/kubernetes-namespace": "PayrollNamespace" 
-                } 
-            } 
-        } 
-    ] 
-} 
+include::iam_snippet:453c9c30-e4dd-4afc-8e6f-72c22cbd9055[]
 ----
 
-You can also use EKS Pod Identity session policies to further scope down permissions for a pod without creating additional IAM roles. Session policies are applied when EKS Pod Identity assumes the role and the resulting permissions are the intersection of the role policy and the session policy; for considerations and detailed steps, refer to the AWS Containers blog https://aws.amazon.com/blogs/containers/session-policies-for-amazon-eks-pod-identity/[Session policies for Amazon EKS Pod Identity].
+When using this strategy it is a best practice to ensure that the common
+IAM role only has `sts:AssumeRole` permissions and no other AWS
+access.
 
-When using this strategy it is a best practice to ensure that the common IAM role only has `sts:AssumeRole` and `sts:TagSession` permissions and no other AWS access. 
-
-It is important when using ABAC that you control who has the ability to tag IAM roles, users, and STS sessions to only those who have a strict need to do so. Someone with the ability to set `kubernetes-` or `eks-` tags may be able to set tags identical to what would be passed during EKS Pod Identity role chaining and may be able to escalate their privileges. You can restrict who has access to set these tags using IAM policy or Service Control Policy (SCP); for example controls, refer to https://github.com/aws-samples/service-control-policy-examples/blob/main/Service-specific-controls/Amazon-EKS/ProtectPodIdentitiesTagsOnRolesAndUsers.json[ProtectPodIdentitiesTagsOnRolesAndUsers] and https://github.com/aws-samples/resource-control-policy-examples/blob/main/Service-specific-controls/STS-Protect-EKS-pod-identities-tags.json[STS-Protect-EKS-pod-identities-tags]. 
-
-====== Choosing Between EKS Pod Identities and IRSA 
-
-Both IRSA and EKS Pod Identities are valid options for delivering temporary AWS credentials to your EKS workloads. EKS Pod Identities are recommended for new applications running on https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html#pod-id-considerations[supported node types] and IRSA is a good fit where you already have OIDC and IRSA in place or run on platforms that EKS Pod Identities do not support. 
-
-Consider the following when deciding which to use: 
-
-* **Choose EKS Pod Identities when:**
-** You are designing new workloads and want to avoid creating and managing IAM OIDC identity providers.
-** You want native support for cross account access using a target IAM role without adding custom credential scripts or AWS configuration files to your pods.
-** You prefer that cluster administrators manage which Kubernetes service accounts may assume which roles, while IAM administrators manage the permissions of those roles.
-** You want credential vending to scale efficiently and avoid reaching the IAM Quota limits.
-
-* **Choose IRSA when:**
-** You already use IRSA successfully and have a standard pattern for OIDC providers and IAM roles. 
-** Your workloads run on environments where EKS Pod Identities are not supported, such as AWS Fargate, Windows nodes, or applications using un-supported AWS SDKs. 
-** You require a direct OIDC-based federation model to roles in your workload accounts, and your security controls are already built around OIDC providers.
-
-IRSA and EKS Pod Identities both support multi-account strategies. You can use either approach consistently across your cluster or adopt a mixed model where legacy workloads continue to use IRSA and new workloads use EKS Pod Identities.
-
+It is important when using ABAC that you control who has the ability to
+tag IAM roles and users to only those who have a strict need to do so.
+Someone with the ability to tag an IAM role or user would be able to set
+tags on roles/users identical to what would be set by EKS Pod Identities
+and may be able to escalate their privileges. You can restrict who has
+the access to set tags the `kubernetes-` and `eks-` tags on IAM role
+and users using IAM policy, or Service Control Policy (SCP).
 
 == De-centralized EKS Clusters
 
