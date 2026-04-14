@@ -147,23 +147,23 @@ Node utilization is defined as the sum of requested resources divided by capacit
 
 You can prevent scale down from happening by ensuring that pods that are expensive to evict are protected by a label recognized by the Cluster Autoscaler. To do this, ensure that pods that are expensive to evict have the annotation `cluster-autoscaler.kubernetes.io/safe-to-evict=false`. Below is an example yaml to set the annotation:
 
-```yaml hl_lines="8"
+[,yaml]
+----
 apiVersion: v1
 kind: Pod
 metadata:
   name: label-demo
   labels:
     environment: production
-  annotations: +
-    "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
 spec:
   containers:
-
-* name: nginx
-image: nginx
-ports:
- ** containerPort: 80
-```
+    - name: nginx
+      image: nginx
+      ports:
+        - containerPort: 80
+----
 
 === Tag nodes with Cluster Autoscaler and Karpenter
 
