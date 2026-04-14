@@ -9,6 +9,20 @@ TIP: https://aws-experience.com/emea/smb/events/series/get-hands-on-with-amazon-
 
 The Kubernetes control plane consists of the Kubernetes API Server, Kubernetes Controller Manager, Scheduler and other components that are required for Kubernetes to function. Scalability limits of these components are different depending on what you're running in the cluster, but the areas with the biggest impact to scaling include the Kubernetes version, utilization, and individual Node scaling.
 
+You can run your cluster's control plane in one of two modes to meet different workload requirements:
+
+* *Standard mode* – By default, all {EKS} clusters use Standard mode. The control plane automatically scales up and down based on your workload demands. Standard mode dynamically allocates sufficient control plane capacity and is the recommended option for most use cases.
+* *Provisioned mode* – If your workloads cannot tolerate performance variability from control plane scaling, or if they require very high control plane capacity, you can use Provisioned mode. With Provisioned mode, you pre-allocate control plane capacity that is always ready to handle demanding requirements. You get consistent and predictable performance.
+
+With {EKS} Provisioned mode, you choose from a set of scaling tiers (XL, 2XL, 4XL, and 8XL). With each tier, you get high, predictable performance from the cluster's control plane. Provisioned mode is particularly valuable for the following use cases:
+
+* Performance-critical workloads
+* Large-scale AI and machine learning operations
+* Anticipated high-demand events
+* Environments that require consistency across staging and production
+
+With Provisioned mode, you can pre-allocate control plane capacity ahead of time and benefit from an enhanced 99.99% Service Level Agreement (SLA) measured in 1-minute intervals. For more information about {EKS} Provisioned mode, including tier specifications and pricing, see https://docs.aws.amazon.com/eks/latest/userguide/provisioned-control-plane.html[{EKS} Provisioned Control Plane] in the _{EKS} User Guide_.
+
 == Limit workload and node bursting
 
 [IMPORTANT]
