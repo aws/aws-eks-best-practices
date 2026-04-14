@@ -21,7 +21,7 @@ pyasn1-modules==0.2.8
 pycparser==2.20
 pyinstaller==5.13.1
 pyinstaller-hooks-contrib==2020.7
-pyOpenSSL==19.1.0
+pyOpenSSL==26.0.0
 python-dateutil==2.8.1
 PyYAML==5.4
 reader==1.5
