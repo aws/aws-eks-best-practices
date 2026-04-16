@@ -63,7 +63,7 @@ WARNING: The maximum pod count for all nodes in a particular node group is defin
 
 === Configure `WARM_PREFIX_TARGET` to conserve IPv4 addresses
 
-The https://github.com/aws/amazon-vpc-cni-k8s/blob/master/config/v1.9/aws-k8s-cni.yaml#L158[installation manifest's] default value for `WARM_PREFIX_TARGET` is 1. In most cases, the recommended value of 1 for `WARM_PREFIX_TARGET` will provide a good mix of fast pod launch times while minimizing unused IP addresses assigned to the instance.
+The https://github.com/aws/amazon-vpc-cni-k8s/blob/68a282e972b0ec4ab86d7b7f9255fdb1245a6363/config/master/aws-k8s-cni.yaml#L534[installation manifest's] default value for `WARM_PREFIX_TARGET` is 1. In most cases, the recommended value of 1 for `WARM_PREFIX_TARGET` will provide a good mix of fast pod launch times while minimizing unused IP addresses assigned to the instance.
 
 If you have a need to further conserve IPv4 addresses per node use `WARM_IP_TARGET` and `MINIMUM_IP_TARGET` settings, which override `WARM_PREFIX_TARGET` when configured. By setting `WARM_IP_TARGET` to a value less than 16, you can prevent the CNI from keeping an entire excess prefix attached.
 
