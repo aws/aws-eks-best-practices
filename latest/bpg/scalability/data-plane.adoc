@@ -221,4 +221,40 @@ Amazon recommends using immutable infrastructure that is built, tested, and prom
 
 Patching nodes will allow you to quickly roll out security updates and replace the instances on a regular schedule after your AMI has been updated. If you are using an operating system with a read-only root file system like https://flatcar-linux.org/[Flatcar Container Linux] or https://github.com/bottlerocket-os/bottlerocket[Bottlerocket OS] we recommend using the update operators that work with those operating systems. The https://github.com/flatcar/flatcar-linux-update-operator[Flatcar Linux update operator] and https://github.com/bottlerocket-os/bottlerocket-update-operator[Bottlerocket update operator] will reboot instances to keep nodes up to date automatically.
 
+== Kubelet configuration for custom AMIs on Karpenter
 
+When using a https://karpenter.sh/docs/concepts/nodeclasses/#custom[custom AMI with Karpenter], it's important to carefully configure the `kubelet` settings to ensure optimal data plane scalability. Unlike the EKS-optimized AMIs, Karpenter does not have built-in knowledge of the default resource requirements for a custom OS image. This can lead to issues like `kubelet` resource starvation if the `kubelet` configuration is not properly tuned.
+
+To address this, the recommended best practice is to thoroughly specify the https://karpenter.sh/docs/concepts/nodeclasses/#speckubelet[kubelet settings in the `NodeClass` configuration] when using a custom AMI. This includes setting appropriate values for `system-reserved` and `kube-reserved` resource requests based on the specific OS and packages installed on the custom AMI. Additionally, carefully configure the eviction thresholds to ensure the `kubelet` can effectively manage pod evictions under resource pressure. Refer to the `spec.kubelet` section in the Karpenter documentation for the available configuration options and guidance on setting these values correctly. Monitoring the node's resource utilization after deployment is also crucial to validate the `kubelet` settings and make any necessary adjustments. By following these best practices, you can ensure the `kubelet` is properly configured to handle the workload requirements on nodes provisioned with a custom AMI.
+
+[source,yaml]
+----
+kubelet:
+  podsPerCore: 2
+  maxPods: 20
+  systemReserved:
+    cpu: 100m
+    memory: 100Mi
+    ephemeral-storage: 1Gi
+  kubeReserved:
+    cpu: 200m
+    memory: 100Mi
+    ephemeral-storage: 3Gi
+  evictionHard:
+    memory.available: 5%
+    nodefs.available: 10%
+    nodefs.inodesFree: 10%
+  evictionSoft:
+    memory.available: 500Mi
+    nodefs.available: 15%
+    nodefs.inodesFree: 15%
+  evictionSoftGracePeriod:
+    memory.available: 1m
+    nodefs.available: 1m30s
+    nodefs.inodesFree: 2m
+  evictionMaxPodGracePeriod: 60
+  imageGCHighThresholdPercent: 85
+  imageGCLowThresholdPercent: 80
+  cpuCFSQuota: true
+  clusterDNS: ["10.0.1.100"]
+----
