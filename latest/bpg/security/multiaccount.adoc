@@ -188,7 +188,7 @@ With EKS Pod Identities, you associate a Kubernetes service account in your clus
 ====== Enabling EKS Pod Identities for cross account access
 EKS Pod Identities natively support cross account access by using a target IAM role in the workload account and IAM role chaining. When you create a Pod Identity association for a Kubernetes service account, you specify both a pod IAM role in the cluster account and a target IAM role in the workload account. EKS Pod Identity uses the pod role to assume the target role and returns temporary credentials for the target role to the pod.  
 
-Refer this https://aws.amazon.com/blogs/containers/amazon-eks-pod-identity-a-new-way-for-applications-on-eks-to-obtain-iam-credentials/[AWS blog] for a detailed walkthrough and considerations of this approach.
+Refer to this https://aws.amazon.com/blogs/containers/amazon-eks-pod-identity-a-new-way-for-applications-on-eks-to-obtain-iam-credentials/[AWS blog] for a detailed walkthrough and considerations of this approach.
 
 ====== ABAC and EKS Pod Identities for cross account access
 
