@@ -62,13 +62,15 @@ This propagation delay can cause DNS lookup failures when a CoreDNS pod gets ter
 
 You can reduce DNS lookup failures by setting a https://coredns.io/plugins/health/[lameduck] duration in your CoreDNS pods. While in lameduck mode, CoreDNS will continue to respond to in-flight requests. Setting a lameduck duration will delay the CoreDNS shutdown process, allowing nodes the time they need to update their iptables rules and chains.
 
-We recommend setting CoreDNS lameduck duration to 30 seconds.
+We recommend setting CoreDNS lameduck duration to 10 seconds. This aligns with the https://github.com/coredns/helm[CoreDNS Helm chart] default and is sufficient to eliminate most DNS resolution failures during pod termination. Community testing in the https://github.com/coredns/deployment/issues/199[CoreDNS deployment project] confirms that a lameduck of 5 to 10 seconds covers the typical iptables propagation delay.
+
+NOTE: The lameduck duration must be less than the pod's `terminationGracePeriodSeconds` (default: 30 seconds). If the lameduck duration equals or exceeds `terminationGracePeriodSeconds`, Kubernetes may forcefully kill the CoreDNS pod before the lameduck period completes, defeating its purpose. The EKS CoreDNS add-on does not currently support configuring `terminationGracePeriodSeconds`, so keep the lameduck value well below 30 seconds.
 
 == CoreDNS readiness probe
 
 We recommend using `/ready` instead of `/health` for CoreDNS's readiness probe.
 
-In alignment with the earlier recommendation to set the lameduck duration to 30 seconds, providing ample time for the node's iptables rules to be updated before pod termination, employing `/ready` instead of `/health` for the CoreDNS readiness probe ensures that the CoreDNS pod is fully prepared at startup to promptly respond to DNS requests.
+In alignment with the earlier recommendation to set a lameduck duration, providing time for the node's iptables rules to be updated before pod termination, employing `/ready` instead of `/health` for the CoreDNS readiness probe ensures that the CoreDNS pod is fully prepared at startup to promptly respond to DNS requests.
 
 [,yaml]
 ----
