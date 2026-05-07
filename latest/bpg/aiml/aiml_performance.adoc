@@ -64,6 +64,16 @@ When building images, try combining multiple `RUN` or `COPY` commands to create 
 For AI/ML frameworks, use multi-stage builds to separate build and runtime, copying only required artifacts (e.g., via `COPY —from=` for registries or local contexts), and select variants like runtime-only images (e.g., `pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime` at 3.03 GB vs. devel at 6.66 GB).
 To learn more, see https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/reduce-container-image-size[Reducing container image size] in the AI on EKS Workshop.
 
+=== Reduce Image Pull Latency
+
+For EKS clusters running in private subnets, configure VPC interface endpoints for Amazon ECR to keep image pull traffic on the AWS private network, reducing latency and eliminating NAT gateway data processing charges. See https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html[Create the VPC endpoints for Amazon ECR] for setup instructions.
+
+Additionally, if your workloads rely on upstream container images from external registries, consider using https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache.html[ECR pull through cache] to proxy and cache those images in your private ECR registry.
+
+=== Optimize Network Bandwidth for Image Pulls
+
+When pulling large container images, the network bandwidth available to your EKS worker nodes directly impacts time-to-start for training and inference workloads. All current-generation Nitro-based instances use the Elastic Network Adapter (ENA), but available bandwidth varies significantly by instance size, and it’s critical to understand the difference between baseline and burst bandwidth (see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html[Amazon EC2 instance network bandwidth]). To minimize time-to-ready for your workloads, select instance sizes with sufficient baseline network bandwidth relative to your image sizes and pull concurrency.
+
 === Using SOCI snapshotter to Pre-pull Images
 
 For very large images that you can't easily minimize, you can use the open source Seekable OCI (SOCI) snapshotter configured in parallel pull and unpack mode.
