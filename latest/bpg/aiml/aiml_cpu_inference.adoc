@@ -1,0 +1,426 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[aiml-cpu-inference,aiml-cpu-inference.title]]
+= CPU Inference and Orchestration on EKS
+:info_doctype: section
+:imagesdir: images/
+:info_title: CPU Inference and Orchestration
+:info_abstract: Best practices for running AI inference and orchestration workloads on CPU instances with Amazon EKS
+:info_titleabbrev: CPU Inference
+:authors: ["Christian Melendez"]
+:date: 2026-04-20
+
+== Overview
+
+CPU instances are a first-class compute option for a wide range of AI workloads on Amazon EKS. From small language models (SLMs) and classical ML inference to data pipelines and agent orchestration, CPUs offer strong price-performance, broad capacity availability, and familiar Kubernetes scheduling semantics.
+
+CPU and GPU are complementary, not competitive. As agentic AI pipelines grow in complexity, the CPU workload surface grows with them: every inference call is surrounded by tool execution, context assembly, vector search, guardrails, and orchestration logic that all run on CPU. We recommend designing architectures that use both compute types deliberately, placing each workload on the tier where it delivers the best cost-performance.
+
+Not every workload needs a GPU. Routing, classification, retrieval, embedding, orchestration, and a growing share of language model inference all run effectively on CPU. Current-generation CPU instances across arm64 and x86 deliver strong price-performance for ML inference. Combined with Karpenter's node consolidation, KEDA's event-driven scaling, and quantized model serving, this provides a production-ready stack that platform teams can operate without deep GPU expertise.
+
+*This guide is for:*
+
+* *Platform engineers* designing multi-tenant EKS clusters for AI workloads.
+* *ML practitioners* evaluating inference backends for models under 30B parameters.
+* *FinOps teams* looking for concrete cost levers without sacrificing SLOs.
+
+*What you'll learn:*
+
+* Which AI workloads belong on CPUs and where GPUs or Trainium are necessary.
+* How to apply a four-dimensional decision framework to any new workload.
+* Two production patterns: agentic SLM pre-filtering and high-density model farms.
+* Optimization best practices: quantization, bin-packing, Spot scheduling, and autoscaling.
+
+CAUTION: Every recommendation in this guide should be validated empirically. The right instance family (arm64, x86, GPU, or Trainium) depends on your model, data, and latency budget. Use this guide as an informed starting point, then benchmark before committing.
+
+== Why CPUs for AI Workloads?
+
+Production AI pipelines distribute work across many compute tiers. CPUs handle routing, classification, retrieval, orchestration, and a growing share of inference. Current-generation CPU instances deliver strong price-performance and familiar Kubernetes scheduling, making them a practical option for many AI workloads.
+
+Three factors make CPU compelling for these workloads:
+
+=== Capacity availability
+
+GPU instances frequently require capacity reservations weeks in advance. CPU instances are broadly available across all AWS regions with no specialized device plugins, no DRA configuration, and no MIG partitioning. When you need to scale quickly, CPU capacity is the most readily available option.
+
+=== Economics
+
+Current-generation CPU instances deliver strong price-performance for ML inference. For teams running FinOps reviews or managing multi-tenant clusters, the cost difference between CPU and GPU is significant, especially for quantized SLMs where GPU acceleration provides diminishing returns. We recommend benchmarking across available instance families (Graviton, AMD, Intel) to find the best cost-per-token for your workload.
+
+=== Operational simplicity
+
+CPU pods use standard Kubernetes scheduling (`requests`, `limits`, node affinity, topology spread). No device plugins, no custom schedulers, no `nvidia.com/gpu` resource types. Teams that want to run AI workloads without deep GPU expertise can reach production faster on CPU.
+
+=== Growing CPU surface in agentic pipelines
+
+In agentic AI pipelines, every GPU inference call is surrounded by CPU work: tool execution, context assembly, vector search, embedding lookups, guardrails, response validation, memory management, and orchestration logic. As agents grow more complex (more tools, longer chains, multi-step reasoning), these CPU workloads grow super-linearly. Protocols like MCP (Model Context Protocol) amplify this further: each MCP tool call triggers data retrieval, transformation, and formatting that runs entirely on CPU.
+
+== CPU vs GPU / Trainium: When to Choose Each
+
+[cols="1,2,2", options="header"]
+|===
+|Factor
+|Choose CPU
+|Choose GPU/Trainium
+
+|Model Size
+|SLMs 1-8B (quantized); embeddings; classifiers
+|8B+ for low-latency online inference; 70B+ in general
+
+|Latency SLO
+|p95 100-500ms acceptable
+|p95 < 50 ms required
+
+|Concurrency
+|< 100 req/s per endpoint
+|> 100 req/s sustained
+
+|Workload Type
+|Orchestration, retrieval, ETL, batch scoring
+|Online inference, fine-tuning, training
+
+|Capacity
+|Immediate availability, no reservations
+|Often requires reserved capacity
+
+|Cost Sensitivity
+|CPU delivers best $/token for eligible workloads
+|GPU amortizes at high utilization
+
+|Team Expertise
+|Standard Kubernetes operations
+|Requires GPU operations knowledge
+
+|Data Sovereignty
+|SLM inference in VPC; full audit trail; data never leaves your account
+|Same if self-managed; not available with external APIs
+|===
+
+TIP: These thresholds are starting points. We recommend running your target inference engine on candidate instance families (arm64 and x86) with your actual model and traffic pattern before committing to a compute tier.
+
+== Workload Decision Framework
+
+Choosing the right compute for an AI workload comes down to four dimensions:
+
+. *Model size and precision*: Does quantization keep quality within your acceptable range?
+. *Latency and throughput SLOs*: What are your p50/p95 targets and peak request rates?
+. *Workload type*: Online inference, batch scoring, retrieval, or orchestration?
+. *Cost and capacity constraints*: FinOps budget, regional availability, reservation strategy?
+
+Use the table below as a decision matrix.
+
+[cols="1,2,2,2", options="header"]
+|===
+|Workload
+|CPU
+|GPU / Trainium
+|Notes
+
+|SLMs (1-8B params, quantized)
+|Default choice. Strong price-perf at 100-500ms latency, moderate QPS. Benchmark across instance families.
+|When p95 <50ms or concurrency >100 req/s.
+|Q4_K_M or Q8_0 quantization recommended
+
+|Medium models (8-30B params)
+|Batch, async, offline scoring. Test Q4 quantization.
+|Online inference, long contexts, tight latency.
+|Benchmark Q4 across instance families
+
+|Large LLMs (70B+ params)
+|Non-real-time only, heavy quantization
+|Default for production online inference
+|Even 70B can run on CPU; expect high latency
+
+|Classical ML / Embeddings / CV
+|High-density serving; bin-pack across nodes.
+|Heavy vision or multi-modal at scale.
+|TorchServe, Triton on CPU handles thousands of models.
+
+|Data pipelines / ETL / Synthetic data
+|Ray and Spark on CPU for data prep and feature engineering.
+|N/A
+|CPUs anchor this entire data prep stage
+
+|Agent orchestration / RAG retrieval
+|Network-bound services: API gateways, proxy layers, retrievers, chunkers.
+|N/A
+|Benefits from high-bandwidth CPU instances.
+
+|Fine-tuning / Training
+|Data prep and pipeline orchestration.
+|Model training and distillation.
+|Hybrid: CPU prep, GPU train, CPU infer.
+
+|Compliance-sensitive inference (FSI, healthcare, government)
+|SLMs in VPC on CPU. Data stays in-account, full audit trail.
+|Same if self-managed on GPU.
+|CPU wins on cost for sub-8B models in regulated environments.
+|===
+
+WARNING: While it is technically possible to run 70B+ models on CPU with heavy quantization (Q4 or lower), this is only viable for non-real-time, offline, or batch workloads. Expect token generation rates in the low single digits (1-5 tokens/sec), memory requirements exceeding 40GB even at Q4, and latency measured in minutes per response for longer outputs. For any interactive or latency-sensitive use case, 70B+ models belong on GPU or Trainium.
+
+=== Quick Benchmark Workflow
+
+Before committing to an instance family, we recommend running a structured benchmark comparing your candidate CPU families (arm64 and x86) against GPU on a single comparable metric: *cost-per-1,000-queries at your target p95 latency*. Deploy one node per family with identical model configuration (same quantization, context size, thread count), load-test each, and compare. If a CPU instance meets your p95 SLO, it will likely win on cost. If it misses by a small margin, try the latest generation in that family before moving to GPU. If latency is still too high at your concurrency target, that is the signal to move the workload to GPU.
+
+== Production Patterns
+
+=== Pattern 1: Agentic AI — SLM Pre-Filter on CPU with LLM Escalation
+
+Most agent workflows execute the same narrow patterns repeatedly: classify the request, pick a tool, extract structured data, validate a response. These tasks do not require a 70B parameter model.
+
+Research on SLMs (https://arxiv.org/abs/2506.02153[arXiv:2506.02153]) demonstrates that models under 10B parameters, when specialized for a domain, can match or exceed large LLMs on constrained sub-tasks while running efficiently on CPU at significantly lower cost and latency. When a model is fine-tuned for a specific domain, its smaller footprint can make it more accurate and cheaper than invoking a general-purpose LLM.
+
+In this pattern, an SLM on CPU handles the majority of requests end-to-end. A routing layer (also running on CPU) escalates only genuinely complex cases to a GPU-hosted LLM.
+
+*Components running on CPU:*
+
+* API gateway / proxy layer — handles auth, routing, rate limiting
+* Agent orchestrator — manages tool calls and state
+* SLM inference service — quantized 1-8B model using an inference engine such as https://github.com/ggerganov/llama.cpp[llama.cpp], https://ollama.com[Ollama], or https://docs.vllm.ai[vLLM] on CPU
+* Vector retrieval — OpenSearch on CPU nodes
+
+*Components on GPU/Trainium:*
+
+* Large LLM for complex synthesis, long-context reasoning
+
+*Why this pattern works:* In many agentic workflows, 70-80% of requests are classifiable or extractable by an SLM. For every LLM call you avoid, you also avoid the surrounding CPU work of assembling a large context window, running guardrails on a long response, and managing complex state. The CPU tier scales independently from the GPU tier.
+
+The CPU workload categories in a typical agentic pipeline include: tool execution (MCP server calls, API calls, database queries), context assembly, vector search and embedding lookups, orchestration and planning logic, guardrails and safety filtering, response validation and formatting, agent memory and state management, and logging/observability.
+
+This pattern also fits a fine-tuning lifecycle: collect domain data on CPU nodes, fine-tune on GPU, then deploy the quantized model back to CPU for inference at substantially lower cost than an LLM endpoint. Research from LoRA Land (https://arxiv.org/abs/2405.00732[arXiv:2405.00732]) shows that fine-tuned 7B models outperform GPT-4 on 25 out of 31 domain-specific tasks, making the "fine-tune a small model and run it on CPU" path viable for many production use cases.
+
+=== Pattern 2: High-Density CPU Model Farm
+
+Production ML pipelines routinely deploy hundreds or thousands of smaller models: embeddings, recommenders, classifiers, BERT-based scorers, and computer vision models. Individually lightweight, these models become expensive when each is assigned its own GPU resources.
+
+We recommend high-density CPU serving (bin-packing multiple models per node using TorchServe or Triton on CPU), with Karpenter managing node lifecycle and KEDA scaling on observed load.
+
+This pattern extends naturally into RAG architectures: embedding generation, document chunking, and retrieval from OpenSearch all run cost-effectively on CPU nodes, feeding results to a GPU-hosted LLM only for the final generation step. The CPU farm handles the volume; the GPU handles the complexity.
+
+For regulated industries (financial services, healthcare, government), this pattern is especially compelling: hundreds of specialized models running in-VPC on CPU, with full audit trails and data that never leaves the account. The compliance requirement for self-managed inference aligns naturally with the cost advantage of CPU for sub-8B models.
+
+== Optimization Best Practices
+
+=== Quantization
+
+Running a 7B model at full BF16 on CPU is impractical; running it at Q4 quantization is viable and cost-effective. Understanding why quantization helps on CPU is key to making good infrastructure decisions.
+
+*Why quantization matters for CPU inference.* CPU inference is memory-bandwidth bound, not compute-bound. During the decode phase (generating tokens one at a time), the model's entire weights are read from RAM for every token produced. The CPU spends most of its time waiting for data to arrive from memory, not doing math. A 7B model at BF16 is roughly 14GB; at Q4_K_M, it shrinks to about 4GB. Since the bottleneck is moving bytes from RAM to the CPU cores, a model that is 3.5x smaller reads 3.5x faster, which translates almost directly to 3.5x faster token generation. This is why quantization is the single most impactful optimization for CPU inference, and why newer CPU generations with more memory channels produce faster inference even at the same clock speed.
+
+We recommend building your inference engine with architecture-optimized backends (ARM NEON/SVE2 for arm64, AVX-512/AMX for x86), setting thread count equal to the vCPU count, and selecting Q4_K_M or Q8_0 quantization formats.
+
+[cols="1,2,2,2", options="header"]
+|===
+|Quantization
+|Quality Impact
+|Throughput vs BF16
+|Use Case
+
+|Q4_K_M
+|Low (< 1% perplexity delta)
+|~4-5x faster
+|Production default for SLMs
+
+|Q8_0
+|Negligible
+|~2x faster
+|Quality-sensitive tasks
+
+|Q5_K_M
+|Very low
+|~3.5x faster
+|Balance of quality and speed
+
+|BF16
+|None
+|1x (baseline)
+|Avoid on CPU for 7B+ models
+|===
+
+For sub-2B models, CPU wins on price-performance vs GPU. These models are small enough that GPU acceleration provides minimal benefit while the per-hour cost is significantly higher. If your workload can use a sub-2B model, CPU is the recommended default.
+
+*Architecture-specific optimizations:* On arm64, current-generation Graviton instances support SVE2. Build your inference engine with the appropriate `-march` flag for your target. On x86, AMD EPYC instances support AVX-512, and Intel Xeon instances add AMX for matrix acceleration. Since inference is memory-bandwidth bound, newer CPU generations with more DDR5 memory channels produce faster inference even at the same clock speed. When choosing instance types, prioritize memory bandwidth over core count.
+
+*Context window sizing:* For classification and routing workloads, inputs are typically under 200 tokens and outputs are 2-3 tokens. Setting a small context window (e.g., 512 tokens) instead of the default 2048 reduces KV cache memory usage and improves per-request latency. Only increase the context window if your inputs are genuinely long.
+
+*Flash Attention:* Enable Flash Attention if your inference engine supports it. Flash Attention reduces memory usage for the attention computation by avoiding materialization of the full attention matrix. On CPU, the benefit is smaller than on GPU, but it still helps for longer inputs.
+
+TIP: Q4_K_M quality degradation varies by model and task. Always evaluate on your own dataset before deploying to production.
+
+=== Bin-packing for dense serving
+
+For classical ML and embedding models (typically <500MB each), the goal is *maximum pod density per node at stable tail latency*. Two things determine whether you achieve that: accurate resource requests, and controlled threading.
+
+Base your `requests` on observed p50-p90 usage under realistic load. Use Goldilocks, VPA recommendations, or Prometheus histograms from a load test. Defaults are almost always wrong in both directions.
+
+ML libraries (PyTorch, ONNX Runtime, MKL, OpenBLAS) spawn as many threads as they can see vCPUs on the node, not the CPUs allocated to the pod. On a dense node with 20 pods, every pod tries to spawn 32 threads. The node thrashes on context switching and p99 latency spikes. Fix this explicitly:
+
+[source,yaml]
+----
+env:
+  - name: OMP_NUM_THREADS
+    value: "2"          # match your cpu request (2000m = 2 threads)
+  - name: MKL_NUM_THREADS
+    value: "2"
+  - name: OPENBLAS_NUM_THREADS
+    value: "2"
+  - name: INTRA_OP_NUM_THREADS    # PyTorch / ONNX Runtime
+    value: "2"
+  - name: NUM_INTER_THREADS
+    value: "1"          # keep inter-op parallelism minimal
+----
+
+Set each value equal to or below your CPU request. For pods with 4+ cores, benchmark starting at 2-4 threads. Many small models perform better with fewer threads due to cache efficiency. If you use HPA with many thin pods, 1-2 threads per pod almost always wins.
+
+=== Scheduling and cost optimization
+
+Two practices compound to reduce CPU inference costs significantly: Spot instances with Karpenter consolidation, and multi-arch container images.
+
+Karpenter's consolidation works well for CPU inference because stateless inference pods behind a queue or load balancer tolerate interruption gracefully. Configure consolidation to act on underutilized nodes with a budget that limits concurrent disruption (e.g., 20% of nodes at a time) to avoid capacity dips during scale-down. Karpenter's `nodePool` spec lets you mix Spot and On-Demand capacity in a single pool, with Spot as the preferred option and On-Demand as fallback.
+
+Building multi-arch images (`arm64` and `amd64`) unlocks this further. With both architectures available, Karpenter can select from the full range of instance families (Graviton, AMD, Intel) based on real-time price and availability. This is especially valuable for Spot workloads where diversifying across instance types and architectures reduces interruption frequency. Use `docker buildx` or a CI pipeline with multi-platform builds to produce a single manifest that covers both architectures.
+
+=== Container startup optimization
+
+When Karpenter provisions a new node (scaling up, Spot replacement), the container runtime needs to pull the inference image before the pod can start. For multi-GB inference images, this can add 30-60 seconds to pod startup.
+
+We recommend using https://bottlerocket.dev[Bottlerocket] as the node OS for inference workloads, combined with the https://github.com/awslabs/soci-snapshotter[SOCI snapshotter] in parallel pull/unpack mode. SOCI replaces the default sequential layer extraction with parallel chunk-based downloads, significantly reducing image pull times for large images. No changes to your container images are needed.
+
+For detailed configuration guidance, see the <<aiml-performance,Performance>> section of this guide, which covers SOCI configuration, EBS snapshot pre-pulling, and container runtime cache strategies.
+
+=== Observability
+
+Without observability at the model layer, you are scaling blindly. We recommend exposing Prometheus metrics for every inference service and using them to drive both KEDA scaling and operational dashboards.
+
+Most inference servers (llama.cpp, vLLM, Triton, TorchServe) expose Prometheus-compatible metrics at a `/metrics` endpoint. The metric names vary by server, but the concepts are the same.
+
+*Key metrics to instrument:*
+
+[cols="2,3,2", options="header"]
+|===
+|Metric Category
+|Description
+|Alerting Threshold
+
+|Requests processing / in-flight
+|Number of requests currently being handled by the server.
+|Use for scaling (see autoscaling section below)
+
+|Requests queued / deferred
+|Number of requests waiting for a processing slot.
+|Scale trigger. Any sustained queue means latency is about to degrade.
+
+|Token throughput
+|Tokens generated per second.
+|Alert if throughput drops below 50% of baseline under load
+
+|Request latency
+|End-to-end latency histogram (prompt processing + token generation).
+|Alert on p95 exceeding your SLO
+
+|KV cache utilization
+|How full the key-value cache is (0.0 to 1.0). Approaching 1.0 means the server will start rejecting or queuing requests.
+|Alert at 85%+
+
+|Container memory
+|RSS memory per pod (`container_memory_working_set_bytes`).
+|Alert at 85% of limit
+|===
+
+=== Autoscaling: scale on queue depth, not CPU utilization
+
+CPU utilization is a saturation metric. It spikes _after_ latency has already degraded. By the time utilization-based autoscaling reacts, users are already waiting.
+
+Queue depth (requests deferred/waiting) is a leading indicator. It rises _before_ latency degrades, because requests start queuing when all processing slots are busy. Scaling on queue depth means new replicas are provisioned while existing ones are still responding normally.
+
+KEDA supports combining multiple metrics into a single scaling formula using `scalingModifiers` (requires KEDA 2.12+). The recommended pattern for inference workloads is to combine in-flight requests with queued requests, weighting the queue metric heavily:
+
+[source,yaml]
+----
+advanced:
+  scalingModifiers:
+    formula: "running + (waiting * 10)"
+    target: "25"
+    activationTarget: "5"
+----
+
+The formula `running + (waiting * 10)` means even 3 queued requests push the combined metric to 55, well above the target of 25. Scaling kicks in before latency degrades. The `activationTarget` of 5 prevents noise from triggering unnecessary scale-from-zero events.
+
+== Evaluating Model Quality for CPU-First Workloads
+
+Deploying a quantized SLM on CPU is a cost and latency decision. It only makes sense if the model still produces correct, useful outputs for your workload.
+
+Smaller models or quantization cut compute cost but can reduce quality. The impact varies. The workloads that work well on CPU (classification, extraction, routing, summarization, embeddings) often retain good quality in the 3B-7B range with proper quantization and prompting.
+
+=== What to evaluate
+
+Different workloads degrade in different ways:
+
+[cols="1,2,2", options="header"]
+|===
+|Workload
+|What may degrade
+|What to measure
+
+|Intent or ticket classification
+|Errors on ambiguous inputs
+|Accuracy, F1 per class
+
+|Structured extraction (JSON)
+|Missing fields or wrong schema
+|Exact match, schema validity
+
+|RAG answers
+|Hallucinations or ignoring context
+|Faithfulness, answer relevance
+
+|Summarization
+|Missing facts or poor coverage
+|ROUGE-L, BERTScore, human review
+
+|Agent routing
+|Selecting the wrong tool
+|Tool accuracy
+
+|Embeddings
+|Worse retrieval quality
+|Recall@K, NDCG
+|===
+
+=== A practical evaluation workflow
+
+We recommend creating a quality check before production, similar to how you would run a load test before choosing an instance type. The workflow has four stages:
+
+. *Build Eval Dataset* — Build a small evaluation dataset (100-300 labeled examples) from your actual workload. Avoid generic benchmarks like MMLU that measure general reasoning rather than your real task.
+. *Establish Baseline* — Run the dataset against a trusted model (e.g., a large LLM you know produces correct results).
+. *Test CPU Model* — Run the same dataset on your quantized SLM and compare.
+. *Evaluate* — Define your quality threshold before testing, for example, "SLM accuracy within 5 percentage points of baseline." The right threshold depends on the task: a classifier reviewed by humans can tolerate more errors than a system making automatic decisions.
+
+=== How to recover quality
+
+If the model performs poorly, try these in order of effort:
+
+* *Add few-shot examples in the prompt*: Zero cost, immediate. Including 3-5 labeled examples in the prompt often closes the gap for classification and extraction tasks.
+* *Use a higher-quality quantization format*: Moving from Q4 to Q8 often restores much of the lost quality, at the cost of ~2x more memory and lower throughput.
+* *Use hybrid routing*: Let the SLM handle simple cases and send difficult inputs to a larger model. This is an architectural change but keeps your CPU cost low for the majority of traffic.
+* *Fine-tune the model on your domain*: The most expensive option, but the most effective. Research from LoRA Land (https://arxiv.org/abs/2405.00732[arXiv:2405.00732]) found that fine-tuned 7B models outperform GPT-4 on 25 out of 31 domain-specific tasks.
+
+== References
+
+* https://docs.aws.amazon.com/eks/[Amazon EKS Documentation]
+* https://github.com/aws/aws-graviton-getting-started[AWS Graviton Developer Guide]
+* https://karpenter.sh/docs/[Karpenter Documentation]
+* https://keda.sh/docs/[KEDA Documentation]
+* https://github.com/ggerganov/llama.cpp[llama.cpp]
+* https://docs.vllm.ai[vLLM Documentation]
+* https://ollama.com[Ollama]
+* https://docs.ray.io/en/latest/serve/[Ray Serve Documentation]
+* https://docs.aws.amazon.com/opensearch-service/[Amazon OpenSearch Service]
+* https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html[AWS Spot Best Practices]
+* https://arxiv.org/abs/2405.00732[LoRA Land: Fine-Tuned Open-Source LLMs that Outperform GPT-4]
+* https://modelcontextprotocol.io[Model Context Protocol (MCP) Specification]
+* https://arxiv.org/abs/2506.02153[Small Language Models for Agentic AI (NVIDIA)]
+* https://github.com/awslabs/soci-snapshotter[SOCI Snapshotter]
+* https://bottlerocket.dev[Bottlerocket OS]
+* https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/accelerate-pull-process[AI on EKS: Container Startup Optimization]
