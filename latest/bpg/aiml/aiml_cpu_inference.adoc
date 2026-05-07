@@ -184,11 +184,11 @@ In this pattern, an SLM on CPU handles the majority of requests end-to-end. A ro
 
 * Large LLM for complex synthesis, long-context reasoning
 
-*Why this pattern works:* In many agentic workflows, 70-80% of requests are classifiable or extractable by an SLM. For every LLM call you avoid, you also avoid the surrounding CPU work of assembling a large context window, running guardrails on a long response, and managing complex state. The CPU tier scales independently from the GPU tier.
+*Why this pattern works:* In many agentic workflows, 60-80% of requests are classifiable or extractable by an SLM. For every LLM call you avoid, you also avoid the surrounding CPU work of assembling a large context window, running guardrails on a long response, and managing complex state. The CPU tier scales independently from the GPU tier.
 
 The CPU workload categories in a typical agentic pipeline include: tool execution (MCP server calls, API calls, database queries), context assembly, vector search and embedding lookups, orchestration and planning logic, guardrails and safety filtering, response validation and formatting, agent memory and state management, and logging/observability.
 
-This pattern also fits a fine-tuning lifecycle: collect domain data on CPU nodes, fine-tune on GPU, then deploy the quantized model back to CPU for inference at substantially lower cost than an LLM endpoint. Research from LoRA Land (https://arxiv.org/abs/2405.00732[arXiv:2405.00732]) shows that fine-tuned 7B models outperform GPT-4 on 25 out of 31 domain-specific tasks, making the "fine-tune a small model and run it on CPU" path viable for many production use cases.
+This pattern also fits a fine-tuning lifecycle: collect domain data on CPU nodes, fine-tune on GPU, then deploy the quantized model back to CPU for inference at substantially lower cost than an LLM endpoint. Research from LoRA Land (https://arxiv.org/abs/2405.00732[arXiv:2405.00732]) shows that fine-tuned 7B models outperform GPT-4 on the majority of domain-specific tasks tested, making the "fine-tune a small model and run it on CPU" path viable for many production use cases.
 
 === Pattern 2: High-Density CPU Model Farm
 
@@ -218,7 +218,7 @@ We recommend building your inference engine with architecture-optimized backends
 |Use Case
 
 |Q4_K_M
-|Low (< 1% perplexity delta)
+|Low (1-3% perplexity delta, model-dependent)
 |~4-5x faster
 |Production default for SLMs
 
@@ -404,7 +404,7 @@ If the model performs poorly, try these in order of effort:
 * *Add few-shot examples in the prompt*: Zero cost, immediate. Including 3-5 labeled examples in the prompt often closes the gap for classification and extraction tasks.
 * *Use a higher-quality quantization format*: Moving from Q4 to Q8 often restores much of the lost quality, at the cost of ~2x more memory and lower throughput.
 * *Use hybrid routing*: Let the SLM handle simple cases and send difficult inputs to a larger model. This is an architectural change but keeps your CPU cost low for the majority of traffic.
-* *Fine-tune the model on your domain*: The most expensive option, but the most effective. Research from LoRA Land (https://arxiv.org/abs/2405.00732[arXiv:2405.00732]) found that fine-tuned 7B models outperform GPT-4 on 25 out of 31 domain-specific tasks.
+* *Fine-tune the model on your domain*: The most expensive option, but the most effective. Research from LoRA Land (https://arxiv.org/abs/2405.00732[arXiv:2405.00732]) found that fine-tuned 7B models outperform GPT-4 on the majority of domain-specific tasks tested.
 
 == References
 
