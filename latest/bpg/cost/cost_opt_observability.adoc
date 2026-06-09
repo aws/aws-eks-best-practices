@@ -122,7 +122,7 @@ You can fine tune various Kubernetes components log levels. For example, if you 
 
 ----
 [settings.kubernetes]
-log-level = "2"
+log-level = 2
 image-gc-high-threshold-percent = "85"
 image-gc-low-threshold-percent = "80"
 ----
