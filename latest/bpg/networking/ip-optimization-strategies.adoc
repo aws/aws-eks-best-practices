@@ -58,7 +58,7 @@ You can use the link:https://github.com/aws/aws-eks-best-practices/blob/master/l
 ==== Custom Networking
 
 If you are about to exhaust the RFC1918 IP space, you can use the xref:custom-networking[Custom Networking] pattern to conserve routable IPs by scheduling Pods inside dedicated additional subnets.
-While custom networking will accept valid VPC range for secondary CIDR range, we recommend that you use CIDRs (/16) from the CG-NAT space, i.e. `100.64.0.0/10` or `198.19.0.0/16` as those are less likely to be used in a corporate setting than RFC1918 ranges.
+While custom networking will accept valid VPC range for secondary CIDR range, we recommend that you use CIDRs from the `100.64.0.0/10` shared address space (RFC 6598) as those are less likely to be used in a corporate setting than RFC1918 ranges. For example, you can use `100.64.0.0/16` as a secondary CIDR for your VPC. See https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html#add-cidr-block-restrictions[IPv4 CIDR block association restrictions] for allowed secondary CIDR ranges.
 
 For detailed information please see the dedicated section for xref:custom-networking[Custom Networking].
 
