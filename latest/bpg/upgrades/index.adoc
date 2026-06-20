@@ -96,7 +96,7 @@ intervention.
 * *Utilize kubectl Convert Plugin* — Leverage the
 https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin[kubectl
 convert plugin] to facilitate the
-https://kubernetes.io/docs/tasks/tools/included/kubectl-convert-overview/[conversion
+https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-convert-plugin[conversion
 of Kubernetes manifest files] between different API versions. This can
 help ensure that your configurations remain compatible with the new
 Kubernetes version.
@@ -774,7 +774,7 @@ they're safely drained and deleted. This is true even if they're in use,
 allowing you to replace nodes with newly provisioned upgraded instances.
 When a node is replaced, Karpenter uses the latest EKS-optimized AMIs.
 For more information, see
-https://karpenter.sh/docs/concepts/deprovisioning/#methods[Deprovisioning]
+https://karpenter.sh/docs/concepts/disruption/[Disruption]
 on the Karpenter website.
 
 Karpenter doesn't automatically add jitter to this value. To prevent
@@ -787,11 +787,11 @@ applies to existing nodes associated with the provisioner.
 
 == Use Drift feature for Karpenter managed nodes
 
-https://karpenter.sh/docs/concepts/deprovisioning/#drift[Karpenter's
+https://karpenter.sh/docs/concepts/disruption/#drift[Karpenter's
 Drift feature] can automatically upgrade the Karpenter-provisioned nodes
 to stay in-sync with the EKS control plane. Karpenter Drift currently
 needs to be enabled using a
-https://karpenter.sh/docs/concepts/settings/#feature-gates[feature
+https://karpenter.sh/docs/reference/settings/#feature-gates[feature
 gate]. Karpenter's default configuration uses the latest EKS-Optimized
 AMI for the same major and minor version as the EKS cluster's control
 plane.
@@ -817,14 +817,14 @@ upgrade self-managed node groups you should refer to your tools
 documentation.
 
 For example, eksctl supports
-https://eksctl.io/usage/managing-nodegroups/#deleting-and-draining[deleting
+https://docs.aws.amazon.com/eks/latest/eksctl/managing-nodegroups.html[deleting
 and draining self-managed nodes.]
 
 Some common tools include:
 
-* https://eksctl.io/usage/nodegroup-upgrade/[eksctl]
+* https://docs.aws.amazon.com/eks/latest/eksctl/nodegroup-upgrade.html[eksctl]
 * https://kops.sigs.k8s.io/operations/updates_and_upgrades/[kOps]
-* https://aws-ia.github.io/terraform-aws-eks-blueprints/node-groups/#self-managed-node-groups[EKS
+* https://github.com/aws-ia/terraform-aws-eks-blueprints[EKS
 Blueprints]
 
 == Backup the cluster before upgrading

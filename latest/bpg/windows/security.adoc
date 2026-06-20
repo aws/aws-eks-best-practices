@@ -14,7 +14,7 @@ For more information on Pod Security Policies please reference the Kubernetes ht
 
 On the other hand, Pod Security Standards (PSS) which is the recommended security approach and typically implemented using Security Contexts are defined as part of the Pod and container specifications in the Pod manifest. PSS is the official standard that the Kubernetes project team has defined to address the security-related best practices for Pods. It defines policies such as baseline (minimally restrictive, default), privileged (unrestrictive) and restricted (most restrictive).
 
-We recommend starting with the baseline profile. PSS baseline profile provides a solid balance between security and potential friction, requiring a minimal list of exceptions, it serves as a good starting point for workload security. If you are currently using PSPs we recommend switching to PSS. More details on the PSS policies can be found in the Kubernetes https://kubernetes.io/docs/concepts/security/pod-security-standards/[documentation]. These policies can be enforced with several tools including those from https://www.openpolicyagent.org/[OPA] and https://kyverno.io/[Kyverno]. For example, Kyverno provides the full collection of PSS policies https://kyverno.io/policies/pod-security/[here].
+We recommend starting with the baseline profile. PSS baseline profile provides a solid balance between security and potential friction, requiring a minimal list of exceptions, it serves as a good starting point for workload security. If you are currently using PSPs we recommend switching to PSS. More details on the PSS policies can be found in the Kubernetes https://kubernetes.io/docs/concepts/security/pod-security-standards/[documentation]. These policies can be enforced with several tools including those from https://www.openpolicyagent.org/[OPA] and https://kyverno.io/[Kyverno]. For example, Kyverno provides the full collection of PSS policies https://kyverno.io/policies/[here].
 
 Security context settings allow one to give privileges to select processes, use program profiles to restrict capabilities to individual programs, allow privilege escalation, filter system calls, among other things.
 
@@ -22,9 +22,9 @@ Windows pods in Kubernetes have some limitations and differentiators from standa
 
 Windows uses a Job object per container with a system namespace filter to contain all processes in a container and provide logical isolation from the host. There is no way to run a Windows container without the namespace filtering in place. This means that system privileges cannot be asserted in the context of the host, and thus privileged containers are not available on Windows.
 
-The following `windowsOptions` are the only documented https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#windowssecuritycontextoptions-v1-core[Windows Security Context options] while the rest are general https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#securitycontext-v1-core[Security Context options]
+The following `windowsOptions` are the only documented https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#security-context[Windows Security Context options] while the rest are general https://kubernetes.io/docs/tasks/configure-pod-container/security-context/[Security Context options]
 
-For a list of security context attributes that are supported in Windows vs linux, please refer to the official documentation https://kubernetes.io/docs/setup/production-environment/windows/_print/#v1-container[here].
+For a list of security context attributes that are supported in Windows vs linux, please refer to the official documentation https://kubernetes.io/docs/concepts/windows/intro/[here].
 
 The Pod specific settings are applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
 

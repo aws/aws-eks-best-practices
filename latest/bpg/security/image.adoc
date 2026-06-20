@@ -101,7 +101,7 @@ and export SBOMs].
 for SBOM generation. For quicker vulnerability scans, the SBOM generated
 for a container image can be used as an input to scan. The SBOM and scan
 report are then
-https://github.com/sigstore/cosign/blob/main/doc/cosign_attach_attestation.md[attested
+https://github.com/sigstore/cosign/blob/main/doc/cosign_attest.md[attested
 and attached] to the image before pushing the image to a central OCI
 repository such as Amazon ECR for review and audit purposes.
 
@@ -142,7 +142,7 @@ Alto - Prisma Cloud (twistcli)]
 * https://www.aquasec.com/[Aqua]
 * https://github.com/Portshift/kubei[Kubei]
 * https://github.com/aquasecurity/trivy[Trivy]
-* https://support.snyk.io/hc/en-us/articles/360003946917-Test-images-with-the-Snyk-Container-CLI[Snyk]
+* https://docs.snyk.io/developer-tools/snyk-cli/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container[Snyk]
 
 A Kubernetes validation webhook could also be used to validate that
 images are free of critical vulnerabilities. Validation webhooks are
@@ -178,7 +178,7 @@ https://github.com/sigstore/cosign/blob/main/doc/cosign_attest.md[Sigstore
 cosign].
 * Kubernetes admission controllers such as https://kyverno.io/[Kyverno]
 can be used to
-https://kyverno.io/docs/writing-policies/verify-images/sigstore/[verify
+https://kyverno.io/docs/policy-types/cluster-policy/verify-images/sigstore/[verify
 attestations].
 * Refer to this
 https://catalog.us-east-1.prod.workshops.aws/workshops/49343bb7-2cc5-4001-9d3b-f6a33b3c4442/en-US/0-introduction[workshop]

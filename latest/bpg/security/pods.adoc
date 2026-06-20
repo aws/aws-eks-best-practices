@@ -115,7 +115,7 @@ when considering migrating from PSP to PSS.
 
 Kyverno, one of the PAC solutions outlined below, has specific guidance
 outlined in a
-https://kyverno.io/blog/2023/05/24/podsecuritypolicy-migration-with-kyverno/[blog
+https://kyverno.io/blog/2023/05/24/psp-migration/[blog
 post] when migrating from PSPs to its solution including analogous
 policies, feature comparisons, and a migration procedure. Additional
 information and guidance on migration to Kyverno with respect to Pod
@@ -435,11 +435,11 @@ dependent)
 dependent)
 * Can generate complementary policies and Kubernetes resources (solution
 dependent - From pod policies, Kyverno can
-https://kyverno.io/docs/writing-policies/autogen/[auto-gen] policies for
+https://kyverno.io/docs/policy-types/cluster-policy/autogen/[auto-gen] policies for
 higher-level controllers, such as Deployments. Kyverno can also generate
 additional Kubernetes resources _"`when a new resource is created or
 when the source is updated`"_ by using
-https://kyverno.io/docs/writing-policies/generate/[Generate Rules].)
+https://kyverno.io/docs/policy-types/cluster-policy/generate/[Generate Rules].)
 * Can be used to shift left, into CICD pipelines, before making calls to
 the Kubernetes API server (solution dependent)
 * Can be used to implement behaviors that are not necessarily security

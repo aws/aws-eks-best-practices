@@ -54,7 +54,7 @@ surface.
 
 Seccomp works by intercepting syscalls and only allowing those that have
 been allowlisted to pass through. Docker has a
-https://github.com/moby/moby/blob/master/profiles/seccomp/default.json[default]
+https://github.com/moby/profiles/blob/main/seccomp/default.json[default]
 seccomp profile which is suitable for a majority of general purpose
 workloads, and other container runtimes like containerd provide
 comparable defaults. You can configure your container or Pod to use the

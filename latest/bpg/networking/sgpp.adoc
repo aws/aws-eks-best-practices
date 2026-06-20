@@ -101,7 +101,7 @@ Amazon EKS allows you to use network policy engines such as https://projectcalic
 
 === Tag a single Security Group to use AWS Loadbalancer Controller
 
-When many security groups are allocated to a Pod, Amazon EKS recommends tagging a single security group with http://kubernetes.io/cluster/$name[`kubernetes.io/cluster/$name`] shared or owned. The tag allows the AWS Loadbalancer Controller to update the rules of security groups to route traffic to the Pods. If just one security group is given to a Pod, the assignment of a tag is optional. Permissions set in a security group are additive, therefore tagging a single security group is sufficient for the loadbalancer controller to locate and reconcile the rules. It also helps to adhere to the https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups[default quotas] defined by security groups.
+When many security groups are allocated to a Pod, Amazon EKS recommends tagging a single security group with `kubernetes.io/cluster/$name` shared or owned. The tag allows the AWS Loadbalancer Controller to update the rules of security groups to route traffic to the Pods. If just one security group is given to a Pod, the assignment of a tag is optional. Permissions set in a security group are additive, therefore tagging a single security group is sufficient for the loadbalancer controller to locate and reconcile the rules. It also helps to adhere to the https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html#vpc-limits-security-groups[default quotas] defined by security groups.
 
 === Configure NAT for Outbound Traffic
 
