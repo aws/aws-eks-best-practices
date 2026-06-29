@@ -24,12 +24,23 @@ Amazon EKS version rollback gives you the ability to revert your cluster's Kuber
 
 For prerequisite details, step-by-step procedures, and API reference, see https://docs.aws.amazon.com/eks/latest/userguide/rollback-cluster.html[Rollback cluster to previous Kubernetes version].
 
+== Understand how the shared responsibility model applies to rollback
+
+When you initiate a cluster version rollback, Amazon EKS manages rolling back the control plane. You are responsible for the data plane, add-ons, and application compatibility. The following outlines responsibilities:
+
+* *Amazon EKS manages:* Rolling back the Kubernetes API server and control plane components. For Auto Mode clusters, Amazon EKS also manages rolling back worker nodes.
+* *You are responsible for:* Rolling back Managed Node Groups, self-managed nodes, and hybrid nodes. You must also validate add-on compatibility and ensure your applications, custom controllers, and third-party tools work correctly with the previous version.
+
+For more information about the shared responsibility model for upgrades, see xref:cluster-upgrades[Understand how the shared responsibility model applies to cluster upgrades].
+
 == Plan upgrades with rollback in mind
 
 Version rollback works best when your upgrade workflow is designed to keep the rollback window open.
 
 * *Separate control plane and data plane upgrades (non-Auto Mode clusters).* For clusters that use Managed Node Groups or self-managed nodes, consider upgrading the control plane first and allowing a bake period before upgrading worker nodes. While nodes remain on N-1, the kubelet version skew insight stays in PASSING status. This keeps the rollback path clear without needing to roll back nodes first.
-* *Upgrade add-ons to cross-compatible versions.* Before upgrading the control plane, update your Amazon EKS managed add-ons to versions that are compatible with both the current and target Kubernetes versions. This keeps the add-on compatibility insight clear for both upgrade and rollback.
+* *Upgrade add-ons to cross-compatible versions.* Before upgrading the control plane, ensure all add-ons (managed and self-managed) are compatible with both the current and target Kubernetes versions. This keeps the add-on compatibility insight clear for both upgrade and rollback.
+** Use Amazon EKS managed add-ons to benefit from rollback readiness insights that automatically check add-on version compatibility.
+** Avoid self-managing a managed add-on (for example, overriding the version outside of the EKS add-on lifecycle). During rollback, insights treat the managed add-on configuration as the source of truth and will not detect version drift you introduced.
 * *Avoid using version-specific APIs during the bake period.* If you create resources that use APIs or features available only in the new version during the 7-day window, you must remove them before rolling back. Limit adoption of new-version-only APIs until you are confident the upgrade is stable.
 * *Upgrade sooner, not later.* With rollback available, you can confidently upgrade shortly after a new version release rather than waiting until extended support deadlines. Upgrading earlier gives you more time to validate and reduces extended support charges.
 * *Be aware of extended support rollback restrictions.* If your cluster was automatically upgraded at the end of extended support, you can't roll back to the previous version. If you were auto-upgraded at the end of standard support, you can roll back, but you must first change the upgrade policy to `EXTENDED`.
@@ -38,11 +49,11 @@ For general upgrade planning guidance including deprecation policies, release no
 
 == Review rollback readiness insights before rolling back
 
-Amazon EKS surfaces rollback readiness insights under the `ROLLBACK_READINESS` category in cluster insights. These checks are your primary tool for assessing rollback safety.
+Amazon EKS surfaces point-in-time rollback readiness insights under the `ROLLBACK_READINESS` category in cluster insights. These checks are your primary tool for assessing rollback safety.
 
 * *Review insights immediately after upgrading.* Don't wait until something goes wrong. After upgrading, check rollback readiness insights so you know your current rollback posture.
 * *Address ERROR insights proactively.* If insights show ERROR status shortly after an upgrade, resolve them early while the 7-day window is still open. The longer you wait, the more likely your cluster state diverges and new blockers appear.
-* *Understand what insights do and don't cover.* Insights check Amazon EKS managed add-on versions, API usage, version skew, cluster health, and feature gate compatibility. They don't check self-managed add-ons, custom controllers, or application-level compatibility. Maintain your own compatibility validation for self-managed add-ons (for example, cluster-autoscaler, ingress controllers, custom operators, monitoring agents).
+* *Understand what insights do and don't cover.* Insights check Amazon EKS managed add-on versions, API usage, version skew, and cluster health. They don't check self-managed add-ons, custom controllers, or application-level compatibility. Maintain your own compatibility validation for self-managed add-ons (for example, cluster-autoscaler, ingress controllers, custom operators, monitoring agents).
 
 For the full list of insight checks and status behavior, see https://docs.aws.amazon.com/eks/latest/userguide/rollback-cluster.html[Rollback cluster to previous Kubernetes version].
 
@@ -60,7 +71,7 @@ For PodDisruptionBudget and topology spread configuration guidance to ensure wor
 
 For clusters running EKS Auto Mode, the node rollback phase can be the longest part of the operation. Your disruption controls directly determine how fast rollback completes.
 
-* *Review disruption budgets before initiating rollback.* Amazon EKS provides rollback readiness insights that warn about NodePool disruption budgets set to 0 (blocks rollback indefinitely) and restrictive PDBs (slows rollback). Address these before initiating.
+* *Review disruption budgets before initiating rollback.* Amazon EKS provides rollback readiness insights: NodePool disruption budgets set to 0 trigger an ERROR insight (blocks rollback indefinitely), while restrictive budgets and PDBs trigger WARNING insights (can slow rollback but allow forward progress). Address ERROR insights before initiating.
 * *Be prepared to adjust budgets during rollback.* If rollback is taking longer than expected, you can adjust NodePool disruption budgets and PDBs through `kubectl` while rollback is in progress. Increasing the budget allows more concurrent node replacements.
 * *Remove do-not-disrupt annotations from blocking nodes.* The `karpenter.sh/do-not-disrupt` annotation on nodes blocks rollback indefinitely. Remove it from nodes that should be replaced.
 * *Track node rollback progress.* Use `kubectl get nodes -l karpenter.sh/nodepool=<nodepool-name> -o wide` to monitor which nodes have been replaced with the previous version AMI.
@@ -73,7 +84,7 @@ For complete Auto Mode rollback procedures and the `CancelUpdate` operation, see
 
 During a rollback, use the following to track status and detect issues:
 
-* *DescribeUpdate operation.* Use `describe-update` to check the current status of the rollback operation (`InProgress`, `Successful`, `Failed`, `Cancelled`).
+* *DescribeUpdate operation.* Use `describe-update` to check the current status of the rollback operation (`InProgress`, `Successful`, `Failed`, `Cancelled`). To track cancellation progress, check the `cancellation` object in the response.
 * *Cluster insights.* Amazon EKS re-checks insights before proceeding with the control plane rollback (after node rollback completes for Auto Mode). Monitor for new ERROR insights that might have appeared.
 * *Cluster status.* For Auto Mode clusters, the cluster status remains `ACTIVE` during node rollback and changes to `UPDATING` only during control plane rollback. Don't rely solely on cluster status to know a rollback is in progress—use `DescribeUpdate`.
 * *Node versions.* For Auto Mode, check node Kubernetes versions to track node replacement progress. For MNG, monitor the node group update status.
@@ -82,7 +93,7 @@ During a rollback, use the following to track status and detect issues:
 
 Infrastructure-as-Code tools have timeout limitations that might conflict with Auto Mode rollback duration.
 
-* *AWS CloudFormation* allows up to 36 hours per resource. If rollback exceeds this, AWS CloudFormation triggers a stack rollback (roll-forward) that might leave the cluster in an unexpected state.
+* *AWS CloudFormation* allows up to 36 hours per resource. If the rollback exceeds this, CloudFormation treats it as a no-op, which can leave the cluster in a drifted state where the template does not reflect the actual cluster version. The default rollback timeout is 720 minutes (12 hours).
 * *Terraform Enterprise/Cloud* has approximately 24-hour timeouts, though client-side timeouts vary.
 * *Align `timeoutMinutes` with your IaC tool's timeout* to prevent the IaC tool from timing out before Amazon EKS completes the rollback.
 * *Consider initiating rollback through CLI/API for Auto Mode clusters with restrictive budgets*, rather than through IaC. Use `CancelUpdate` directly if the IaC layer times out.
