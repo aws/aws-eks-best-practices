@@ -17,10 +17,10 @@
 
 [abstract]
 --
-Best practices for planning, executing, and operationalizing EKS cluster version rollback.
+Best practices for planning, executing, and operationalizing Amazon EKS cluster version rollback.
 --
 
-Amazon Elastic Kubernetes Service (Amazon EKS) version rollback gives you the ability to revert your cluster's Kubernetes control plane to the previous minor version within 7 days of an in-place upgrade. This page describes best practices for planning, executing, and operationalizing rollback as part of your upgrade workflow.
+With Amazon Elastic Kubernetes Service (Amazon EKS) version rollback, you can revert your cluster's Kubernetes control plane to the previous minor version within 7 days of an in-place upgrade. This page describes best practices for planning, executing, and operationalizing rollback as part of your upgrade workflow.
 
 For prerequisite details, step-by-step procedures, and API reference, see https://docs.aws.amazon.com/eks/latest/userguide/rollback-cluster.html[Rollback cluster to previous Kubernetes version].
 
@@ -59,7 +59,7 @@ For the full list of insight checks and status behavior, see https://docs.aws.am
 
 == Prepare non-Auto Mode nodes for rollback
 
-For clusters that use Managed Node Groups, self-managed nodes, or Fargate, you are responsible for ensuring worker nodes are compatible with the target rollback version.
+For clusters that use Managed Node Groups, self-managed nodes, or AWS Fargate, you are responsible for ensuring worker nodes are compatible with the target rollback version.
 
 * *Managed Node Groups.* You must roll back your managed node groups to the previous version before rolling back the control plane. Use the `UpdateNodegroupVersion` operation with the previous Kubernetes version. The rollback respects your configured update settings (`maxUnavailable`, update strategy).
 * *Self-managed and hybrid nodes.* Update your node AMIs or configurations to use the previous Kubernetes version before rolling back the control plane.
@@ -67,18 +67,18 @@ For clusters that use Managed Node Groups, self-managed nodes, or Fargate, you a
 
 For PodDisruptionBudget and topology spread configuration guidance to ensure workload availability during node updates, see xref:cluster-upgrades[Best Practices for Cluster Upgrades].
 
-== Manage Auto Mode disruption controls for rollback
+== Manage Amazon EKS Auto Mode disruption controls for rollback
 
-For clusters running EKS Auto Mode, the node rollback phase can be the longest part of the operation. Your disruption controls directly determine how fast rollback completes.
+For clusters running Amazon EKS Auto Mode, the node rollback phase can be the longest part of the operation. Your disruption controls directly determine how fast rollback completes.
 
-* *Review disruption budgets before initiating rollback.* Amazon EKS provides rollback readiness insights: NodePool disruption budgets set to 0 trigger an ERROR insight (blocks rollback indefinitely), while restrictive budgets and PDBs trigger WARNING insights (can slow rollback but allow forward progress). Address ERROR insights before initiating.
+* *Review disruption budgets before initiating rollback.* Amazon EKS provides rollback readiness insights for NodePool disruption budgets. Budgets set to 0 trigger an ERROR insight, which blocks rollback indefinitely. Restrictive budgets and PodDisruptionBudgets (PDBs) trigger WARNING insights, which can slow rollback but allow forward progress. Address ERROR insights before initiating rollback.
 * *Be prepared to adjust budgets during rollback.* If rollback is taking longer than expected, you can adjust NodePool disruption budgets and PDBs through `kubectl` while rollback is in progress. Increasing the budget allows more concurrent node replacements.
 * *Remove do-not-disrupt annotations from blocking nodes.* The `karpenter.sh/do-not-disrupt` annotation on nodes blocks rollback indefinitely. Remove it from nodes that should be replaced.
 * *Track node rollback progress.* Use `kubectl get nodes -l karpenter.sh/nodepool=<nodepool-name> -o wide` to monitor which nodes have been replaced with the previous version AMI.
 * *Use CancelUpdate if needed.* If rollback is taking too long or causing more issues than it solves, cancel the rollback. After cancellation, nodes converge back to the current version and you can take a different approach.
 * *Set an appropriate timeout.* Use the `timeoutMinutes` parameter in `rollbackConfig` to align with your operational expectations. The default is 720 minutes (12 hours). For clusters with conservative budgets, consider increasing it. For IaC-managed clusters, align with your tool's timeout.
 
-For complete Auto Mode rollback procedures and the `CancelUpdate` operation, see https://docs.aws.amazon.com/eks/latest/userguide/rollback-automode-nodes.html[Rollback EKS Auto Mode clusters].
+For complete Auto Mode rollback procedures and the `CancelUpdate` operation, see https://docs.aws.amazon.com/eks/latest/userguide/rollback-automode-nodes.html[Roll back Amazon EKS Auto Mode clusters].
 
 == Monitor rollback progress
 
@@ -87,13 +87,13 @@ During a rollback, use the following to track status and detect issues:
 * *DescribeUpdate operation.* Use `describe-update` to check the current status of the rollback operation (`InProgress`, `Successful`, `Failed`, `Cancelled`). To track cancellation progress, check the `cancellation` object in the response.
 * *Cluster insights.* Amazon EKS re-checks insights before proceeding with the control plane rollback (after node rollback completes for Auto Mode). Monitor for new ERROR insights that might have appeared.
 * *Cluster status.* For Auto Mode clusters, the cluster status remains `ACTIVE` during node rollback and changes to `UPDATING` only during control plane rollback. Don't rely solely on cluster status to know a rollback is in progress—use `DescribeUpdate`.
-* *Node versions.* For Auto Mode, check node Kubernetes versions to track node replacement progress. For MNG, monitor the node group update status.
+* *Node versions.* For Auto Mode, check node Kubernetes versions to track node replacement progress. For Managed Node Groups, monitor the node group update status.
 
 == Handle infrastructure as code (IaC)-managed clusters
 
 Infrastructure as code (IaC) tools have timeout limitations that might conflict with Auto Mode rollback duration.
 
-* *AWS CloudFormation* allows up to 36 hours per resource. If the rollback exceeds this, CloudFormation treats it as a no-op, which can leave the cluster in a drifted state where the template does not reflect the actual cluster version. The default rollback timeout is 720 minutes (12 hours).
+* *AWS CloudFormation* supports up to 36 hours per resource. If the rollback exceeds this, CloudFormation treats it as a no-op, which can leave the cluster in a drifted state where the template does not reflect the actual cluster version. The default rollback timeout is 720 minutes (12 hours).
 * *Terraform Enterprise/Cloud* has approximately 24-hour timeouts, though client-side timeouts vary.
 * *Align `timeoutMinutes` with your IaC tool's timeout* to prevent the IaC tool from timing out before Amazon EKS completes the rollback.
 * *Consider initiating rollback through CLI/API for Auto Mode clusters with restrictive budgets*, rather than through IaC. Use `CancelUpdate` directly if the IaC layer times out.
@@ -110,14 +110,14 @@ Version rollback is designed to help you recover from post-upgrade issues. It wo
 
 == Rollback reduces the need for blue-green upgrades
 
-Organizations that previously used blue-green cluster upgrades primarily to have a "revert path" can now consider in-place upgrades with version rollback as an alternative. In-place upgrades with rollback offer lower infrastructure cost (no duplicate clusters), consistent cluster identity (same API endpoint, OIDC, ENIs), and simpler operations.
+Organizations that previously used blue-green cluster upgrades primarily to have a "revert path" can now consider in-place upgrades with version rollback as an alternative. In-place upgrades with rollback offer lower infrastructure cost (no duplicate clusters), consistent cluster identity (same API endpoint, OpenID Connect (OIDC) provider, and elastic network interfaces (ENIs)), and simpler operations.
 
 Blue-green might still be preferred when you need to change multiple versions at once, test workload migrations extensively, or maintain full traffic isolation during validation. For more information, see xref:cluster-upgrades[Evaluate Blue/Green Clusters] in the cluster upgrades best practices.
 
 == Related resources
 
 * https://docs.aws.amazon.com/eks/latest/userguide/rollback-cluster.html[Rollback cluster to previous Kubernetes version]
-* https://docs.aws.amazon.com/eks/latest/userguide/rollback-automode-nodes.html[Rollback EKS Auto Mode clusters]
+* https://docs.aws.amazon.com/eks/latest/userguide/rollback-automode-nodes.html[Roll back Amazon EKS Auto Mode clusters]
 * https://docs.aws.amazon.com/eks/latest/best-practices/cluster-upgrades.html[Best Practices for Cluster Upgrades]
 * https://docs.aws.amazon.com/eks/latest/userguide/cluster-insights.html[Cluster insights]
 * https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html[Kubernetes version lifecycle on EKS]
