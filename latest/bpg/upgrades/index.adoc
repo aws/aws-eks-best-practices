@@ -842,8 +842,8 @@ Note that you can only create new clusters for Kubernetes versions
 currently supported by EKS. If the version your cluster is currently
 running is still supported and an upgrade fails, you can create a new
 cluster with the original version and restore the data plane. Note that
-AWS resources, including IAM, are not included in the backup. These
-resources would need to be recreated.
+AWS resources, including IAM, are not included in the backup. You need
+to recreate these resources.
 
 == Restart Fargate deployments after upgrading the control plane
 
