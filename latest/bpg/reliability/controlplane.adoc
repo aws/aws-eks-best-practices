@@ -359,11 +359,9 @@ should account for potential performance issues and limits within
 Kubernetes and quotas in AWS services when running large clusters.
 
 * Clusters with more than 1000 services may experience network latency
-with using `kube-proxy` in `iptables` mode according to the
-https://www.projectcalico.org/comparing-kube-proxy-modes-iptables-or-ipvs/[tests
-performed by the ProjectCalico team]. The solution is to switch to
-xref:ipvs[running
-`kube-proxy` in `ipvs` mode].
+with using `kube-proxy` in `iptables` mode. The solution is to switch to
+xref:nftables[running
+`kube-proxy` in `nftables` mode].
 * You may also experience
 https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html[EC2
 API request throttling] if the CNI needs to request IP addresses for
