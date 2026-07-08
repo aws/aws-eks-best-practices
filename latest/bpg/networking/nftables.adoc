@@ -8,7 +8,7 @@ EKS with `kube-proxy` in nftables mode solves the https://docs.aws.amazon.com/ek
 
 == Overview
 
-The nftables `kube-proxy` backend has been GA since https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[Kubernetes version 1.33] (available as alpha in 1.29 and beta in 1.31). Unlike the iptables backend, which installs one rule per Service and evaluates them sequentially — resulting in O(n) packet processing time that grows with the number of services — nftables uses https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[verdict maps] to dispatch packets in roughly O(1) time. This keeps per-packet latency nearly constant even in clusters with tens of thousands of services, providing efficiency for clusters with thousands of nodes and services.
+The nftables `kube-proxy` backend has been GA since https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[Kubernetes version 1.33] (available as alpha in 1.29 and beta in 1.31). The iptables backend installs one rule per Service and evaluates rules sequentially, resulting in O(n) packet processing time that grows with the number of services. By contrast, nftables uses https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[verdict maps] to dispatch packets in roughly O(1) time. This keeps per-packet latency nearly constant even in clusters with tens of thousands of services, providing efficiency for clusters with thousands of nodes and services.
 
 [NOTE]
 ====
@@ -21,7 +21,10 @@ Unlike the https://kubernetes.io/docs/reference/networking/virtual-ips/#proxy-mo
 
 The nftables `kube-proxy` backend requires **Linux kernel 5.13 or later** on your worker nodes. Amazon Linux 2023 and current versions of Ubuntu meet this minimum requirement. Because `kube-proxy` programs nftables rules directly through the kernel's netfilter subsystem, no additional userspace package (such as `ipvsadm`) or kernel module loading is required beyond a supported kernel.
 
-Note that kernel 5.13 is only the minimum required to run nftables mode. For improved rule sync performance in large clusters, a more recent kernel and `kube-proxy` version are recommended — see xref:nftables-performance[Performance Considerations].
+[NOTE]
+====
+Kernel 5.13 is the minimum required to run nftables mode. For improved rule sync performance in large clusters, we recommend a more recent kernel and `kube-proxy` version. For more information, see xref:nftables-performance[Performance Considerations].
+====
 
 [IMPORTANT]
 ====
@@ -71,7 +74,7 @@ The result of either option should look similar to the configuration below.
   portRange: ""
 ----
 
-If your worker nodes were joined to your cluster prior to making these changes, you will need to restart the kube-proxy DaemonSet.
+If your worker nodes were joined to your cluster before you made these changes, restart the kube-proxy DaemonSet.
 
 [source,bash]
 ----
@@ -81,8 +84,8 @@ kubectl -n kube-system rollout restart ds kube-proxy
 [#nftables-performance]
 === Performance Considerations
 
-Though nftables mode is generally available starting with Kubernetes version `v1.33`, we recommend use of this mode only starting with `v1.36`. In `kube-proxy` v1.36.0, many performance enhancements were made in the way the nftables maps and rules are constructed, significantly reducing the number of chains and `jump`/`goto` rules and vastly improving sync performance at scale.
+Although nftables mode is generally available starting with Kubernetes version `v1.33`, we recommend using this mode only starting with `v1.36`. In `kube-proxy` v1.36.0, the Kubernetes project made many performance enhancements to the way the nftables maps and rules are constructed, significantly reducing the number of chains and `jump`/`goto` rules and vastly improving sync performance at scale.
 
 These enhancements primarily benefit clusters with a large number of endpoints (the Pods backing your Services). Prior to `kube-proxy` v1.36.0, clusters with hundreds of thousands of endpoints could experience very slow nftables rule sync times and CPU soft lockups on worker nodes, because the Linux kernel must verify that the many chains and jumps `kube-proxy` generates contain no loops.
 
-This behavior is also affected by the Linux kernel version. The underlying kernel improvements are included in Linux kernel `6.18` (and are being backported to some earlier stable kernels). Utilizing nftables mode with earlier versions of the Linux kernel can result in slower rule sync times, as well as potential CPU soft lockups. For the best performance in large clusters, we recommend running a recent Linux kernel together with `kube-proxy` v1.36.0 or later. See https://github.com/kubernetes/kubernetes/issues/135639[kubernetes/kubernetes#135639] for details.
+This behavior is also affected by the Linux kernel version. The underlying kernel improvements are included in Linux kernel `6.18` (and are being backported to some earlier stable kernels). Utilizing nftables mode with earlier versions of the Linux kernel can result in slower rule sync times, as well as potential CPU soft lockups. For the best performance in large clusters, we recommend running a recent Linux kernel together with `kube-proxy` v1.36.0 or later. For more information, see https://github.com/kubernetes/kubernetes/issues/135639[kubernetes/kubernetes#135639] on the GitHub website.
