@@ -181,10 +181,11 @@ administration of objects by selected groups or individuals.
 === Quotas
 
 Quotas are used to define limits on workloads hosted in your cluster.
-With quotas, you can specify the maximum amount of CPU and memory that a
-pod can consume, or you can limit the number of resources that can be
-allocated in a cluster or namespace. *Limit ranges* allow you to declare
-minimum, maximum, and default values for each limit.
+With quotas, you can limit the total amount of CPU and memory that can be
+consumed within a namespace, or limit the number of objects that can be
+created. *Limit ranges* allow you to declare the minimum, maximum, and
+default CPU and memory values for individual pods and containers within a
+namespace.
 
 Overcommitting resources in a shared cluster is often beneficial because
 it allows you maximize your resources. However, unbounded access to a
