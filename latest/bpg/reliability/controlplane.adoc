@@ -138,15 +138,15 @@ status code, method, and host.
 
 === etcd
 
-[width="100%",cols="<99%,<1%",options="header",]
+[width="100%",cols="<50%,<50%",options="header",]
 |===
 |Metric |Description
 |`etcd_request_duration_seconds*` |Etcd request latency histogram in seconds for
 each operation and object type.
 
-|`apiserver_storage_db_total_size_in_bytes`
-or `apiserver_storage_size_bytes` (starting with EKS v1.28) |Etcd
-database size.
+|`etcd_mvcc_db_total_size_in_use_in_bytes` |Actual database usage. This metric determines whether the cluster will exceed quota and enter read-only mode. Available in Amazon CloudWatch under the AWS/EKS namespace.
+
+|`apiserver_storage_size_bytes` |Physical file allocation on disk, including free space from compaction. Does not determine quota enforcement.
 |===
 
 * Histogram metrics include _bucket, _sum, and _count suffixes.
@@ -158,7 +158,7 @@ requests and latency and etcd latency metrics.
 
 [IMPORTANT]
 ====
-When the database size limit is exceeded, etcd emits a no space alarm and stops taking further write requests. In other words, the cluster becomes read-only, and all requests to mutate objects such as creating new pods, scaling deployments, etc., will be rejected by the cluster's API server.
+When `etcd_mvcc_db_total_size_in_use_in_bytes` exceeds the database quota, etcd emits a no space alarm and stops taking further write requests. In other words, the cluster becomes read-only, and all requests to mutate objects such as creating new pods, scaling deployments, etc., will be rejected by the cluster's API server. The physical file size metric (`apiserver_storage_size_bytes`) does not trigger this alarm.
 ====
 
 == Cluster Authentication
