@@ -57,29 +57,6 @@ Soft multi-tenancy implemented with Namespaces does not allow you to provide ten
 With soft-multi-tenancy, tenants retain the ability to query CoreDNS for all services that run within the cluster by default. An attacker could exploit this by running dig SRV `*.*.svc.cluster.local` from any pod in the cluster. If you need to restrict access to DNS records of services that run within your clusters, consider using the Firewall or Policy plugins for CoreDNS. For additional information, see https://github.com/coredns/policy#kubernetes-metadata-multi-tenancy-policy.
 ====
 
-https://github.com/kiosk-sh/kiosk[Kiosk] is an open source project that
-can aid in the implementation of soft multi-tenancy. It is implemented
-as a series of CRDs and controllers that provide the following
-capabilities:
-
-* *Accounts & Account Users* to separate tenants in a shared Kubernetes
-cluster
-* *Self-Service Namespace Provisioning* for account users
-* *Account Limits* to ensure quality of service and fairness when
-sharing a cluster
-* *Namespace Templates* for secure tenant isolation and self-service
-namespace initialization
-
-https://loft.sh[Loft] is a commercial offering from the maintainers of
-Kiosk and https://github.com/devspace-cloud/devspace[DevSpace] that adds
-the following capabilities:
-
-* *Multi-cluster access* for granting access to spaces in different
-clusters
-* *Sleep mode* scales down deployments in a space during periods of
-inactivity
-* *Single sign-on* with OIDC authentication providers like GitHub
-
 There are three primary use cases that can be addressed by soft
 multi-tenancy.
 
