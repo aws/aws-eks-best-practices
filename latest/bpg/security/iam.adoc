@@ -874,7 +874,7 @@ your pods to direct them how to find AWS credentials.
 
 ==== Working with IAM roles for EKS Pod Identities
 
-* When you configure EKS Pod Identities for service accounts, you must
+* The caller configuring EKS Pod Identities for service accounts must
 have the `iam:PassRole` permission for that role.
 * Each Service Account may only have one IAM role associated with it
 through EKS Pod Identities, however you can associate the same IAM role
