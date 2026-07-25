@@ -230,8 +230,7 @@ following controls should be considered to mitigate this risk:
 
 Sandboxing is a technique by which each container is run in its own
 isolated virtual machine. Technologies that perform pod sandboxing
-include https://firecracker-microvm.github.io/[Firecracker] and Weave's
-https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite[Firekube].
+include https://firecracker-microvm.github.io/[Firecracker].
 
 For additional information about the effort to make Firecracker a
 supported runtime for EKS, see
@@ -596,6 +595,6 @@ to validate conformance to the guidelines.
 * https://nirmata.com[Nirmata]
 * https://rafay.co/[Rafay]
 * https://rancher.com/products/rancher/[Rancher]
-* https://www.weave.works/oss/flux/[Weave Flux]
+* https://fluxcd.io/[Flux]
 
 
