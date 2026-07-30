@@ -62,15 +62,12 @@ The Trusted Advisor also provides Savings Plans and Reserved Instances recommend
 The recommendations from Trusted Advisor are generic recommendations and not specific to EKS.
 ====
 
-=== Use the Kubernetes dashboard
+=== View in-cluster resource usage
 
-*_Kubernetes dashboard_*
-
-Kubernetes Dashboard is a general purpose, web-based UI for Kubernetes clusters, which provides information about the Kubernetes cluster including the resource usage at a cluster, node and pod level. The deployment of the Kubernetes dashboard on an Amazon EKS cluster is described in the https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html[Amazon EKS documentation].
-
-Dashboard provides resource usage breakdowns for each node and pod, as well as detailed metadata about pods, services, Deployments, and other Kubernetes objects. This consolidated information provides visibility into your Kubernetes environment.
-
-image::kubernetes-dashboard.png[Kubernetes Dashboard]
+[NOTE]
+====
+The https://github.com/kubernetes/dashboard[Kubernetes Dashboard] project is archived and no longer actively maintained, so deploying it is no longer recommended. For in-cluster resource visibility, use the `kubectl top` and `kubectl describe` commands below, or the CloudWatch Container Insights and Kubecost approaches described in the following sections. For AWS-native, pod-level cost visibility and attribution, see the Split Cost Allocation Data (SCAD) for Amazon EKS section below.
+====
 
 *_kubectl top and describe commands_*
 
@@ -88,6 +85,14 @@ Using the top command, the output will display the total amount of CPU (in cores
 _kubectl describe_ returns the percent of total available capacity that each resource request or limit represents.
 
 kubectl top and describe, track the utilization and availability of critical resources such as CPU, memory, and storage across kubernetes pods, nodes and containers. This awareness will help in understanding resource usage and help in controlling costs.
+
+=== Use Split Cost Allocation Data (SCAD) for Amazon EKS
+
+https://docs.aws.amazon.com/cur/latest/userguide/split-cost-allocation-data.html[Split Cost Allocation Data (SCAD) for Amazon EKS] adds container-level cost and usage data to the AWS Cost and Usage Report (CUR). Previously CUR reported costs only at the Amazon EC2 instance level; SCAD attributes cost to individual pods by taking the amortized cost of the EC2 instance and multiplying it by the percentage of CPU and memory that each pod consumed on that instance. For every pod it adds two usage records per hour (CPU and memory), or three on accelerated-computing instances (accelerator, CPU, and memory) covering NVIDIA and AMD GPUs, AWS Trainium, and AWS Inferentia. This lets you attribute EKS spend to business units, teams, namespaces, and workloads.
+
+SCAD for Amazon EKS automatically creates AWS-generated cost allocation tags, including `aws:eks:cluster-name`, `aws:eks:namespace`, `aws:eks:workload-name`, `aws:eks:workload-type`, `aws:eks:deployment`, and `aws:eks:node`. Since https://aws.amazon.com/about-aws/whats-new/2025/10/split-cost-allocation-data-amazon-eks-kubernetes-labels/[October 2025] you can also import up to 50 Kubernetes custom labels per pod as cost allocation tags, allowing attribution by attributes such as cost center, application, business unit, and environment. Labels become available in AWS CUR within 24 hours of activation.
+
+To enable SCAD, opt in from the AWS Billing and Cost Management console under *Cost Management preferences* (only management/payer accounts can opt in; member accounts can then view the data), choose a measurement basis for Amazon EKS (resource requests, Amazon Managed Service for Prometheus, or CloudWatch Container Insights), and include split cost allocation data in your Cost and Usage Report. SCAD is available in legacy CUR and CUR 2.0 (through Data Exports), but not in AWS Cost Explorer. From the CUR, the data is typically queried with Amazon Athena and visualized in Amazon QuickSight using the Cloud Intelligence Dashboards (CID), such as the https://docs.aws.amazon.com/guidance/latest/cloud-intelligence-dashboards/scad-containers-dashboard.html[SCAD containers cost allocation dashboard] built directly on split cost allocation data (a https://docs.aws.amazon.com/guidance/latest/cloud-intelligence-dashboards/kubecost-containers-dashboard.html[Kubecost-based dashboard] is also available when using Kubecost as the data source).
 
 === Use CloudWatch Container Insights
 
