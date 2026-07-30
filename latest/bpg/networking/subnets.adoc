@@ -68,7 +68,7 @@ When creating a new VPC, you can attach a single IPv6 CIDR block, and up to five
 
 Amazon EKS clusters support both IPv4 and IPv6. By default, EKS clusters use IPv4 IP. Specifying IPv6 at cluster creation time will enable the use IPv6 clusters. IPv6 clusters require dual-stack VPCs and subnets.
 
-Amazon EKS recommends you use at least two subnets that are in different Availability Zones during cluster creation. The subnets you pass in during cluster creation are known as cluster subnets. When you create a cluster, Amazon EKS creates up to 4 cross account (x-account or x-ENIs) ENIs in the subnets that you specify. The x-ENIs are always deployed and are used for cluster administration traffic such as log delivery, exec, and proxy. Please refer to the EKS user guide for complete https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html#network-requirements-subnets[VPC and subnet requirement] details.
+Amazon EKS requires that you specify at least two subnets in two different Availability Zones when you create a cluster. The subnets you specify are known as cluster subnets. Amazon EKS provisions two cross-account ENIs (x-ENIs) in different Availability Zones to enable communication with your worker nodes. When you create a cluster, Amazon EKS creates 2–4 x-ENIs in your specified subnets. Amazon EKS always deploys the x-ENIs and uses them for cluster administration traffic such as log delivery, exec, and proxy. For more information about VPC and subnet requirements, see https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html#network-requirements-subnets[VPC and subnet requirements] in the Amazon EKS User Guide.
 
 Kubernetes worker nodes can run in the cluster subnets, but it is not recommended. During xref:upgrades-ips[cluster upgrades] Amazon EKS provisions additional ENIs in the cluster subnets. When your cluster scales out, worker nodes and pods may consume the available IPs in the cluster subnet. Hence in order to make sure there are enough available IPs you might want to consider using dedicated cluster subnets with /28 netmask.
 
@@ -82,7 +82,7 @@ In the IPv6 world, every address is internet routable. The IPv6 addresses associ
 
 ==== Using only public subnets
 
-In the same public subnets, both nodes and ingress resources (such as load balancers) are created. Tag the public subnet with http://kubernetes.io/role/elb[`kubernetes.io/role/elb`] to construct load balancers that face the internet. In this configuration, the cluster endpoint can be configured to be public, private, or both (public and private).
+In the same public subnets, both nodes and ingress resources (such as load balancers) are created. Tag the public subnet with `kubernetes.io/role/elb` to construct load balancers that face the internet. In this configuration, the cluster endpoint can be configured to be public, private, or both (public and private).
 
 ==== Using private and public subnets
 
@@ -90,7 +90,7 @@ Nodes are created on private subnets, whereas Ingress resources are instantiated
 
 ==== Using only private subnets
 
-Both nodes and ingress are created in private subnets. Using the http://kubernetes.io/role/internal-elb:1[`kubernetes.io/role/internal-elb`] subnet tag to construct internal load balancers. Accessing your cluster's endpoint will require a VPN connection. You must activate https://docs.aws.amazon.com/vpc/latest/userguide/endpoint-service.html[AWS PrivateLink] for EC2 and all Amazon ECR and S3 repositories. Only the private endpoint of the cluster should be enabled. We suggest going through the https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html[EKS private cluster requirements] before provisioning private clusters.
+Both nodes and ingress are created in private subnets. Using the `kubernetes.io/role/internal-elb` subnet tag to construct internal load balancers. Accessing your cluster's endpoint will require a VPN connection. You must activate https://docs.aws.amazon.com/vpc/latest/userguide/endpoint-service.html[AWS PrivateLink] for EC2 and all Amazon ECR and S3 repositories. Only the private endpoint of the cluster should be enabled. We suggest going through the https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html[EKS private cluster requirements] before provisioning private clusters.
 
 [[cross-vpcs,cross-vpcs.title]]
 === Communication across VPCs
@@ -151,7 +151,7 @@ A VPC including both private and public subnets is the ideal method for deployin
 
 Instantiating nodes in private subnets offers maximal control over traffic to the nodes and is effective for the vast majority of Kubernetes applications. Ingress resources (like as load balancers) are instantiated in public subnets and route traffic to Pods operating on private subnets.
 
-Consider private only mode if you demand strict security and network isolation. In this configuration, three private subnets are deployed in distinct Availability Zones within the AWS Region's VPC. The resources deployed to the subnets cannot access the internet, nor can the internet access the resources in the subnets. In order for your Kubernetes application to access other AWS services, you must configure PrivateLink interfaces and/or gateway endpoints. You may setup internal load balancers to redirect traffic to Pods using AWS Load Balancer Controller. The private subnets must be tagged (http://kubernetes.io/role/internal-elb[`kubernetes.io/role/internal-elb: 1`]) for the controller to provision load balancers. For nodes to register with the cluster, the cluster endpoint must be set to private mode.  Please visit https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html[private cluster guide] for complete requirements and considerations.
+Consider private only mode if you demand strict security and network isolation. In this configuration, three private subnets are deployed in distinct Availability Zones within the AWS Region's VPC. The resources deployed to the subnets cannot access the internet, nor can the internet access the resources in the subnets. In order for your Kubernetes application to access other AWS services, you must configure PrivateLink interfaces and/or gateway endpoints. You may setup internal load balancers to redirect traffic to Pods using AWS Load Balancer Controller. The private subnets must be tagged (`kubernetes.io/role/internal-elb: 1`) for the controller to provision load balancers. For nodes to register with the cluster, the cluster endpoint must be set to private mode.  Please visit https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html[private cluster guide] for complete requirements and considerations.
 
 === Consider Public and Private Mode for Cluster Endpoint
 

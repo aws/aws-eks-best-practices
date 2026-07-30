@@ -238,7 +238,7 @@ and the following PROMQL query can help you determine which scrape targets have 
 topk_max(5, max_over_time(scrape_series_added[1h]))
 ----
 
-If you are using grafana you can use Grafana Lab's Mimirtool to analyze your grafana dashboards and prometheus rules to identify unused high-cardinality metrics. Follow https://grafana.com/docs/grafana-cloud/account-management/billing-and-usage/control-prometheus-metrics-usage/usage-analysis-mimirtool/?pg=blog&plcmt=body-txt#analyze-and-reduce-metrics-usage-with-grafana-mimirtool[this guide] on how to use the `mimirtool analyze` and `mimirtool analyze prometheus` commands to identify active metrics which are not referenced in your dashboards.
+If you are using grafana you can use Grafana Lab's Mimirtool to analyze your grafana dashboards and prometheus rules to identify unused high-cardinality metrics. Follow https://grafana.com/docs/mimir/latest/manage/tools/mimirtool/[this guide] on how to use the `mimirtool analyze` and `mimirtool analyze prometheus` commands to identify active metrics which are not referenced in your dashboards.
 
 === Consider metric granularity
 
@@ -349,7 +349,7 @@ For example, if you have traces that are 90 days old, https://aws.amazon.com/s3/
 == Additional Resources:
 
 * https://aws-observability.github.io/observability-best-practices/guides/[Observability Best Practices Guide]
-* https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/[Best Practices Metrics Collection]
+* https://aws-observability.github.io/observability-best-practices/guides/containers/oss/eks/best-practices-metrics-collection/[Best Practices Metrics Collection]
 * https://www.youtube.com/watch?v=zZPzXEBW4P8[AWS re:Invent 2022 - Observability best practices at Amazon (COP343)]
 * https://www.youtube.com/watch?v=YiegAlC_yyc[AWS re:Invent 2022 - Observability: Best practices for modern applications (COP344)]
 

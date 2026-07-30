@@ -181,10 +181,11 @@ administration of objects by selected groups or individuals.
 === Quotas
 
 Quotas are used to define limits on workloads hosted in your cluster.
-With quotas, you can specify the maximum amount of CPU and memory that a
-pod can consume, or you can limit the number of resources that can be
-allocated in a cluster or namespace. *Limit ranges* allow you to declare
-minimum, maximum, and default values for each limit.
+With quotas, you can limit the total amount of CPU and memory that can be
+consumed within a namespace, or limit the number of objects that can be
+created. *Limit ranges* allow you to declare the minimum, maximum, and
+default CPU and memory values for individual pods and containers within a
+namespace.
 
 Overcommitting resources in a shared cluster is often beneficial because
 it allows you maximize your resources. However, unbounded access to a
@@ -229,8 +230,7 @@ following controls should be considered to mitigate this risk:
 
 Sandboxing is a technique by which each container is run in its own
 isolated virtual machine. Technologies that perform pod sandboxing
-include https://firecracker-microvm.github.io/[Firecracker] and Weave's
-https://www.weave.works/blog/firekube-fast-and-secure-kubernetes-clusters-using-weave-ignite[Firekube].
+include https://firecracker-microvm.github.io/[Firecracker].
 
 For additional information about the effort to make Firecracker a
 supported runtime for EKS, see
@@ -525,7 +525,7 @@ Policy-management tools that are integrated to the Kubernetes API server request
 In the above examples, we used policies written for OPA/Gatekeeper.
 However, there are other policy management tools that handle our
 node-selection use case as well. For example, this
-https://kyverno.io/policies/other/add_node_affinity/add_node_affinity/[Kyverno
+https://kyverno.io/policies/other/add-node-affinity/add-node-affinity/[Kyverno
 policy] could be used to handle the node affinity mutation.
 
 [NOTE]
@@ -595,5 +595,6 @@ to validate conformance to the guidelines.
 * https://nirmata.com[Nirmata]
 * https://rafay.co/[Rafay]
 * https://rancher.com/products/rancher/[Rancher]
+* https://fluxcd.io/[Flux]
 
 

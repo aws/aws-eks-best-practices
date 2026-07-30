@@ -87,7 +87,7 @@ kubectl get --raw /metrics
 ----
 
 These metrics are represented in a
-https://github.com/prometheus/docs/blob/master/content/docs/instrumenting/exposition_formats.md[Prometheus
+https://github.com/prometheus/docs/blob/main/docs/instrumenting/exposition_formats.md[Prometheus
 text format].
 
 You can use Prometheus to collect and store these metrics. In May 2020,

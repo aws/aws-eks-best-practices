@@ -127,6 +127,11 @@ aws ssm get-parameter \
 
 == Use multiple EBS volumes for containers
 
+[IMPORTANT]
+====
+This feature is supported on AL2 only; it is not yet supported on AL2023.
+====
+
 EBS volumes have input/output (I/O) quota based on the type of volume (e.g. gp3) and the size of the disk. If your applications share a single EBS root volume with the host this can exhaust the disk quota for the entire host and cause other applications to wait for available capacity. Applications write to disk if they write files to their overlay partition, mount a local volume from the host, and also when they log to standard out (STDOUT) depending on the logging agent used.
 
 To avoid disk I/O exhaustion you should mount a second volume to the container state folder (e.g. /run/containerd), use separate EBS volumes for workload storage, and disable unnecessary local logging.

@@ -39,6 +39,7 @@ We currently have published guides for the following topics:
 * xref:networking[Best Practices for Networking]
 * xref:scalability[Best Practices for Scalability]
 * xref:cluster-upgrades[Best Practices for Cluster Upgrades]
+* xref:rollback-cluster-upgrades[Best Practices for Cluster Version Rollback]
 * xref:cost-opt[Best Practices for Cost Optimization]
 * xref:windows[Best Practices for Running Windows Containers]
 * xref:hybrid[Best Practices for Hybrid Deployments]

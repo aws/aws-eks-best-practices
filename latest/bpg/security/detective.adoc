@@ -358,7 +358,7 @@ Kubernetes Common Configuration Scoring System framework
 * https://kubesec.io/[kubesec.io]
 * https://github.com/FairwindsOps/polaris[polaris]
 * https://github.com/aquasecurity/starboard[Starboard]
-* https://support.snyk.io/hc/en-us/articles/360003916138-Kubernetes-integration-overview[Snyk]
+* https://docs.snyk.io/scan-with-snyk/snyk-container/kubernetes-integration[Snyk]
 * https://github.com/kubescape/kubescape[Kubescape] Kubescape is an open
 source kubernetes security tool that scans clusters, YAML files, and
 Helm charts. It detects misconfigurations according to multiple

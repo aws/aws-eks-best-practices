@@ -535,8 +535,11 @@ https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#w
 |scan-interval |How often cluster is reevaluated for scale up or down
 |10 seconds
 
-|max-empty-bulk-delete |Maximum number of empty nodes that can be
-deleted at the same time. |10
+|max-scale-down-parallelism |Maximum number of nodes (both empty and
+needing drain) that can be deleted in parallel. Cluster Autoscaler
+v1.32.0 deprecated `--max-empty-bulk-delete` and replaced it with
+`--max-scale-down-parallelism`. If you use a Cluster Autoscaler
+version earlier than v1.32.0, use `--max-empty-bulk-delete` instead. |10
 
 |scale-down-delay-after-add |How long after scale up that scale down
 evaluation resumes |10 minutes

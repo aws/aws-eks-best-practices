@@ -712,7 +712,7 @@ when exacerbated, lead to an outage or impact application performance.
 If you're unclear on which metrics you should monitor, you can take
 inspiration from these methods:
 
-* https://www.weave.works/blog/a-practical-guide-from-instrumenting-code-to-specifying-alerts-with-the-red-method[RED
+* https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/[RED
 method]. Stands for requests, errors, and duration.
 * http://www.brendangregg.com/usemethod.html[USE method]. Stands for
 utilization, saturation, and errors.

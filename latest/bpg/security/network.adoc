@@ -439,7 +439,7 @@ Consider a Third Party Network Policy Engine when you have advanced
 policy requirements like Global Network Policies, support for DNS
 Hostname based rules, Layer 7 rules, ServiceAccount based rules, and
 explicit deny/log actions, etc.,
-https://docs.projectcalico.org/introduction/[Calico], is an open source
+https://docs.tigera.io/calico/latest/about/[Calico], is an open source
 policy engine from https://tigera.io[Tigera] that works well with EKS.
 In addition to implementing the full set of Kubernetes network policy
 features, Calico supports extended network polices with a richer set of
@@ -508,7 +508,7 @@ Enterprise]
 * https://cilium.readthedocs.io/en/stable/intro/[Cilium]
 * https://cilium.io/blog/2021/02/10/network-policy-editor[NetworkPolicy
 Editor] an interactive policy editor from Cilium
-* https://www.inspektor-gadget.io/docs/latest/gadgets/advise/network-policy/[Inspektor
+* https://www.inspektor-gadget.io/docs/latest/gadgets/advise_networkpolicy[Inspektor
 Gadget advise network-policy gadget] Suggests network policies based on
 an analysis of network traffic
 

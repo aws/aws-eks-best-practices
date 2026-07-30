@@ -43,6 +43,8 @@ include::scalability/index.adoc[leveloffset=+1]
 
 include::upgrades/index.adoc[leveloffset=+1]
 
+include::rollback/index.adoc[leveloffset=+1]
+
 include::cost/cost_optimization_index.adoc[leveloffset=+1]
 
 include::windows/index.adoc[leveloffset=+1]
