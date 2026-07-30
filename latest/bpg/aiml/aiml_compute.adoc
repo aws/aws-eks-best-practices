@@ -77,6 +77,7 @@ The following example shows how to enable a Karpenter NodePool to provision G an
 
 For details on using Spot instances for GPUs, see "Consider using Amazon EC2 Spot Instances for GPUs with Karpenter" below.
 
+[[spot-gpus-karpenter]]
 === Consider using Amazon EC2 Spot Instances for GPUs with Karpenter
 
 Amazon EC2 Spot Instances let you take advantage of unused EC2 capacity in the AWS cloud and are available at up to a 90% discount compared to On-Demand prices. Amazon EC2 Spot Instances can be interrupted with a two-minute notice when EC2 needs the capacity back. For more information, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html[Spot Instances] in the Amazon EC2 User Guide. Amazon EC2 Spot can be a great choice for fault-tolerant, stateless and flexible (time and instance type) workloads. To learn more about when to use Spot instances, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html[EC2 Spot Instances Best Practices]. You can also use Spot Instances for AI/ML workloads if they're Spot-friendly. 
