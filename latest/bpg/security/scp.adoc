@@ -1,8 +1,12 @@
-// Related: https://github.com/aws/aws-eks-best-practices/issues/749
-[[scp-control-plane-protection]]
+//!!NODE_ROOT <section>
+[."topic"]
+[[scp-control-plane-protection,scp-control-plane-protection.title]]
 = Protecting EKS Cluster Control Plane with Service Control Policies
-:description: Best practices for using SCPs to protect EKS cluster control plane operations in multi-team environments
-:keywords: SCP, Service Control Policy, EKS, control plane, multi-tenant, security
+:info_doctype: section
+:info_title: Protecting EKS Cluster Control Plane with Service Control Policies
+:info_abstract: Best practices for using SCPs to protect EKS cluster control plane operations in multi-team environments
+:info_titleabbrev: Control Plane SCPs
+:imagesdir: images/
 
 == Problem Statement
 
@@ -97,6 +101,11 @@ This means:
 * The platform admin role retains full control over tagged clusters
 * All other principals are denied control plane modifications on tagged clusters
 * Untagged clusters (or clusters with a different `Owner` tag) are unaffected, and teams retain full autonomy over their own clusters
+
+[NOTE]
+====
+The `aws:ResourceTag/Owner` condition evaluates the tag on an *existing* resource. For actions that create a new top-level resource (such as `eks:CreateCluster` and `eks:RegisterCluster`), there is no resource tag to evaluate at request time, so the deny does not apply to those actions. This is consistent with the intent of letting teams create their own clusters, but it means this SCP does not, by itself, block cluster creation. For sub-resource create actions (for example `eks:CreateNodegroup`, `eks:CreateAddon`, `eks:CreateAccessEntry`, `eks:CreateFargateProfile`, `eks:CreatePodIdentityAssociation`), confirm in your own environment that `aws:ResourceTag/Owner` resolves from the parent cluster before relying on the deny. If you also need to prevent creation of untagged or non-compliant resources, pair this policy with a separate statement that uses `aws:RequestTag` and `aws:TagKeys` conditions on the create actions.
+====
 
 == Critical: Protect the Tag
 
