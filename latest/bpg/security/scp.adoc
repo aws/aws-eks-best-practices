@@ -16,7 +16,7 @@ Without guardrails at the AWS API layer, any principal with sufficient IAM permi
 
 == Solution: SCP with Tag-Based Conditions
 
-Use an AWS Organizations Service Control Policy (SCP) to deny all EKS control plane mutations on clusters tagged with a specific owner tag, while allowing a designated admin role to retain full access.
+Use an AWS Organizations Service Control Policy (SCP) to deny EKS control plane mutations on clusters tagged with a specific owner tag, while allowing a designated admin role to retain full access. The action list in the example below covers the common control plane mutations; treat it as a representative starting point and review it against the current EKS API for your use case.
 
 This approach allows:
 
@@ -183,4 +183,5 @@ A principal denied by this SCP can still perform Kubernetes admin operations if 
 * Audit SCP effectiveness with CloudTrail by looking for `AccessDenied` events on EKS actions
 * Document the tagging contract so that teams understand which tag values trigger protection
 * Consider using AWS Config rules to detect untagged EKS clusters that should be tagged
+* Review the denied action list against the current EKS API and add any newer mutating actions your organization wants to restrict (for example, EKS capability management or `eks:CancelUpdate`), since AWS adds control plane actions over time
 * Test the SCP in a non-production OU before applying broadly
