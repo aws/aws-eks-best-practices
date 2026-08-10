@@ -358,7 +358,7 @@ automatically scales them to ensure high performance. However, you
 should account for potential performance issues and limits within
 Kubernetes and quotas in AWS services when running large clusters.
 
-* Clusters with more than 1000 services may experience network latency
+* Clusters with more than 1000 services might experience network latency
 with using `kube-proxy` in `iptables` mode. The solution is to switch to
 xref:nftables[running
 `kube-proxy` in `nftables` mode].

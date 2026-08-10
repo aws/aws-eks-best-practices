@@ -4,11 +4,11 @@
 :info_doctype: section
 
 
-With `kube-proxy` in nftables mode, EKS can resolve the https://docs.aws.amazon.com/eks/latest/best-practices/control-plane.html#reliability_cprunning_large_clusters[network latency issue] common in large clusters with over 1,000 services running kube-proxy in iptables mode. iptables mode processes packet filtering rules sequentially for each packet, which causes this performance issue. nftables is the successor to iptables, and the nftables `kube-proxy` backend addresses this latency issue by processing packets in near-constant time regardless of cluster size. To avoid this issue, configure your cluster to run `kube-proxy` in nftables mode.
+With `kube-proxy` in nftables mode, Amazon EKS can resolve the https://docs.aws.amazon.com/eks/latest/best-practices/control-plane.html#reliability_cprunning_large_clusters[network latency issue] common in large clusters with over 1,000 services running kube-proxy in iptables mode. iptables mode processes packet filtering rules sequentially for each packet, which causes this performance issue. nftables is the successor to iptables, and the nftables `kube-proxy` backend addresses this latency issue by processing packets in near-constant time regardless of cluster size. To avoid this issue, configure your cluster to run `kube-proxy` in nftables mode.
 
 == Overview
 
-The nftables `kube-proxy` backend has been GA since https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[Kubernetes version 1.33] (available as alpha in 1.29 and beta in 1.31). The iptables backend installs one rule for each Service and evaluates rules sequentially. This results in O(n) packet processing time that grows with the number of services. By contrast, nftables uses https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[verdict maps] to dispatch packets in roughly O(1) time. This keeps per-packet latency nearly constant even in clusters with tens of thousands of services, providing efficiency for clusters with thousands of nodes and services.
+The nftables `kube-proxy` backend has been generally available (GA) since https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[Kubernetes version 1.33]. It was available as alpha in 1.29 and beta in 1.31. The iptables backend installs one rule for each Service and evaluates rules sequentially. This results in O(n) packet processing time that grows with the number of services. By contrast, nftables uses https://kubernetes.io/blog/2025/02/28/nftables-kube-proxy/[verdict maps] to dispatch packets in roughly O(1) time. This keeps per-packet latency nearly constant even in clusters with tens of thousands of services, providing efficiency for clusters with thousands of nodes and services.
 
 [NOTE]
 ====
@@ -57,7 +57,7 @@ kubectl -n kube-system edit cm kube-proxy-config
 ----
 
 Find the `mode` setting, which defaults to `iptables`, and change the value to `nftables`.
-The result of either option should look similar to the configuration below.
+The result of either option should look similar to the following configuration.
 
 [source,yaml]
 ----
