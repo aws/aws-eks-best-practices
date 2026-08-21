@@ -88,6 +88,7 @@ using a managed Kubernetes service like EKS:
 * Runtime Security
 * Network Security
 * Multi-tenancy
+* AWS account and cluster architecture
 * Multi Account for Multi-tenancy
 * Service Control Policies (SCPs)
 * Detective Controls
@@ -167,6 +168,8 @@ include::compliance.adoc[leveloffset=+1]
 include::incidents.adoc[leveloffset=+1]
 
 include::image.adoc[leveloffset=+1]
+
+include::account-cluster-architecture.adoc[leveloffset=+1]
 
 include::multiaccount.adoc[leveloffset=+1]
 
