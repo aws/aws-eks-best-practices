@@ -131,15 +131,14 @@ metadata:
   name: label-demo
   labels:
     environment: production
-  annotations: +
+  annotations:
     "karpenter.sh/do-not-evict": "true"
 spec:
   containers:
-
-* name: nginx
-image: nginx
-ports:
- ** containerPort: 80
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
 ----
 
 === Remove under-utilized nodes by adjusting Cluster Autoscaler parameters
@@ -156,15 +155,14 @@ metadata:
   name: label-demo
   labels:
     environment: production
-  annotations: +
+  annotations:
     "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
 spec:
   containers:
-
-* name: nginx
-image: nginx
-ports:
- ** containerPort: 80
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
 ----
 
 === Tag nodes with Cluster Autoscaler and Karpenter

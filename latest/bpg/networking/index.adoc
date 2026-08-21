@@ -106,6 +106,6 @@ include::loadbalancing.adoc[leveloffset=+1]
 
 include::monitoring.adoc[leveloffset=+1]
 
-include::ipvs.adoc[leveloffset=+1]
+include::nftables.adoc[leveloffset=+1]
 
 
