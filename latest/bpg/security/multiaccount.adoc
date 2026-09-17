@@ -35,9 +35,15 @@ reduced or eliminated.
 https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/benefits-of-using-multiple-aws-accounts.html#group-workloads-based-on-business-purpose-and-ownership[AWS
 Multi Account Strategy Whitepaper]
 
-The following sections will explain how to implement a multi account
-strategy for your EKS workloads using either a centralized, or
-de-centralized EKS cluster approach.
+Account and cluster boundaries are related but independent architecture
+decisions. Before selecting an implementation, use
+xref:account-cluster-architecture[Choose an AWS account and cluster architecture]
+to compare the reference patterns and evaluate requirements across account
+management, cluster operations, access, networking, isolation, resilience, and
+cost.
+
+The following sections explain how to implement a multi account strategy for
+EKS workloads using either a centralized or decentralized EKS cluster approach.
 
 == Planning for a Multi Workload Account Strategy for Multi Tenant Clusters
 
