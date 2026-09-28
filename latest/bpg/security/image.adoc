@@ -480,9 +480,11 @@ policy based admission controller
 * https://in-toto.io/[in-toto] Allows the user to verify if a step in
 the supply chain was intended to be performed, and if the step was
 performed by the right actor
-* https://github.com/theupdateframework/notary[Notary] A project for
-signing container images
-* https://github.com/notaryproject/nv2[Notary v2]
+* https://github.com/notaryproject/notation[Notation (Notary Project)] The
+actively maintained CNCF tool for signing and verifying container images.
+It supersedes the original Notary
+(https://github.com/theupdateframework/notary[theupdateframework/notary]),
+which was archived by its maintainers in 2025.
 * https://grafeas.io/[Grafeas] An open artifact metadata API to audit
 and govern your software supply chain
 * https://www.suse.com/neuvector/[NeuVector by SUSE] open source,
