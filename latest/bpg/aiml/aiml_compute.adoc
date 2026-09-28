@@ -297,7 +297,7 @@ disruption:
   consolidateAfter: 60m
 ----
 
-This approach improves pod startup latency for spiky batch inference workloads and other interruption-sensitive jobs, such as real-time online inference data processing or model training, where the cost of interruption outweighs compute cost savings. Karpenter https://karpenter.sh/docs/concepts/disruption/#nodepool-disruption-budgets[NodePool Disruption Budgets] is another feature for managing Karpenter disruptions. With budgets, you can make sure that no more than a certain number of nodes nodes will be disrupted in the chosen NodePool at a point in time. You can also use disruption budgets to prevent all nodes from being disrupted at a certain time (e.g. peak hours). To learn more, see https://karpenter.sh/docs/concepts/disruption/#consolidation[Karpenter Consolidation] documentation.
+This approach improves pod startup latency for spiky batch inference workloads and other interruption-sensitive jobs, such as real-time online inference data processing or model training, where the cost of interruption outweighs compute cost savings. Karpenter https://karpenter.sh/docs/concepts/disruption/#nodepool-disruption-budgets[NodePool Disruption Budgets] is another feature for managing Karpenter disruptions. With budgets, you can make sure that no more than a certain number of nodes will be disrupted in the chosen NodePool at a point in time. You can also use disruption budgets to prevent all nodes from being disrupted at a certain time (e.g. peak hours). To learn more, see https://karpenter.sh/docs/concepts/disruption/#consolidation[Karpenter Consolidation] documentation.
 
 === Use ttlSecondsAfterFinished to Auto Clean-Up Kubernetes Jobs
 
