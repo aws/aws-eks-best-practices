@@ -62,13 +62,13 @@ This propagation delay can cause DNS lookup failures when a CoreDNS pod gets ter
 
 You can reduce DNS lookup failures by setting a https://coredns.io/plugins/health/[lameduck] duration in your CoreDNS pods. While in lameduck mode, CoreDNS will continue to respond to in-flight requests. Setting a lameduck duration will delay the CoreDNS shutdown process, allowing nodes the time they need to update their iptables rules and chains.
 
-We recommend setting CoreDNS lameduck duration to 30 seconds.
+We recommend setting the CoreDNS lameduck duration to a value shorter than the pod's `terminationGracePeriodSeconds`. The lameduck delay happens _within_ the termination grace period: Kubernetes sends `SIGTERM`, CoreDNS stays in lameduck responding to in-flight requests, and if lameduck has not finished by the end of the grace period the pod is forcibly killed with `SIGKILL`. Because the default `terminationGracePeriodSeconds` is `30` and it currently cannot be changed through the EKS managed add-on, setting the lameduck duration to `30` leaves no margin and risks CoreDNS being killed before it finishes draining. We therefore recommend a lameduck duration of `20` seconds, which still allows ample time for nodes to update their iptables rules while staying safely below the 30-second grace period.
 
 == CoreDNS readiness probe
 
 We recommend using `/ready` instead of `/health` for CoreDNS's readiness probe.
 
-In alignment with the earlier recommendation to set the lameduck duration to 30 seconds, providing ample time for the node's iptables rules to be updated before pod termination, employing `/ready` instead of `/health` for the CoreDNS readiness probe ensures that the CoreDNS pod is fully prepared at startup to promptly respond to DNS requests.
+In alignment with the earlier recommendation to set the lameduck duration below the termination grace period, providing ample time for the node's iptables rules to be updated before pod termination, employing `/ready` instead of `/health` for the CoreDNS readiness probe ensures that the CoreDNS pod is fully prepared at startup to promptly respond to DNS requests.
 
 [,yaml]
 ----
