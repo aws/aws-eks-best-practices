@@ -94,7 +94,7 @@ The Service Controller is legacy and is currently only receiving critical bug fi
 We recommend using the AWS Load Balancer Controller in your EKS
 clusters to reconcile Kubernetes Service and Ingress resources. You must use the right annotations in your Kubernetes Service or Ingress manifest so that AWS Load Balancer Controller owns the reconciliation process. (instead of Service Controller)
 
-If you are utilizing link:https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode] the the AWS Load Balancer Controller is provided for you automatically; no installation is necessary.
+If you are utilizing link:https://docs.aws.amazon.com/eks/latest/userguide/automode.html[EKS Auto Mode] the AWS Load Balancer Controller is provided for you automatically; no installation is necessary.
 
 == Choosing Load Balancer Target-Type
 
@@ -123,7 +123,7 @@ directly received by the pod but by the Worker Node on its NodePort and
 health check traffic will follow the same path described above.
 * Monitoring and Troubleshooting is more complex since traffic forwarded
 by the Load Balancer isn't directly sent to the pods and you'd have to
-carefully correlate the packet received on the Worker Node to to the
+carefully correlate the packet received on the Worker Node to the
 Service ClusterIP and eventually the pod to have full end-to-end
 visibility into the packet's path for proper troubleshooting.
 
