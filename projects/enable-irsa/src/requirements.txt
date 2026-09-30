@@ -14,7 +14,7 @@ idna==3.15
 jmespath==0.10.0
 kubernetes==11.0.0
 macholib==1.14
-oauthlib==3.1.0
+oauthlib==4.0.0
 pick==1.0.0
 pyasn1==0.6.4
 pyasn1-modules==0.2.8
