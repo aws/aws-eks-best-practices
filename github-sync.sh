@@ -66,14 +66,31 @@ if ! git fetch github; then
     print_error "Failed to fetch from GitHub remote. Check your internet connection and repository permissions"
 fi
 
-print_status "Attempting to merge github/mainline..."
-if ! git merge github/mainline --no-edit; then
-    print_warning "Merge conflicts detected. Please:"
-    echo "1. Resolve the conflicts"
-    echo "2. Complete the merge with 'git commit'"
-    echo "3. Run this script again to finish syncing"
-    exit 1
+# Changes can land on either side: GitHub PRs, or code reviews merged directly
+# into code.amazon.com. Fetch and merge both so each remote receives the other's
+# commits. Without this, a commit that exists only on origin makes the push to
+# origin fail and is never mirrored to GitHub.
+print_status "Fetching from origin (code.amazon.com)..."
+if ! git fetch origin; then
+    print_error "Failed to fetch from origin. Run 'mwinit' and try again"
 fi
+
+for remote in origin github; do
+    only_on_remote=$(git log --oneline HEAD..$remote/mainline)
+    if [ -n "$only_on_remote" ]; then
+        print_status "Commits on $remote/mainline that will be merged:"
+        echo "$only_on_remote"
+    fi
+
+    print_status "Attempting to merge $remote/mainline..."
+    if ! git merge "$remote/mainline" --no-edit; then
+        print_warning "Merge conflicts detected while merging $remote/mainline. Please:"
+        echo "1. Resolve the conflicts"
+        echo "2. Complete the merge with 'git commit'"
+        echo "3. Run this script again to finish syncing"
+        exit 1
+    fi
+done
 
 print_status "Pushing changes to GitHub..."
 if ! git push github; then
