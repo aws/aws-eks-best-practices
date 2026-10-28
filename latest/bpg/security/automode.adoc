@@ -8,7 +8,7 @@
 :info_titleabbrev: EKS Auto Mode - Security
 :imagesdir: images/
 
-TIP: https://awsworkshop.io/eks?trk=4a9b4147-2490-4c63-bc9f-f8a84b122c8c&sc_channel=el[Explore][Explore] best practices through Amazon EKS workshops.
+TIP: https://awsworkshop.io/eks?trk=4a9b4147-2490-4c63-bc9f-f8a84b122c8c&sc_channel=el[Explore] best practices through Amazon EKS workshops.
 
 Amazon EKS Auto Mode introduces enhanced security capabilities by extending AWS's security management beyond the control plane to include worker nodes and core cluster components. This comprehensive security model helps organizations maintain a strong security posture while reducing operational overhead.
 
