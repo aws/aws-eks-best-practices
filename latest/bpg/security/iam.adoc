@@ -1400,6 +1400,102 @@ If you need to use one of these non-aws provided solutions, please
 exercise due diligence and ensure you understand security implications
 of doing so.
 
+== IAM permissions recommendations when using the Amazon EBS CSI driver
+
+The Amazon EBS CSI driver EKS add-on is a Kubernetes Container
+Storage Interface (CSI) plugin that provides Amazon EBS storage
+for your cluster.
+
+Historically, the driver's default IAM principal has used
+the AWS managed policy
+link:aws-managed-policy/latest/reference/AmazonEBSCSIDriverPolicy.html[AmazonEBSCSIDriverPolicy,type="documentation"],
+which grants the driver permissions to perform actions on any
+EBS volume and snapshot in the account, regardless of whether
+those resources are managed by the driver. This broad scope
+supports workflows that need access to EBS resources the driver
+did not create. Examples include static provisioning (creating a
+PersistentVolume object for an existing EBS volume) and snapshot
+restore.
+
+Dynamic provisioning is the most common use case. In dynamic
+provisioning, the driver automatically creates a new EBS volume
+when a `PersistentVolumeClaim` requests storage. For this use case,
+the driver's IAM identity has access to resources beyond what is
+strictly needed.
+
+* link:aws-managed-policy/latest/reference/AmazonEBSCSIDriverPolicyV2.html[AmazonEBSCSIDriverPolicyV2,type="documentation"]
+addresses this by scoping the driver's permissions to resources tagged
+`ebs.csi.aws.com/cluster: true`, a tag the driver already applies to the
+resources it provisions dynamically. It also permits resources tagged
+`kubernetes.io/created-for/pvc/name: <pvc name>`, which covers volumes
+migrated from the legacy in-tree AWS EBS plugin. This policy keeps a
+single IAM role usable across multiple clusters. It also suits self-managed
+Kubernetes deployments where cross-cluster isolation isn't a concern.
+
+* link:aws-managed-policy/latest/reference/AmazonEBSCSIDriverEKSClusterScopedPolicy.html[AmazonEBSCSIDriverEKSClusterScopedPolicy,type="documentation"]
+goes further by scoping the driver's permissions to resources tagged
+`ebs.csi.aws.com/cluster-name: <your-cluster-name>`. This tag matches the
+`eks-cluster-name` tag on the driver's IAM principal, which prevents access
+across clusters. This scoping makes the policy a good fit when you run
+multiple EKS clusters in a single AWS account.
++
+** On driver `v1.58.0` and later, the driver adds this tag automatically
+when it creates a resource. To enable this behavior, you configure the
+cluster ID with the `--k8s-tag-cluster-id` flag. The EKS add-on sets this
+flag for you. If you deploy the driver another way, you must set
+`--k8s-tag-cluster-id` to your cluster name yourself.
+** Resources created before you upgrade to `v1.58.0` or later with
+`--k8s-tag-cluster-id` configured don't have this tag. You must manually tag
+those existing EBS volumes and snapshots with
+`ebs.csi.aws.com/cluster-name: <your-cluster-name>`.
+** With EKS Pod Identity, the `eks-cluster-name` session tag is set for you.
+With IRSA, you must tag the IAM role `eks-cluster-name: <your-cluster-name>`
+yourself and maintain a separate role per cluster.
+** This policy also scopes actions on the EC2 instances backing your nodes.
+Nodes created by EKS or Karpenter already carry a supported tag. You must
+manually tag any self-managed instances that were not created by EKS or
+Karpenter with `ebs.csi.aws.com/cluster-name: <your-cluster-name>`.
+
+[WARNING]
+====
+Static provisioning requires additional resource tagging under
+the scoped policies. If you import externally created EBS volumes
+or snapshots (for example, a `PersistentVolume` that references an
+existing `volumeHandle`, or a `VolumeSnapshotContent` that references
+an external snapshot), you must tag those resources yourself with
+the tag your chosen policy requires (`ebs.csi.aws.com/cluster: true`
+for `AmazonEBSCSIDriverPolicyV2`, or `ebs.csi.aws.com/cluster-name:
+<your-cluster-name>` for `AmazonEBSCSIDriverEKSClusterScopedPolicy`).
+Otherwise the driver returns an `UnauthorizedOperation` error.
+====
+
+The following table compares which resources each policy authorizes the
+driver to act on.
+
+[width="100%",cols="<40%,<60%",options="header",]
+|===
+|Managed policy |Resources the driver can act on
+
+|`AmazonEBSCSIDriverPolicy`
+|Any EBS volume or snapshot in the account.
+
+|`AmazonEBSCSIDriverPolicyV2`
+|Resources tagged `ebs.csi.aws.com/cluster: true`, or
+`kubernetes.io/created-for/pvc/name: <pvc name>` for volumes migrated from
+the in-tree AWS EBS plugin.
+
+|`AmazonEBSCSIDriverEKSClusterScopedPolicy`
+|Resources tagged `ebs.csi.aws.com/cluster-name: <your-cluster-name>`,
+matching the `eks-cluster-name` tag on the driver's IAM principal.
+|===
+
+When you use the EBS CSI Driver, we recommend that you attach the most
+restrictive managed policy that fits your workload. For step-by-step
+migration guidance see
+https://github.com/kubernetes-sigs/aws-ebs-csi-driver/issues/2918[the EBS CSI Driver managed policy announcement] on the GitHub website.
+The announcement has a FAQ covering static provisioning, Pod
+Identity, and IRSA cases.
+
 == Tools and Resources
 
 * https://catalog.workshops.aws/eks-security-immersionday/en-US/2-identity-and-access-management[Amazon
