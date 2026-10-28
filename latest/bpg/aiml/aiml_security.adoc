@@ -10,7 +10,7 @@
 :authors: ["Leah Tucker"]
 :date: 2025-07-01
 
-TIP: https://events.eksworkshop.com/workshops/genai/[Register] for upcoming Amazon EKS AI/ML workshops.
+TIP: https://awsworkshop.io/eks?topic=Generative+AI[Register] for upcoming Amazon EKS AI/ML workshops.
 
 == Security and Compliance
 

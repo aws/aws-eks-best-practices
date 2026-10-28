@@ -9,7 +9,7 @@
 :authors: ["Leah Tucker"]
 :date: 2025-05-30
 
-TIP: https://events.eksworkshop.com/workshops/genai/[Register] for upcoming Amazon EKS AI/ML workshops.
+TIP: https://awsworkshop.io/eks?topic=Generative+AI[Register] for upcoming Amazon EKS AI/ML workshops.
 
 Implementing best practices when running AI/ML workloads on EKS can ensure that those workloads are performant, cost-effective, resilient, and properly resourced.
 Best practices are divided into the following general sections: Compute, Networking, Storage, Observability, and Performance.
