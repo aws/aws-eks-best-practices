@@ -10,7 +10,7 @@
 :authors: ["Christian Melendez"]
 :date: 2026-04-20
 
-TIP: https://awsworkshop.io/eks?topic=Generative+AI[Register] for upcoming Amazon EKS AI/ML workshops.
+TIP: https://awsworkshop.io/eks/genai[Register] for upcoming Amazon EKS AI/ML workshops.
 
 == Overview
 
