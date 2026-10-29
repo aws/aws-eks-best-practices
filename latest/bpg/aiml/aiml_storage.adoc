@@ -10,7 +10,7 @@
 :authors: ["Leah Tucker"]
 :date: 2025-05-30
 
-TIP: https://events.eksworkshop.com/workshops/genai/[Register] for upcoming Amazon EKS AI/ML workshops.
+TIP: https://awsworkshop.io/eks/genai?trk=4a9b4147-2490-4c63-bc9f-f8a84b122c8c&sc_channel=el[Register] for upcoming Amazon EKS AI/ML workshops.
 
 == Data Management and Storage
 
