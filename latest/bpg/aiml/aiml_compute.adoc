@@ -99,9 +99,9 @@ On Blackwell hardware (G7/G7e), certain attention backends (e.g., FlashAttention
 
 === Use Kubernetes Device Plugin or Dynamic Resource Allocation for exposing GPUs
 
-Amazon EKS supports two mechanisms for managing NVIDIA GPU devices in your EKS clusters: the NVIDIA DRA driver for GPUs and the NVIDIA Kubernetes device plugin. For new deployments, consider using the NVIDIA DRA driver. The NVIDIA DRA driver is supported with EKS Auto Mode, Karpenter, EKS managed node groups, and self-managed nodes. The NVIDIA device plugin remains fully supported on all of these for all Kubernetes versions. Review the set-up process for NVIDIA DRA and device plugin in the EKS https://docs.aws.amazon.com/eks/latest/userguide/device-management-nvidia-dra-device-plugin.html[documentation] for guidance.
+Amazon EKS supports two mechanisms for managing NVIDIA GPU devices in your EKS clusters: the NVIDIA DRA driver for GPUs and the NVIDIA Kubernetes device plugin. The minimum Kubernetes version for NVIDIA DRA on EKS is 1.34. The NVIDIA DRA driver is supported with EKS Auto Mode (Kubernetes version 1.36 or above), Karpenter, EKS managed node groups, and self-managed nodes. The NVIDIA device plugin is supported on all of these for all Kubernetes versions. Review the set-up process for NVIDIA DRA and device plugin in the EKS https://docs.aws.amazon.com/eks/latest/userguide/device-management-nvidia-dra-device-plugin.html[documentation] for guidance on which approach to use.
 
-To expose GPUs, nodes need the NVIDIA GPU driver and the NVIDIA Container Toolkit, plus either the device plugin or the DRA driver (so the scheduler knows which GPUs are available). EKS Accelerated AMIs include the driver and toolkit already. If you use the **https://github.com/NVIDIA/gpu-operator[NVIDIA GPU Operator]** to manage the device plugin or DRA driver on these AMIs, turn off its driver and toolkit management as described in **https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#pre-installed-nvidia-gpu-drivers-and-nvidia-container-toolkit[Pre-Installed NVIDIA GPU Drivers and NVIDIA Container Toolkit]**. Don't run the device plugin and the DRA driver on the same node.
+To expose GPUs, nodes need the NVIDIA GPU driver and the NVIDIA Container Toolkit, plus either the device plugin or the DRA driver (so the scheduler knows which GPUs are available). EKS Accelerated AMIs include the driver and toolkit already. If you use the **https://github.com/NVIDIA/gpu-operator[NVIDIA GPU Operator]** to manage the device plugin or DRA driver on these AMIs, turn off its driver and toolkit management as described in **https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#pre-installed-nvidia-gpu-drivers-and-nvidia-container-toolkit[Pre-Installed NVIDIA GPU Drivers and NVIDIA Container Toolkit]**. If using NVIDIA DRA and Bottlerocket, make sure to disable the built-in NVIDIA device plugin, by setting `settings.kubelet-device-plugins.nvidia.enabled` to `false` in the Bottlerocket node user data. Don't run the device plugin and the DRA driver on the same node.
 
 For managing EFA devices with either the EFA device plugin or EFA DRA driver review the **https://docs.aws.amazon.com/eks/latest/userguide/device-management-efa.html[AWS documentation]**.
 
@@ -130,7 +130,7 @@ spec:
 ----
 
 
-**Example 2: DRA Plugin**
+**Example 2: NVIDIA DRA Driver**
 
 For example, using GPU name selector as part of a resource claim template with NVIDIA DRA driver:
 
