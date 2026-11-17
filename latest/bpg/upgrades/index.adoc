@@ -574,6 +574,31 @@ NAME             KIND                VERSION          REPLACEMENT   REMOVED   DE
 eks.privileged   PodSecurityPolicy   policy/v1beta1                 false     true         true
 ....
 
+=== kube-upgrade-check
+
+https://github.com/runtimez-com/kube-upgrade-check[kube-upgrade-check]
+is an open source command line utility, also installable as the
+`kubectl upgrade-check` plugin through Krew. Like `kubent`, it uses your
+current KubeConfig context and scans the live cluster against a target
+version. In addition to removed APIs, it reports in-tree volume plugins
+that stop working, node runtime and kubelet version skew, whether
+installed add-ons such as CoreDNS, kube-proxy and Karpenter support the
+target version, and preflight issues that block the upgrade itself, such
+as Pod Disruption Budgets that prevent a node drain. Checks that cannot
+run, such as control plane settings that are not visible on a managed
+EKS control plane, are listed with the reason instead of being skipped
+silently.
+
+....
+kubectl krew install upgrade-check
+kubectl upgrade-check --target 1.34
+....
+
+It only reads a live cluster and does not scan manifest files or Helm
+charts, so use it alongside `pluto` or `kubent` in CI. The
+`--fail-on high` flag returns a non-zero exit code when findings reach
+that severity.
+
 === Resources
 
 To verify that your cluster don't use deprecated APIs before the
