@@ -147,7 +147,7 @@ AWS Elastic Load Balancers are managed by the AWS Load Balancer Controller for a
 
 === Deploy Nodes to Private Subnets
 
-A VPC including both private and public subnets is the ideal method for deploying Kubernetes workloads on EKS. Consider setting a minimum of two public subnets and two private subnets in two distinct availability zones. The related route table of a public subnet contains a route to an internet gateway . Pods are able to interact with the Internet via a NAT gateway. Private subnets are supported by https://docs.aws.amazon.com/vpc/latest/userguide/egress-only-internet-gateway.html[egress-only internet gateways] in the IPv6 environment (EIGW).
+A VPC including both private and public subnets is the ideal method for deploying Kubernetes workloads on EKS. Consider setting a minimum of two public subnets and two private subnets in two distinct availability zones. The related route table of a public subnet contains a route to an internet gateway . Pods are able to interact with the Internet via a NAT gateway/Regional NAT. Private subnets are supported by https://docs.aws.amazon.com/vpc/latest/userguide/egress-only-internet-gateway.html[egress-only internet gateways] in the IPv6 environment (EIGW).
 
 Instantiating nodes in private subnets offers maximal control over traffic to the nodes and is effective for the vast majority of Kubernetes applications. Ingress resources (like as load balancers) are instantiated in public subnets and route traffic to Pods operating on private subnets.
 
@@ -169,4 +169,4 @@ We strongly recommend creating a security group to allow all inter-node communic
 
 === Deploy NAT Gateways in each Availability Zone
 
-If you deploy nodes in private subnets (IPv4 and IPv6), consider creating a NAT Gateway in each Availability Zone (AZ) to ensure zone-independent architecture and reduce cross AZ expenditures. Each NAT gateway in an AZ is implemented with redundancy.
+If you deploy nodes in private subnets (IPv4 and IPv6), consider creating a Amazon VPC Regional NAT Gateway (Regional NAT) ensure high resilience, high availability architecture and reduce cross AZ expenditures. Each RNAT gateway Maintains zonal affinity automatically to avoid cross-AZ fees.
