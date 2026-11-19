@@ -1,0 +1,320 @@
+//!!NODE_ROOT <section>
+[."topic"]
+[[account-cluster-architecture,account-cluster-architecture.title]]
+= Choose an AWS account and cluster architecture
+:info_doctype: section
+:info_title: Choose an AWS account and cluster architecture
+:info_abstract: Evaluate AWS account and Amazon EKS cluster boundaries together.
+:info_titleabbrev: Account and cluster architecture
+:imagesdir: images/security/
+
+include::../attributes.txt[]
+
+Selecting AWS account and Amazon EKS cluster boundaries involves two related but
+independent decisions. An AWS account is an isolation, governance, quota, and
+billing boundary. An EKS cluster is a Kubernetes API, lifecycle, quota, and
+failure-impact boundary. Do not assume that choosing multiple accounts requires
+multiple clusters, or that choosing multiple clusters requires multiple accounts.
+
+Use the reference patterns on this page as a starting point. Real-world
+architectures rarely fit strictly into single-account or multiple-account, or
+single-cluster or multiple-cluster categories. For example, an organization
+might use shared clusters for development environments and dedicated account and
+cluster pairs for production workloads with higher isolation or availability
+requirements.
+
+== Start with requirements, not a pattern
+
+Before selecting a pattern, identify the requirements that create a boundary:
+
+* *Ownership and governance* -- Determine which teams own AWS resources,
+  clusters, platform add-ons, and workload deployments. Decide where teams need
+  delegated administration.
+* *Isolation and compliance* -- Identify which workloads must not share AWS
+  resources, Kubernetes control planes, worker nodes, credentials, or network
+  paths.
+* *Failure and change impact* -- Group workloads only when they can accept the
+  same cluster failures, maintenance windows, Kubernetes versions, and platform
+  change schedule.
+* *Scale and quotas* -- Estimate account-level AWS service quotas and
+  cluster-level Kubernetes scalability limits for current and expected demand.
+* *Operations and economics* -- Compare the automation and staffing needed to
+  operate each account and cluster with the cost of duplicated control planes,
+  platform components, networking, and unused capacity.
+
+== Compare the reference patterns
+
+The following matrix combines the AWS account axis with the EKS cluster axis.
+Each pattern is a reference point rather than a prescribed target.
+
+// TODO(issue #761): Add a 2x2 figure with AWS account count on one axis and EKS
+// cluster count on the other. Show the four reference patterns described below.
+// Suggested file: account-cluster-pattern-matrix.svg
+// Suggested alt text: Matrix of single and multiple AWS accounts and EKS clusters.
+// image::account-cluster-pattern-matrix.svg[Matrix of single and multiple AWS accounts and EKS clusters]
+
+=== Single account and single cluster
+
+A single AWS account contains one EKS cluster and the AWS resources used by its
+workloads. Teams or workloads share the cluster and are commonly separated by
+Kubernetes namespaces and other multi-tenancy controls.
+
+This pattern minimizes account and cluster management. It can be appropriate
+when workloads have aligned ownership, lifecycle, isolation, and availability
+requirements. It increases the importance of fine-grained IAM policies,
+Kubernetes access controls, cost allocation tags, and controls that limit the
+impact of a workload or platform failure.
+
+// TODO(issue #761): Add the single-account, single-cluster reference diagram.
+// Suggested file: account-cluster-pattern-single-single.svg
+// Suggested alt text: Multiple teams sharing one EKS cluster and AWS account.
+// image::account-cluster-pattern-single-single.svg[Multiple teams sharing one EKS cluster and AWS account]
+
+=== Single account and multiple clusters
+
+A single AWS account contains multiple EKS clusters. A cluster can be dedicated
+to a team, workload, environment, or availability requirement, while AWS
+resources remain within a shared account boundary.
+
+This pattern provides stronger Kubernetes isolation and independent cluster
+lifecycles without introducing account vending and cross-account connectivity.
+It does not provide account-level isolation for IAM, billing, quotas, or other
+AWS resources. It also increases control plane cost and the operational work for
+upgrades, add-ons, observability, and policy enforcement.
+
+// TODO(issue #761): Add the single-account, multiple-cluster reference diagram.
+// Suggested file: account-cluster-pattern-single-multiple.svg
+// Suggested alt text: Multiple teams using separate EKS clusters in one AWS account.
+// image::account-cluster-pattern-single-multiple.svg[Multiple teams using separate EKS clusters in one AWS account]
+
+=== Multiple accounts and single cluster
+
+A cluster account contains a shared EKS cluster, while workload-specific AWS
+resources are placed in separate workload accounts. Kubernetes namespaces and
+multi-tenancy controls separate workloads in the shared cluster. Workloads use
+cross-account IAM roles and, when required, network connectivity to resources in
+the workload accounts.
+
+This pattern combines pooled cluster capacity with account-level isolation,
+delegation, quotas, and cost allocation for workload resources. The shared
+cluster remains a common failure and change boundary. Cross-account access and
+networking must be designed and operated explicitly. For implementation options,
+see xref:multi-account-strategy[Multi Account Strategy].
+
+// TODO(issue #761): Add the multiple-account, single-cluster reference diagram.
+// Suggested file: account-cluster-pattern-multiple-single.svg
+// Suggested alt text: A shared EKS cluster accessing resources in multiple workload accounts.
+// image::account-cluster-pattern-multiple-single.svg[A shared EKS cluster accessing resources in multiple workload accounts]
+
+=== Multiple accounts and multiple clusters
+
+Each workload, team, or environment runs an EKS cluster and its supporting AWS
+resources in a dedicated account. Shared networking, security, observability,
+and delivery services can be placed in separate platform accounts.
+
+This pattern provides strong AWS and Kubernetes boundaries, independent cluster
+lifecycles, and clear delegation. It requires mature automation for account and
+cluster provisioning, upgrades, policy deployment, inventory, and observability.
+It can also duplicate control planes, platform components, network paths, and
+unused capacity.
+
+// TODO(issue #761): Add the multiple-account, multiple-cluster reference diagram.
+// Suggested file: account-cluster-pattern-multiple-multiple.svg
+// Suggested alt text: Multiple teams using separate EKS clusters and AWS accounts.
+// image::account-cluster-pattern-multiple-multiple.svg[Multiple teams using separate EKS clusters and AWS accounts]
+
+== Compare the two axes independently
+
+Evaluate the account and cluster axes independently before combining them into a
+pattern.
+
+=== AWS account boundary
+
+A single account reduces account provisioning and cross-account configuration.
+It can simplify connectivity and resource sharing. As the number and diversity
+of workloads grows, however, IAM policies, resource ownership, cost allocation,
+and account-level quota management can become more difficult.
+
+Multiple accounts provide isolation for AWS resources, IAM delegation, quotas,
+and billing. They also limit the impact of account-level misconfiguration.
+These benefits require account vending, organization-level controls, identity
+management, resource inventory, and intentional cross-account connectivity.
+
+=== EKS cluster boundary
+
+A single cluster pools compute capacity and shared platform components. It
+reduces control plane cost and the number of cluster lifecycles to manage. All
+workloads in the cluster must accept a shared Kubernetes API, upgrade schedule,
+platform configuration, and potential failure impact.
+
+Multiple clusters provide stronger tenant and workload isolation, independent
+versions and maintenance windows, and smaller failure domains. Each additional
+cluster adds a control plane, platform components, access configuration,
+observability, policy distribution, and upgrade work. Automation is therefore a
+prerequisite for operating many clusters consistently.
+
+== Evaluate the design across ten dimensions
+
+Use the following dimensions to compare candidate patterns. A decision in one
+dimension can change another. For example, adding clusters for resilience can
+increase cost and operational work, while adding accounts for isolation can
+increase networking complexity.
+
+=== 1. AWS account management
+
+For a multi-account design, define an organizational unit (OU) structure,
+baseline controls, account ownership, and an account-vending process. Start with
+a small number of OUs and add hierarchy only when policy or operating-model
+requirements differ. Services such as
+https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html[AWS Control Tower]
+and
+https://docs.aws.amazon.com/controltower/latest/userguide/aft-overview.html[Account Factory for Terraform]
+can standardize account creation and customization.
+
+Ask how quickly accounts must be provisioned, which controls must exist before a
+workload is deployed, and who remediates drift. Include account closure, region
+enablement, quota requests, and ownership transfer in the lifecycle design.
+
+=== 2. Kubernetes cluster management
+
+Cluster count is an operational multiplier. Manage clusters, add-ons, policies,
+and workload delivery with repeatable infrastructure as code and GitOps
+processes. Establish an inventory that records cluster owners, versions,
+support dates, purpose, and criticality.
+
+Every cluster requires version and add-on lifecycle work. Use
+xref:cluster-upgrades[cluster upgrade guidance], EKS upgrade insights, and EKS
+add-ons to reduce risk and manual discovery. Evaluate xref:automode[EKS Auto
+Mode] where reducing data plane and platform-component operations aligns with
+the workload requirements. Confirm that the platform team can complete upgrades
+within the supported-version lifecycle for the largest expected cluster fleet.
+
+=== 3. AWS access management
+
+Use
+https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html[AWS IAM Identity Center]
+and a limited, reusable set of permission sets for workforce access. Define
+which teams receive account-level access and where central security or platform
+roles retain visibility. A single account with many teams often requires more
+fine-grained IAM policies; multiple accounts can make delegation clearer but add
+role and assignment management.
+
+For workload access to AWS APIs, use EKS Pod Identity or IAM roles for service
+accounts (IRSA) according to their supported environments and trust model. EKS
+Pod Identity associations use a role in the cluster account and can use a target
+IAM role for cross-account access. See xref:multi-account-strategy[Multi Account
+Strategy] for the cross-account implementation considerations.
+
+=== 4. Kubernetes access management
+
+Prefer EKS access entries over directly editing the deprecated `aws-auth`
+ConfigMap. Combine access entries with IAM Identity Center and Kubernetes RBAC to
+map workforce identities to the required cluster permissions. For detailed
+recommendations, see xref:identity-and-access-management[Identity and Access
+Management].
+
+As cluster count grows, manage access entries, access policies, roles, and
+bindings as code. Define consistent platform-administrator, auditor, and
+workload-team access patterns, and provide a controlled exception process.
+Regularly remove assignments that are no longer required.
+
+=== 5. AWS networking
+
+Create a traffic matrix before selecting connectivity services. Record the
+source, destination, protocol, direction, throughput, latency, DNS, inspection,
+and overlapping CIDR requirements. Compare internet-based connectivity, VPC
+peering, shared VPCs, AWS Transit Gateway, AWS PrivateLink, and Amazon VPC
+Lattice against those requirements. Do not select a service only because it
+matches the account pattern.
+
+Evaluate centralized egress and decentralized ingress, but account for the
+additional routing, inspection, availability, and cost dependencies that
+centralization introduces. For shared-subnet considerations, see
+xref:subnets-multiple-accounts[Sharing VPC across multiple accounts]. Include
+cross-account and cross-cluster data-transfer costs in the comparison.
+
+=== 6. Kubernetes networking
+
+AWS account and VPC boundaries do not replace controls inside a cluster. Use
+Kubernetes network policies to restrict pod ingress and egress according to
+application requirements. The Amazon VPC CNI network policy implementation can
+enforce these controls without a separate network policy engine.
+
+Use security groups for Pods when workloads need security-group-based controls
+for traffic to VPC resources. Network policies and security groups for Pods
+operate at different layers and can be used together. See
+xref:network-security[Network Security] for selection and implementation
+guidance.
+
+=== 7. Isolation
+
+Choose boundaries that match the threat model and compliance requirements. AWS
+accounts isolate AWS resources and provide an IAM and policy boundary. They do
+not provide hard isolation between workloads that share an EKS cluster,
+Kubernetes control plane, or worker nodes.
+
+Within a cluster, soft multi-tenancy uses namespaces, RBAC, admission controls,
+network policies, resource quotas, and scheduling controls. Hard multi-tenancy
+uses separate clusters for stronger isolation, at the cost of additional
+operations and capacity fragmentation. See xref:tenant-isolation[Tenant
+Isolation] for the controls and trade-offs of both approaches.
+
+=== 8. Resilience
+
+Separate workloads into clusters when they cannot accept the same failure
+impact, maintenance schedule, or service-level objective. Consider dedicated
+clusters for critical platform services whose failure would prevent recovery or
+deployment to other clusters.
+
+Multiple clusters or accounts do not by themselves provide high availability.
+An active-active design also requires traffic management, data replication,
+independent dependencies, deployment coordination, capacity, and tested
+failover. Define recovery time and recovery point objectives before adding
+redundant clusters, and test the complete recovery path. See
+xref:reliability[Reliability best practices] for workload and cluster guidance.
+
+=== 9. Cost efficiency
+
+Compare the cost of isolation with the cost of sharing. Each cluster incurs EKS
+control plane charges and commonly duplicates platform components, minimum node
+capacity, observability, and network resources. Shared clusters can improve bin
+packing and reuse, but require controls to prevent one workload from consuming
+capacity needed by another.
+
+Review how Savings Plans and Reserved Instances are purchased, shared, and
+allocated across the organization. Account and cluster placement can affect
+ownership and chargeback even when discounts are shared through consolidated
+billing. Include data transfer, NAT gateways, Transit Gateway attachments, VPC
+endpoints, log ingestion, and security tooling in the model. See
+xref:cost-opt[Cost Optimization best practices] for additional guidance.
+
+=== 10. Cost allocation
+
+Choose the allocation boundary before deploying workloads. Multiple accounts
+provide a clear account-based boundary for many AWS charges. In a shared
+account, use cost allocation tags and AWS Cost Categories consistently, while
+recognizing that some shared costs require an explicit allocation rule.
+
+For shared EKS clusters, use
+xref:cost-opt-awareness[Split Cost Allocation Data for Amazon EKS] to attribute
+compute costs to Kubernetes namespaces and workloads. Define how to allocate
+control plane, idle capacity, shared add-ons, networking, observability, and
+platform-team costs that are not assigned directly to a pod.
+
+== Record and revisit the decision
+
+Score each candidate pattern against the ten dimensions and document the reasons
+for every boundary. Record assumptions about team count, workload criticality,
+scale, regulatory scope, and the platform team's automation maturity. Validate
+the preferred pattern with a representative workload before making it a
+standard.
+
+Revisit the decision when ownership, compliance, service-level objectives,
+cluster scale, supported Kubernetes versions, or cost-allocation requirements
+change. An organization can support more than one approved pattern when it has
+automation and governance for each pattern.
+
+== Further reading
+
+* xref:multi-account-strategy[Multi Account Strategy]
+* https://pages.awscloud.com/rs/112-TZM-766/images/AWS-Black-Belt_2025_AmazonEKS-AWSMultiAccount-architecture-pattern_1205_v1.pdf[AWS Black Belt Online Seminar: Amazon EKS and AWS account architecture patterns (Japanese)]
