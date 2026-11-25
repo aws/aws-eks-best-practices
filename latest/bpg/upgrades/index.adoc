@@ -389,8 +389,8 @@ You can use Amazon EKS Add-ons to update versions with a single command.
 For Example:
 
 ....
-aws eks update-addon —cluster-name my-cluster —addon-name vpc-cni —addon-version version-number \
---service-account-role-arn arn:aws:iam::111122223333:role/role-name —configuration-values '{}' —resolve-conflicts PRESERVE
+aws eks update-addon --cluster-name my-cluster --addon-name vpc-cni --addon-version version-number \
+--service-account-role-arn arn:aws:iam::111122223333:role/role-name --configuration-values '{}' --resolve-conflicts PRESERVE
 ....
 
 Check if you have any EKS Add-ons with:

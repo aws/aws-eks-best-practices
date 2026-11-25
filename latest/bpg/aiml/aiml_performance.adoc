@@ -61,7 +61,7 @@ Large container images can cause cold start delays that impact pod start-up late
 Reducing the size of container images during startup is another way to make images smaller. You can make reductions at every step of the container image build process.
 To start, choose base images that contain the least number of dependencies required. During image builds, include only the essential libraries and artifacts that are required.
 When building images, try combining multiple `RUN` or `COPY` commands to create a smaller number of larger layers.
-For AI/ML frameworks, use multi-stage builds to separate build and runtime, copying only required artifacts (e.g., via `COPY —from=` for registries or local contexts), and select variants like runtime-only images (e.g., `pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime` at 3.03 GB vs. devel at 6.66 GB).
+For AI/ML frameworks, use multi-stage builds to separate build and runtime, copying only required artifacts (e.g., via `COPY --from=` for registries or local contexts), and select variants like runtime-only images (e.g., `pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime` at 3.03 GB vs. devel at 6.66 GB).
 To learn more, see https://awslabs.github.io/ai-on-eks/docs/guidance/container-startup-time/reduce-container-image-size[Reducing container image size] in the AI on EKS Workshop.
 
 === Reduce Image Pull Latency
