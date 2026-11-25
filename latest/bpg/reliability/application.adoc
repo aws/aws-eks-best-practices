@@ -259,7 +259,7 @@ https://github.com/kubernetes/metrics/blob/master/pkg/apis/metrics/types.go[Metr
 API format].
 
 Once you deploy the Prometheus Adapter, you can query custom metrics
-using kubectl. `kubectl get —raw /apis/custom.metrics.k8s.io/v1beta1/`
+using kubectl. `kubectl get --raw /apis/custom.metrics.k8s.io/v1beta1/`
 
 External metrics, as the name suggests, provide the Horizontal Pod
 Autoscaler the ability to scale deployments using metrics that are
@@ -536,7 +536,7 @@ Kubernetes will give the process some time (grace period) before a
 you can override the default by using `grace-period` flag in kubectl
 or declare `terminationGracePeriodSeconds` in your Podspec.
 
-`kubectl delete pod <pod name> —grace-period=<seconds>`
+`kubectl delete pod <pod name> --grace-period=<seconds>`
 
 It is common to have containers in which the main process doesn't have
 PID 1. Consider this Python-based sample container:
